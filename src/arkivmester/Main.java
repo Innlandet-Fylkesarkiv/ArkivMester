@@ -1,4 +1,4 @@
-package automatiskrapportskriving;
+package arkivmester;
 
 public class Main {
 
