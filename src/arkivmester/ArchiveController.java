@@ -17,6 +17,6 @@ public class ArchiveController {
 
     public void start() {
         userView.setUpGUI();
-
+        rapportModel.start();
     }
 }
