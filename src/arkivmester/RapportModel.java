@@ -30,8 +30,10 @@ public class RapportModel {
 
     RapportModel() {
         //Rapport
+        //kap 1, 1.1, 1.2
     }
     public void start() {
+    public void start() { // mainz
         // finne fil
         // opne fil
         // get variabls
@@ -46,6 +48,8 @@ public class RapportModel {
 
     }
     public class BlueBalls{
+
+    public class TestClasse{
         /*
         UttrekksID: 0000-yyyy-00
         Eier av uttrekket
@@ -82,6 +86,7 @@ public class RapportModel {
         //Write the Document in file system
         try {
             FileOutputStream out = new FileOutputStream(new File("inputAndOutput/Out/createdocument.docx"));
+            FileOutputStream out = new FileOutputStream(new File("../Output/createdocument.docx"));
 
             XWPFParagraph para = document.createParagraph();
 
