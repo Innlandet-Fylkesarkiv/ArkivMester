@@ -16,7 +16,7 @@ public class ArchiveController {
     }
 
     public void start() {
-        userView.setUpGUI();
+        userView.createAndShowGUI();
 
     }
 }
