@@ -37,12 +37,11 @@ public class RapportModel {
         // get variabls
         // put in string/something
 
-        //FileInputStream fis = new FileInputStream("Muu.docx");
         Document doc = ParseFromXMLFile();
 
         setUpBlankDocument();
 
-        writeDocToPath(doc);
+        writeDocToPath();
 
 
     }
@@ -66,8 +65,7 @@ public class RapportModel {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse("inputAndOutput/Inn/899ec389-1dc0-41d0-b6ca-15f27642511b.xml");
-            return document;
+            return builder.parse("inputAndOutput/Inn/899ec389-1dc0-41d0-b6ca-15f27642511b.xml");
 
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
@@ -77,10 +75,10 @@ public class RapportModel {
 
     private void setUpBlankDocument() {
         document = new XWPFDocument();
-        System.out.println("doc successully set up");
+        System.out.println("doc successully set up"); // no sonar
     }
 
-    private void writeDocToPath(Document doc) {
+    private void writeDocToPath() {
         //Write the Document in file system
         try {
             FileOutputStream out = new FileOutputStream(new File("inputAndOutput/Out/createdocument.docx"));
@@ -99,7 +97,7 @@ public class RapportModel {
             XWPFWordExtractor ex = new XWPFWordExtractor(document);
             String text = ex.getText();
 
-            System.out.println(text);
+            System.out.println(text);         // no sonar
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
