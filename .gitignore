@@ -6,8 +6,6 @@
 # Node artifact files
 node_modules/
 dist/
-inputAndOutput/
-libraries/
 
 
 # Compiled Java class files

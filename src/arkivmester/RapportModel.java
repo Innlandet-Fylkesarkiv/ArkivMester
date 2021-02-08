@@ -30,8 +30,9 @@ public class RapportModel {
 
     RapportModel() {
         //Rapport
+        //kap 1, 1.1, 1.2
     }
-    public void start() {
+    public void start() { // mainz
         // finne fil
         // opne fil
         // get variabls
@@ -46,7 +47,8 @@ public class RapportModel {
 
 
     }
-    public class BlueBalls{
+
+    public class TestClasse{
         /*
         UttrekksID: 0000-yyyy-00
         Eier av uttrekket
@@ -66,7 +68,7 @@ public class RapportModel {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse("inputAndOutput/Inn/899ec389-1dc0-41d0-b6ca-15f27642511b.xml");
+            Document document = builder.parse("src/resources/899ec389-1dc0-41d0-b6ca-15f27642511b.xml");
             return document;
 
         } catch (ParserConfigurationException | SAXException | IOException e) {
@@ -77,13 +79,13 @@ public class RapportModel {
 
     private void setUpBlankDocument() {
         document = new XWPFDocument();
-        System.out.println("doc successully set up");
+        System.out.println("doc successully set up"); // no sonar
     }
 
     private void writeDocToPath(Document doc) {
         //Write the Document in file system
         try {
-            FileOutputStream out = new FileOutputStream(new File("inputAndOutput/Out/createdocument.docx"));
+            FileOutputStream out = new FileOutputStream(new File("../Output/createdocument.docx"));
 
             XWPFParagraph para = document.createParagraph();
 
