@@ -3,19 +3,11 @@ package arkivmester;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
 
-public class UserView extends JFrame implements ActionListener{ //#NOSONAR
-    int windowWidth = 1200;
-    int windowHeight = 700;
-    Color primaryColor = new Color(8, 83, 148);
-    Font primaryFont = new Font("Sans Serif", Font.PLAIN, 20);
-    private final List<ViewObserver> observers = new ArrayList<>();
+//View class for the main window
+public class MainView extends Views{
 
-    UserView() {
+    MainView() {
         //Empty constructor
     }
 
@@ -25,7 +17,7 @@ public class UserView extends JFrame implements ActionListener{ //#NOSONAR
         JFrame f = new JFrame("ArkivMester");
         f.setSize(windowWidth, windowHeight);
         f.setVisible(true);
-        f.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //#NOSONAR
         f.setLocationRelativeTo(null);
 
         //Top panel
@@ -35,7 +27,7 @@ public class UserView extends JFrame implements ActionListener{ //#NOSONAR
         setUpTopPanel(topPanel);
 
         //Container
-        Container container = this.getContentPane();
+        Container container = f.getContentPane();
         container.setLayout(new BorderLayout(15, 10));
         container.setBackground(Color.WHITE);
 
@@ -55,11 +47,10 @@ public class UserView extends JFrame implements ActionListener{ //#NOSONAR
         container.add(mainPanel);
         container.add(infoPanel, BorderLayout.EAST);
         container.add(topPanel, BorderLayout.NORTH);
-        f.add(container);
     }
 
     //Sets up the top panel
-    public void setUpTopPanel(JPanel topPanel) {
+    private void setUpTopPanel(JPanel topPanel) {
         //Top panel buttons
         JButton settingsBtn = new JButton("Innstillinger");
         settingsBtn.addActionListener(this);
@@ -74,7 +65,7 @@ public class UserView extends JFrame implements ActionListener{ //#NOSONAR
     }
 
     //Sets up the main panel
-    public void setUpMainPanel(JPanel mainPanel) {
+    private void setUpMainPanel(JPanel mainPanel) {
         //Vertical gap: 50 and 70
 
         //Section 1
@@ -136,7 +127,7 @@ public class UserView extends JFrame implements ActionListener{ //#NOSONAR
     }
 
     //Sets up the info panel
-    public void setUpInfoPanel(JPanel infoPanel) {
+    private void setUpInfoPanel(JPanel infoPanel) {
         JLabel infoLabel = new JLabel("Informasjon om uttrekket:");
         infoLabel.setBounds(0, 50, 300, 30);
         infoLabel.setFont(primaryFont);
@@ -192,24 +183,6 @@ public class UserView extends JFrame implements ActionListener{ //#NOSONAR
         infoPanel.add(infoLabel);
         infoPanel.add(editInfoBtn);
         infoPanel.add(infoGrid);
-
-    }
-
-    public void addObserver(ViewObserver observer) {
-        observers.add(observer);
-    }
-
-    //Shared action listener for all buttons
-    public void actionPerformed(ActionEvent e) {
-        String buttonName = e.getActionCommand();
-
-        if (buttonName.equals("Last inn pakket uttrekk")) {
-            System.out.println("b1"); //#NOSONAR
-        }
-        else if (buttonName.equals("Start testing")) {
-            for (ViewObserver obs : observers)
-                obs.testStarted();
-        }
 
     }
 }

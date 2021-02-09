@@ -1,14 +1,14 @@
 package arkivmester;
 
 public class ArchiveController implements ViewObserver {
-    UserView userView;
+    MainView userView;
     ArchiveModel archiveModel;
     RapportModel rapportModel;
     TestModel testModel;
     ThirdPartiesModel thirdPartiesModel;
 
     ArchiveController() {
-        userView = new UserView();
+        userView = new MainView();
         archiveModel = new ArchiveModel();
         rapportModel = new RapportModel();
         testModel = new TestModel();
