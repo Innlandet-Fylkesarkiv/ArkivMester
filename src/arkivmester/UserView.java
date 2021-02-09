@@ -8,6 +8,7 @@ public class UserView extends JFrame { //#NOSONAR
     int windowWidth = 1200;
     int windowHeight = 700;
     Color primaryColor = new Color(8, 83, 148);
+    Font primaryFont = new Font("Sans Serif", Font.PLAIN, 20);
 
     UserView() {
         //Empty constructor
@@ -47,10 +48,9 @@ public class UserView extends JFrame { //#NOSONAR
 
         //Info panel
         JPanel infoPanel = new JPanel();
-        infoPanel.setBackground(Color.RED);
-        JLabel archiveLabel1 = new JLabel("Last opp arkivuttrekk1");
-        infoPanel.add(archiveLabel1);
-        infoPanel.setBorder(new EmptyBorder(100, 100, 100, 100));
+        infoPanel.setLayout(new BorderLayout(0, 0));
+        setUpInfoPanel(infoPanel);
+        infoPanel.setBackground(Color.WHITE);
 
         //Adding components together
         topPanel.add(settingsBtn);
@@ -69,7 +69,7 @@ public class UserView extends JFrame { //#NOSONAR
 
         JLabel archiveLabel = new JLabel("Last inn arkivuttrekk:");
         archiveLabel.setBounds(100, 50, 200, 30);
-        archiveLabel.setFont(new Font("Sans Serif", Font.PLAIN, 20));
+        archiveLabel.setFont(primaryFont);
 
         JButton uploadTarBtn = new JButton("Last inn pakket uttrekk");
         uploadTarBtn.setBounds(100, 100, 200, 30);
@@ -82,7 +82,7 @@ public class UserView extends JFrame { //#NOSONAR
         uploadTestedFolderBtn.setForeground(Color.WHITE);
 
         JLabel testsLabel = new JLabel("Test arkivuttrekk:");
-        testsLabel.setFont(new Font("Sans Serif", Font.PLAIN, 20));
+        testsLabel.setFont(primaryFont);
         testsLabel.setBounds(100, 170, 300, 30);
 
         JButton chooseTestsBtn = new JButton("Velg tester");
@@ -96,7 +96,7 @@ public class UserView extends JFrame { //#NOSONAR
         startTestingBtn.setForeground(Color.WHITE);
 
         JLabel doneTestedLabel = new JLabel("Ferdig testet arkivuttrekk:");
-        doneTestedLabel.setFont(new Font("Sans Serif", Font.PLAIN, 20));
+        doneTestedLabel.setFont(primaryFont);
         doneTestedLabel.setBounds(100, 290, 300, 30);
 
         JButton writeReportBtn = new JButton("Skriv rapport");
@@ -106,7 +106,6 @@ public class UserView extends JFrame { //#NOSONAR
 
         //Adding components
         mainPanel.add(archiveLabel);
-        //mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         mainPanel.add(uploadTarBtn);
         mainPanel.add(uploadTestedFolderBtn);
 
@@ -116,5 +115,64 @@ public class UserView extends JFrame { //#NOSONAR
 
         mainPanel.add(doneTestedLabel);
         mainPanel.add(writeReportBtn);
+    }
+
+    //Sets up the info panel
+    public void setUpInfoPanel(JPanel infoPanel) {
+        JLabel infoLabel = new JLabel("Informasjon om uttrekket:");
+        infoLabel.setBounds(0, 50, 300, 30);
+        infoLabel.setFont(primaryFont);
+
+        JPanel infoGrid = new JPanel(new GridLayout(8, 2, 50, 0));
+        infoGrid.setBorder(new EmptyBorder(90, 0, 310, 100));
+        infoGrid.setBackground(Color.WHITE);
+
+        JButton editInfoBtn = new JButton("Rediger informasjon");
+        editInfoBtn.setBounds(0, 300, 150, 30);
+        editInfoBtn.setBackground(primaryColor);
+        editInfoBtn.setForeground(Color.WHITE);
+
+        //Row 1
+        JLabel name1 = new JLabel("UttrekksID:");
+        JLabel name2 = new JLabel("Kommune/Kunde:");
+        JLabel name3 = new JLabel("Kontaktperson:");
+        JLabel name4 = new JLabel("Uttrekksformat:");
+        JLabel name5 = new JLabel("Produksjonsdato for uttrekket:");
+        JLabel name6 = new JLabel("Uttrekk mottatt dato:");
+        JLabel name7 = new JLabel("Test utført av:");
+        JLabel name8 = new JLabel("Dato for rapport:");
+
+        //Row 2
+        JLabel value1 = new JLabel("data");
+        JLabel value2 = new JLabel("data");
+        JLabel value3 = new JLabel("data");
+        JLabel value4 = new JLabel("data");
+        JLabel value5 = new JLabel("data");
+        JLabel value6 = new JLabel("data");
+        JLabel value7 = new JLabel("data");
+        JLabel value8 = new JLabel("data");
+
+        //Adding labels
+        infoGrid.add(name1);
+        infoGrid.add(value1);
+        infoGrid.add(name2);
+        infoGrid.add(value2);
+        infoGrid.add(name3);
+        infoGrid.add(value3);
+        infoGrid.add(name4);
+        infoGrid.add(value4);
+        infoGrid.add(name5);
+        infoGrid.add(value5);
+        infoGrid.add(name6);
+        infoGrid.add(value6);
+        infoGrid.add(name7);
+        infoGrid.add(value7);
+        infoGrid.add(name8);
+        infoGrid.add(value8);
+
+        infoPanel.add(infoLabel);
+        infoPanel.add(editInfoBtn);
+        infoPanel.add(infoGrid);
+
     }
 }
