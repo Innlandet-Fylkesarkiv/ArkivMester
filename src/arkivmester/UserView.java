@@ -3,12 +3,15 @@ package arkivmester;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class UserView extends JFrame { //#NOSONAR
     int windowWidth = 1200;
     int windowHeight = 700;
     Color primaryColor = new Color(8, 83, 148);
     Font primaryFont = new Font("Sans Serif", Font.PLAIN, 20);
+    transient ButtonListener mainListener = new ButtonListener();
 
     UserView() {
         //Empty constructor
@@ -27,13 +30,7 @@ public class UserView extends JFrame { //#NOSONAR
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         topPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         topPanel.setBackground(primaryColor);
-
-        //Top panel buttons
-        JButton settingsBtn = new JButton("Innstillinger");
-        JButton aboutBtn = new JButton("Om");
-        settingsBtn.setBackground(Color.WHITE);
-        aboutBtn.setBackground(Color.WHITE);
-
+        setUpTopPanel(topPanel);
 
         //Container
         Container container = this.getContentPane();
@@ -53,54 +50,73 @@ public class UserView extends JFrame { //#NOSONAR
         infoPanel.setBackground(Color.WHITE);
 
         //Adding components together
-        topPanel.add(settingsBtn);
-        topPanel.add(aboutBtn);
-
         container.add(mainPanel);
         container.add(infoPanel, BorderLayout.EAST);
-
         container.add(topPanel, BorderLayout.NORTH);
         f.add(container);
+    }
+
+    //Sets up the top panel
+    public void setUpTopPanel(JPanel topPanel) {
+        //Top panel buttons
+        JButton settingsBtn = new JButton("Innstillinger");
+        settingsBtn.addActionListener(mainListener);
+        settingsBtn.setBackground(Color.WHITE);
+
+        JButton aboutBtn = new JButton("Om");
+        aboutBtn.addActionListener(mainListener);
+        aboutBtn.setBackground(Color.WHITE);
+
+        topPanel.add(settingsBtn);
+        topPanel.add(aboutBtn);
     }
 
     //Sets up the main panel
     public void setUpMainPanel(JPanel mainPanel) {
         //Vertical gap: 50 and 70
 
+        //Section 1
         JLabel archiveLabel = new JLabel("Last inn arkivuttrekk:");
         archiveLabel.setBounds(100, 50, 200, 30);
         archiveLabel.setFont(primaryFont);
 
         JButton uploadTarBtn = new JButton("Last inn pakket uttrekk");
         uploadTarBtn.setBounds(100, 100, 200, 30);
+        uploadTarBtn.addActionListener(mainListener);
         uploadTarBtn.setBackground(primaryColor);
         uploadTarBtn.setForeground(Color.WHITE);
 
         JButton uploadTestedFolderBtn = new JButton("Last inn ferdig testet uttrekk");
         uploadTestedFolderBtn.setBounds(350, 100, 200, 30);
+        uploadTestedFolderBtn.addActionListener(mainListener);
         uploadTestedFolderBtn.setBackground(primaryColor);
         uploadTestedFolderBtn.setForeground(Color.WHITE);
 
+        //Section 2
         JLabel testsLabel = new JLabel("Test arkivuttrekk:");
         testsLabel.setFont(primaryFont);
         testsLabel.setBounds(100, 170, 300, 30);
 
         JButton chooseTestsBtn = new JButton("Velg tester");
         chooseTestsBtn.setBounds(100, 220, 125, 30);
+        chooseTestsBtn.addActionListener(mainListener);
         chooseTestsBtn.setBackground(primaryColor);
         chooseTestsBtn.setForeground(Color.WHITE);
 
         JButton startTestingBtn = new JButton("Start testing");
         startTestingBtn.setBounds(275, 220, 125, 30);
+        startTestingBtn.addActionListener(mainListener);
         startTestingBtn.setBackground(primaryColor);
         startTestingBtn.setForeground(Color.WHITE);
 
+        //Section 3
         JLabel doneTestedLabel = new JLabel("Ferdig testet arkivuttrekk:");
         doneTestedLabel.setFont(primaryFont);
         doneTestedLabel.setBounds(100, 290, 300, 30);
 
         JButton writeReportBtn = new JButton("Skriv rapport");
         writeReportBtn.setBounds(100, 340, 125, 30);
+        writeReportBtn.addActionListener(mainListener);
         writeReportBtn.setBackground(primaryColor);
         writeReportBtn.setForeground(Color.WHITE);
 
@@ -129,6 +145,7 @@ public class UserView extends JFrame { //#NOSONAR
 
         JButton editInfoBtn = new JButton("Rediger informasjon");
         editInfoBtn.setBounds(0, 300, 150, 30);
+        editInfoBtn.addActionListener(mainListener);
         editInfoBtn.setBackground(primaryColor);
         editInfoBtn.setForeground(Color.WHITE);
 
@@ -174,5 +191,22 @@ public class UserView extends JFrame { //#NOSONAR
         infoPanel.add(editInfoBtn);
         infoPanel.add(infoGrid);
 
+    }
+
+    //Shared action listener for all buttons
+    private static class ButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            String buttonName = e.getActionCommand();
+
+            if (buttonName.equals("Last inn pakket uttrekk")) {
+                System.out.println("b1"); //#NOSONAR
+            }
+            else if (buttonName.equals("Start testing")) {
+                //Let controller know
+                System.out.println("b2"); //#NOSONAR
+            }
+
+
+        }
     }
 }
