@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<classBall>
+    <titleBall>Innlandet Fylkesarkiv / IKA Opplandene tester alt elektronisk arkivmateriale som
+kommer inn for deponering. Formålet med testingen er å kontrollere datakvaliteten på materialet.
+Dette omfatter momenter som
+    </titleBall>
+    <bulletPoint>
+        l Konformitet – Hvor godt stemmer uttrekket med gjeldende standarder?
+    </bulletPoint>
+    <bulletPoint>
+        l Autentisitet – Hvor sikkert er det at informasjonen i uttrekket er autentisk? Kan vi stole på
+        at informasjonen ikke er modifisert etter at den ble produsert?
+    </bulletPoint>
+    <bulletPoint>
+        l Integritet – Er uttrekket komplett, og kan vi stole på at vi har all informasjon som skal
+        være med i deponeringen?
+    </bulletPoint>
+    <bulletPoint>
+        l Vedlikehold – Hvilke vedlikeholdsoppgaver vil dette uttrekket gi?
+    </bulletPoint>
+</classBall>
