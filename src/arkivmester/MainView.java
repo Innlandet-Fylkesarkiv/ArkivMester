@@ -6,6 +6,7 @@ import java.awt.*;
 
 //View class for the main window
 public class MainView extends Views{
+    private Container container;
 
     MainView() {
         //Empty constructor
@@ -19,6 +20,7 @@ public class MainView extends Views{
         f.setVisible(true);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //#NOSONAR
         f.setLocationRelativeTo(null);
+        f.setResizable(false);
 
         //Top panel
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -27,7 +29,7 @@ public class MainView extends Views{
         setUpTopPanel(topPanel);
 
         //Container
-        Container container = f.getContentPane();
+        container = f.getContentPane();
         container.setLayout(new BorderLayout(15, 10));
         container.setBackground(Color.WHITE);
 
@@ -184,5 +186,10 @@ public class MainView extends Views{
         infoPanel.add(editInfoBtn);
         infoPanel.add(infoGrid);
 
+    }
+
+    //Returns container
+    public Container getContainer() {
+        return container;
     }
 }

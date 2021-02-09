@@ -1,14 +1,15 @@
 package arkivmester;
 
 public class ArchiveController implements ViewObserver {
-    MainView userView;
+    MainView mainView;
+    TestView testView;
     ArchiveModel archiveModel;
     RapportModel rapportModel;
     TestModel testModel;
     ThirdPartiesModel thirdPartiesModel;
 
     ArchiveController() {
-        userView = new MainView();
+        mainView = new MainView();
         archiveModel = new ArchiveModel();
         rapportModel = new RapportModel();
         testModel = new TestModel();
@@ -16,12 +17,15 @@ public class ArchiveController implements ViewObserver {
     }
 
     public void start() {
-        userView.createAndShowGUI();
-        userView.addObserver(this);
+        mainView.createAndShowGUI();
+        mainView.addObserver(this);
     }
 
     @Override
     public void testStarted() {
         System.out.println("Someone clicked on Start test."); //#NOSONAR
+        testView = new TestView();
+        testView.addObserver(this);
+        testView.createAndShowGUI(mainView.getContainer());
     }
 }
