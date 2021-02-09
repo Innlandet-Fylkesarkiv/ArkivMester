@@ -1,6 +1,6 @@
 package arkivmester;
 
-public class ArchiveController {
+public class ArchiveController implements ViewObserver {
     UserView userView;
     ArchiveModel archiveModel;
     RapportModel rapportModel;
@@ -17,6 +17,11 @@ public class ArchiveController {
 
     public void start() {
         userView.createAndShowGUI();
+        userView.addObserver(this);
+    }
 
+    @Override
+    public void testStarted() {
+        System.out.println("Someone clicked on Start test."); //#NOSONAR
     }
 }

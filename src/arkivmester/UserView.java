@@ -5,13 +5,15 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
-public class UserView extends JFrame { //#NOSONAR
+public class UserView extends JFrame implements ActionListener{ //#NOSONAR
     int windowWidth = 1200;
     int windowHeight = 700;
     Color primaryColor = new Color(8, 83, 148);
     Font primaryFont = new Font("Sans Serif", Font.PLAIN, 20);
-    transient ButtonListener mainListener = new ButtonListener();
+    private final List<ViewObserver> observers = new ArrayList<>();
 
     UserView() {
         //Empty constructor
@@ -60,11 +62,11 @@ public class UserView extends JFrame { //#NOSONAR
     public void setUpTopPanel(JPanel topPanel) {
         //Top panel buttons
         JButton settingsBtn = new JButton("Innstillinger");
-        settingsBtn.addActionListener(mainListener);
+        settingsBtn.addActionListener(this);
         settingsBtn.setBackground(Color.WHITE);
 
         JButton aboutBtn = new JButton("Om");
-        aboutBtn.addActionListener(mainListener);
+        aboutBtn.addActionListener(this);
         aboutBtn.setBackground(Color.WHITE);
 
         topPanel.add(settingsBtn);
@@ -82,13 +84,13 @@ public class UserView extends JFrame { //#NOSONAR
 
         JButton uploadTarBtn = new JButton("Last inn pakket uttrekk");
         uploadTarBtn.setBounds(100, 100, 200, 30);
-        uploadTarBtn.addActionListener(mainListener);
+        uploadTarBtn.addActionListener(this);
         uploadTarBtn.setBackground(primaryColor);
         uploadTarBtn.setForeground(Color.WHITE);
 
         JButton uploadTestedFolderBtn = new JButton("Last inn ferdig testet uttrekk");
         uploadTestedFolderBtn.setBounds(350, 100, 200, 30);
-        uploadTestedFolderBtn.addActionListener(mainListener);
+        uploadTestedFolderBtn.addActionListener(this);
         uploadTestedFolderBtn.setBackground(primaryColor);
         uploadTestedFolderBtn.setForeground(Color.WHITE);
 
@@ -99,13 +101,13 @@ public class UserView extends JFrame { //#NOSONAR
 
         JButton chooseTestsBtn = new JButton("Velg tester");
         chooseTestsBtn.setBounds(100, 220, 125, 30);
-        chooseTestsBtn.addActionListener(mainListener);
+        chooseTestsBtn.addActionListener(this);
         chooseTestsBtn.setBackground(primaryColor);
         chooseTestsBtn.setForeground(Color.WHITE);
 
         JButton startTestingBtn = new JButton("Start testing");
         startTestingBtn.setBounds(275, 220, 125, 30);
-        startTestingBtn.addActionListener(mainListener);
+        startTestingBtn.addActionListener(this);
         startTestingBtn.setBackground(primaryColor);
         startTestingBtn.setForeground(Color.WHITE);
 
@@ -116,7 +118,7 @@ public class UserView extends JFrame { //#NOSONAR
 
         JButton writeReportBtn = new JButton("Skriv rapport");
         writeReportBtn.setBounds(100, 340, 125, 30);
-        writeReportBtn.addActionListener(mainListener);
+        writeReportBtn.addActionListener(this);
         writeReportBtn.setBackground(primaryColor);
         writeReportBtn.setForeground(Color.WHITE);
 
@@ -145,7 +147,7 @@ public class UserView extends JFrame { //#NOSONAR
 
         JButton editInfoBtn = new JButton("Rediger informasjon");
         editInfoBtn.setBounds(0, 300, 150, 30);
-        editInfoBtn.addActionListener(mainListener);
+        editInfoBtn.addActionListener(this);
         editInfoBtn.setBackground(primaryColor);
         editInfoBtn.setForeground(Color.WHITE);
 
@@ -193,20 +195,21 @@ public class UserView extends JFrame { //#NOSONAR
 
     }
 
+    public void addObserver(ViewObserver observer) {
+        observers.add(observer);
+    }
+
     //Shared action listener for all buttons
-    private static class ButtonListener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            String buttonName = e.getActionCommand();
+    public void actionPerformed(ActionEvent e) {
+        String buttonName = e.getActionCommand();
 
-            if (buttonName.equals("Last inn pakket uttrekk")) {
-                System.out.println("b1"); //#NOSONAR
-            }
-            else if (buttonName.equals("Start testing")) {
-                //Let controller know
-                System.out.println("b2"); //#NOSONAR
-            }
-
-
+        if (buttonName.equals("Last inn pakket uttrekk")) {
+            System.out.println("b1"); //#NOSONAR
         }
+        else if (buttonName.equals("Start testing")) {
+            for (ViewObserver obs : observers)
+                obs.testStarted();
+        }
+
     }
 }
