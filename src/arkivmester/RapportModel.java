@@ -3,10 +3,8 @@ package arkivmester;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.usermodel.*;
+import org.w3c.dom.*;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -16,103 +14,9 @@ import java.io.*;
 
 // Used for parsing of xml schema and exception handling
 
+//region Variables admin Data
 
-public class RapportModel {
-
-    XWPFDocument document;
-
-    RapportModel() {
-        //Rapport
-        //kap 1, 1.1, 1.2
-    }
-    public void start() { // mainz
-        // finne fil
-        // opne fil
-        // get variabls
-        // put in string/something
-
-
-        XWPFDocument docx = ReadFromDocxFile();
-
-
-        setUpBlankDocument();
-        /*
-        Locale l = new Locale("en", "US");
-
-        ResourceBundle bundle = ResourceBundle.getBundle("resources/chapter_1", l); // chapters
-        System.out.println("test"); // no sonar
-        String teste = bundle.getString("p1");
-
-        List<IBodyElement> body = docx.getBodyElements();
-
-
-        writeDocToPath(body);
-        */
-
-        System.out.println("teste"); //#NOSONAR
-
-        test();
-        testBetter();
-
-    }
-    private void test() {
-
-        Document doc;
-
-        try{
-            File file = new File("src/resources/chapters/1.xml");
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-
-            doc = dBuilder.parse(file);
-
-            Element elem = doc.getDocumentElement();
-
-            System.out.println("Root element :" + elem.getNodeName());
-
-            NodeList nList = elem.getChildNodes();
-
-            System.out.println("----------------------------");
-
-            for (int i = 0; i < nList.getLength(); i++) {
-
-                Node nNode = nList.item(i);
-
-                System.out.println("\nCurrent Element :" + nNode.getNodeName());
-
-                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-
-                    Element eElement = (Element) nNode;
-
-                    System.out.println("Text:" + eElement.getTextContent());
-
-                    String t = eElement.getTextContent();
-
-                    System.out.print(t);
-
-                    writeDocToPath(eElement.getTextContent());
-                }
-            }
-
-        } catch(ParserConfigurationException | SAXException | IOException e) {
-            e.printStackTrace();
-        }
-
-        //System.out.println("Root element: " + doc.getDocumentElement().getNodeName());
-
-        //System.out.println("Root element: " + doc.getDocumentElement().getNodeName());
-        //NodeList nodeList = doc.getElementsByTagName("student");
-        // System.out.println("Student id: "+ eElement.getElementsByTagName("id").item(0).getTextContent());
-    }
-    private void testBetter() {
-        //File file = new File("src/resources/chapters/1.xml");
-        //doc = dBuilder.parse(file);
-        //NodeList nList = doc.getElementsByTagName("titleBall");
-
-    }
-
-    public class TestClasse{
-        /*
+/*
         UttrekksID: 0000-yyyy-00
         Eier av uttrekket
         Kommune/kunde: Kommunenavn
@@ -123,28 +27,117 @@ public class RapportModel {
         Test utført av: Navn Navnesen
         Dato for rapport: dd.mm.yyyy
         */
-        String id;
+//endregion
+
+public class RapportModel {
+
+    XWPFDocument document;
+
+    RapportModel() {
+        //Rapport
+        //kap 1, 1.1, 1.2
+    }
+
+    // Right know work as rapportModel.main in function
+    public void start() {
+
+        setUpBlankDocument();
+
+        chapterOne();
 
     }
 
-    private Document ParseFromXMLFile() {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    /* Get xml kap 1 information */
+    private void chapterOne() {
+
+        Document doc;
+
+        try{
+            File file = new File("src/resources/chapters/1.xml");
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance(); // #NOSONOR
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+
+            doc = dBuilder.parse(file);
+
+            Element elem = doc.getDocumentElement();
+
+            System.out.println("Root element :" + elem.getNodeName()); // #NOSONOR
+
+            NodeList nList = elem.getChildNodes();
+
+            String s;
+
+            Node n;
+
+            StringBuilder text = new StringBuilder();
+
+            for (int i = 0; i < nList.getLength(); i++) {
+
+                n = nList.item(i);
+
+                if (n.getNodeType() == Node.ELEMENT_NODE) {
+
+                    Element e = (Element) n;
+
+                    if (n.getNodeType() == Node.ELEMENT_NODE) {
+                        switch (e.getNodeName()) {
+                            case "bulletPoint":
+                                s = formatBulletPoint(n.getTextContent());
+                                break;
+                            case "paragraph":
+                                s = formatParagraph(n.getTextContent());
+                                break;
+                            default:
+                                s = "";
+                                break;
+                        }
+                        text.append(s);
+                    }
+                }
+            }
+            System.out.println(text); // #NOSONOR
+
+            writeDocToPath(text.toString());
+
+        } catch(ParserConfigurationException | SAXException | IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+    /* Format bulletPoint */
+    private String formatBulletPoint(String bulletPoint) {
+        String t = bulletPoint;
+        t = t.replace("         ", "   ");
+        t = t.replace("       ", "");
+        t = t.replace("*", "•");
+
+        return t;
+    }
+    /* Format paragraph */
+    private String formatParagraph(String paragraph) {
+        String t = paragraph;
+        t = t.replace("  ", "");
+
+        return t;
+    }
+    /* Get xml from test results */
+    private Document parseFromXMLFile(String filepath) {  // #NOSONOR
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(); // #NOSONOR
 
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
-            return builder.parse("src/resources/899ec389-1dc0-41d0-b6ca-15f27642511b.xml");
+            return builder.parse(filepath);
 
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
         return null;
     }
-
-    private XWPFDocument ReadFromDocxFile() {
+    /* Get report data template path */
+    private XWPFDocument readFromDocxFile(String filepath) { // #NOSONOR
 
         try {
-            XWPFDocument docx = new XWPFDocument(OPCPackage.open("src/resources/chapters/1.docx"));
-            return docx;
+            return new XWPFDocument(OPCPackage.open(filepath));
 
         } catch (IOException | InvalidFormatException e) {
             e.printStackTrace();
@@ -152,40 +145,36 @@ public class RapportModel {
         return null;
     }
 
+    /* Create rapport document */
     private void setUpBlankDocument() {
         document = new XWPFDocument();
-        System.out.println("doc successully set up"); //#NOSONAR
+        System.out.println("doc successfully set up"); //#NOSONAR
     }
-
-    private void writeDocToPath(String _text) {
+    /* Write to rapport document */
+    private void writeDocToPath(String text) {
         //Write the Document in file system
         try {
-            /*
-            FileOutputStream out = new FileOutputStream(new File("../Output/createdocument.docx"));
-
-            byte[] bytesArray = _text.getBytes();
-
-            out.write(bytesArray);
-
-            System.out.println("File Written Successfully");
-
-            out.close();
-
-            XWPFWordExtractor ex = new XWPFWordExtractor(document);
-            String text = ex.getText();
-
-
-             */
 
             //Write the Document in file system
-            FileOutputStream out = new FileOutputStream(new File
-                    ("../Output/createparagraph.docx"));
+            FileOutputStream out = new FileOutputStream(
+                    ("../Output/report_template.docx"));
 
-            //create Paragraph
+
             XWPFParagraph paragraph = document.createParagraph();
             XWPFRun run = paragraph.createRun();
-            _text = _text.replace("      ", "\t");
-            run.setText(_text);
+
+            if (text.contains("\n")) {
+                String[] lines = text.split("\n");
+                run.setText(lines[0], 0); // set first line into XWPFRun
+                for(int i=1;i<lines.length;i++){
+                    // add break and insert new text
+                    run.addBreak();
+                    run.setText(lines[i]);
+                }
+            } else {
+                run.setText(text, 0);
+            }
+
             document.write(out);
 
             out.close();
