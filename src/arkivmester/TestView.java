@@ -14,7 +14,7 @@ public class TestView extends Views{
     //Sets up GUI
     public void createAndShowGUI(Container container) {
         //Clears container
-        container.remove(1);
+        //container.remove(1); //Admin info
         container.remove(0);
         container.revalidate();
 
@@ -29,6 +29,13 @@ public class TestView extends Views{
         testPanel.setBackground(Color.WHITE);
         setUpTestPanel(testPanel);
 
+        //Status panel
+        JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 40, 0));
+        statusPanel.setBorder(new EmptyBorder(20, 60, 0, 0));
+        statusPanel.setBackground(Color.WHITE);
+        JLabel testStatus = new JLabel("Kjører tester...");
+        testStatus.setFont(primaryFont);
+
         //Button panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 40, 0));
         buttonPanel.setBorder(new EmptyBorder(0, 60, 0, 0));
@@ -36,7 +43,9 @@ public class TestView extends Views{
         setUpButtonPanel(buttonPanel);
 
         //Adding components together
+        statusPanel.add(testStatus);
         testContainer.add(testPanel);
+        testContainer.add(statusPanel);
         testContainer.add(buttonPanel);
         container.add(testContainer);
 
@@ -46,48 +55,40 @@ public class TestView extends Views{
     private void setUpTestPanel(JPanel testPanel) {
         //Vertical gap: 20, 40 and 70
 
-        JButton backBtn = new JButton("Tilbake");
-        backBtn.setBounds(20, 20, 75, 30);
-        backBtn.addActionListener(this);
-        backBtn.setBackground(primaryColor);
-        backBtn.setForeground(Color.WHITE);
-
         //Section 1
         JLabel arkadeTitle = new JLabel("Arkade5");
-        arkadeTitle.setBounds(100, 90, 200, 30);
+        arkadeTitle.setBounds(100, 50, 200, 30);
         arkadeTitle.setFont(primaryFont);
 
         JLabel arkadeStatus = new JLabel("Ferdig.");
-        arkadeStatus.setBounds(100, 130, 200, 30);
+        arkadeStatus.setBounds(100, 90, 200, 30);
 
         JLabel arkadeErrors = new JLabel("1000 avvik");
-        arkadeErrors.setBounds(100, 150, 200, 30);
+        arkadeErrors.setBounds(100, 110, 200, 30);
 
         //Section 2
         JLabel veraTitle = new JLabel("VeraPdf");
-        veraTitle.setBounds(100, 220, 200, 30);
+        veraTitle.setBounds(100, 180, 200, 30);
         veraTitle.setFont(primaryFont);
 
         JLabel veraStatus = new JLabel("Ferdig.");
-        veraStatus.setBounds(100, 260, 200, 30);
+        veraStatus.setBounds(100, 220, 200, 30);
 
         JLabel veraErrors = new JLabel("123 avvik");
-        veraErrors.setBounds(100, 280, 200, 30);
+        veraErrors.setBounds(100, 240, 200, 30);
 
         //Section 2
         JLabel kostvalTitle = new JLabel("Kost-Val");
-        kostvalTitle.setBounds(100, 350, 200, 30);
+        kostvalTitle.setBounds(100, 310, 200, 30);
         kostvalTitle.setFont(primaryFont);
 
         JLabel kostvalStatus = new JLabel("Tester...");
-        kostvalStatus.setBounds(100, 390, 200, 30);
+        kostvalStatus.setBounds(100, 350, 200, 30);
 
         JLabel kostvalErrors = new JLabel("");
-        kostvalErrors.setBounds(100, 410, 200, 30);
+        kostvalErrors.setBounds(100, 370, 200, 30);
 
         //Adding components
-        testPanel.add(backBtn);
-
         testPanel.add(arkadeTitle);
         testPanel.add(arkadeStatus);
         testPanel.add(arkadeErrors);
@@ -103,9 +104,7 @@ public class TestView extends Views{
 
     //Sets up the button panel
     private void setUpButtonPanel(JPanel buttonPanel) {
-        JLabel testStatus = new JLabel("Kjører tester...");
-        testStatus.setBounds(100, 90, 400, 30);
-        testStatus.setFont(primaryFont);
+
 
         String[] fileFormats = {".odf",".docx"};
         JComboBox<String> fileFormatCb = new JComboBox<>(fileFormats);
@@ -128,7 +127,6 @@ public class TestView extends Views{
         testNewBtn.setBackground(primaryColor);
         testNewBtn.setForeground(Color.WHITE);
 
-        buttonPanel.add(testStatus);
         buttonPanel.add(fileFormatCb);
         buttonPanel.add(createRapportBtn);
         buttonPanel.add(packToAipBtn);
