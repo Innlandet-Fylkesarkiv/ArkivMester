@@ -6,15 +6,16 @@ import java.awt.*;
 
 //View class for the test window
 public class TestView extends Views{
-
+    Container container;
     TestView() {
         //Empty constructor
     }
 
     //Sets up GUI
-    public void createAndShowGUI(Container container) {
+    public void createAndShowGUI(Container cnt) {
+        container = cnt;
+
         //Clears container
-        //container.remove(1); //Admin info
         container.remove(0);
         container.revalidate();
 
@@ -131,5 +132,11 @@ public class TestView extends Views{
         buttonPanel.add(createRapportBtn);
         buttonPanel.add(packToAipBtn);
         buttonPanel.add(testNewBtn);
+    }
+
+    public void clearContainer(){
+        container.removeAll();
+        container.revalidate();
+        container.repaint();
     }
 }

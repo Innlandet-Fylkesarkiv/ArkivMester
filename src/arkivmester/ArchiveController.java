@@ -17,15 +17,22 @@ public class ArchiveController implements ViewObserver {
     }
 
     public void start() {
+        mainView.createFrame();
         mainView.createAndShowGUI();
         mainView.addObserver(this);
     }
 
     @Override
     public void testStarted() {
-        System.out.println("Someone clicked on Start test."); //#NOSONAR
         testView = new TestView();
         testView.addObserver(this);
         testView.createAndShowGUI(mainView.getContainer());
+    }
+
+    @Override
+    public void newTest() {
+        testView.clearContainer();
+        testView = null;
+        mainView.createAndShowGUI();
     }
 }

@@ -7,6 +7,7 @@ import java.awt.*;
 //View class for the main window
 public class MainView extends Views{
     private Container container;
+    private JFrame f;
 
     MainView() {
         //Empty constructor
@@ -14,14 +15,6 @@ public class MainView extends Views{
 
     //Sets up GUI
     public void createAndShowGUI() {
-        //Frame properties
-        JFrame f = new JFrame("ArkivMester");
-        f.setSize(windowWidth, windowHeight);
-        f.setVisible(true);
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //#NOSONAR
-        f.setLocationRelativeTo(null);
-        f.setResizable(false);
-
         //Top panel
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         topPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -49,6 +42,22 @@ public class MainView extends Views{
         container.add(mainPanel);
         container.add(infoPanel, BorderLayout.EAST);
         container.add(topPanel, BorderLayout.NORTH);
+    }
+
+    //Resets and shows GUI
+    public void resetAndShowGUI() {
+
+    }
+
+    //Create frame
+    public void createFrame(){
+        //Frame properties
+        f = new JFrame("ArkivMester");
+        f.setSize(windowWidth, windowHeight);
+        f.setVisible(true);
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //#NOSONAR
+        f.setLocationRelativeTo(null);
+        f.setResizable(false);
     }
 
     //Sets up the top panel

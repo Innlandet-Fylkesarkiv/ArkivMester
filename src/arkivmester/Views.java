@@ -24,12 +24,20 @@ public class Views implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         String buttonName = e.getActionCommand();
 
-        if (buttonName.equals("Last inn pakket uttrekk")) {
-            System.out.println("b1"); //#NOSONAR
-        }
-        else if (buttonName.equals("Start testing")) {
-            for (ViewObserver obs : observers)
-                obs.testStarted();
+        switch (buttonName) {
+            case "Last inn pakket uttrekk":
+                System.out.println("b1"); //#NOSONAR
+                break;
+            case "Start testing":
+                for (ViewObserver obs : observers)
+                    obs.testStarted();
+                break;
+            case "Test nytt uttrekk":
+                for (ViewObserver obs : observers)
+                    obs.newTest();
+                break;
+            default:
+                break;
         }
 
     }
