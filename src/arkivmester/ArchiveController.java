@@ -4,6 +4,7 @@ public class ArchiveController implements ViewObserver {
     MainView mainView;
     TestView testView;
     AdminInfoView adminInfoView;
+    TestSettingsView testSettingsView;
     ArchiveModel archiveModel;
     RapportModel rapportModel;
     TestModel testModel;
@@ -44,5 +45,26 @@ public class ArchiveController implements ViewObserver {
         adminInfoView = new AdminInfoView();
         adminInfoView.addObserver(this);
         adminInfoView.createAndShowGUI(mainView.getContainer());
+    }
+
+    @Override
+    public void cancelButton() {
+        if(adminInfoView != null) {
+            adminInfoView.clearContainer();
+            adminInfoView = null;
+        }
+        else if (testSettingsView != null){
+            testSettingsView.clearContainer();
+            testSettingsView = null;
+        }
+
+        mainView.createAndShowGUI();
+    }
+
+    @Override
+    public void chooseTests() {
+        testSettingsView = new TestSettingsView();
+        testSettingsView.addObserver(this);
+        testSettingsView.createAndShowGUI(mainView.getContainer());
     }
 }

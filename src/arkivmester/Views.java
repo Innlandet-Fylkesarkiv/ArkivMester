@@ -1,5 +1,6 @@
 package arkivmester;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,6 +40,14 @@ public class Views implements ActionListener {
             case "Rediger informasjon":
                 for (ViewObserver obs : observers)
                     obs.editAdminInfo();
+                break;
+            case "Avbryt":
+                for (ViewObserver obs : observers)
+                    obs.cancelButton();
+                break;
+            case "Velg tester":
+                for (ViewObserver obs : observers)
+                    obs.chooseTests();
                 break;
             default:
                 break;

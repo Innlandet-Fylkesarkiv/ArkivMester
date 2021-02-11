@@ -6,8 +6,8 @@ import java.awt.*;
 
 //View class for the main window
 public class MainView extends Views{
-    private Container container;
     private JFrame f;
+    private Container container;
 
     MainView() {
         //Empty constructor

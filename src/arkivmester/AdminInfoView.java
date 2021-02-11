@@ -33,7 +33,6 @@ public class AdminInfoView extends Views {
         //Adding components
         infoContainer.add(gridPanel);
         container.add(infoContainer);
-        container.repaint();
     }
 
     //Sets up the grid panel
@@ -92,4 +91,9 @@ public class AdminInfoView extends Views {
         gridPanel.add(cancelInfoBtn, gbc);
     }
 
+    //Clears the whole frame
+    public void clearContainer(){
+        container.removeAll();
+        container.revalidate();
+    }
 }

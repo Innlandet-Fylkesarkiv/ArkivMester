@@ -151,9 +151,9 @@ public class TestView extends Views{
         buttonPanel.add(testNewBtn);
     }
 
+    //Clears the whole frame
     public void clearContainer(){
         container.removeAll();
-        container.revalidate(); //Needed?
-        container.repaint(); //Needed?
+        container.revalidate();
     }
 }
