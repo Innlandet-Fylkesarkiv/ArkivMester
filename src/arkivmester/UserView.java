@@ -3,12 +3,16 @@ package arkivmester;
 import javax.swing.*;
 
 public class UserView extends JFrame { //#NOSONAR
+    JFrame f;
 
     UserView() {
-        //View
+
     }
 
     public void setUpGUI() {
-        //Setup
+        f = new JFrame("ArkivMester");
+        f.setSize(1200, 700);
+        f.setVisible(true);
+        f.setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 }
