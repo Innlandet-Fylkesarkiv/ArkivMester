@@ -7,6 +7,7 @@ import java.awt.*;
 //View class for the test window
 public class TestView extends Views{
     Container container;
+
     TestView() {
         //Empty constructor
     }
@@ -78,7 +79,7 @@ public class TestView extends Views{
         JLabel veraErrors = new JLabel("123 avvik");
         veraErrors.setBounds(100, 240, 200, 30);
 
-        //Section 2
+        //Section 3
         JLabel kostvalTitle = new JLabel("Kost-Val");
         kostvalTitle.setBounds(100, 310, 200, 30);
         kostvalTitle.setFont(primaryFont);
@@ -88,6 +89,17 @@ public class TestView extends Views{
 
         JLabel kostvalErrors = new JLabel("");
         kostvalErrors.setBounds(100, 370, 200, 30);
+
+        //Section 4
+        JLabel xqueryTitle = new JLabel("XQuery tester");
+        xqueryTitle.setBounds(300, 50, 200, 30);
+        xqueryTitle.setFont(primaryFont);
+
+        JLabel xqueryStatus = new JLabel("Ingen.");
+        xqueryStatus.setBounds(300, 90, 200, 30);
+
+        JLabel xqueryErrors = new JLabel("");
+        xqueryErrors.setBounds(300, 110, 200, 30);
 
         //Adding components
         testPanel.add(arkadeTitle);
@@ -101,6 +113,10 @@ public class TestView extends Views{
         testPanel.add(kostvalTitle);
         testPanel.add(kostvalStatus);
         testPanel.add(kostvalErrors);
+
+        testPanel.add(xqueryTitle);
+        testPanel.add(xqueryStatus);
+        testPanel.add(xqueryErrors);
     }
 
     //Sets up the button panel
@@ -128,6 +144,7 @@ public class TestView extends Views{
         testNewBtn.setBackground(primaryColor);
         testNewBtn.setForeground(Color.WHITE);
 
+        //Adding components
         buttonPanel.add(fileFormatCb);
         buttonPanel.add(createRapportBtn);
         buttonPanel.add(packToAipBtn);
@@ -136,7 +153,7 @@ public class TestView extends Views{
 
     public void clearContainer(){
         container.removeAll();
-        container.revalidate();
-        container.repaint();
+        container.revalidate(); //Needed?
+        container.repaint(); //Needed?
     }
 }

@@ -3,6 +3,7 @@ package arkivmester;
 public class ArchiveController implements ViewObserver {
     MainView mainView;
     TestView testView;
+    AdminInfoView adminInfoView;
     ArchiveModel archiveModel;
     RapportModel rapportModel;
     TestModel testModel;
@@ -22,6 +23,7 @@ public class ArchiveController implements ViewObserver {
         mainView.addObserver(this);
     }
 
+    //When "Start testing" is clicked.
     @Override
     public void testStarted() {
         testView = new TestView();
@@ -29,10 +31,18 @@ public class ArchiveController implements ViewObserver {
         testView.createAndShowGUI(mainView.getContainer());
     }
 
+    //When "Test nytt uttrekk" is clicked.
     @Override
     public void newTest() {
         testView.clearContainer();
         testView = null;
         mainView.createAndShowGUI();
+    }
+
+    @Override
+    public void editAdminInfo() {
+        adminInfoView = new AdminInfoView();
+        adminInfoView.addObserver(this);
+        adminInfoView.createAndShowGUI(mainView.getContainer());
     }
 }

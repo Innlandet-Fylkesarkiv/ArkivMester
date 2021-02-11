@@ -4,4 +4,5 @@ package arkivmester;
 public interface ViewObserver {
     void testStarted();
     void newTest();
+    void editAdminInfo();
 }

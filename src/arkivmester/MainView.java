@@ -44,11 +44,6 @@ public class MainView extends Views{
         container.add(topPanel, BorderLayout.NORTH);
     }
 
-    //Resets and shows GUI
-    public void resetAndShowGUI() {
-
-    }
-
     //Create frame
     public void createFrame(){
         //Frame properties
