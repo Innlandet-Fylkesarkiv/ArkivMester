@@ -15,7 +15,7 @@ public class ArchiveController {
         thirdPartiesModel = new ThirdPartiesModel();
     }
 
-    public void start() {
+    public void start() throws Exception {
         userView.setUpGUI();
         rapportModel.start();
     }
