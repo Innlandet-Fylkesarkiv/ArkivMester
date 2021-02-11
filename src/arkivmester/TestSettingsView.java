@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
+//View class for the choose tests window
 public class TestSettingsView extends Views {
     Container container;
 

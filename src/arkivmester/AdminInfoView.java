@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
+//View class for the admin information window
 public class AdminInfoView extends Views {
     Container container;
 

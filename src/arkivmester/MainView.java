@@ -8,6 +8,8 @@ import java.awt.*;
 public class MainView extends Views{
     private JFrame f;
     private Container container;
+    private JButton editInfoBtn;
+    private JPanel infoPanel;
 
     MainView() {
         //Empty constructor
@@ -33,7 +35,7 @@ public class MainView extends Views{
         setUpMainPanel(mainPanel);
 
         //Info panel
-        JPanel infoPanel = new JPanel();
+        infoPanel = new JPanel();
         infoPanel.setLayout(new BorderLayout(0, 0));
         setUpInfoPanel(infoPanel);
         infoPanel.setBackground(Color.WHITE);
@@ -42,6 +44,7 @@ public class MainView extends Views{
         container.add(mainPanel);
         container.add(infoPanel, BorderLayout.EAST);
         container.add(topPanel, BorderLayout.NORTH);
+        container.remove(editInfoBtn);
     }
 
     //Create frame
@@ -142,7 +145,7 @@ public class MainView extends Views{
         infoGrid.setBorder(new EmptyBorder(90, 0, 310, 100));
         infoGrid.setBackground(Color.WHITE);
 
-        JButton editInfoBtn = new JButton("Rediger informasjon");
+        editInfoBtn = new JButton("Rediger informasjon");
         editInfoBtn.setBounds(0, 300, 150, 30);
         editInfoBtn.addActionListener(this);
         editInfoBtn.setBackground(primaryColor);
@@ -195,5 +198,12 @@ public class MainView extends Views{
     //Returns container
     public Container getContainer() {
         return container;
+    }
+
+    //Removes edit admin info button
+    public void removeEditInfoBtn(){
+        infoPanel.remove(editInfoBtn);
+        container.revalidate();
+        container.repaint();
     }
 }

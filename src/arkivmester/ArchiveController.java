@@ -30,6 +30,7 @@ public class ArchiveController implements ViewObserver {
         testView = new TestView();
         testView.addObserver(this);
         testView.createAndShowGUI(mainView.getContainer());
+        mainView.removeEditInfoBtn();
     }
 
     //When "Test nytt uttrekk" is clicked.
@@ -40,6 +41,7 @@ public class ArchiveController implements ViewObserver {
         mainView.createAndShowGUI();
     }
 
+    //When "Rediger informasjon" is clicked.
     @Override
     public void editAdminInfo() {
         adminInfoView = new AdminInfoView();
@@ -47,6 +49,7 @@ public class ArchiveController implements ViewObserver {
         adminInfoView.createAndShowGUI(mainView.getContainer());
     }
 
+    //When "Avbryt" is clicked.
     @Override
     public void cancelButton() {
         if(adminInfoView != null) {
@@ -61,6 +64,7 @@ public class ArchiveController implements ViewObserver {
         mainView.createAndShowGUI();
     }
 
+    //When "Velg tester" is clicked.
     @Override
     public void chooseTests() {
         testSettingsView = new TestSettingsView();
