@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<mets xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mets="http://www.loc.gov/METS/" OBJID="UUID:899ec389-1dc0-41d0-b6ca-15f27642511b" LABEL="ESA" TYPE="SIP" PROFILE="http://xml.ra.se/METS/RA_METS_eARD.xml" xsi:schemaLocation="http://www.loc.gov/METS/ http://schema.arkivverket.no/METS/mets.xsd" xmlns="http://arkivverket.no/standarder/METS">
+  <metsHdr CREATEDATE="2021-01-15T00:00:00">
+    <agent ROLE="ARCHIVIST" TYPE="ORGANIZATION">
+      <name>Jevnaker kommune</name>
+    </agent>
+    <agent ROLE="ARCHIVIST" TYPE="INDIVIDUAL">
+      <name>Wenche Støa</name>
+      <note>arkivskaper-adresse</note>
+      <note>arkivskaper-telefon</note>
+      <note>wes@jevnaker.kommune.no</note>
+    </agent>
+    <agent ROLE="OTHER" OTHERROLE="SUBMITTER" TYPE="ORGANIZATION">
+      <name>Jevnaker kommune</name>
+    </agent>
+    <agent ROLE="OTHER" OTHERROLE="SUBMITTER" TYPE="INDIVIDUAL">
+      <name>Wenche Støa (overfører)</name>
+      <note>overfører-adresse</note>
+      <note>telefon-overfører</note>
+      <note>wes@jevnaker.kommune.no</note>
+    </agent>
+    <agent ROLE="OTHER" OTHERROLE="PRODUCER" TYPE="ORGANIZATION">
+      <name>Modifisert av IKA Opplandene</name>
+    </agent>
+    <agent ROLE="OTHER" OTHERROLE="PRODUCER" TYPE="INDIVIDUAL">
+      <name>Pål Mjørlund</name>
+      <note>-</note>
+      <note>99020475</note>
+      <note>pal.mjorlund@innlandetfylke.no</note>
+    </agent>
+    <agent ROLE="IPOWNER" TYPE="ORGANIZATION">
+      <name>Jevnaker kommune</name>
+    </agent>
+    <agent ROLE="IPOWNER" TYPE="INDIVIDUAL">
+      <name>Eiernavn</name>
+      <note>eieradresse</note>
+      <note>eiertelefon</note>
+      <note>eier.epost@jevnaker.kommune.no</note>
+    </agent>
+    <agent ROLE="CREATOR" TYPE="ORGANIZATION">
+      <name>IKA Opplandene</name>
+    </agent>
+    <agent ROLE="CREATOR" TYPE="INDIVIDUAL">
+      <name>Pål Mjørlund</name>
+      <note>pakkeadresse</note>
+      <note>99020475</note>
+      <note>pakkeskaper@epost.no</note>
+    </agent>
+    <agent ROLE="PRESERVATION" TYPE="ORGANIZATION">
+      <name>IKA Opplandene</name>
+    </agent>
+    <agent ROLE="ARCHIVIST" TYPE="OTHER" OTHERTYPE="SOFTWARE">
+      <name>ESA</name>
+      <note>8.3.3</note>
+      <note>Noark5</note>
+      <note>4.0</note>
+    </agent>
+    <agent ROLE="OTHER" OTHERROLE="PRODUCER" TYPE="OTHER" OTHERTYPE="SOFTWARE">
+      <name>ESA Avlevering</name>
+      <note>8.3</note>
+      <note>Noark5</note>
+      <note>4.0</note>
+    </agent>
+    <altRecordID TYPE="DELIVERYSPECIFICATION">Testuttrekk Jevnaker moetesak12</altRecordID>
+    <altRecordID TYPE="SUBMISSIONAGREEMENT">TEST-3053-2020-04</altRecordID>
+    <altRecordID TYPE="STARTDATE">2012-01-01</altRecordID>
+  </metsHdr>
+  <fileSec>
+    <fileGrp ID="fileGroup001" USE="FILES">
+      <file ID="fileId_0" MIMETYPE="package/tar" SIZE="593674240" CREATED="2021-01-15T16:24:21.5571273+01:00" CHECKSUM="4f87454774fb21db908c2c24e04d827baeb15346f5f08e8b09c02ee405678724" CHECKSUMTYPE="SHA-256" USE="Datafile">
+        <FLocat LOCTYPE="URL" xlink:type="simple" xlink:href="file:899ec389-1dc0-41d0-b6ca-15f27642511b.tar" />
+      </file>
+    </fileGrp>
+  </fileSec>
+  <structMap>
+    <div />
+  </structMap>
+</mets>

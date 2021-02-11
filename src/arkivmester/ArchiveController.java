@@ -18,10 +18,12 @@ public class ArchiveController implements ViewObserver {
         thirdPartiesModel = new ThirdPartiesModel();
     }
 
-    public void start() {
+
+    public void start() throws Exception{
         mainView.createFrame();
         mainView.createAndShowGUI();
         mainView.addObserver(this);
+        rapportModel.start();
     }
 
     //When "Start testing" is clicked.
@@ -70,5 +72,6 @@ public class ArchiveController implements ViewObserver {
         testSettingsView = new TestSettingsView();
         testSettingsView.addObserver(this);
         testSettingsView.createAndShowGUI(mainView.getContainer());
+
     }
 }
