@@ -38,6 +38,7 @@ public class RapportModel {
         try {
             doc = parseFromXMLFile(file);
         } catch (NullPointerException e) {
+            System.out.println(e.getMessage());                // NOSONAR
             throw new Exception("file is empty"); // NOSONAR
         }
 
@@ -103,6 +104,7 @@ public class RapportModel {
             return builder.parse(filepath);
 
         } catch (NullPointerException | ParserConfigurationException | SAXException | IOException e) {
+            System.out.println(e.getMessage());                                                 // NOSONAR
             throw new Exception("error in retrieving file, maybe not correct filepath");        // NOSONAR
         }
     }
