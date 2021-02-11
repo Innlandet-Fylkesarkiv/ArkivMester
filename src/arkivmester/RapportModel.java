@@ -144,7 +144,7 @@ public class RapportModel {
 
             //System.out.println(_text);         //NOSONAR
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());     //NOSONAR
         }
     }
 
