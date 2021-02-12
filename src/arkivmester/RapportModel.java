@@ -22,7 +22,7 @@ public class RapportModel {
     }
 
     // Right know work as rapportModel.main in function
-    public void start() throws Exception {
+    public void start() {
 
         setUpBlankDocument();
 
@@ -31,55 +31,53 @@ public class RapportModel {
     }
 
     // Get xml kap 1 information
-    private void chapterOne() throws Exception {
+    private void chapterOne() {
 
-        String file = "src/resources/chapters/1.xml";
+        String file = "src/resources/chapter/1.xml";
 
-
-        Document doc;
         try {
-            doc = parseFromXMLFile(file);
-        } catch (NullPointerException e) {
-            System.out.println(e.getMessage());                // NOSONAR
-            throw new Exception("file is empty"); // NOSONAR
-        }
+            Document doc = parseFromXMLFile(file);
 
-        Element elem = doc.getDocumentElement();
+            assert doc != null;
+            Element elem = doc.getDocumentElement();
 
-        System.out.println("Root element :" + elem.getNodeName()); //NOSONAR
+            System.out.println("Root element :" + elem.getNodeName());  //NOSONAR
 
-        NodeList nList = elem.getChildNodes();
+            NodeList nList = elem.getChildNodes();
 
-        String s;
+            String s;
 
-        Node n;
+            Node n;
 
-        StringBuilder text = new StringBuilder();
+            StringBuilder text = new StringBuilder();
 
-        for (int i = 0; i < nList.getLength(); i++) {
+            for (int i = 0; i < nList.getLength(); i++) {
 
-            n = nList.item(i);
-
-            if (n.getNodeType() == Node.ELEMENT_NODE) {
-
-                Element e = (Element) n;
+                n = nList.item(i);
 
                 if (n.getNodeType() == Node.ELEMENT_NODE) {
-                    s = switch (e.getNodeName()) {
-                        // TODO: create a subtitle function for handling subtitle tags
-                        // TODO: create a title function for handling title tags
-                        case "bulletPoint" -> formatBulletPoint(n.getTextContent());
-                        case "paragraph" -> formatParagraph(n.getTextContent());
-                        // TODO: create input function for handling input tags
-                        default -> "";
-                    };
-                    text.append(s);
+
+                    Element e = (Element) n;
+
+                    if (n.getNodeType() == Node.ELEMENT_NODE) {
+                        s = switch (e.getNodeName()) {
+                            // TODO: create a subtitle function for handling subtitle tags
+                            // TODO: create a title function for handling title tags
+                            case "bulletPoint" -> formatBulletPoint(n.getTextContent());
+                            case "paragraph" -> formatParagraph(n.getTextContent());
+                            // TODO: create input function for handling input tags
+                            default -> "";
+                        };
+                        text.append(s);
+                    }
                 }
             }
-        }
-        System.out.println(text); //NOSONAR
+            System.out.println(text); //NOSONAR
 
-        writeDocToPath(text.toString());
+            writeDocToPath(text.toString());
+        } catch (NullPointerException e) {
+            System.out.println(e.getMessage());             // NOSONAR TODO: have it in GUI message instead of terminal
+        }
 
     }
     // Format bulletPoint
@@ -105,7 +103,7 @@ public class RapportModel {
         System.out.println("doc successfully set up"); //NOSONAR
     }
 
-    private static Document parseFromXMLFile(String filepath) throws Exception {   // NOSONAR
+    private static Document parseFromXMLFile(String filepath) {   // NOSONAR
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
         factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
@@ -116,7 +114,7 @@ public class RapportModel {
 
         } catch (NullPointerException | ParserConfigurationException | SAXException | IOException e) {
             System.out.println(e.getMessage());                                                 // NOSONAR
-            throw new Exception("error in retrieving file, maybe not correct filepath");        // NOSONAR
+            return null;
         }
     }
 
@@ -128,6 +126,8 @@ public class RapportModel {
             //Write the Document in file system
             FileOutputStream out = new FileOutputStream(
                     ("../Output/report_template.docx"));
+
+
 
             XWPFParagraph paragraph = document.createParagraph();
             XWPFRun run = paragraph.createRun();

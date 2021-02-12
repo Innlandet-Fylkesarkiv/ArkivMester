@@ -19,7 +19,7 @@ public class ArchiveController implements ViewObserver {
     }
 
 
-    public void start() throws Exception{
+    public void start() {
         mainView.createFrame();
         mainView.createAndShowGUI();
         mainView.addObserver(this);
