@@ -34,7 +34,7 @@ public class Views implements ActionListener {
                     try {
                         obs.testStarted();
                     } catch (IOException ioException) {
-                        ioException.printStackTrace();
+                        System.out.println(ioException.getMessage()); //NOSONAR
                     }
                 }
                 break;
