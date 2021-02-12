@@ -121,7 +121,7 @@ public class RapportModel {
 
             //Write the Document in file system
             FileOutputStream out = new FileOutputStream(
-                    ("../Output/report_template.docx"));
+                    ("C:/prog/Output/report_template.docx"));
 
             XWPFParagraph paragraph = document.createParagraph();
             XWPFRun run = paragraph.createRun();

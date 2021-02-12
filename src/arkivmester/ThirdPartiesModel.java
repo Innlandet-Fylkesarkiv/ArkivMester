@@ -18,7 +18,7 @@ public class ThirdPartiesModel {
     public void runArkadeTest(String path) throws IOException { //NOSONAR
 
         //Should be "String archivePath = path"
-        String archivePath = "c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar"; //NOSONAR
+        String archivePath = path; //NOSONAR
         //Path to output folder where test report gets saved.
         String outputPath = "c:\\arkade\\output"; //NOSONAR
         //Path to temp folder where temporary data about the tests gets stored.

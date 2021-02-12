@@ -1,8 +1,10 @@
 package arkivmester;
 
+import java.io.IOException;
+
 //Interface listener for view
 public interface ViewObserver {
-    void testStarted();
+    void testStarted() throws IOException;
     void newTest();
     void editAdminInfo();
     void cancelButton();
