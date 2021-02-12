@@ -34,6 +34,8 @@ public class RapportModel {
     private void chapterOne() throws Exception {
 
         String file = "src/resources/chapters/1.xml";
+
+
         Document doc;
         try {
             doc = parseFromXMLFile(file);
@@ -96,8 +98,14 @@ public class RapportModel {
 
         return t;
     }
-    // Get xml from test results
-    private Document parseFromXMLFile(String filepath) throws Exception {   // NOSONAR
+
+    // Create rapport document
+    private void setUpBlankDocument() {
+        document = new XWPFDocument();
+        System.out.println("doc successfully set up"); //NOSONAR
+    }
+
+    private static Document parseFromXMLFile(String filepath) throws Exception {   // NOSONAR
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
         factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
@@ -112,11 +120,6 @@ public class RapportModel {
         }
     }
 
-    // Create rapport document
-    private void setUpBlankDocument() {
-        document = new XWPFDocument();
-        System.out.println("doc successfully set up"); //NOSONAR
-    }
     // Write to rapport document
     private void writeDocToPath(String text) {
         //Write the Document in file system
