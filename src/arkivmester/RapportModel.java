@@ -64,8 +64,11 @@ public class RapportModel {
 
                 if (n.getNodeType() == Node.ELEMENT_NODE) {
                     s = switch (e.getNodeName()) {
+                        // TODO: create a subtitle function for handling subtitle tags
+                        // TODO: create a title function for handling title tags
                         case "bulletPoint" -> formatBulletPoint(n.getTextContent());
                         case "paragraph" -> formatParagraph(n.getTextContent());
+                        // TODO: create input function for handling input tags
                         default -> "";
                     };
                     text.append(s);
