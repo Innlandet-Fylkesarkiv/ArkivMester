@@ -3,7 +3,7 @@ package arkivmester;
 import org.w3c.dom.Document;
 
 import java.io.FileNotFoundException;
-
+/*
 public class ExceptionHandler extends Exception {
 
     public static tryOpeningFile() {
@@ -21,3 +21,5 @@ public class ExceptionHandler extends Exception {
     }
 
 }
+
+ */
