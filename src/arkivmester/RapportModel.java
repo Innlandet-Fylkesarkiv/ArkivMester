@@ -33,7 +33,7 @@ public class RapportModel {
     // Get xml kap 1 information
     private void chapterOne() {
 
-        String file = "src/resources/chapter/1.xml";
+        String file = "src/resources/chapters/1.xml";
 
         try {
             Document doc = parseFromXMLFile(file);
