@@ -28,58 +28,49 @@
         aspektene innenfor dette området.
     </paragraph>
 
-    <title1.1>
-        <item>
-            1.1. Administrative data:
-        </item>
-    </title1.1>
-    <AdministrativeData>
-        <item>
-            UttrekksID: TODO
+    <subtitle>
+        1.1. Administrative data:
+    </subtitle>
+    <todo>
+        UttrekksID: TODO
 
-            Eier av uttrekket:
+        Eier av uttrekket:
 
-            Kommune: TODO
+        Kommune: TODO
 
-            Kontaktperson: TODO
+        Kontaktperson: TODO
 
-            Uttrekksformat: Noark5 versjon TODO
+        Uttrekksformat: Noark5 versjon TODO
 
-            Produksjonsdato for uttrekket: TODO
+        Produksjonsdato for uttrekket: TODO
 
-            Uttrekk mottatt dato: TODO
+        Uttrekk mottatt dato: TODO
 
-            Test utført av: TODO
+        Test utført av: TODO
 
-            Dato for rapport: TODO
-        </item>
-    </AdministrativeData>
+        Dato for rapport: TODO
+    </todo>
 
-    <title1.2>
-        <item>
-            1.2. Omfang av uttrekket
-        </item>
-    </title1.2>
+    <subtitle>
+        1.2. Omfang av uttrekket
+    </subtitle>
 
-    <title1.3>
-        <item>
-            1.3. Relasjon til andre uttrekk (brukes ved behov)
-        </item>
-    </title1.3>
+    <subtitle>
+        1.3. Relasjon til andre uttrekk (brukes ved behov)
+    </subtitle>
 
-    <renameThis>
-        <item>
-            Dette uttrekket ble mottatt av TODO i TODO og inneholder data fra perioden TODO-TODO.
+    <todo>
+        Dette uttrekket ble mottatt av TODO i TODO og inneholder data fra perioden TODO-TODO.
 
-            Totalt skal uttrekket inneholde TODO mapper, TODO registreringer, og TODO dokumenter. Antallet mapper og registreringer TODO samsvarer? med angitt antall journalposter i de medfølgende journalrapportene.
+        Totalt skal uttrekket inneholde TODO mapper, TODO registreringer, og TODO dokumenter. Antallet mapper og registreringer TODO samsvarer? med angitt antall journalposter i de medfølgende journalrapportene.
 
-            Arkivdelen er registrert med TODO elektronisk/ fysisk medium, det vil si at TODO de skal være håndtert elektronisk og ikke ha noen papirdokumenter tilknyttet. Vi har ikke informasjon om at det finnes noe vedleggs arkiv til noen av disse arkivdelene. / det i utgangspunktet er papirbasert. Dette gjør at vi kan akseptere noe mer avvik i filformater og integritet i uttrekket.
+        Arkivdelen er registrert med TODO elektronisk/ fysisk medium, det vil si at TODO de skal være håndtert elektronisk og ikke ha noen papirdokumenter tilknyttet. Vi har ikke informasjon om at det finnes noe vedleggs arkiv til noen av disse arkivdelene. / det i utgangspunktet er papirbasert. Dette gjør at vi kan akseptere noe mer avvik i filformater og integritet i uttrekket.
 
-            1.3. Relasjon til andre uttrekk (brukes ved behov)
+        1.3. Relasjon til andre uttrekk (brukes ved behov)
 
-            Oversikt over andre uttrekk som henger sammen med dette -> Består deponeringen av flere uttrekk?
-        </item>
-    </renameThis>
+        Oversikt over andre uttrekk som henger sammen med dette -> Består deponeringen av flere uttrekk?
+
+    </todo>
 
 
 
