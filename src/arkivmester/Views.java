@@ -3,6 +3,7 @@ package arkivmester;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,8 +30,13 @@ public class Views implements ActionListener {
                 System.out.println("b1"); //#NOSONAR
                 break;
             case "Start testing":
-                for (ViewObserver obs : observers)
-                    obs.testStarted();
+                for (ViewObserver obs : observers) {
+                    try {
+                        obs.testStarted();
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                    }
+                }
                 break;
             case "Test nytt uttrekk":
                 for (ViewObserver obs : observers)

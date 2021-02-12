@@ -1,5 +1,7 @@
 package arkivmester;
 
+import java.io.IOException;
+
 public class ArchiveController implements ViewObserver {
     MainView mainView;
     TestView testView;
@@ -28,11 +30,13 @@ public class ArchiveController implements ViewObserver {
 
     //When "Start testing" is clicked.
     @Override
-    public void testStarted() {
+    public void testStarted() throws IOException {
         testView = new TestView();
         testView.addObserver(this);
         testView.createAndShowGUI(mainView.getContainer());
         mainView.removeEditInfoBtn();
+        thirdPartiesModel.runArkadeTest("c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar");
+
     }
 
     //When "Test nytt uttrekk" is clicked.
