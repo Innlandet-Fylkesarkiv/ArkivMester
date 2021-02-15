@@ -78,4 +78,23 @@ public class ArchiveController implements ViewObserver {
         testSettingsView.createAndShowGUI(mainView.getContainer());
 
     }
+
+    //When "Last inn pakket uttrekk" is clicked.
+    @Override
+    public void uploadArchive() {
+        int success = archiveModel.uploadFolder(mainView.getContainer());
+
+        //Folder uploaded
+        if(success == 1) {
+            //TODO Activate buttons
+            //TODO Deactivate "Skriv rapport" if already activated
+            //TODO Reset manual admin info fields if occupied
+            //TODO Read admin info and display
+
+        }
+        //Faulty folder
+        else if(success == 0) {
+            //TODO Display error message popup
+        }
+    }
 }

@@ -9,4 +9,5 @@ public interface ViewObserver {
     void editAdminInfo();
     void cancelButton();
     void chooseTests();
+    void uploadArchive();
 }

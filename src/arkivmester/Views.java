@@ -27,7 +27,8 @@ public class Views implements ActionListener {
 
         switch (buttonName) {
             case "Last inn pakket uttrekk":
-                System.out.println("b1"); //#NOSONAR
+                for (ViewObserver obs : observers)
+                    obs.uploadArchive();
                 break;
             case "Start testing":
                 for (ViewObserver obs : observers) {
