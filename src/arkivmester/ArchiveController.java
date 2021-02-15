@@ -30,12 +30,19 @@ public class ArchiveController implements ViewObserver {
 
     //When "Start testing" is clicked.
     @Override
-    public void testStarted() throws IOException {
+    public void testStarted() {
         testView = new TestView();
         testView.addObserver(this);
         testView.createAndShowGUI(mainView.getContainer());
         mainView.removeEditInfoBtn();
-        thirdPartiesModel.runArkadeTest("c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar");
+        //thirdPartiesModel.runArkadeTest("c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar"); //NOSONAR
+        try {
+            thirdPartiesModel.runKostVal("test");
+        }
+        catch (IOException e) {
+            System.out.println(e.getMessage()); //NOSONAR
+        }
+
 
     }
 

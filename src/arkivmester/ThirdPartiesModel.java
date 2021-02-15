@@ -42,6 +42,41 @@ public class ThirdPartiesModel {
 
     }
 
+    public void runKostVal(String path) throws IOException {
+
+        //String archivepath = "c:\\archive\\test\\pakke\\content\\dokument"; //NOSONAR
+        path = "c:\\archive\\test\\pakke\\content\\dokument"; //NOSONAR
+
+        ProcessBuilder kostvalBuilder = new ProcessBuilder( //NOSONAR
+                "cmd.exe", "/c", "cd \"C:\\prog\\kost-val\" &&  java -jar cmd_KOST-Val.jar --sip " +
+                path + " --en");
+        kostvalBuilder.redirectErrorStream(true);
+        Process p = kostvalBuilder.start();
+
+        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String line;
+        line = r.readLine();
+        while(line != null) {
+            line = r.readLine();
+            System.out.println(line); //NOSONAR
+        }
+
+        kostvalBuilder = new ProcessBuilder(
+                "cmd.exe", "/c", "move %userprofile%\\.kost-val_2x\\logs\\*.xml* c:\\archive");
+        kostvalBuilder.redirectErrorStream(true);
+        p = kostvalBuilder.start();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        line = reader.readLine();
+        while(line != null) {
+            line = reader.readLine();
+            System.out.println(line); //NOSONAR
+        }
+
+
+
+    }
+
+
 
 
 }
