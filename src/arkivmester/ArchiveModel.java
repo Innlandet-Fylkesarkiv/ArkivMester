@@ -17,7 +17,7 @@ public class ArchiveModel {
     //Asks user to choose which folder to upload.
     public int uploadFolder(Container container) {
 
-        JFileChooser fc = new JFileChooser();
+        JFileChooser fc = new JFileChooser("C:/");
         fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         int response = fc.showOpenDialog(container);
 

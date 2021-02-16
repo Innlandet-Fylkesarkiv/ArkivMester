@@ -103,7 +103,7 @@ public class ArchiveController implements ViewObserver {
         if(success == 1) {
             mainView.activateButtons();
             mainView.resetManualInfo();
-            //to do Read admin info
+            rapportModel.readAdminXmlFile(archiveModel.xmlMeta);
             mainView.updateAdminInfo(rapportModel.getAdminInfo());
         }
         //Faulty folder

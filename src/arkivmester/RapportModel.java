@@ -12,6 +12,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 // Used for parsing of xml schema and exception handling
 public class RapportModel {
@@ -22,15 +23,10 @@ public class RapportModel {
         //Rapport
         //kap 1, 1.1, 1.2
 
-        //Mock data
-        adminInfoList.add("data1");
-        adminInfoList.add("data2");
-        adminInfoList.add("data3");
-        adminInfoList.add("data4");
-        adminInfoList.add("data5");
-        adminInfoList.add("data6");
-        adminInfoList.add("data7");
-        adminInfoList.add("data8");
+        //Adds 8 empty fields in the list
+        for (int i = 0; i<8; i++) {
+            adminInfoList.add("");
+        }
     }
 
     //Gets adminInfoList list
@@ -57,6 +53,68 @@ public class RapportModel {
 
         chapterOne();
 
+    }
+
+    //Read administrative data from .xml file
+    public void readAdminXmlFile(File xml) {
+        try {
+            Document doc = parseFromXMLFile(xml.getAbsolutePath());
+
+            //4, Produksjonsdato for uttrekket
+            NodeList metsHdrList = Objects.requireNonNull(doc).getElementsByTagName("metsHdr");
+            Node metsHdr = metsHdrList.item(0);
+            if (metsHdr.getNodeType() == Node.ELEMENT_NODE) {
+                Element metsHdrElement = (Element)metsHdr;
+                adminInfoList.set(4, metsHdrElement.getAttribute("CREATEDATE"));
+            }
+
+            //Agent nodes
+            NodeList agentList = doc.getElementsByTagName("agent");
+            for (int i = 0; i < agentList.getLength(); i++) {
+                Node nNode = agentList.item(i);
+
+                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eElement = (Element)nNode;
+                    NamedNodeMap attrs =  nNode.getAttributes();
+
+                    if(attrs.getLength() == 3) {
+                        //1, Kommune/Kunde
+                        //Attribute 1 in .xml is (1) in list
+                        //Attribute 2 in .xml is (0) in list
+                        //Attribute 3 in .xml is (2) in list
+                        if(
+                            ((Attr)attrs.item(0)).getValue().equals("SUBMITTER")
+                                    && ((Attr)attrs.item(1)).getValue().equals("OTHER")
+                                    && ((Attr)attrs.item(2)).getValue().equals("ORGANIZATION")) {
+
+                            NodeList nameList = eElement.getElementsByTagName("name");
+                            Node name = nameList.item(0);
+                            if (name.getNodeType() == Node.ELEMENT_NODE) {
+                                adminInfoList.set(1, name.getTextContent());
+                            }
+                        }
+
+                        //2, Kommune/Kunde
+                        //Attribute 1 in .xml is (1) in list
+                        //Attribute 2 in .xml is (0) in list
+                        //Attribute 3 in .xml is (2) in list
+                        if(
+                            ((Attr)attrs.item(0)).getValue().equals("SUBMITTER")
+                                    && ((Attr)attrs.item(1)).getValue().equals("OTHER")
+                                    && ((Attr)attrs.item(2)).getValue().equals("INDIVIDUAL")) {
+
+                            NodeList personList = eElement.getElementsByTagName("name");
+                            Node person = personList.item(0);
+                            if (person.getNodeType() == Node.ELEMENT_NODE) {
+                                adminInfoList.set(2, adminInfoList.get(2) + person.getTextContent() + ", ");
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Could not find .xml file"); //#NOSONAR
+        }
     }
 
     // Get xml kap 1 information
