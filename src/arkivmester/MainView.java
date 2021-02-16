@@ -233,11 +233,25 @@ public class MainView extends Views{
         //writeReportBtn.setEnabled(!writeReportBtn.isEnabled()); #NOSONAR
     }
 
+    //Deactivates buttons when view is reset
+    private void deactivateButtons() {
+        chooseTestsBtn.setEnabled(false);
+        startTestingBtn.setEnabled(false);
+        editInfoBtn.setEnabled(false);
+        writeReportBtn.setEnabled(false);
+    }
+
     //Resets administrative information fields
     public void resetManualInfo() {
         for (JLabel value: valueList) {
            value.setText("");
         }
+    }
+
+    //Resets mainview
+    public void resetMainView() {
+        resetManualInfo();
+        deactivateButtons();
     }
 
     //Updates administrative information fields

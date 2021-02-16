@@ -15,7 +15,7 @@ import java.util.List;
 
 // Used for parsing of xml schema and exception handling
 public class RapportModel {
-    List<String> adminInfoList = new ArrayList<>();
+    List<String> adminInfoList = new ArrayList<>(); //Always have 8 elements
     XWPFDocument document;
 
     RapportModel() {
@@ -43,6 +43,13 @@ public class RapportModel {
         adminInfoList = list;
     }
 
+    //Resets adminInfoList
+    public void resetAdminInfo() {
+        for (String value: adminInfoList) { //#NOSONAR
+            value = "";                     //#NOSONAR
+        }
+    }
+    
     // Right know work as rapportModel.main in function
     public void start() {
 

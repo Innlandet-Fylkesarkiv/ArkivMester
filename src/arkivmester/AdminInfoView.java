@@ -62,7 +62,7 @@ public class AdminInfoView extends Views {
         }
 
         //Buttons
-        JButton saveInfoBtn = new JButton("Lagre");
+        JButton saveInfoBtn = new JButton("Lagre administrativ data");
         saveInfoBtn.addActionListener(this);
         saveInfoBtn.setBackground(primaryColor);
         saveInfoBtn.setForeground(Color.WHITE);

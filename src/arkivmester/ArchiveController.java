@@ -44,7 +44,9 @@ public class ArchiveController implements ViewObserver {
     public void newTest() {
         testView.clearContainer();
         testView = null;
-        mainView.createAndShowGUI();
+        mainView.showGUI();
+        mainView.resetMainView();
+        rapportModel.resetAdminInfo();
     }
 
     //When "Rediger informasjon" is clicked.

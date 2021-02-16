@@ -47,7 +47,7 @@ public class Views implements ActionListener {
                 for (ViewObserver obs : observers)
                     obs.editAdminInfo();
                 break;
-            case "Lagre":
+            case "Lagre administrativ data":
                 for (ViewObserver obs : observers) {
                     obs.saveAdminInfo();
                 }
