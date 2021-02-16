@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class ThirdPartiesModel {
+    String cmd = "cmd.exe";
     ThirdPartiesModel() {
         //ThirdParties
     }
@@ -15,10 +16,10 @@ public class ThirdPartiesModel {
 
     Params: path - a string that contains the path to the archive that is to be tested.
      */
-    public void runArkadeTest(String path) throws IOException { //NOSONAR
+    public void runArkadeTest(String path) {
 
         //Should be "String archivePath = path"
-        String archivePath = path; //NOSONAR
+        path = "c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar"; // NOSONAR
         //Path to output folder where test report gets saved.
         String outputPath = "c:\\arkade\\output"; //NOSONAR
         //Path to temp folder where temporary data about the tests gets stored.
@@ -26,58 +27,71 @@ public class ThirdPartiesModel {
 
         //Process builder to run command line.
         ProcessBuilder arkadeBuilder = new ProcessBuilder(
-                "cmd.exe", "/c", "cd \"C:\\arkadecli\" && arkade test -a " + archivePath +
+                cmd, "/c", "cd \"C:\\arkadecli\" && arkade test -a " + path +
                 " -o " + outputPath +  " -p " + tempPath + " -t noark5");
         arkadeBuilder.redirectErrorStream(true);
-        Process p = arkadeBuilder.start();
-
-        //Gets the console output and prints it.
-        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        String line;
-        line = r.readLine();
-        while(line != null) {
+        try {
+            Process p = arkadeBuilder.start();
+            //Gets the console output and prints it.
+            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            String line;
             line = r.readLine();
-            System.out.println(line); //NOSONAR
+            while (line != null) {
+                line = r.readLine();
+                System.out.println(line); //NOSONAR
+            }
+        }
+        catch (IOException e) {
+            System.out.println(e.getMessage()); // NOSONAR
         }
 
     }
 
-    public void runKostVal(String path) throws IOException {
+    /*
+    Runs Kost-Val through command line, the output gets printed to the console.
+    Report from the test gets moved from the user folder to an output folder.
 
-        //String archivepath = "c:\\archive\\test\\pakke\\content\\dokument"; //NOSONAR
+    Params: path - a string that contains the path to the archive that is to be tested.
+     */
+    public void runKostVal(String path) {
+
         path = "c:\\archive\\test\\pakke\\content\\dokument"; //NOSONAR
 
+        //Process builder to run kost-val from command line
         ProcessBuilder kostvalBuilder = new ProcessBuilder( //NOSONAR
-                "cmd.exe", "/c", "cd \"C:\\prog\\kost-val\" &&  java -jar cmd_KOST-Val.jar --sip " +
+                cmd, "/c", "cd \"C:\\prog\\kost-val\" &&  java -jar cmd_KOST-Val.jar --sip " +
                 path + " --en");
         kostvalBuilder.redirectErrorStream(true);
-        Process p = kostvalBuilder.start();
-
-        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        String line;
-        line = r.readLine();
-        while(line != null) {
+        try {
+            Process p = kostvalBuilder.start();
+            //Gets the console output and prints it.
+            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            String line;
             line = r.readLine();
-            System.out.println(line); //NOSONAR
-        }
+            while (line != null) {
+                line = r.readLine();
+                System.out.println(line); //NOSONAR
+            }
 
-        kostvalBuilder = new ProcessBuilder(
-                "cmd.exe", "/c", "move %userprofile%\\.kost-val_2x\\logs\\*.xml* c:\\archive");
-        kostvalBuilder.redirectErrorStream(true);
-        p = kostvalBuilder.start();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        line = reader.readLine();
-        while(line != null) {
+            //Process builder to move report to an output folder.
+            kostvalBuilder = new ProcessBuilder(
+                    cmd, "/c", "move %userprofile%\\.kost-val_2x\\logs\\*.xml* c:\\archive\\testoutput");
+            kostvalBuilder.redirectErrorStream(true);
+            p = kostvalBuilder.start();
+
+            //Gets the console output and prints it.
+            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
             line = reader.readLine();
-            System.out.println(line); //NOSONAR
+            while (line != null) {
+                line = reader.readLine();
+                System.out.println(line); //NOSONAR
+            }
         }
-
-
+        catch (IOException e ) {
+            System.out.println(e.getMessage()); //NOSONAR
+        }
 
     }
-
-
-
 
 }
 
