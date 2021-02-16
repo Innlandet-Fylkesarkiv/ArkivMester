@@ -22,7 +22,7 @@ public class Views implements ActionListener {
 
     //Shared action listener for all buttons
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e) { //#NOSONAR
         String buttonName = e.getActionCommand();
 
         switch (buttonName) {
@@ -46,6 +46,11 @@ public class Views implements ActionListener {
             case "Rediger informasjon":
                 for (ViewObserver obs : observers)
                     obs.editAdminInfo();
+                break;
+            case "Lagre":
+                for (ViewObserver obs : observers) {
+                    obs.saveAdminInfo();
+                }
                 break;
             case "Avbryt":
                 for (ViewObserver obs : observers)

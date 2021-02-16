@@ -3,10 +3,14 @@ package arkivmester;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 //View class for the admin information window
 public class AdminInfoView extends Views {
     Container container;
+
+    List<JTextField> valueList = new ArrayList<>();
 
     AdminInfoView() {
         //Empty constructor
@@ -43,14 +47,19 @@ public class AdminInfoView extends Views {
         gbc.gridy = 0;
 
         //Row 1
-        JLabel data1 = new JLabel("Uttrekk mottatt dato:");
-        JLabel data2 = new JLabel("Test utført av:");
-        JLabel data3 = new JLabel("Dato for rapport:");
+        JLabel data1 = new JLabel("UttrekksID:");
+        JLabel data2 = new JLabel("Kommune/Kunde:");
+        JLabel data3 = new JLabel("Kontaktperson:");
+        JLabel data4 = new JLabel("Uttrekksformat:");
+        JLabel data5 = new JLabel("Produksjonsdato for uttrekket:");
+        JLabel data6 = new JLabel("Uttrekk mottatt dato:");
+        JLabel data7 = new JLabel("Test utført av:");
+        JLabel data8 = new JLabel("Dato for rapport:");
 
         //Row 2
-        JTextField receivedDateTxt = new JTextField(15);
-        JTextField testByTxt = new JTextField(15);
-        JTextField rapportDateTxt = new JTextField(15);
+        for(int i = 0; i<8; i++) {
+            valueList.add(new JTextField(15));
+        }
 
         //Buttons
         JButton saveInfoBtn = new JButton("Lagre");
@@ -73,16 +82,35 @@ public class AdminInfoView extends Views {
         gridPanel.add(data2, gbc);
         gbc.gridy++;
         gridPanel.add(data3, gbc);
-
+        gbc.gridy++;
+        gridPanel.add(data4, gbc);
+        gbc.gridy++;
+        gridPanel.add(data5, gbc);
+        gbc.gridy++;
+        gridPanel.add(data6, gbc);
+        gbc.gridy++;
+        gridPanel.add(data7, gbc);
+        gbc.gridy++;
+        gridPanel.add(data8, gbc);
 
         gbc.gridx++;
         gbc.gridy = 0;
 
-        gridPanel.add(receivedDateTxt, gbc);
+        gridPanel.add(valueList.get(0), gbc);
         gbc.gridy++;
-        gridPanel.add(testByTxt, gbc);
+        gridPanel.add(valueList.get(1), gbc);
         gbc.gridy++;
-        gridPanel.add(rapportDateTxt, gbc);
+        gridPanel.add(valueList.get(2), gbc);
+        gbc.gridy++;
+        gridPanel.add(valueList.get(3), gbc);
+        gbc.gridy++;
+        gridPanel.add(valueList.get(4), gbc);
+        gbc.gridy++;
+        gridPanel.add(valueList.get(5), gbc);
+        gbc.gridy++;
+        gridPanel.add(valueList.get(6), gbc);
+        gbc.gridy++;
+        gridPanel.add(valueList.get(7), gbc);
 
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.NONE;
@@ -96,5 +124,23 @@ public class AdminInfoView extends Views {
     public void clearContainer(){
         container.removeAll();
         container.revalidate();
+    }
+
+    //Populates field text
+    public void populateAdminInfo(List<String> list) {
+        for (int i = 0; i<list.size(); i++) {
+            valueList.get(i).setText(list.get(i));
+        }
+    }
+
+    //Retrieves field text
+    public List<String> getManualInfo() {
+        List<String> list = new ArrayList<>();
+
+        for (JTextField field : valueList) {
+            list.add(field.getText());
+        }
+
+        return list;
     }
 }

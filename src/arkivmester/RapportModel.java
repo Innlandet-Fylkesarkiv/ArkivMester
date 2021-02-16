@@ -10,15 +10,35 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 // Used for parsing of xml schema and exception handling
 public class RapportModel {
-
+    List<String> adminInfoList = new ArrayList<>();
     XWPFDocument document;
 
     RapportModel() {
         //Rapport
         //kap 1, 1.1, 1.2
+        adminInfoList.add("data1");
+        adminInfoList.add("data2");
+        adminInfoList.add("data3");
+        adminInfoList.add("data4");
+        adminInfoList.add("data5");
+        adminInfoList.add("data6");
+        adminInfoList.add("data7");
+        adminInfoList.add("data8");
+    }
+
+    //Gets adminInfoList list
+    public List<String> getAdminInfo() {
+        return adminInfoList;
+    }
+
+    //Updates adminInfoList list
+    public void updateAdminInfo(List<String> list) {
+        adminInfoList = list;
     }
 
     // Right know work as rapportModel.main in function

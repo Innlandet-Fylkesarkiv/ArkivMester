@@ -3,6 +3,8 @@ package arkivmester;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 //View class for the main window
 public class MainView extends Views{
@@ -16,10 +18,8 @@ public class MainView extends Views{
     private JButton startTestingBtn;
     private JButton writeReportBtn;
 
-    //Info fields
-    JLabel value6;
-    JLabel value7;
-    JLabel value8;
+    //Info field list
+    List<JLabel> valueList = new ArrayList<>();
 
     MainView() {
         //Empty constructor
@@ -176,32 +176,27 @@ public class MainView extends Views{
         JLabel name8 = new JLabel("Dato for rapport:");
 
         //Row 2
-        JLabel value1 = new JLabel("data");
-        JLabel value2 = new JLabel("data");
-        JLabel value3 = new JLabel("data");
-        JLabel value4 = new JLabel("data");
-        JLabel value5 = new JLabel("data");
-        value6 = new JLabel("data");
-        value7 = new JLabel("data");
-        value8 = new JLabel("data");
+        for(int i = 0; i<8; i++) {
+            valueList.add(new JLabel());
+        }
 
         //Adding labels
         infoGrid.add(name1);
-        infoGrid.add(value1);
+        infoGrid.add(valueList.get(0));
         infoGrid.add(name2);
-        infoGrid.add(value2);
+        infoGrid.add(valueList.get(1));
         infoGrid.add(name3);
-        infoGrid.add(value3);
+        infoGrid.add(valueList.get(2));
         infoGrid.add(name4);
-        infoGrid.add(value4);
+        infoGrid.add(valueList.get(3));
         infoGrid.add(name5);
-        infoGrid.add(value5);
+        infoGrid.add(valueList.get(4));
         infoGrid.add(name6);
-        infoGrid.add(value6);
+        infoGrid.add(valueList.get(5));
         infoGrid.add(name7);
-        infoGrid.add(value7);
+        infoGrid.add(valueList.get(6));
         infoGrid.add(name8);
-        infoGrid.add(value8);
+        infoGrid.add(valueList.get(7));
 
         infoPanel.add(infoLabel);
         infoPanel.add(editInfoBtn);
@@ -226,12 +221,20 @@ public class MainView extends Views{
         chooseTestsBtn.setEnabled(true);
         startTestingBtn.setEnabled(true);
         editInfoBtn.setEnabled(true);
-        writeReportBtn.setEnabled(!writeReportBtn.isEnabled());
+        //writeReportBtn.setEnabled(!writeReportBtn.isEnabled()); #NOSONAR
     }
 
+    //Resets administrative information fields
     public void resetManualInfo() {
-        value6.setText("");
-        value7.setText("");
-        value8.setText("");
+        for (JLabel value: valueList) {
+           value.setText("");
+        }
+    }
+
+    //Updates administrative information fields
+    public void updateAdminInfo(List<String> list) {
+        for (int i = 0; i<list.size(); i++) {
+            valueList.get(i).setText(list.get(i));
+        }
     }
 }
