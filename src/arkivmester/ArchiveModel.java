@@ -35,18 +35,16 @@ public class ArchiveModel {
                     xmlMeta = files[1];
                     return 1;
                 }
-                else if (files[0].getName().endsWith(".xml") && files[0].getName().endsWith(".tar")) {
+                else if (files[0].getName().endsWith(".xml") && files[1].getName().endsWith(".tar")) {
                     xmlMeta = files[0];
                     tar = files[1];
                     return 1;
                 }
                 else {
-                    System.out.println("Mappen inneholder ikke .tar og .xml");//#NOSONAR
                     return 0;
                 }
             }
             else {
-                System.out.println("Mappen inneholder ikke .tar og .xml");//#NOSONAR
                 return 0;
             }
         } else {

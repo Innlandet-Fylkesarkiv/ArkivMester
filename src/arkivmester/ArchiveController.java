@@ -88,11 +88,11 @@ public class ArchiveController implements ViewObserver {
         if(success == 1) {
             mainView.activateButtons();
             mainView.resetManualInfo();
-            //TODO Read admin info and display
+            //Read admin info and display
         }
         //Faulty folder
         else if(success == 0) {
-            //TODO Display error message popup
+            System.out.println("Mappen inneholder ikke .tar og .xml");//#NOSONAR
         }
     }
 }
