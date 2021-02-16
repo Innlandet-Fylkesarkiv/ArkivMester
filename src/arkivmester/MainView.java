@@ -10,13 +10,15 @@ import java.util.List;
 public class MainView extends Views{
     private JFrame f;
     private Container container;
+    private JPanel topPanel;
     private JPanel infoPanel;
+    private JPanel mainPanel;
 
     //Buttons
     private JButton editInfoBtn;
     private JButton chooseTestsBtn;
     private JButton startTestingBtn;
-    private JButton writeReportBtn;
+    private JButton writeReportBtn; //#NOSONAR
 
     //Info field list
     List<JLabel> valueList = new ArrayList<>();
@@ -28,7 +30,7 @@ public class MainView extends Views{
     //Sets up GUI
     public void createAndShowGUI() {
         //Top panel
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         topPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         topPanel.setBackground(primaryColor);
         setUpTopPanel(topPanel);
@@ -39,7 +41,7 @@ public class MainView extends Views{
         container.setBackground(Color.WHITE);
 
         //Main panel
-        JPanel mainPanel = new JPanel();
+        mainPanel = new JPanel();
         mainPanel.setLayout(null);
         mainPanel.setBackground(Color.WHITE);
         setUpMainPanel(mainPanel);
@@ -54,7 +56,14 @@ public class MainView extends Views{
         container.add(mainPanel);
         container.add(infoPanel, BorderLayout.EAST);
         container.add(topPanel, BorderLayout.NORTH);
-        container.remove(editInfoBtn);
+    }
+
+    //Shows GUI after its created
+    public void showGUI() {
+        container.add(mainPanel);
+        container.add(infoPanel, BorderLayout.EAST);
+        container.add(topPanel, BorderLayout.NORTH);
+        f.setContentPane(container);
     }
 
     //Create frame

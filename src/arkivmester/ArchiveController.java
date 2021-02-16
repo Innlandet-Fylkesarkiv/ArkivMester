@@ -64,9 +64,8 @@ public class ArchiveController implements ViewObserver {
         adminInfoView.clearContainer();
         adminInfoView = null;
 
-        mainView.createAndShowGUI();
+        mainView.showGUI();
         mainView.updateAdminInfo(rapportModel.getAdminInfo());
-        mainView.activateButtons();
     }
 
     //When "Avbryt" is clicked.
@@ -81,9 +80,7 @@ public class ArchiveController implements ViewObserver {
             testSettingsView = null;
         }
 
-        mainView.createAndShowGUI();
-        mainView.updateAdminInfo(rapportModel.getAdminInfo());
-        mainView.activateButtons();
+        mainView.showGUI();
     }
 
     //When "Velg tester" is clicked.
@@ -104,7 +101,7 @@ public class ArchiveController implements ViewObserver {
         if(success == 1) {
             mainView.activateButtons();
             mainView.resetManualInfo();
-            //Read admin info and display
+            //to do Read admin info
             mainView.updateAdminInfo(rapportModel.getAdminInfo());
         }
         //Faulty folder

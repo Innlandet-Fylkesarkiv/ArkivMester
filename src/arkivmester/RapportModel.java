@@ -21,6 +21,8 @@ public class RapportModel {
     RapportModel() {
         //Rapport
         //kap 1, 1.1, 1.2
+
+        //Mock data
         adminInfoList.add("data1");
         adminInfoList.add("data2");
         adminInfoList.add("data3");
