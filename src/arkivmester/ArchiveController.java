@@ -86,11 +86,9 @@ public class ArchiveController implements ViewObserver {
 
         //Folder uploaded
         if(success == 1) {
-            //TODO Activate buttons
-            //TODO Deactivate "Skriv rapport" if already activated
-            //TODO Reset manual admin info fields if occupied
+            mainView.activateButtons();
+            mainView.resetManualInfo();
             //TODO Read admin info and display
-
         }
         //Faulty folder
         else if(success == 0) {
