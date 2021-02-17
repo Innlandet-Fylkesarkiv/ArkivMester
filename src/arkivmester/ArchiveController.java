@@ -102,7 +102,7 @@ public class ArchiveController implements ViewObserver {
         //Folder uploaded
         if(success == 1) {
             mainView.activateButtons();
-            mainView.resetManualInfo();
+            rapportModel.resetAdminInfo();
             rapportModel.readAdminXmlFile(archiveModel.xmlMeta);
             mainView.updateAdminInfo(rapportModel.getAdminInfo());
         }

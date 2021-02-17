@@ -51,6 +51,7 @@ public class MainView extends Views{
         infoPanel.setLayout(new BorderLayout(0, 0));
         setUpInfoPanel(infoPanel);
         infoPanel.setBackground(Color.WHITE);
+        infoPanel.setBorder(new EmptyBorder(0, 0, 0, 125));
 
         //Adding components together
         container.add(mainPanel);
@@ -160,19 +161,23 @@ public class MainView extends Views{
     //Sets up the info panel
     private void setUpInfoPanel(JPanel infoPanel) {
         JLabel infoLabel = new JLabel("Informasjon om uttrekket:");
-        infoLabel.setBounds(0, 50, 300, 30);
         infoLabel.setFont(primaryFont);
 
-        JPanel infoGrid = new JPanel(new GridLayout(8, 2, 50, 0));
-        infoGrid.setBorder(new EmptyBorder(90, 0, 310, 100));
-        infoGrid.setBackground(Color.WHITE);
-
         editInfoBtn = new JButton("Rediger informasjon");
-        editInfoBtn.setBounds(0, 300, 150, 30);
         editInfoBtn.addActionListener(this);
         editInfoBtn.setBackground(primaryColor);
         editInfoBtn.setForeground(Color.WHITE);
         editInfoBtn.setEnabled(false);
+
+        //Grid
+        JPanel infoGrid = new JPanel(new GridBagLayout());
+        infoGrid.setBorder(new EmptyBorder(42, 0, 0, 0));
+        infoGrid.setBackground(Color.WHITE);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+
 
         //Row 1
         JLabel name1 = new JLabel("UttrekksID:");
@@ -189,27 +194,56 @@ public class MainView extends Views{
             valueList.add(new JLabel());
         }
 
-        //Adding labels
-        infoGrid.add(name1);
-        infoGrid.add(valueList.get(0));
-        infoGrid.add(name2);
-        infoGrid.add(valueList.get(1));
-        infoGrid.add(name3);
-        infoGrid.add(valueList.get(2));
-        infoGrid.add(name4);
-        infoGrid.add(valueList.get(3));
-        infoGrid.add(name5);
-        infoGrid.add(valueList.get(4));
-        infoGrid.add(name6);
-        infoGrid.add(valueList.get(5));
-        infoGrid.add(name7);
-        infoGrid.add(valueList.get(6));
-        infoGrid.add(name8);
-        infoGrid.add(valueList.get(7));
+        //Adding components together
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(10,0,0,10);
 
-        infoPanel.add(infoLabel);
-        infoPanel.add(editInfoBtn);
-        infoPanel.add(infoGrid);
+        infoGrid.add(infoLabel, gbc);
+        gbc.gridy++;
+
+        infoGrid.add(name1, gbc);
+        gbc.gridy++;
+        infoGrid.add(name2, gbc);
+        gbc.gridy++;
+        infoGrid.add(name3, gbc);
+        gbc.gridy++;
+        infoGrid.add(name4, gbc);
+        gbc.gridy++;
+        infoGrid.add(name5, gbc);
+        gbc.gridy++;
+        infoGrid.add(name6, gbc);
+        gbc.gridy++;
+        infoGrid.add(name7, gbc);
+        gbc.gridy++;
+        infoGrid.add(name8, gbc);
+
+        gbc.gridx++;
+        gbc.gridy = 1;
+
+        infoGrid.add(valueList.get(0), gbc);
+        gbc.gridy++;
+        infoGrid.add(valueList.get(1), gbc);
+        gbc.gridy++;
+        infoGrid.add(valueList.get(2), gbc);
+        gbc.gridy++;
+        infoGrid.add(valueList.get(3), gbc);
+        gbc.gridy++;
+        infoGrid.add(valueList.get(4), gbc);
+        gbc.gridy++;
+        infoGrid.add(valueList.get(5), gbc);
+        gbc.gridy++;
+        infoGrid.add(valueList.get(6), gbc);
+        gbc.gridy++;
+        infoGrid.add(valueList.get(7), gbc);
+
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridx--;
+        gbc.gridy++;
+        infoGrid.add(editInfoBtn, gbc);
+
+        infoPanel.add(infoGrid, BorderLayout.NORTH);
 
     }
 

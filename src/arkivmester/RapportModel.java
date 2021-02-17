@@ -41,8 +41,8 @@ public class RapportModel {
 
     //Resets adminInfoList
     public void resetAdminInfo() {
-        for (String value: adminInfoList) { //#NOSONAR
-            value = "";                     //#NOSONAR
+        for (int i = 0; i<adminInfoList.size(); i++) {
+            adminInfoList.set(i, "");
         }
     }
     
@@ -95,6 +95,8 @@ public class RapportModel {
                     if (person!=null && person.getNodeType() == Node.ELEMENT_NODE) {
                         personList.add(person);
                     }
+
+                    //Missing noark version here (3)
                 }
             }
         }
