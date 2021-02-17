@@ -68,53 +68,84 @@ public class RapportModel {
                 adminInfoList.set(4, metsHdrElement.getAttribute("CREATEDATE"));
             }
 
-            //Agent nodes
+            //Agent nodes (1 and 2)
             NodeList agentList = doc.getElementsByTagName("agent");
-            for (int i = 0; i < agentList.getLength(); i++) {
-                Node nNode = agentList.item(i);
+            parseAgentNodes(agentList);
 
-                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-                    Element eElement = (Element)nNode;
-                    NamedNodeMap attrs =  nNode.getAttributes();
-
-                    if(attrs.getLength() == 3) {
-                        //1, Kommune/Kunde
-                        //Attribute 1 in .xml is (1) in list
-                        //Attribute 2 in .xml is (0) in list
-                        //Attribute 3 in .xml is (2) in list
-                        if(
-                            ((Attr)attrs.item(0)).getValue().equals("SUBMITTER")
-                                    && ((Attr)attrs.item(1)).getValue().equals("OTHER")
-                                    && ((Attr)attrs.item(2)).getValue().equals("ORGANIZATION")) {
-
-                            NodeList nameList = eElement.getElementsByTagName("name");
-                            Node name = nameList.item(0);
-                            if (name.getNodeType() == Node.ELEMENT_NODE) {
-                                adminInfoList.set(1, name.getTextContent());
-                            }
-                        }
-
-                        //2, Kommune/Kunde
-                        //Attribute 1 in .xml is (1) in list
-                        //Attribute 2 in .xml is (0) in list
-                        //Attribute 3 in .xml is (2) in list
-                        if(
-                            ((Attr)attrs.item(0)).getValue().equals("SUBMITTER")
-                                    && ((Attr)attrs.item(1)).getValue().equals("OTHER")
-                                    && ((Attr)attrs.item(2)).getValue().equals("INDIVIDUAL")) {
-
-                            NodeList personList = eElement.getElementsByTagName("name");
-                            Node person = personList.item(0);
-                            if (person.getNodeType() == Node.ELEMENT_NODE) {
-                                adminInfoList.set(2, adminInfoList.get(2) + person.getTextContent() + ", ");
-                            }
-                        }
-                    }
-                }
-            }
         } catch (Exception e) {
             System.out.println("Could not find .xml file"); //#NOSONAR
         }
+    }
+
+    //Parsing agent nodes for administrative data
+    private void parseAgentNodes(NodeList agentList) {
+        List<Node> personList = new ArrayList<>();
+        Node person;
+        for (int i = 0; i < agentList.getLength(); i++) {
+            Node nNode = agentList.item(i);
+
+            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element eElement = (Element)nNode;
+                NamedNodeMap attrs =  nNode.getAttributes();
+
+                if(attrs.getLength() == 3) {
+                    parseCommuneCustomer(attrs, eElement);
+
+                    person = parseContactPerson(attrs, eElement);
+                    if (person!=null && person.getNodeType() == Node.ELEMENT_NODE) {
+                        personList.add(person);
+                    }
+                }
+            }
+        }
+
+        //2, Kontaktperson (Formatting)
+        int size = personList.size();
+        for (int i = 0; i < size; i++) {
+            adminInfoList.set(2, adminInfoList.get(2) + personList.get(i).getTextContent());
+
+            if(size>1 && i != size-1) {
+                adminInfoList.set(2, adminInfoList.get(2) + ", ");
+            }
+        }
+    }
+
+    //Parsing commune/customer nodes for administrative data
+    private void parseCommuneCustomer(NamedNodeMap attrs, Element eElement) {
+        //1, Kommune/Kunde (Query and Formatting)
+        //Attribute 1 in .xml is (1) in list
+        //Attribute 2 in .xml is (0) in list
+        //Attribute 3 in .xml is (2) in list
+        if(
+            ((Attr)attrs.item(0)).getValue().equals("SUBMITTER")
+                    && ((Attr)attrs.item(1)).getValue().equals("OTHER")
+                    && ((Attr)attrs.item(2)).getValue().equals("ORGANIZATION")) {
+
+            NodeList nameList = eElement.getElementsByTagName("name");
+            Node name = nameList.item(0);
+            if (name.getNodeType() == Node.ELEMENT_NODE) {
+                adminInfoList.set(1, name.getTextContent());
+            }
+        }
+    }
+
+    //Parsing contact person nodes for administrative data
+    private Node parseContactPerson(NamedNodeMap attrs, Element eElement) {
+        //2, Kontaktperson (Query)
+        //Attribute 1 in .xml is (1) in list
+        //Attribute 2 in .xml is (0) in list
+        //Attribute 3 in .xml is (2) in list
+        if(
+           ((Attr)attrs.item(0)).getValue().equals("SUBMITTER")
+                    && ((Attr)attrs.item(1)).getValue().equals("OTHER")
+                    && ((Attr)attrs.item(2)).getValue().equals("INDIVIDUAL"))  {
+
+            NodeList tempList = eElement.getElementsByTagName("name");
+            return tempList.item(0);
+        }
+
+        //If node is not a contact person
+        return null;
     }
 
     // Get xml kap 1 information
