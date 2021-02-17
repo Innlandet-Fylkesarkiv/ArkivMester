@@ -57,6 +57,7 @@ public class MainView extends Views{
         container.add(mainPanel);
         container.add(infoPanel, BorderLayout.EAST);
         container.add(topPanel, BorderLayout.NORTH);
+        container.validate();
     }
 
     //Shows GUI after its created

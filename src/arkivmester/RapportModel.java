@@ -16,15 +16,16 @@ import java.util.Objects;
 
 // Used for parsing of xml schema and exception handling
 public class RapportModel {
-    List<String> adminInfoList = new ArrayList<>(); //Always have 8 elements
+    private List<String> adminInfoList = new ArrayList<>(); //Always have 8 elements
+    int amountAdminFields = 8;
     XWPFDocument document;
 
     RapportModel() {
         //Rapport
         //kap 1, 1.1, 1.2
 
-        //Adds 8 empty fields in the list
-        for (int i = 0; i<8; i++) {
+        //Adds amountAdminFields empty fields in the list
+        for (int i = 0; i<amountAdminFields; i++) {
             adminInfoList.add("");
         }
     }
