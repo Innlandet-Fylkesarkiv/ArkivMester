@@ -160,6 +160,8 @@ public class MainView extends Views{
 
     //Sets up the info panel
     private void setUpInfoPanel(JPanel infoPanel) {
+        int rows = 8;
+
         JLabel infoLabel = new JLabel("Informasjon om uttrekket:");
         infoLabel.setFont(primaryFont);
 
@@ -179,7 +181,7 @@ public class MainView extends Views{
         gbc.gridy = 0;
 
 
-        //Row 1
+        //Col 1
         JLabel name1 = new JLabel("UttrekksID:");
         JLabel name2 = new JLabel("Kommune/Kunde:");
         JLabel name3 = new JLabel("Kontaktperson:");
@@ -189,8 +191,8 @@ public class MainView extends Views{
         JLabel name7 = new JLabel("Test utført av:");
         JLabel name8 = new JLabel("Dato for rapport:");
 
-        //Row 2
-        for(int i = 0; i<8; i++) {
+        //Col 2
+        for(int i = 0; i<rows; i++) {
             JTextArea textArea = new JTextArea();
             textArea.setLineWrap(true);
             textArea.setWrapStyleWord(true);
@@ -207,6 +209,7 @@ public class MainView extends Views{
         infoGrid.add(infoLabel, gbc);
         gbc.gridy++;
 
+        //Col 1
         infoGrid.add(name1, gbc);
         gbc.gridy++;
         infoGrid.add(name2, gbc);
@@ -222,34 +225,23 @@ public class MainView extends Views{
         infoGrid.add(name7, gbc);
         gbc.gridy++;
         infoGrid.add(name8, gbc);
-
         gbc.gridx++;
+
+        //Col 2
         gbc.gridy = 1;
 
-        infoGrid.add(valueList.get(0), gbc);
-        gbc.gridy++;
-        infoGrid.add(valueList.get(1), gbc);
-        gbc.gridy++;
-        infoGrid.add(valueList.get(2), gbc);
-        gbc.gridy++;
-        infoGrid.add(valueList.get(3), gbc);
-        gbc.gridy++;
-        infoGrid.add(valueList.get(4), gbc);
-        gbc.gridy++;
-        infoGrid.add(valueList.get(5), gbc);
-        gbc.gridy++;
-        infoGrid.add(valueList.get(6), gbc);
-        gbc.gridy++;
-        infoGrid.add(valueList.get(7), gbc);
+        for(int i = 0; i<rows; i++) {
+            infoGrid.add(valueList.get(i), gbc);
+            gbc.gridy++;
+        }
 
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.NONE;
         gbc.gridx--;
-        gbc.gridy++;
+
         infoGrid.add(editInfoBtn, gbc);
 
         infoPanel.add(infoGrid, BorderLayout.NORTH);
-
     }
 
     //Returns container

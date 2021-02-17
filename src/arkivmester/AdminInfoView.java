@@ -42,11 +42,13 @@ public class AdminInfoView extends Views {
 
     //Sets up the grid panel
     private void setUpGridPanel(JPanel gridPanel) {
+        int rows = 8;
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
 
-        //Row 1
+        //Col 1
         JLabel data1 = new JLabel("UttrekksID:");
         JLabel data2 = new JLabel("Kommune/Kunde:");
         JLabel data3 = new JLabel("Kontaktperson:");
@@ -56,7 +58,7 @@ public class AdminInfoView extends Views {
         JLabel data7 = new JLabel("Test utført av:");
         JLabel data8 = new JLabel("Dato for rapport:");
 
-        //Row 2
+        //Col 2
         for(int i = 0; i<8; i++) {
             valueList.add(new JTextField(15));
         }
@@ -77,6 +79,7 @@ public class AdminInfoView extends Views {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10,0,0,10);
 
+        //Col 1
         gridPanel.add(data1, gbc);
         gbc.gridy++;
         gridPanel.add(data2, gbc);
@@ -92,29 +95,19 @@ public class AdminInfoView extends Views {
         gridPanel.add(data7, gbc);
         gbc.gridy++;
         gridPanel.add(data8, gbc);
-
         gbc.gridx++;
+
+        //Col 2
         gbc.gridy = 0;
 
-        gridPanel.add(valueList.get(0), gbc);
-        gbc.gridy++;
-        gridPanel.add(valueList.get(1), gbc);
-        gbc.gridy++;
-        gridPanel.add(valueList.get(2), gbc);
-        gbc.gridy++;
-        gridPanel.add(valueList.get(3), gbc);
-        gbc.gridy++;
-        gridPanel.add(valueList.get(4), gbc);
-        gbc.gridy++;
-        gridPanel.add(valueList.get(5), gbc);
-        gbc.gridy++;
-        gridPanel.add(valueList.get(6), gbc);
-        gbc.gridy++;
-        gridPanel.add(valueList.get(7), gbc);
+        for(int i = 0; i<rows; i++) {
+            gridPanel.add(valueList.get(i), gbc);
+            gbc.gridy++;
+        }
 
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.NONE;
-        gbc.gridy++;
+
         gridPanel.add(saveInfoBtn, gbc);
         gbc.gridy++;
         gridPanel.add(cancelInfoBtn, gbc);
