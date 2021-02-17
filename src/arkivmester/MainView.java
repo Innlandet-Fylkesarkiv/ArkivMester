@@ -21,7 +21,7 @@ public class MainView extends Views{
     private JButton writeReportBtn; //#NOSONAR
 
     //Info field list
-    List<JLabel> valueList = new ArrayList<>();
+    List<JTextArea> valueList = new ArrayList<>();
 
     MainView() {
         //Empty constructor
@@ -191,7 +191,12 @@ public class MainView extends Views{
 
         //Row 2
         for(int i = 0; i<8; i++) {
-            valueList.add(new JLabel());
+            JTextArea textArea = new JTextArea();
+            textArea.setLineWrap(true);
+            textArea.setWrapStyleWord(true);
+            textArea.setEditable(false);
+            textArea.setColumns(15);
+            valueList.add(textArea);
         }
 
         //Adding components together
@@ -277,7 +282,7 @@ public class MainView extends Views{
 
     //Resets administrative information fields
     public void resetManualInfo() {
-        for (JLabel value: valueList) {
+        for (JTextArea value: valueList) {
            value.setText("");
         }
     }
