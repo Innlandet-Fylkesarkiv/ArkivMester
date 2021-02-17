@@ -7,7 +7,7 @@ import java.awt.*;
 //View class for the test window
 public class TestView extends Views{
     Container container;
-
+    JComboBox<String> fileFormatCb;
     TestView() {
         //Empty constructor
     }
@@ -121,10 +121,8 @@ public class TestView extends Views{
 
     //Sets up the button panel
     private void setUpButtonPanel(JPanel buttonPanel) {
-
-
-        String[] fileFormats = {".odf",".docx"};
-        JComboBox<String> fileFormatCb = new JComboBox<>(fileFormats);
+        String[] fileFormats = {".docx",".odf"};
+        fileFormatCb = new JComboBox<>(fileFormats);
         fileFormatCb.setBackground(primaryColor);
         fileFormatCb.setForeground(Color.WHITE);
         fileFormatCb.setPreferredSize(new Dimension(100, 20));
@@ -155,5 +153,10 @@ public class TestView extends Views{
     public void clearContainer(){
         container.removeAll();
         container.revalidate();
+    }
+
+    //Returns the selected format from the JComboBox
+    public String getSelectedFormat() {
+        return (String)fileFormatCb.getSelectedItem();
     }
 }

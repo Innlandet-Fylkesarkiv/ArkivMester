@@ -11,4 +11,5 @@ public interface ViewObserver {
     void cancelButton();
     void chooseTests();
     void uploadArchive();
+    void makeReport();
 }

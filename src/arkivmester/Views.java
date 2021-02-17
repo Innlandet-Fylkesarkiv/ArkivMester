@@ -60,6 +60,10 @@ public class Views implements ActionListener {
                 for (ViewObserver obs : observers)
                     obs.chooseTests();
                 break;
+            case "Lag rapport":
+                for (ViewObserver obs : observers)
+                    obs.makeReport();
+                break;
             default:
                 break;
         }

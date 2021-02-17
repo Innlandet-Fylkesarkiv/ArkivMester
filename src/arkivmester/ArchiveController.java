@@ -111,4 +111,11 @@ public class ArchiveController implements ViewObserver {
             System.out.println("Mappen inneholder ikke .tar og .xml");//#NOSONAR
         }
     }
+
+    //When "Lag rapport" is clicked.
+    @Override
+    public void makeReport() {
+        String format = testView.getSelectedFormat(); //#NOSONAR
+        //generateReport() ...
+    }
 }
