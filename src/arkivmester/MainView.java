@@ -27,7 +27,9 @@ public class MainView extends Views{
         //Empty constructor
     }
 
-    //Sets up GUI
+    /**
+     * Creates and shows the GUI
+     */
     public void createAndShowGUI() {
         //Top panel
         topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));

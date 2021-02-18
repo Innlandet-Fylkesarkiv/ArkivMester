@@ -9,9 +9,9 @@ import java.util.List;
 //View class for the choose tests window
 public class TestSettingsView extends Views {
     Container container;
-    private List<Boolean> selectedTests = new ArrayList<>();
+    private final List<Boolean> selectedTests;
     private final List<JCheckBox> testBoxes = new ArrayList<>(); //Final for now
-    private int amountOfTests;
+    private final int amountOfTests;
 
     TestSettingsView(List<Boolean> selectedTests) {
         this.selectedTests = selectedTests;
