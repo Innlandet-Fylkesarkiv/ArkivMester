@@ -36,7 +36,7 @@ public class RapportModel {
             boolean hit = false;
             for(int i = 0; i < headerMap.size() && !hit; i++)
             {
-                if(headerMap.containsKey(other)) {
+                if(headerMap.computeIfPresent(other, (k, v) -> v != null ? v : null) != null) {
                     hit = true;
                     headerMap.put(other, headerMap.get(other) + 1);
                     name.add(other);
