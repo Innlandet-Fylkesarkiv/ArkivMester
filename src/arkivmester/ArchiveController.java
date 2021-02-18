@@ -35,9 +35,10 @@ public class ArchiveController implements ViewObserver {
         testView.addObserver(this);
         testView.createAndShowGUI(mainView.getContainer());
         mainView.removeEditInfoBtn();
-        //thirdPartiesModel.runArkadeTest("c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar"); //NOSONAR
-        thirdPartiesModel.runKostVal("test");
-
+        //thirdPartiesModel.runArkadeTest("test"); //NOSONAR
+        //thirdPartiesModel.runKostVal("test");
+        //thirdPartiesModel.runVeraPDF("test");
+        thirdPartiesModel.unzipArchive("test");
 
 
     }

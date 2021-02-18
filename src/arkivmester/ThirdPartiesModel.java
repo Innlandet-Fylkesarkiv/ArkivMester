@@ -1,11 +1,12 @@
 package arkivmester;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class ThirdPartiesModel {
     String cmd = "cmd.exe";
+
     ThirdPartiesModel() {
         //ThirdParties
     }
@@ -18,7 +19,8 @@ public class ThirdPartiesModel {
      */
     public void runArkadeTest(String path) {
 
-        //Should be "String archivePath = path"
+
+        //arkade process -a c:\archive\899ec389-1dc0-41d0-b6ca-15f27642511b.tar -m c:\archive\899ec389-1dc0-41d0-b6ca-15f27642511b.xml -o c:\arkade\output -p c:\arkade -t noark5
         path = "c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar"; // NOSONAR
         //Path to output folder where test report gets saved.
         String outputPath = "c:\\arkade\\output"; //NOSONAR
@@ -28,7 +30,7 @@ public class ThirdPartiesModel {
         //Process builder to run command line.
         ProcessBuilder arkadeBuilder = new ProcessBuilder(
                 cmd, "/c", "cd \"C:\\arkadecli\" && arkade test -a " + path +
-                " -o " + outputPath +  " -p " + tempPath + " -t noark5");
+                " -o " + outputPath + " -p " + tempPath + " -t noark5");
         arkadeBuilder.redirectErrorStream(true);
         try {
             Process p = arkadeBuilder.start();
@@ -40,8 +42,7 @@ public class ThirdPartiesModel {
                 line = r.readLine();
                 System.out.println(line); //NOSONAR
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             System.out.println(e.getMessage()); // NOSONAR
         }
 
@@ -55,7 +56,8 @@ public class ThirdPartiesModel {
      */
     public void runKostVal(String path) {
 
-        path = "c:\\archive\\test\\pakke\\content\\dokument"; //NOSONAR
+        path = "c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\dokument"; //NOSONAR
+        String reportPath = "c:\\archive\\testoutput"; // NOSONAR
 
         //Process builder to run kost-val from command line
         ProcessBuilder kostvalBuilder = new ProcessBuilder( //NOSONAR
@@ -75,7 +77,7 @@ public class ThirdPartiesModel {
 
             //Process builder to move report to an output folder.
             kostvalBuilder = new ProcessBuilder(
-                    cmd, "/c", "move %userprofile%\\.kost-val_2x\\logs\\*.xml* c:\\archive\\testoutput");
+                    cmd, "/c", "move %userprofile%\\.kost-val_2x\\logs\\*.xml* " + reportPath);
             kostvalBuilder.redirectErrorStream(true);
             p = kostvalBuilder.start();
 
@@ -86,12 +88,56 @@ public class ThirdPartiesModel {
                 line = reader.readLine();
                 System.out.println(line); //NOSONAR
             }
-        }
-        catch (IOException e ) {
+        } catch (IOException e) {
             System.out.println(e.getMessage()); //NOSONAR
         }
 
     }
 
+    public void runVeraPDF(String path) {
+
+        //verapdf --recurse c:\archive\test\pakke\content\DOKUMENT > c:\archive\verapdf.xml
+        path = "c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\DOKUMENT"; // NOSONAR
+        String reportPath = "c:\\archive\\testoutput\\verapdf.xml"; // NOSONAR
+
+        ProcessBuilder veraPDFBuilder = new ProcessBuilder(
+                cmd, "/c", "cd \"C:\\prog\\Verapdf\" && verapdf --recurse " + path + " > " + reportPath);
+        veraPDFBuilder.redirectErrorStream(true);
+        try {
+            veraPDFBuilder.start();
+        } catch (IOException e) {
+            System.out.println(e.getMessage()); // NOSONAR
+        }
+
+        System.out.println("VeraPDF done, report at: " + reportPath); // NOSONAR
+    }
+
+    public void unzipArchive(String path) {
+
+        path = "c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar"; // NOSONAR
+        String outputpath = "C:\\archive";  //NOSONAR
+
+        ProcessBuilder zipBuilder = new ProcessBuilder(
+        cmd, "/c", "cd \"C:\\Programfiler\\7-Zip\" && 7z x " + path + " -o" +outputpath+" -r");
+        zipBuilder.redirectErrorStream(true);
+        try {
+            Process p = zipBuilder.start();
+            //Gets the console output and prints it.
+            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            String line;
+            line = r.readLine();
+            while (line != null) {
+                line = r.readLine();
+                System.out.println(line); //NOSONAR
+            }
+        }
+        catch (IOException e) {
+            System.out.println(e.getMessage()); //NOSONAR
+        }
+
+        //System.out.println("test"); //NOSONAR
+    }
 }
 
+//cmd, "/c", "cd \"C:Programfiler\\7-Zip\" && 7z x " + path + " -o" + outputpath + " -r");
+//7z x c:\archive\899ec389-1dc0-41d0-b6ca-15f27642511b.tar -oc:\archive\tt -r
