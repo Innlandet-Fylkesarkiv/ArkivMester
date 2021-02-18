@@ -20,8 +20,7 @@ public class ThirdPartiesModel {
     public void runArkadeTest(String path) {
 
 
-        //arkade process -a c:\archive\899ec389-1dc0-41d0-b6ca-15f27642511b.tar -m c:\archive\899ec389-1dc0-41d0-b6ca-15f27642511b.xml -o c:\arkade\output -p c:\arkade -t noark5
-        path = "c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar"; // NOSONAR
+        //path = "c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar"; // NOSONAR
         //Path to output folder where test report gets saved.
         String outputPath = "c:\\arkade\\output"; //NOSONAR
         //Path to temp folder where temporary data about the tests gets stored.
@@ -56,7 +55,7 @@ public class ThirdPartiesModel {
      */
     public void runKostVal(String path) {
 
-        path = "c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\dokument"; //NOSONAR
+        //path = "c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\dokument"; //NOSONAR
         String reportPath = "c:\\archive\\testoutput"; // NOSONAR
 
         //Process builder to run kost-val from command line
@@ -94,12 +93,18 @@ public class ThirdPartiesModel {
 
     }
 
+    /*
+    Runs VeraPDF through command line. The report gets put in an output folder.
+
+    Params: path - a string that contains the path to the archive that is to be tested.
+    */
     public void runVeraPDF(String path) {
 
         //verapdf --recurse c:\archive\test\pakke\content\DOKUMENT > c:\archive\verapdf.xml
-        path = "c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\DOKUMENT"; // NOSONAR
+        //path = "c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\DOKUMENT"; // NOSONAR
         String reportPath = "c:\\archive\\testoutput\\verapdf.xml"; // NOSONAR
 
+        //Process builder to run VeraPDF from command line
         ProcessBuilder veraPDFBuilder = new ProcessBuilder(
                 cmd, "/c", "cd \"C:\\prog\\Verapdf\" && verapdf --recurse " + path + " > " + reportPath);
         veraPDFBuilder.redirectErrorStream(true);
@@ -112,11 +117,17 @@ public class ThirdPartiesModel {
         System.out.println("VeraPDF done, report at: " + reportPath); // NOSONAR
     }
 
+    /*
+    Runs 7Zip through command line and unzips the archive.
+
+    Params: path - a string that contains the path to the archive that is to be tested.
+   */
     public void unzipArchive(String path) {
 
-        path = "c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar"; // NOSONAR
+        //path = "c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar"; // NOSONAR
         String outputpath = "C:\\archive";  //NOSONAR
 
+        //Process builder to run VeraPDF from command line
         ProcessBuilder zipBuilder = new ProcessBuilder(
         cmd, "/c", "cd \"C:\\Programfiler\\7-Zip\" && 7z x " + path + " -o" +outputpath+" -r");
         zipBuilder.redirectErrorStream(true);
@@ -135,9 +146,5 @@ public class ThirdPartiesModel {
             System.out.println(e.getMessage()); //NOSONAR
         }
 
-        //System.out.println("test"); //NOSONAR
     }
 }
-
-//cmd, "/c", "cd \"C:Programfiler\\7-Zip\" && 7z x " + path + " -o" + outputpath + " -r");
-//7z x c:\archive\899ec389-1dc0-41d0-b6ca-15f27642511b.tar -oc:\archive\tt -r
