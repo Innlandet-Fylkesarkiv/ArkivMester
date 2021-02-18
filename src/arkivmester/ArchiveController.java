@@ -47,6 +47,7 @@ public class ArchiveController implements ViewObserver {
         mainView.showGUI();
         mainView.resetMainView();
         rapportModel.resetAdminInfo();
+        thirdPartiesModel.resetSelectedTests();
     }
 
     //When "Rediger informasjon" is clicked.
@@ -88,10 +89,9 @@ public class ArchiveController implements ViewObserver {
     //When "Velg tester" is clicked.
     @Override
     public void chooseTests() {
-        testSettingsView = new TestSettingsView();
+        testSettingsView = new TestSettingsView(thirdPartiesModel.getSelectedTests());
         testSettingsView.addObserver(this);
         testSettingsView.createAndShowGUI(mainView.getContainer());
-
     }
 
     //When "Last inn pakket uttrekk" is clicked.
@@ -104,6 +104,7 @@ public class ArchiveController implements ViewObserver {
             mainView.activateButtons();
             rapportModel.resetAdminInfo();
             rapportModel.readAdminXmlFile(archiveModel.xmlMeta);
+            thirdPartiesModel.resetSelectedTests();
             mainView.updateAdminInfo(rapportModel.getAdminInfo());
         }
         //Faulty folder
@@ -117,5 +118,16 @@ public class ArchiveController implements ViewObserver {
     public void makeReport() {
         String format = testView.getSelectedFormat(); //#NOSONAR
         //generateReport() ...
+    }
+
+    //When "Lagre tests" is clicked.
+    @Override
+    public void saveTestSettings() {
+        //Get settings Save settings
+        thirdPartiesModel.updateSelectedTests(testSettingsView.getSelectedTests());
+        testSettingsView.clearContainer();
+        testSettingsView = null;
+
+        mainView.showGUI();
     }
 }

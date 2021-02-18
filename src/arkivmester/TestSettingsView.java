@@ -3,13 +3,19 @@ package arkivmester;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 //View class for the choose tests window
 public class TestSettingsView extends Views {
     Container container;
+    private List<Boolean> selectedTests = new ArrayList<>();
+    private final List<JCheckBox> testBoxes = new ArrayList<>(); //Final for now
+    private int amountOfTests;
 
-    TestSettingsView() {
-        //Empty constructor
+    TestSettingsView(List<Boolean> selectedTests) {
+        this.selectedTests = selectedTests;
+        amountOfTests = selectedTests.size();
     }
 
     //Sets up GUI
@@ -40,23 +46,23 @@ public class TestSettingsView extends Views {
 
     //Sets up the grid panel
     private void setUpTestsPanel(JPanel testsPanel) {
-
         //Title
         JLabel testsTitle = new JLabel("Tester som skal kjøres");
         testsTitle.setFont(primaryFont);
 
         //Checkboxes
-        JCheckBox arkadeCheck = new JCheckBox("Arkade5");
-        arkadeCheck.setBackground(Color.WHITE);
-        JCheckBox droidCheck = new JCheckBox("DROID");
-        droidCheck.setBackground(Color.WHITE);
-        JCheckBox kostvalCheck = new JCheckBox("Kost-Val");
-        kostvalCheck.setBackground(Color.WHITE);
-        JCheckBox verapdfCheck = new JCheckBox("VeraPdf");
-        verapdfCheck.setBackground(Color.WHITE);
+        for(int i = 0; i<amountOfTests; i++) {
+            JCheckBox checkBox = new JCheckBox();
+            checkBox.setBackground(Color.WHITE);
+            testBoxes.add(checkBox);
+        }
+        testBoxes.get(0).setText("Arkade5");
+        testBoxes.get(1).setText("DROID");
+        testBoxes.get(2).setText("Kost-Val");
+        testBoxes.get(3).setText("VeraPdf");
 
         //Buttons
-        JButton saveInfoBtn = new JButton("Lagre");
+        JButton saveInfoBtn = new JButton("Lagre tests");
         saveInfoBtn.addActionListener(this);
         saveInfoBtn.setBackground(primaryColor);
         saveInfoBtn.setForeground(Color.WHITE);
@@ -68,15 +74,13 @@ public class TestSettingsView extends Views {
 
         //Adding components together
         testsPanel.add(testsTitle);
-        testsPanel.add(Box.createRigidArea(new Dimension(5, 0)));
 
-        testsPanel.add(arkadeCheck);
-        testsPanel.add(Box.createRigidArea(new Dimension(5, 0)));
-        testsPanel.add(droidCheck);
-        testsPanel.add(Box.createRigidArea(new Dimension(5, 0)));
-        testsPanel.add(kostvalCheck);
-        testsPanel.add(Box.createRigidArea(new Dimension(5, 0)));
-        testsPanel.add(verapdfCheck);
+        for(int i = 0; i<amountOfTests; i++) {
+            testsPanel.add(Box.createRigidArea(new Dimension(5, 0)));
+            testBoxes.get(i).setSelected(selectedTests.get(i));
+            testsPanel.add(testBoxes.get(i));
+        }
+
         testsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
         testsPanel.add(saveInfoBtn);
@@ -88,5 +92,13 @@ public class TestSettingsView extends Views {
     public void clearContainer(){
         container.removeAll();
         container.revalidate();
+    }
+
+    //Returns selectedTests<Boolean> list
+    public List<Boolean> getSelectedTests() {
+        for(int i = 0; i<amountOfTests; i++) {
+            selectedTests.set(i, testBoxes.get(i).isSelected());
+        }
+        return selectedTests;
     }
 }

@@ -12,4 +12,5 @@ public interface ViewObserver {
     void chooseTests();
     void uploadArchive();
     void makeReport();
+    void saveTestSettings();
 }

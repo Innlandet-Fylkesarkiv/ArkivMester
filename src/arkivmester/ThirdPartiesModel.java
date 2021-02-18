@@ -3,12 +3,28 @@ package arkivmester;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ThirdPartiesModel {
+    private List<Boolean> selectedTests = new ArrayList<>();
+    int amountOfTests = 4;
     ThirdPartiesModel() {
-        //ThirdParties
+        //Initiate selectedTests list
+        for(int i = 0; i < amountOfTests; i++)
+            selectedTests.add(true);
     }
-
+    public void updateSelectedTests(List<Boolean> selectedList) {
+        selectedTests = selectedList;
+    }
+    public List<Boolean> getSelectedTests() {
+        return selectedTests;
+    }
+    public void resetSelectedTests() {
+        for (int i = 0; i<amountOfTests; i++) {
+            selectedTests.set(i, true);
+        }
+    }
     /*
     Runs ArkadeCLI through cmd, the output gets printed to the console.
     Report from the tests gets put in the output folder.
