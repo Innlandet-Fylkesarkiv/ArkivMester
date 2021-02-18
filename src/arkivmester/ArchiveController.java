@@ -48,7 +48,10 @@ public class ArchiveController implements ViewObserver {
     public void newTest() {
         testView.clearContainer();
         testView = null;
-        mainView.createAndShowGUI();
+        mainView.showGUI();
+        mainView.resetMainView();
+        rapportModel.resetAdminInfo();
+        thirdPartiesModel.resetSelectedTests();
     }
 
     //When "Rediger informasjon" is clicked.
@@ -57,6 +60,19 @@ public class ArchiveController implements ViewObserver {
         adminInfoView = new AdminInfoView();
         adminInfoView.addObserver(this);
         adminInfoView.createAndShowGUI(mainView.getContainer());
+        adminInfoView.populateAdminInfo(rapportModel.getAdminInfo());
+    }
+
+    //When "Lagre" in admin info is clicked.
+    @Override
+    public void saveAdminInfo() {
+        rapportModel.updateAdminInfo(adminInfoView.getManualInfo());
+
+        adminInfoView.clearContainer();
+        adminInfoView = null;
+
+        mainView.showGUI();
+        mainView.updateAdminInfo(rapportModel.getAdminInfo());
     }
 
     //When "Avbryt" is clicked.
@@ -71,15 +87,51 @@ public class ArchiveController implements ViewObserver {
             testSettingsView = null;
         }
 
-        mainView.createAndShowGUI();
+        mainView.showGUI();
     }
 
     //When "Velg tester" is clicked.
     @Override
     public void chooseTests() {
-        testSettingsView = new TestSettingsView();
+        testSettingsView = new TestSettingsView(thirdPartiesModel.getSelectedTests());
         testSettingsView.addObserver(this);
         testSettingsView.createAndShowGUI(mainView.getContainer());
+    }
 
+    //When "Last inn pakket uttrekk" is clicked.
+    @Override
+    public void uploadArchive() {
+        int success = archiveModel.uploadFolder(mainView.getContainer());
+
+        //Folder uploaded
+        if(success == 1) {
+            mainView.activateButtons();
+            rapportModel.resetAdminInfo();
+            rapportModel.readAdminXmlFile(archiveModel.xmlMeta);
+            thirdPartiesModel.resetSelectedTests();
+            mainView.updateAdminInfo(rapportModel.getAdminInfo());
+        }
+        //Faulty folder
+        else if(success == 0) {
+            System.out.println("Mappen inneholder ikke .tar og .xml");//#NOSONAR
+        }
+    }
+
+    //When "Lag rapport" is clicked.
+    @Override
+    public void makeReport() {
+        String format = testView.getSelectedFormat(); //#NOSONAR
+        //generateReport() ...
+    }
+
+    //When "Lagre tests" is clicked.
+    @Override
+    public void saveTestSettings() {
+        //Get settings Save settings
+        thirdPartiesModel.updateSelectedTests(testSettingsView.getSelectedTests());
+        testSettingsView.clearContainer();
+        testSettingsView = null;
+
+        mainView.showGUI();
     }
 }

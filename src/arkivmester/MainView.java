@@ -3,22 +3,36 @@ package arkivmester;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 //View class for the main window
 public class MainView extends Views{
     private JFrame f;
     private Container container;
-    private JButton editInfoBtn;
+    private JPanel topPanel;
     private JPanel infoPanel;
+    private JPanel mainPanel;
+
+    //Buttons
+    private JButton editInfoBtn;
+    private JButton chooseTestsBtn;
+    private JButton startTestingBtn;
+    private JButton writeReportBtn; //#NOSONAR
+
+    //Info field list
+    List<JTextArea> valueList = new ArrayList<>();
 
     MainView() {
         //Empty constructor
     }
 
-    //Sets up GUI
+    /**
+     * Creates and shows the GUI
+     */
     public void createAndShowGUI() {
         //Top panel
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         topPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         topPanel.setBackground(primaryColor);
         setUpTopPanel(topPanel);
@@ -29,7 +43,7 @@ public class MainView extends Views{
         container.setBackground(Color.WHITE);
 
         //Main panel
-        JPanel mainPanel = new JPanel();
+        mainPanel = new JPanel();
         mainPanel.setLayout(null);
         mainPanel.setBackground(Color.WHITE);
         setUpMainPanel(mainPanel);
@@ -39,12 +53,21 @@ public class MainView extends Views{
         infoPanel.setLayout(new BorderLayout(0, 0));
         setUpInfoPanel(infoPanel);
         infoPanel.setBackground(Color.WHITE);
+        infoPanel.setBorder(new EmptyBorder(0, 0, 0, 125));
 
         //Adding components together
         container.add(mainPanel);
         container.add(infoPanel, BorderLayout.EAST);
         container.add(topPanel, BorderLayout.NORTH);
-        container.remove(editInfoBtn);
+        container.validate();
+    }
+
+    //Shows GUI after its created
+    public void showGUI() {
+        container.add(mainPanel);
+        container.add(infoPanel, BorderLayout.EAST);
+        container.add(topPanel, BorderLayout.NORTH);
+        f.setContentPane(container);
     }
 
     //Create frame
@@ -99,28 +122,31 @@ public class MainView extends Views{
         testsLabel.setFont(primaryFont);
         testsLabel.setBounds(100, 170, 300, 30);
 
-        JButton chooseTestsBtn = new JButton("Velg tester");
+        chooseTestsBtn = new JButton("Velg tester");
         chooseTestsBtn.setBounds(100, 220, 125, 30);
         chooseTestsBtn.addActionListener(this);
         chooseTestsBtn.setBackground(primaryColor);
         chooseTestsBtn.setForeground(Color.WHITE);
+        chooseTestsBtn.setEnabled(false);
 
-        JButton startTestingBtn = new JButton("Start testing");
+        startTestingBtn = new JButton("Start testing");
         startTestingBtn.setBounds(275, 220, 125, 30);
         startTestingBtn.addActionListener(this);
         startTestingBtn.setBackground(primaryColor);
         startTestingBtn.setForeground(Color.WHITE);
+        startTestingBtn.setEnabled(false);
 
         //Section 3
         JLabel doneTestedLabel = new JLabel("Ferdig testet arkivuttrekk:");
         doneTestedLabel.setFont(primaryFont);
         doneTestedLabel.setBounds(100, 290, 300, 30);
 
-        JButton writeReportBtn = new JButton("Skriv rapport");
+        writeReportBtn = new JButton("Skriv rapport");
         writeReportBtn.setBounds(100, 340, 125, 30);
         writeReportBtn.addActionListener(this);
         writeReportBtn.setBackground(primaryColor);
         writeReportBtn.setForeground(Color.WHITE);
+        writeReportBtn.setEnabled(false);
 
         //Adding components
         mainPanel.add(archiveLabel);
@@ -137,21 +163,28 @@ public class MainView extends Views{
 
     //Sets up the info panel
     private void setUpInfoPanel(JPanel infoPanel) {
+        int rows = 8;
+
         JLabel infoLabel = new JLabel("Informasjon om uttrekket:");
-        infoLabel.setBounds(0, 50, 300, 30);
         infoLabel.setFont(primaryFont);
 
-        JPanel infoGrid = new JPanel(new GridLayout(8, 2, 50, 0));
-        infoGrid.setBorder(new EmptyBorder(90, 0, 310, 100));
-        infoGrid.setBackground(Color.WHITE);
-
         editInfoBtn = new JButton("Rediger informasjon");
-        editInfoBtn.setBounds(0, 300, 150, 30);
         editInfoBtn.addActionListener(this);
         editInfoBtn.setBackground(primaryColor);
         editInfoBtn.setForeground(Color.WHITE);
+        editInfoBtn.setEnabled(false);
 
-        //Row 1
+        //Grid
+        JPanel infoGrid = new JPanel(new GridBagLayout());
+        infoGrid.setBorder(new EmptyBorder(42, 0, 0, 0));
+        infoGrid.setBackground(Color.WHITE);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+
+
+        //Col 1
         JLabel name1 = new JLabel("UttrekksID:");
         JLabel name2 = new JLabel("Kommune/Kunde:");
         JLabel name3 = new JLabel("Kontaktperson:");
@@ -161,38 +194,57 @@ public class MainView extends Views{
         JLabel name7 = new JLabel("Test utført av:");
         JLabel name8 = new JLabel("Dato for rapport:");
 
-        //Row 2
-        JLabel value1 = new JLabel("data");
-        JLabel value2 = new JLabel("data");
-        JLabel value3 = new JLabel("data");
-        JLabel value4 = new JLabel("data");
-        JLabel value5 = new JLabel("data");
-        JLabel value6 = new JLabel("data");
-        JLabel value7 = new JLabel("data");
-        JLabel value8 = new JLabel("data");
+        //Col 2
+        for(int i = 0; i<rows; i++) {
+            JTextArea textArea = new JTextArea();
+            textArea.setLineWrap(true);
+            textArea.setWrapStyleWord(true);
+            textArea.setEditable(false);
+            textArea.setColumns(15);
+            valueList.add(textArea);
+        }
 
-        //Adding labels
-        infoGrid.add(name1);
-        infoGrid.add(value1);
-        infoGrid.add(name2);
-        infoGrid.add(value2);
-        infoGrid.add(name3);
-        infoGrid.add(value3);
-        infoGrid.add(name4);
-        infoGrid.add(value4);
-        infoGrid.add(name5);
-        infoGrid.add(value5);
-        infoGrid.add(name6);
-        infoGrid.add(value6);
-        infoGrid.add(name7);
-        infoGrid.add(value7);
-        infoGrid.add(name8);
-        infoGrid.add(value8);
+        //Adding components together
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(10,0,0,10);
 
-        infoPanel.add(infoLabel);
-        infoPanel.add(editInfoBtn);
-        infoPanel.add(infoGrid);
+        infoGrid.add(infoLabel, gbc);
+        gbc.gridy++;
 
+        //Col 1
+        infoGrid.add(name1, gbc);
+        gbc.gridy++;
+        infoGrid.add(name2, gbc);
+        gbc.gridy++;
+        infoGrid.add(name3, gbc);
+        gbc.gridy++;
+        infoGrid.add(name4, gbc);
+        gbc.gridy++;
+        infoGrid.add(name5, gbc);
+        gbc.gridy++;
+        infoGrid.add(name6, gbc);
+        gbc.gridy++;
+        infoGrid.add(name7, gbc);
+        gbc.gridy++;
+        infoGrid.add(name8, gbc);
+        gbc.gridx++;
+
+        //Col 2
+        gbc.gridy = 1;
+
+        for(int i = 0; i<rows; i++) {
+            infoGrid.add(valueList.get(i), gbc);
+            gbc.gridy++;
+        }
+
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridx--;
+
+        infoGrid.add(editInfoBtn, gbc);
+
+        infoPanel.add(infoGrid, BorderLayout.NORTH);
     }
 
     //Returns container
@@ -205,5 +257,41 @@ public class MainView extends Views{
         infoPanel.remove(editInfoBtn);
         container.revalidate();
         container.repaint();
+    }
+
+    //Activates buttons when archive as been uploaded
+    public void activateButtons() {
+        chooseTestsBtn.setEnabled(true);
+        startTestingBtn.setEnabled(true);
+        editInfoBtn.setEnabled(true);
+        //writeReportBtn.setEnabled(!writeReportBtn.isEnabled()); #NOSONAR
+    }
+
+    //Deactivates buttons when view is reset
+    private void deactivateButtons() {
+        chooseTestsBtn.setEnabled(false);
+        startTestingBtn.setEnabled(false);
+        editInfoBtn.setEnabled(false);
+        writeReportBtn.setEnabled(false);
+    }
+
+    //Resets administrative information fields
+    public void resetManualInfo() {
+        for (JTextArea value: valueList) {
+           value.setText("");
+        }
+    }
+
+    //Resets mainview
+    public void resetMainView() {
+        resetManualInfo();
+        deactivateButtons();
+    }
+
+    //Updates administrative information fields
+    public void updateAdminInfo(List<String> list) {
+        for (int i = 0; i<list.size(); i++) {
+            valueList.get(i).setText(list.get(i));
+        }
     }
 }

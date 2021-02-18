@@ -10,17 +10,43 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 // Used for parsing of xml schema and exception handling
 public class RapportModel {
-
+    private List<String> adminInfoList = new ArrayList<>(); //Always have 8 elements
+    int amountAdminFields = 8;
     XWPFDocument document;
 
     RapportModel() {
         //Rapport
         //kap 1, 1.1, 1.2
+
+        //Adds amountAdminFields empty fields in the list
+        for (int i = 0; i<amountAdminFields; i++) {
+            adminInfoList.add("");
+        }
     }
 
+    //Gets adminInfoList list
+    public List<String> getAdminInfo() {
+        return adminInfoList;
+    }
+
+    //Updates adminInfoList list
+    public void updateAdminInfo(List<String> list) {
+        adminInfoList = list;
+    }
+
+    //Resets adminInfoList
+    public void resetAdminInfo() {
+        for (int i = 0; i<adminInfoList.size(); i++) {
+            adminInfoList.set(i, "");
+        }
+    }
+    
     // Right know work as rapportModel.main in function
     public void start() {
 
@@ -28,6 +54,101 @@ public class RapportModel {
 
         chapterOne();
 
+    }
+
+    //Read administrative data from .xml file
+    public void readAdminXmlFile(File xml) {
+        try {
+            Document doc = parseFromXMLFile(xml.getAbsolutePath());
+
+            //4, Produksjonsdato for uttrekket
+            NodeList metsHdrList = Objects.requireNonNull(doc).getElementsByTagName("metsHdr");
+            Node metsHdr = metsHdrList.item(0);
+            if (metsHdr.getNodeType() == Node.ELEMENT_NODE) {
+                Element metsHdrElement = (Element)metsHdr;
+                adminInfoList.set(4, metsHdrElement.getAttribute("CREATEDATE"));
+            }
+
+            //Agent nodes (1 and 2)
+            NodeList agentList = doc.getElementsByTagName("agent");
+            parseAgentNodes(agentList);
+
+        } catch (Exception e) {
+            System.out.println("Could not find .xml file"); //#NOSONAR
+        }
+    }
+
+    //Parsing agent nodes for administrative data
+    private void parseAgentNodes(NodeList agentList) {
+        List<Node> personList = new ArrayList<>();
+        Node person;
+        for (int i = 0; i < agentList.getLength(); i++) {
+            Node nNode = agentList.item(i);
+
+            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element eElement = (Element)nNode;
+                NamedNodeMap attrs =  nNode.getAttributes();
+
+                if(attrs.getLength() == 3) {
+                    parseCommuneCustomer(attrs, eElement);
+
+                    person = parseContactPerson(attrs, eElement);
+                    if (person!=null && person.getNodeType() == Node.ELEMENT_NODE) {
+                        personList.add(person);
+                    }
+
+                    //Missing noark version here (3)
+                }
+            }
+        }
+
+        //2, Kontaktperson (Formatting)
+        int size = personList.size();
+        for (int i = 0; i < size; i++) {
+            adminInfoList.set(2, adminInfoList.get(2) + personList.get(i).getTextContent());
+
+            if(size>1 && i != size-1) {
+                adminInfoList.set(2, adminInfoList.get(2) + ", ");
+            }
+        }
+    }
+
+    //Parsing commune/customer nodes for administrative data
+    private void parseCommuneCustomer(NamedNodeMap attrs, Element eElement) {
+        //1, Kommune/Kunde (Query and Formatting)
+        //Attribute 1 in .xml is (1) in list
+        //Attribute 2 in .xml is (0) in list
+        //Attribute 3 in .xml is (2) in list
+        if(
+            ((Attr)attrs.item(0)).getValue().equals("SUBMITTER")
+                    && ((Attr)attrs.item(1)).getValue().equals("OTHER")
+                    && ((Attr)attrs.item(2)).getValue().equals("ORGANIZATION")) {
+
+            NodeList nameList = eElement.getElementsByTagName("name");
+            Node name = nameList.item(0);
+            if (name.getNodeType() == Node.ELEMENT_NODE) {
+                adminInfoList.set(1, name.getTextContent());
+            }
+        }
+    }
+
+    //Parsing contact person nodes for administrative data
+    private Node parseContactPerson(NamedNodeMap attrs, Element eElement) {
+        //2, Kontaktperson (Query)
+        //Attribute 1 in .xml is (1) in list
+        //Attribute 2 in .xml is (0) in list
+        //Attribute 3 in .xml is (2) in list
+        if(
+           ((Attr)attrs.item(0)).getValue().equals("SUBMITTER")
+                    && ((Attr)attrs.item(1)).getValue().equals("OTHER")
+                    && ((Attr)attrs.item(2)).getValue().equals("INDIVIDUAL"))  {
+
+            NodeList tempList = eElement.getElementsByTagName("name");
+            return tempList.item(0);
+        }
+
+        //If node is not a contact person
+        return null;
     }
 
     // Get xml kap 1 information

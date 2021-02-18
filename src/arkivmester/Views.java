@@ -22,12 +22,13 @@ public class Views implements ActionListener {
 
     //Shared action listener for all buttons
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e) { //#NOSONAR
         String buttonName = e.getActionCommand();
 
         switch (buttonName) {
             case "Last inn pakket uttrekk":
-                System.out.println("b1"); //#NOSONAR
+                for (ViewObserver obs : observers)
+                    obs.uploadArchive();
                 break;
             case "Start testing":
                 for (ViewObserver obs : observers) {
@@ -46,6 +47,11 @@ public class Views implements ActionListener {
                 for (ViewObserver obs : observers)
                     obs.editAdminInfo();
                 break;
+            case "Lagre administrativ data":
+                for (ViewObserver obs : observers) {
+                    obs.saveAdminInfo();
+                }
+                break;
             case "Avbryt":
                 for (ViewObserver obs : observers)
                     obs.cancelButton();
@@ -53,6 +59,14 @@ public class Views implements ActionListener {
             case "Velg tester":
                 for (ViewObserver obs : observers)
                     obs.chooseTests();
+                break;
+            case "Lag rapport":
+                for (ViewObserver obs : observers)
+                    obs.makeReport();
+                break;
+            case "Lagre tests":
+                for (ViewObserver obs : observers)
+                    obs.saveTestSettings();
                 break;
             default:
                 break;
