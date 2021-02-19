@@ -3,6 +3,8 @@ package arkivmester;
 import org.apache.poi.xwpf.usermodel.*;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 // Used for parsing of xml schema and exception handling
 public class RapportModel {
@@ -12,12 +14,27 @@ public class RapportModel {
         private List<String> result;
 
         ChapterList(List<Integer> h) {
-            headers = h;
-            result = Arrays.asList("<Insert Input>");
+            headers = h.stream().filter(t -> t > 0).collect(Collectors.toList());
+            result = Arrays.asList("<Mangler verdi>");
+        }
+
+        public boolean findMatch(List<Integer> h)
+        {
+            return (headers.equals(h));
         }
 
         public void setInput(List<Integer> h, List<String> inputList) {
             if(headers.equals(h)) result = inputList;
+        }
+
+        public void getText() {
+            for (int i = 0; i < headers.size(); i++) {
+                System.out.print(headers.get(i) + " ");
+            }
+            for (int i = 0; i < result.size(); i++) {
+                System.out.print(result.get(i) + " ");
+            }
+            System.out.print('\n');
         }
 
     }
@@ -34,23 +51,30 @@ public class RapportModel {
         public void compareName(String other) {
 
             boolean hit = false;
-            for(int i = 0; i < headerMap.size() && !hit; i++)
-            {
-                if(headerMap.computeIfPresent(other, (k, v) -> v != null ? v : null) != null) {
-                    hit = true;
-                    headerMap.put(other, headerMap.get(other) + 1);
-                    name.add(other);
-                    for(int j = name.size()-1; j > i; j--) {
-                        headerMap.remove(name.get(j));
-                    }
+
+            if(headerMap.containsKey(other)) {
+                System.out.println(other + ": ");
+                hit = true;
+                headerMap.put(other, headerMap.get(other) + 1);
+
+                int temp = name.size()-1;
+                String currentName = name.get(temp);
+                while(other != currentName) {
+                    System.out.println(currentName + " removed!");
+                    headerMap.put(currentName, 0);
+                    currentName = name.get(--temp);
                 }
             }
+            headerMap.forEach((k, v) -> System.out.println("\t" + k + " " + v));
+
             while(name.size() > headerMap.size()) {
                 name.remove(name.size()-1);
             }
 
             if(!hit) {
+                System.out.println(other + " added!");
                 headerMap.put(other, 1);
+                name.add(other);
             }
         }
 
@@ -73,12 +97,16 @@ public class RapportModel {
     }
 
     // Right know work as rapportModel.main in function
-    public void start() {
+    public void generateReport() {
         setUpReportDocument(templateFile);
 
         setUpAllInputChapters();
 
         writeReportDocument();
+
+        chapterList.forEach(
+                t -> t.getText()
+        );
 
         printReportToFile(outputFile);
     }
@@ -123,6 +151,12 @@ public class RapportModel {
                 chapterList.add(new ChapterList(headersData.getValues()));
             }
         }
+    }
+
+    private void setNewInput(List<Integer> h, List<String> inputList) {
+        chapterList.forEach(
+                t -> t.setInput(h, inputList)
+        );
     }
 
     private void writeReportDocument() {
