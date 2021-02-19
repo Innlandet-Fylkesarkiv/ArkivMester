@@ -35,10 +35,10 @@ public class ArchiveController implements ViewObserver {
         testView.addObserver(this);
         testView.createAndShowGUI(mainView.getContainer());
         mainView.removeEditInfoBtn();
-        //thirdPartiesModel.runArkadeTest("c:\archive\899ec389-1dc0-41d0-b6ca-15f27642511b.tar"); //NOSONAR
-        //thirdPartiesModel.runKostVal("c:\archive\899ec389-1dc0-41d0-b6ca-15f27642511b\content\dokument");
-        //thirdPartiesModel.runVeraPDF("c:\archive\899ec389-1dc0-41d0-b6ca-15f27642511b\content\DOKUMENT");
-        //thirdPartiesModel.unzipArchive("c:\archive\899ec389-1dc0-41d0-b6ca-15f27642511b.tar");
+        //thirdPartiesModel.runArkadeTest("c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar"); //NOSONAR
+        //thirdPartiesModel.runKostVal("c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\dokument"); //NOSONAR
+        //thirdPartiesModel.runVeraPDF("c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\DOKUMENT"); //NOSONAR
+        //thirdPartiesModel.unzipArchive("c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar"); //NOSONAR
 
 
     }
