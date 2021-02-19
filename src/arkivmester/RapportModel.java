@@ -1,13 +1,38 @@
 package arkivmester;
 
 import org.apache.poi.xwpf.usermodel.*;
+import org.apache.poi.xwpf.usermodel.Document;
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
+
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 // Used for parsing of xml schema and exception handling
 public class RapportModel {
+
+    XWPFDocument document;
+    String templateFile = "resources/Dokumentmal_fylkesarkivet_Noark5_testrapport.docx";
+    String outputFile = "C:/prog/Output/report_template.docx";
+
+    List<ChapterList> chapterList = new ArrayList<>();
+    private Iterator<ChapterList> chapterIterator = null;
+    private HeadersData headersData = new HeadersData();
+
+    RapportModel() {
+        //Rapport
+        //kap 1, 1.1, 1.2
+
+    }
 
     public class ChapterList {
         private List<Integer> headers;
@@ -16,11 +41,6 @@ public class RapportModel {
         ChapterList(List<Integer> h) {
             headers = h.stream().filter(t -> t > 0).collect(Collectors.toList());
             result = Arrays.asList("<Mangler verdi>");
-        }
-
-        public boolean findMatch(List<Integer> h)
-        {
-            return (headers.equals(h));
         }
 
         public void setInput(List<Integer> h, List<String> inputList) {
@@ -36,7 +56,6 @@ public class RapportModel {
             }
             System.out.print('\n');
         }
-
     }
 
     public class HeadersData {
@@ -81,20 +100,12 @@ public class RapportModel {
         public List<Integer> getValues() {
             return new ArrayList<>(headerMap.values());
         }
+
     }
 
-    XWPFDocument document;
-    String templateFile = "resources/Dokumentmal_fylkesarkivet_Noark5_testrapport.docx";
-    String outputFile = "C:/prog/Output/report_template.docx";
 
-    List<ChapterList> chapterList = new ArrayList<>();
-    private Iterator<ChapterList> chapterIterator = null;
-    private HeadersData headersData = new HeadersData();
+    // -------------------------
 
-    RapportModel() {
-        //Rapport
-        //kap 1, 1.1, 1.2
-    }
 
     // Right know work as rapportModel.main in function
     public void generateReport() {
@@ -102,13 +113,9 @@ public class RapportModel {
 
         setUpAllInputChapters();
 
-        writeReportDocument();
+        //writeReportDocument();
 
-        chapterList.forEach(
-                t -> t.getText()
-        );
-
-        printReportToFile(outputFile);
+        //printReportToFile(outputFile);
     }
 
     // Try to fetch report template, and if there are no IO problems, it will be stored
@@ -153,13 +160,13 @@ public class RapportModel {
         }
     }
 
-    private void setNewInput(List<Integer> h, List<String> inputList) {
+    public void setNewInput(List<Integer> h, List<String> inputList) {
         chapterList.forEach(
                 t -> t.setInput(h, inputList)
         );
     }
 
-    private void writeReportDocument() {
+    public void writeReportDocument() {
 
         Iterator<IBodyElement> bodyElementIterator = document.getBodyElementsIterator();
 
@@ -181,6 +188,10 @@ public class RapportModel {
                 currentIterator = editToFile(p, currentChapterInput, currentIterator);
             }
         }
+
+        chapterList.forEach(
+                t -> t.getText()
+        );
     }
 
     private boolean foundNewHeader(XWPFParagraph p) {
@@ -211,9 +222,9 @@ public class RapportModel {
         return Math.min(val, max);
     }
 
-    private void printReportToFile(String filepath) {
+    public void printReportToFile() {
         try {
-            FileOutputStream os = new FileOutputStream(filepath);
+            FileOutputStream os = new FileOutputStream(outputFile);
             document.write(os);
             document.close();
             os.close();
