@@ -1,23 +1,17 @@
 package arkivmester;
 
 import org.apache.poi.xwpf.usermodel.*;
-import org.apache.poi.xwpf.usermodel.Document;
-import org.w3c.dom.*;
-import org.xml.sax.SAXException;
-
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-// Used for parsing of xml schema and exception handling
+/**
+ * Class for handling report document configurations.
+ */
+
 public class RapportModel {
 
     XWPFDocument document;
@@ -34,68 +28,99 @@ public class RapportModel {
 
     }
 
+    /**
+     * Class for storing input of each chapter section of the report.
+     */
+
     public class ChapterList {
         private List<Integer> headers;
         private List<String> result;
+
+        /**
+         * Initialize a default list of missing input.
+         */
 
         ChapterList(List<Integer> h) {
             headers = h.stream().filter(t -> t > 0).collect(Collectors.toList());
             result = Arrays.asList("<Mangler verdi>");
         }
 
+        /**
+         * If chapter number is correct, set new input list value to chapter-section.
+         */
+
         public void setInput(List<Integer> h, List<String> inputList) {
             if(headers.equals(h)) result = inputList;
         }
 
+        /**
+         * Prints text of data stored.
+         */
+
         public void getText() {
             for (int i = 0; i < headers.size(); i++) {
-                System.out.print(headers.get(i) + " ");
+                System.out.print(headers.get(i) + " ");     // NOSONAR
             }
             for (int i = 0; i < result.size(); i++) {
-                System.out.print(result.get(i) + " ");
+                System.out.print(result.get(i) + " ");      // NOSONAR
             }
-            System.out.print('\n');
+            System.out.print('\n');                         // NOSONAR
         }
     }
+
+    /**
+     * Class for handling headers that are fetched from document.
+     */
 
     public class HeadersData {
         private List<String> name;
         private Map<String, Integer> headerMap;
+
+        /**
+         * Initialize empty header and value
+         */
 
         HeadersData() {
             name = new ArrayList<>();
             headerMap = new LinkedHashMap<>();
         }
 
+        /**
+         * Will store header name and increment value when there exist another name,
+         * otherwise will add the new name to a list
+         */
+
         public void compareName(String other) {
 
             boolean hit = false;
 
-            if(headerMap.containsKey(other)) {
-                System.out.println(other + ": ");
+            if(headerMap.computeIfPresent(other, (k, v) -> v+1) != null) {
+                //System.out.println(other + ": ");                   // NOSONAR
                 hit = true;
-                headerMap.put(other, headerMap.get(other) + 1);
-
                 int temp = name.size()-1;
                 String currentName = name.get(temp);
-                while(other != currentName) {
-                    System.out.println(currentName + " removed!");
+                while(!other.equals(currentName)) {
+                    //System.out.println(currentName + " removed!");  // NOSONAR
                     headerMap.put(currentName, 0);
                     currentName = name.get(--temp);
                 }
             }
-            headerMap.forEach((k, v) -> System.out.println("\t" + k + " " + v));
+            //headerMap.forEach((k, v) -> System.out.println("\t" + k + " " + v));    // NOSONAR
 
             while(name.size() > headerMap.size()) {
                 name.remove(name.size()-1);
             }
 
             if(!hit) {
-                System.out.println(other + " added!");
+                //System.out.println(other + " added!");                              // NOSONAR
                 headerMap.put(other, 1);
                 name.add(other);
             }
         }
+
+        /**
+         * Get values
+         */
 
         public List<Integer> getValues() {
             return new ArrayList<>(headerMap.values());
@@ -104,21 +129,21 @@ public class RapportModel {
     }
 
 
-    // -------------------------
+    /**
+     * Fetch all data from report and set up all chapters so that input can be changed
+     */
 
-
-    // Right know work as rapportModel.main in function
     public void generateReport() {
         setUpReportDocument(templateFile);
 
         setUpAllInputChapters();
 
-        //writeReportDocument();
-
-        //printReportToFile(outputFile);
     }
 
-    // Try to fetch report template, and if there are no IO problems, it will be stored
+
+    /**
+     * Try to fetch report template, and if there are no IO problems, it will be stored.
+     */
 
     private void setUpReportDocument(String filepath) {
         try (
@@ -130,6 +155,10 @@ public class RapportModel {
         }
 
     }
+
+    /**
+     * Create a list containing every chapter.
+     */
 
     private void setUpAllInputChapters() {
         Iterator<IBodyElement> bodyElementIterator = document.getBodyElementsIterator();
@@ -143,6 +172,10 @@ public class RapportModel {
             }
         }
     }
+
+    /**
+     * Check
+     */
 
     private void findNewHeader(XWPFParagraph p) {
         XWPFStyles styles = document.getStyles();
@@ -160,11 +193,9 @@ public class RapportModel {
         }
     }
 
-    public void setNewInput(List<Integer> h, List<String> inputList) {
-        chapterList.forEach(
-                t -> t.setInput(h, inputList)
-        );
-    }
+    /**
+     * Replace every missing input with input fetched from program
+     */
 
     public void writeReportDocument() {
 
@@ -189,14 +220,22 @@ public class RapportModel {
             }
         }
 
-        chapterList.forEach(
-                t -> t.getText()
-        );
+        for (ChapterList chapter : chapterList) {
+            chapter.getText();
+        }
     }
+
+    /**
+     * Replace every missing input with input fetched from program
+     */
 
     private boolean foundNewHeader(XWPFParagraph p) {
         return (p.getStyle() != null && p.getStyleID().contains("Overskrift"));
     }
+
+    /**
+     * Used for iterating the values in chapterlist in WriteReportDocument
+     */
 
     private List<String> getNextChapterList() {
         if(chapterIterator.hasNext()) {
@@ -205,10 +244,14 @@ public class RapportModel {
         return Arrays.asList("");
     }
 
+    /**
+     * Will look for input field in each paragraph and replace it with the ones from the list
+     */
+
     private int editToFile(XWPFParagraph p, List<String> cList, int cIterator) {
         for(XWPFRun r : p.getRuns()) {
             String text = r.getText(0);
-            if(text != null && text.contains("TODO") && !cList.get(cIterator).equals("")) {
+            if(text != null && text.contains("TODO")) {
                 text = text.replace("TODO", cList.get(cIterator));
                 r.setText(text, 0);
                 r.setBold(false);
@@ -218,9 +261,17 @@ public class RapportModel {
         return cIterator;
     }
 
+    /**
+     * Will not clamp the max value so it does not go "out of bounds"
+     */
+
     public int clamp(int val, int max) {
         return Math.min(val, max);
     }
+
+    /**
+     * Print the newly edited document to a new file
+     */
 
     public void printReportToFile() {
         try {
@@ -230,6 +281,16 @@ public class RapportModel {
             os.close();
         } catch (IOException | NullPointerException e) {
             System.out.println(e.getMessage());                     // NOSONAR
+        }
+    }
+
+    /**
+     * Replace old inputs with new ones
+     */
+
+    public void setNewInput(List<Integer> h, List<String> inputList) {
+        for(ChapterList c : chapterList) {
+            c.setInput(h, inputList);
         }
     }
 }

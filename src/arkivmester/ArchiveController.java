@@ -1,5 +1,7 @@
 package arkivmester;
 
+import java.util.Arrays;
+
 public class ArchiveController implements ViewObserver {
     MainView mainView;
     TestView testView;
@@ -38,7 +40,6 @@ public class ArchiveController implements ViewObserver {
         //thirdPartiesModel.runVeraPDF("c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\DOKUMENT"); //NOSONAR
         //thirdPartiesModel.unzipArchive("c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar"); //NOSONAR
 
-
     }
 
     //When "Test nytt uttrekk" is clicked.
@@ -48,7 +49,6 @@ public class ArchiveController implements ViewObserver {
         testView = null;
         mainView.showGUI();
         mainView.resetMainView();
-        //rapportModel.resetAdminInfo();
         archiveModel.resetAdminInfo();
         thirdPartiesModel.resetSelectedTests();
     }
@@ -59,14 +59,12 @@ public class ArchiveController implements ViewObserver {
         adminInfoView = new AdminInfoView();
         adminInfoView.addObserver(this);
         adminInfoView.createAndShowGUI(mainView.getContainer());
-        //adminInfoView.populateAdminInfo(rapportModel.getAdminInfo());
         adminInfoView.populateAdminInfo(archiveModel.getAdminInfo());
     }
 
     //When "Lagre" in admin info is clicked.
     @Override
     public void saveAdminInfo() {
-        //rapportModel.updateAdminInfo(adminInfoView.getManualInfo());
         archiveModel.updateAdminInfo(adminInfoView.getManualInfo());
 
         adminInfoView.clearContainer();
@@ -123,11 +121,10 @@ public class ArchiveController implements ViewObserver {
     public void makeReport() {
         String format = testView.getSelectedFormat(); //#NOSONAR
 
-        //rapportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
+        rapportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
 
         rapportModel.writeReportDocument();     // editing
         rapportModel.printReportToFile();
-        //generateReport() ...
     }
 
     //When "Lagre tests" is clicked.
