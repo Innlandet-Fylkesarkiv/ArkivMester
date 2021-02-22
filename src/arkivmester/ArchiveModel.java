@@ -15,6 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Holds all data about the archive and its relevant utility functions.
+ *
+ * @since 1.0
+ * @version 1.0
+ * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen
+ */
 public class ArchiveModel {
     File folder;
     File tar;
@@ -23,15 +30,20 @@ public class ArchiveModel {
     private List<String> adminInfoList = new ArrayList<>(); //Always have 8 elements
     int amountAdminFields = 8;
 
+    /**
+     * Constructor - Initiates adminInfoList
+     */
     ArchiveModel() {
-        //Archive
-        //Adds amountAdminFields empty fields in the list
         for (int i = 0; i<amountAdminFields; i++) {
             adminInfoList.add("");
         }
     }
 
-    //Asks user to choose which folder to upload.
+    /**
+     * Opens file explorer and saves selected folder to File folder.
+     * @param container Frame's container used as location to create the file chooser.
+     * @return 1 if successful, 0 if failed or -1 if cancelled
+     */
     public int uploadFolder(Container container) {
 
         JFileChooser fc = new JFileChooser("C:/");
@@ -70,25 +82,36 @@ public class ArchiveModel {
         }
     }
 
-
-    //Gets adminInfoList list
-    public java.util.List<String> getAdminInfo() {
+    /**
+     * Regular getter for saved edited administrative information data.
+     * @return String list of administrative data.
+     */
+    public List<String> getAdminInfo() {
         return adminInfoList;
     }
 
-    //Updates adminInfoList list
-    public void updateAdminInfo(java.util.List<String> list) {
+    /**
+     * Updates adminInfoList with new information.
+     * @param list String list of new administrative information data to be saved.
+     */
+    public void updateAdminInfo(List<String> list) {
         adminInfoList = list;
     }
 
-    //Resets adminInfoList
+    /**
+     * Resets administrative information data saved in adminInfoList.
+     */
     public void resetAdminInfo() {
         for (int i = 0; i<adminInfoList.size(); i++) {
             adminInfoList.set(i, "");
         }
     }
 
-    //Read administrative data from .xml file
+    /**
+     * Reads administrative data from .xml file.
+     * @param xml The .xml file to be read from.
+     * @throws NullPointerException if given .xml file is corrupt/moved.
+     */
     public void readAdminXmlFile(File xml) {
         try {
             Document doc = parseFromXMLFile(xml.getAbsolutePath());
@@ -110,7 +133,10 @@ public class ArchiveModel {
         }
     }
 
-    //Parsing agent nodes for administrative data
+    /**
+     * Parses agent nodes from a node list and updates adminInfoList.
+     * @param agentList The node list to be read from.
+     */
     private void parseAgentNodes(NodeList agentList) {
         List<Node> personList = new ArrayList<>();
         Node person;
@@ -145,7 +171,11 @@ public class ArchiveModel {
         }
     }
 
-    //Parsing commune/customer nodes for administrative data
+    /**
+     * Parses commune/customer node for administrative data and updates adminInfoList.
+     * @param attrs The node map with .xml attributes.
+     * @param eElement The node that is currently being parsed.
+     */
     private void parseCommuneCustomer(NamedNodeMap attrs, Element eElement) {
         //1, Kommune/Kunde (Query and Formatting)
         //Attribute 1 in .xml is (1) in list
@@ -164,7 +194,12 @@ public class ArchiveModel {
         }
     }
 
-    //Parsing contact person nodes for administrative data
+    /**
+     * Finds correct contact person node for administrative data.
+     * @param attrs The node map with .xml attributes.
+     * @param eElement The node that is currently being parsed.
+     * @return Contact person node or null if node is not a contact person.
+     */
     private Node parseContactPerson(NamedNodeMap attrs, Element eElement) {
         //2, Kontaktperson (Query)
         //Attribute 1 in .xml is (1) in list
@@ -183,6 +218,12 @@ public class ArchiveModel {
         return null;
     }
 
+    /**
+     * Parses and reads .xml file to a Document object.
+     * @param filepath Path to the .xml file to be parsed.
+     * @return Document object of the .xlm file or null if exception is thrown.
+     * @throws NullPointerException if the filepath is faulty.
+     */
     private static Document parseFromXMLFile(String filepath) {   // NOSONAR
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
@@ -193,7 +234,7 @@ public class ArchiveModel {
             return builder.parse(filepath);
 
         } catch (NullPointerException | ParserConfigurationException | SAXException | IOException e) {
-            System.out.println(e.getMessage());                                                 // NOSONAR
+            //System.out.println(e.getMessage());                                                 // NOSONAR
             return null;
         }
     }
