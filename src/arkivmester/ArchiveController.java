@@ -2,6 +2,15 @@ package arkivmester;
 
 import java.util.Arrays;
 
+/**
+ * Serves as the link between the views and the models.
+ *
+ * Controls the software by connecting the views and the models together. This class only chooses what actions will be
+ * be performed and when, not how.
+ * @since 1.0
+ * @version 1.0
+ * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen
+ */
 public class ArchiveController implements ViewObserver {
     MainView mainView;
     TestView testView;
@@ -20,7 +29,9 @@ public class ArchiveController implements ViewObserver {
         thirdPartiesModel = new ThirdPartiesModel();
     }
 
-
+    /**
+     * Starts the application by setting up the GUI.
+     */
     public void start() {
         mainView.createFrame();
         mainView.createAndShowGUI();
