@@ -12,16 +12,18 @@ import java.io.IOException;
  * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen
  */
 public interface ViewObserver {
+    /**
+     * Prompts the user to upload the archive to be tested.
+     *
+     * A file explorer opens where the user can navigate to the correct folder containing only a .tar archive file and
+     * a .xml metadata file.
+     */
+    void uploadArchive();
 
     /**
      * Starts the test, updates GUI.
      */
     void testStarted() throws IOException;
-
-    /**
-     * Cancels current test and wants to start a new, resets GUI and backend operations.
-     */
-    void newTest();
 
     /**
      * Opens the edit administrative information GUI.
@@ -34,22 +36,19 @@ public interface ViewObserver {
     void saveAdminInfo();
 
     /**
-     * Cancels the current operation and returns to {@link arkivmester.MainView} view.
-     */
-    void cancelButton();
-
-    /**
      * Opens the choose subtests GUI.
      */
     void chooseTests();
 
     /**
-     * Prompts the user to upload the archive to be tested.
-     *
-     * A file explorer opens where the user can navigate to the correct folder containing only a .tar archive file and
-     * a .xml metadata file.
+     * Saves the current information and updates {@link arkivmester.ThirdPartiesModel}'s selectedTests.
      */
-    void uploadArchive();
+    void saveTestSettings();
+
+    /**
+     * Cancels the current operation and returns to {@link arkivmester.MainView} view.
+     */
+    void cancelButton();
 
     /**
      * Starts generating the full report. Only allowed when all subtests are completed.
@@ -57,7 +56,7 @@ public interface ViewObserver {
     void makeReport();
 
     /**
-     * Saves the current information and updates {@link arkivmester.ThirdPartiesModel}'s selectedTests.
+     * Cancels current test and wants to start a new, resets GUI and backend operations.
      */
-    void saveTestSettings();
+    void newTest();
 }
