@@ -4,15 +4,21 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
-//View class for the test window
+/**
+ * Handles the test view.
+ *
+ * Allows for observing subtests' statuses when the main test is running.
+ * @since 1.0
+ * @version 1.0
+ * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen
+ */
 public class TestView extends Views{
     Container container;
     JComboBox<String> fileFormatCb;
-    TestView() {
-        //Empty constructor
-    }
 
-    //Sets up GUI
+    /**
+     * Creates and shows the GUI
+     */
     public void createAndShowGUI(Container cnt) {
         container = cnt;
 
@@ -53,7 +59,9 @@ public class TestView extends Views{
 
     }
 
-    //Sets up the test panel
+    /**
+     * Sets up the test panel.
+     */
     private void setUpTestPanel(JPanel testPanel) {
         //Vertical gap: 20, 40 and 70
 
@@ -119,7 +127,9 @@ public class TestView extends Views{
         testPanel.add(xqueryErrors);
     }
 
-    //Sets up the button panel
+    /**
+     * Sets up the button panel.
+     */
     private void setUpButtonPanel(JPanel buttonPanel) {
         String[] fileFormats = {".docx",".odf"};
         fileFormatCb = new JComboBox<>(fileFormats);
@@ -149,13 +159,18 @@ public class TestView extends Views{
         buttonPanel.add(testNewBtn);
     }
 
-    //Clears the whole frame
+    /**
+     * Clears the entire container.
+     */
     public void clearContainer(){
         container.removeAll();
         container.revalidate();
     }
 
-    //Returns the selected format from the JComboBox
+    /**
+     * Regular getter for selected format.
+     * @return String containing the file format for which the main report will be exported as.
+     */
     public String getSelectedFormat() {
         return (String)fileFormatCb.getSelectedItem();
     }

@@ -6,19 +6,32 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-//View class for the choose tests window
+/**
+ * Handles the test settings view.
+ *
+ * Allows for choosing which subtests that will be used in the main test.
+ * @since 1.0
+ * @version 1.0
+ * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen
+ */
 public class TestSettingsView extends Views {
     Container container;
     private final List<Boolean> selectedTests;
     private final List<JCheckBox> testBoxes = new ArrayList<>(); //Final for now
     private final int amountOfTests;
 
+    /**
+     * Constructor - Initiates this.selectedTests with current data.
+     * @param selectedTests The current selected tests stored in {@link arkivmester.ThirdPartiesModel}.
+     */
     TestSettingsView(List<Boolean> selectedTests) {
         this.selectedTests = selectedTests;
         amountOfTests = selectedTests.size();
     }
 
-    //Sets up GUI
+    /**
+     * Creates and shows the GUI
+     */
     public void createAndShowGUI(Container cnt) {
         container = cnt;
 
@@ -44,7 +57,9 @@ public class TestSettingsView extends Views {
         container.add(xqueryPanel, BorderLayout.EAST);
     }
 
-    //Sets up the grid panel
+    /**
+     * Sets up the tests panel.
+     */
     private void setUpTestsPanel(JPanel testsPanel) {
         //Title
         JLabel testsTitle = new JLabel("Tester som skal kjøres");
@@ -88,13 +103,18 @@ public class TestSettingsView extends Views {
         testsPanel.add(cancelInfoBtn);
     }
 
-    //Clears the whole frame
+    /**
+     * Clears the entire container.
+     */
     public void clearContainer(){
         container.removeAll();
         container.revalidate();
     }
 
-    //Returns selectedTests<Boolean> list
+    /**
+     * Regular getter for newly chosen tests boxes.
+     * @return Updated selected tests as Boolean list.
+     */
     public List<Boolean> getSelectedTests() {
         for(int i = 0; i<amountOfTests; i++) {
             selectedTests.set(i, testBoxes.get(i).isSelected());
