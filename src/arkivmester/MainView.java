@@ -13,7 +13,7 @@ public class MainView extends Views{
     private JPanel topPanel;
     private JPanel infoPanel;
     private JPanel mainPanel;
-
+    private JPanel infoGrid;
     //Buttons
     private JButton editInfoBtn;
     private JButton chooseTestsBtn;
@@ -175,7 +175,7 @@ public class MainView extends Views{
         editInfoBtn.setEnabled(false);
 
         //Grid
-        JPanel infoGrid = new JPanel(new GridBagLayout());
+        infoGrid = new JPanel(new GridBagLayout());
         infoGrid.setBorder(new EmptyBorder(42, 0, 0, 0));
         infoGrid.setBackground(Color.WHITE);
 
@@ -254,9 +254,7 @@ public class MainView extends Views{
 
     //Removes edit admin info button
     public void removeEditInfoBtn(){
-        infoPanel.remove(editInfoBtn);
-        container.revalidate();
-        container.repaint();
+        infoGrid.remove(editInfoBtn);
     }
 
     //Activates buttons when archive as been uploaded
