@@ -1,5 +1,6 @@
 package arkivmester;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -36,8 +37,6 @@ public class ArchiveController implements ViewObserver {
         mainView.createFrame();
         mainView.createAndShowGUI();
         mainView.addObserver(this);
-        //rapportModel.generateReport();
-        testModel.startBaseX();
     }
 
     //When "Start testing" is clicked.
@@ -113,13 +112,21 @@ public class ArchiveController implements ViewObserver {
     @Override
     public void uploadArchive() {
         int success = archiveModel.uploadFolder(mainView.getContainer());
+        String xml = "E:\\XQuery-Statements\\data.xml";
+        String xq = "E:\\XQuery-Statements\\admininfo.xq";
 
         //Folder uploaded
         if(success == 1) {
-            mainView.activateButtons();
+            //Reset data
             archiveModel.resetAdminInfo();
-            archiveModel.readAdminXmlFile(archiveModel.xmlMeta);
             thirdPartiesModel.resetSelectedTests();
+
+            //Get admin info
+            //archiveModel.readAdminXmlFile(archiveModel.xmlMeta);
+            archiveModel.updateAdminInfo(testModel.runBaseX(xml, xq));
+
+            //Update view
+            mainView.activateButtons();
             mainView.updateAdminInfo(archiveModel.getAdminInfo());
         }
         //Faulty folder
