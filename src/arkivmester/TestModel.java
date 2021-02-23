@@ -1,87 +1,136 @@
 package arkivmester;
 
-import org.apache.commons.codec.language.bm.Languages;
-import org.apache.poi.xwpf.usermodel.Document;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.w3c.dom.Element;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
-import javax.xml.parsers.DocumentBuilder;
 import java.io.*;
-import java.nio.file.Files;
-
-
 
 
 public class TestModel {
-    boolean test = true;
+    // Write arkade testRapport to docx
     XWPFDocument document;
-    FileOutputStream out;
-    StringBuilder html;
-    TestModel() {
-        //Test
-        getData();
+
+    // Holds text from arkade testRapport html as string
+    StringBuilder htmlRawText = new StringBuilder();
+    // HtmlRawText formatted
+    StringBuilder htmlTextFormatted = new StringBuilder();
+
+    TestModel(){
+        getFileToString("../Input/arkaderapportrapport.html", htmlRawText);
     }
+
 
     /**
      * Gets data from arkade rapport.
-     * <p> More info </p>
      */
     public void getData() {
-        if (!test) {
-            try {
-                
+        // e.g.
+        getDataFromHtml("N5.03");
+        getDataFromHtml("N5.02");
 
-            } catch (Exception ex) {
-                System.out.println(ex.getMessage()); //NOSONAR
-            }
-
-        }
-        else{
-            getHtml();
-            writeToDocx();
-
-        }
+        writeToDocx();
     }
-    public void getHtml(){
-        System.out.println("test"); //NOSONAR
-        try {
-            FileReader fr = new FileReader("../Input/arkaderapportrapport.html"); //NOSONAR
-            BufferedReader br = new BufferedReader(fr); //NOSONAR
-            html = new StringBuilder(); // length eg. 1024
+    /**
+     * Get html as string
+     * @param filePath FilePath to arkade Testrapport html
+     * @param htmlTextHolder Text holder
+     */
+    private void getFileToString(String filePath,  StringBuilder htmlTextHolder){
+        try (FileReader fr = new FileReader(filePath);
+             BufferedReader br = new BufferedReader(fr)) {
+
             String val;
             while ((val = br.readLine()) != null) {
-                html.append(val);
+                htmlTextHolder.append(val);
             }
-            br.close();
-            String result = html.toString();
-            System.out.println(result); //NOSONAR
-
         } catch (Exception ex) {
             System.out.println(ex.getMessage()); //NOSONAR
         }
     }
-    public void writeToDocx(){
+    /**
+     * Get issues from arkade testRapport html
+     * @param index Index for arkade issues
+     */
+    public void getDataFromHtml(String index){
+
+
+
+        String html = htmlRawText.toString();
+        Document doc = Jsoup.parse(html);
+
+        htmlTextFormatted.append(index).append("\n\n");
+        Element element = doc.getElementById(index).parent();
+        // p: "Type: Strukturkontroll" and "Ingen avvik funnet" if noe mistakes found.
+        htmlTextFormatted.append(element.select("p").text()).append("\n");
+
+        org.jsoup.select.Elements rows = element.select("tr");
+
+
+
+        String location = "";
+
+        for(org.jsoup.nodes.Element row :rows){
+
+            org.jsoup.select.Elements columns = row.select("td");
+
+            boolean firstColumn = true;
+            for (org.jsoup.nodes.Element column:columns)
+            {
+                if (firstColumn){
+                    if (!location.contains(column.text())) {
+                        location = column.text();
+                        htmlTextFormatted.append("\n").append(location).append("\n\n");
+                    }
+                    firstColumn = false;
+                }
+                else {
+                    htmlTextFormatted.append(column.text()).append("\n\n");
+                }
+            }
+        }
+
+        System.out.println(htmlTextFormatted.toString()); //NOSONAR
+
+    }
+    /**
+     * Write output to docx
+     */
+    private void writeToDocx(){
 
         try {
             document = new XWPFDocument();
 
             //Write the Document in file system
-            out = new FileOutputStream( new File("../Input/createdocument.docx"));
+            FileOutputStream out = new FileOutputStream( "../Input/createdocument.docx");
 
             //create Paragraph
             XWPFParagraph paragraph = document.createParagraph();
             XWPFRun run = paragraph.createRun();
-            //run.setText("At tutorialspoint.com, we strive hard to " +
-            //        "provide quality tutorials for self-learning ");
-            run.setText(html.toString());
+
+            String text = htmlTextFormatted.toString();
+
+            if (text.contains("\n")) { //NOSONAR
+                String[] lines = text.split("\n");
+                run.setText(lines[0], 0); // set first line into XWPFRun
+                for(int i=1;i<lines.length;i++){
+                    // add break and insert new text
+                    run.addBreak();
+                    run.setText(lines[i]);
+                }
+            } else {
+                run.setText(text, 0);
+            }
 
             document.write(out);
             out.close();
-            System.out.println("createparagraph.docx written successfully");
+            System.out.println("createparagraph.docx written successfully"); //NOSONAR
         } catch (IOException e){
             System.out.println(e.getMessage());     //NOSONAR
         }
     }
+
 }
