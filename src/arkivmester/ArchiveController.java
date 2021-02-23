@@ -36,7 +36,8 @@ public class ArchiveController implements ViewObserver {
         mainView.createFrame();
         mainView.createAndShowGUI();
         mainView.addObserver(this);
-        rapportModel.generateReport();
+        //rapportModel.generateReport();
+        testModel.startBaseX();
     }
 
     //When "Start testing" is clicked.
