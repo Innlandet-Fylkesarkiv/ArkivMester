@@ -7,8 +7,15 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Contains the functions to run third party test tools.
+ *
+ * Contains multiple methods to run different third party tools to test the archive.
+ * @since 1.0
+ * @version 1.0
+ * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen
+ */
 public class ThirdPartiesModel {
-    ArchiveModel archiveModel;
     String cmd = "cmd.exe";
     private List<Boolean> selectedTests = new ArrayList<>();
     int amountOfTests = 4;
@@ -31,10 +38,10 @@ public class ThirdPartiesModel {
     }
 
     /**
-    Runs ArkadeCLI through cmd, the output gets printed to the console.
-    Report from the tests gets put in the output folder.
-
-    Params: path - a string that contains the path to the archive that is to be tested.
+     * Runs ArkadeCLI through cmd, the output gets printed to the console.
+     * Report from the tests gets put in the output folder.
+     *
+     * @param path A file that contains the archive that is to be tested.
      */
     public void runArkadeTest(File path) {
 
@@ -67,10 +74,10 @@ public class ThirdPartiesModel {
     }
 
     /**
-    Runs Kost-Val through command line, the output gets printed to the console.
-    Report from the test gets moved from the user folder to an output folder.
-
-    Params: path - a string that contains the path to the archive that is to be tested.
+     * Runs Kost-Val through command line, the output gets printed to the console.
+     * Report from the test gets moved from the user folder to an output folder.
+     *
+     * @param path A string that contains the path to the archive that is to be tested
      */
     public void runKostVal(String path) {
 
@@ -113,10 +120,10 @@ public class ThirdPartiesModel {
     }
 
     /**
-    Runs VeraPDF through command line. The report gets put in an output folder.
-
-    Params: path - a string that contains the path to the archive that is to be tested.
-    */
+     * Runs VeraPDF through command line. The report gets put in an output folder.
+     *
+     * @param path A string that contains the path to the archive that is to be tested
+     */
     public void runVeraPDF(String path) {
 
         //verapdf --recurse c:\archive\test\pakke\content\DOKUMENT > c:\archive\verapdf.xml
@@ -137,10 +144,10 @@ public class ThirdPartiesModel {
     }
 
     /**
-    Runs 7Zip through command line and unzips the archive.
-
-    Params: path - a string that contains the path to the archive that is to be tested.
-   */
+     * Runs 7Zip through command line and unzips the archive.
+     *
+     * @param path A file that contains the archive to be unzipped
+     */
     public void unzipArchive(File path) {
 
         //path = "c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar"; // NOSONAR
@@ -167,34 +174,4 @@ public class ThirdPartiesModel {
 
     }
 
-
-    public void runTests(ArchiveModel archiveModel) {
-        List<Boolean> selectedTests = getSelectedTests();
-        String fileName = archiveModel.tar.getName();
-        fileName = fileName.substring(0,fileName.lastIndexOf('.'));
-
-        unzipArchive(archiveModel.tar);
-        System.out.println("\n\tArchive unzipped\n"); //NOSONAR
-
-
-        if(Boolean.TRUE.equals(selectedTests.get(0))) {
-            System.out.print("\nRunning arkade\n"); //NOSONAR
-            runArkadeTest(archiveModel.tar);
-            System.out.println("\n\tArkade test finished\n"); //NOSONAR
-        }
-        if(Boolean.TRUE.equals(selectedTests.get(1))) {
-            System.out.println("\nRunning DROID\n"); //NOSONAR
-            // TODO: Run DROID
-        }
-        if(Boolean.TRUE.equals(selectedTests.get(2))) {
-            System.out.print("\nRunning Kost-Val\n"); //NOSONAR
-            runKostVal("C:\\archive\\" + fileName + "\\content\\dokument");
-            System.out.println("\n\tKost-Val test finished\n"); //NOSONAR
-        }
-        if(Boolean.TRUE.equals(selectedTests.get(3))) {
-            System.out.print("\nRunning VeraPDF\n"); //NOSONAR
-            runVeraPDF("C:\\archive\\" + fileName + "\\content\\DOKUMENT");
-            System.out.println("\n\tVeraPDF test finished\n"); //NOSONAR
-        }
-    }
 }
