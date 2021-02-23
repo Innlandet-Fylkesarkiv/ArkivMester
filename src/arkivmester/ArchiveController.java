@@ -10,7 +10,17 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
+import java.util.Arrays;
 
+/**
+ * Serves as the link between the views and the models.
+ *
+ * Controls the software by connecting the views and the models together. This class only chooses what actions will be
+ * be performed and when, not how.
+ * @since 1.0
+ * @version 1.0
+ * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen
+ */
 public class ArchiveController implements ViewObserver {
     MainView mainView;
     TestView testView;
@@ -29,12 +39,14 @@ public class ArchiveController implements ViewObserver {
         thirdPartiesModel = new ThirdPartiesModel();
     }
 
-
+    /**
+     * Starts the application by setting up the GUI.
+     */
     public void start() {
         mainView.createFrame();
         mainView.createAndShowGUI();
         mainView.addObserver(this);
-        rapportModel.start();
+        rapportModel.generateReport();
     }
 
     //When "Start testing" is clicked.
@@ -102,7 +114,7 @@ public class ArchiveController implements ViewObserver {
         testView = null;
         mainView.showGUI();
         mainView.resetMainView();
-        rapportModel.resetAdminInfo();
+        archiveModel.resetAdminInfo();
         thirdPartiesModel.resetSelectedTests();
     }
 
@@ -112,19 +124,19 @@ public class ArchiveController implements ViewObserver {
         adminInfoView = new AdminInfoView();
         adminInfoView.addObserver(this);
         adminInfoView.createAndShowGUI(mainView.getContainer());
-        adminInfoView.populateAdminInfo(rapportModel.getAdminInfo());
+        adminInfoView.populateAdminInfo(archiveModel.getAdminInfo());
     }
 
     //When "Lagre" in admin info is clicked.
     @Override
     public void saveAdminInfo() {
-        rapportModel.updateAdminInfo(adminInfoView.getManualInfo());
+        archiveModel.updateAdminInfo(adminInfoView.getManualInfo());
 
         adminInfoView.clearContainer();
         adminInfoView = null;
 
         mainView.showGUI();
-        mainView.updateAdminInfo(rapportModel.getAdminInfo());
+        mainView.updateAdminInfo(archiveModel.getAdminInfo());
     }
 
     //When "Avbryt" is clicked.
@@ -158,10 +170,10 @@ public class ArchiveController implements ViewObserver {
         //Folder uploaded
         if(success == 1) {
             mainView.activateButtons();
-            rapportModel.resetAdminInfo();
-            rapportModel.readAdminXmlFile(archiveModel.xmlMeta);
+            archiveModel.resetAdminInfo();
+            archiveModel.readAdminXmlFile(archiveModel.xmlMeta);
             thirdPartiesModel.resetSelectedTests();
-            mainView.updateAdminInfo(rapportModel.getAdminInfo());
+            mainView.updateAdminInfo(archiveModel.getAdminInfo());
         }
         //Faulty folder
         else if(success == 0) {
@@ -173,7 +185,11 @@ public class ArchiveController implements ViewObserver {
     @Override
     public void makeReport() {
         String format = testView.getSelectedFormat(); //#NOSONAR
-        //generateReport() ...
+
+        rapportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
+
+        rapportModel.writeReportDocument();     // editing
+        rapportModel.printReportToFile();
     }
 
     //When "Lagre tests" is clicked.
