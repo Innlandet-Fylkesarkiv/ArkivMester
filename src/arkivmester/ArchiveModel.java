@@ -1,19 +1,10 @@
 package arkivmester;
 
-import org.w3c.dom.*;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
 import javax.swing.*;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Holds all data about the archive and its relevant utility functions.
@@ -104,138 +95,6 @@ public class ArchiveModel {
     public void resetAdminInfo() {
         for (int i = 0; i<adminInfoList.size(); i++) {
             adminInfoList.set(i, "");
-        }
-    }
-
-    /**
-     * Reads administrative data from .xml file.
-     * @param xml The .xml file to be read from.
-     * @throws NullPointerException if given .xml file is corrupt/moved.
-     */
-    public void readAdminXmlFile(File xml) {
-        try {
-            Document doc = parseFromXMLFile(xml.getAbsolutePath());
-
-            //4, Produksjonsdato for uttrekket
-            NodeList metsHdrList = Objects.requireNonNull(doc).getElementsByTagName("metsHdr");
-            Node metsHdr = metsHdrList.item(0);
-            if (metsHdr.getNodeType() == Node.ELEMENT_NODE) {
-                Element metsHdrElement = (Element)metsHdr;
-                adminInfoList.set(4, metsHdrElement.getAttribute("CREATEDATE"));
-            }
-
-            //Agent nodes (1 and 2)
-            NodeList agentList = doc.getElementsByTagName("agent");
-            parseAgentNodes(agentList);
-
-        } catch (Exception e) {
-            System.out.println("Could not find .xml file"); //#NOSONAR
-        }
-    }
-
-    /**
-     * Parses agent nodes from a node list and updates adminInfoList.
-     * @param agentList The node list to be read from.
-     */
-    private void parseAgentNodes(NodeList agentList) {
-        List<Node> personList = new ArrayList<>();
-        Node person;
-        for (int i = 0; i < agentList.getLength(); i++) {
-            Node nNode = agentList.item(i);
-
-            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-                Element eElement = (Element)nNode;
-                NamedNodeMap attrs =  nNode.getAttributes();
-
-                if(attrs.getLength() == 3) {
-                    parseCommuneCustomer(attrs, eElement);
-
-                    person = parseContactPerson(attrs, eElement);
-                    if (person!=null && person.getNodeType() == Node.ELEMENT_NODE) {
-                        personList.add(person);
-                    }
-
-                    //Missing noark version here (3)
-                }
-            }
-        }
-
-        //2, Kontaktperson (Formatting)
-        int size = personList.size();
-        for (int i = 0; i < size; i++) {
-            adminInfoList.set(2, adminInfoList.get(2) + personList.get(i).getTextContent());
-
-            if(size>1 && i != size-1) {
-                adminInfoList.set(2, adminInfoList.get(2) + ", ");
-            }
-        }
-    }
-
-    /**
-     * Parses commune/customer node for administrative data and updates adminInfoList.
-     * @param attrs The node map with .xml attributes.
-     * @param eElement The node that is currently being parsed.
-     */
-    private void parseCommuneCustomer(NamedNodeMap attrs, Element eElement) {
-        //1, Kommune/Kunde (Query and Formatting)
-        //Attribute 1 in .xml is (1) in list
-        //Attribute 2 in .xml is (0) in list
-        //Attribute 3 in .xml is (2) in list
-        if(
-                ((Attr)attrs.item(0)).getValue().equals("SUBMITTER")
-                        && ((Attr)attrs.item(1)).getValue().equals("OTHER")
-                        && ((Attr)attrs.item(2)).getValue().equals("ORGANIZATION")) {
-
-            NodeList nameList = eElement.getElementsByTagName("name");
-            Node name = nameList.item(0);
-            if (name.getNodeType() == Node.ELEMENT_NODE) {
-                adminInfoList.set(1, name.getTextContent());
-            }
-        }
-    }
-
-    /**
-     * Finds correct contact person node for administrative data.
-     * @param attrs The node map with .xml attributes.
-     * @param eElement The node that is currently being parsed.
-     * @return Contact person node or null if node is not a contact person.
-     */
-    private Node parseContactPerson(NamedNodeMap attrs, Element eElement) {
-        //2, Kontaktperson (Query)
-        //Attribute 1 in .xml is (1) in list
-        //Attribute 2 in .xml is (0) in list
-        //Attribute 3 in .xml is (2) in list
-        if(
-                ((Attr)attrs.item(0)).getValue().equals("SUBMITTER")
-                        && ((Attr)attrs.item(1)).getValue().equals("OTHER")
-                        && ((Attr)attrs.item(2)).getValue().equals("INDIVIDUAL"))  {
-
-            NodeList tempList = eElement.getElementsByTagName("name");
-            return tempList.item(0);
-        }
-
-        //If node is not a contact person
-        return null;
-    }
-
-    /**
-     * Parses and reads .xml file to a Document object.
-     * @param filepath Path to the .xml file to be parsed.
-     * @return Document object of the .xlm file or null if exception is thrown.
-     * @throws NullPointerException if the filepath is faulty.
-     */
-    private static Document parseFromXMLFile(String filepath) {   // NOSONAR
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-
-        try {
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            return builder.parse(filepath);
-
-        } catch (NullPointerException | ParserConfigurationException | SAXException | IOException e) {
-            //System.out.println(e.getMessage());                                                 // NOSONAR
-            return null;
         }
     }
 }

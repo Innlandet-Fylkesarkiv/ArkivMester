@@ -40,7 +40,6 @@ public class ArchiveController implements ViewObserver {
         mainView.createFrame();
         mainView.createAndShowGUI();
         mainView.addObserver(this);
-        rapportModel.generateReport();
     }
 
     //When "Start testing" is clicked.
@@ -148,13 +147,19 @@ public class ArchiveController implements ViewObserver {
     @Override
     public void uploadArchive() {
         int success = archiveModel.uploadFolder(mainView.getContainer());
+        String xq = "E:\\XQuery-Statements\\admininfo.xq";
 
         //Folder uploaded
         if(success == 1) {
-            mainView.activateButtons();
+            //Reset data
             archiveModel.resetAdminInfo();
-            archiveModel.readAdminXmlFile(archiveModel.xmlMeta);
             thirdPartiesModel.resetSelectedTests();
+
+            //Get admin info
+            archiveModel.updateAdminInfo(thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), xq));
+
+            //Update view
+            mainView.activateButtons();
             mainView.updateAdminInfo(archiveModel.getAdminInfo());
         }
         //Faulty folder
