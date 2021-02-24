@@ -8,32 +8,66 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class TestModel {
     // Write arkade testRapport to docx
     XWPFDocument document;
-
+    // HtmlRawText formatted
+    List<String> htmlAllIDs = new ArrayList<>();
     // Holds text from arkade testRapport html as string
     StringBuilder htmlRawText = new StringBuilder();
     // HtmlRawText formatted
     StringBuilder htmlTextFormatted = new StringBuilder();
 
-    TestModel(){
-        getFileToString("../Input/arkaderapportrapport.html", htmlRawText);
-    }
+    // html file at   ../Input/arkaderapportrapport.html
+    String filePath = "../Input/arkaderapportrapport.html";
+    // output file at ../Output/createdocument.docx
+    String outPutFile = "../Output/createdocument.docx";
 
+    /* Output format to docx e.g
+    N5.03
+    Type: Strukturkontroll
+
+
+    Lokasjon: arkivstruktur.xml
+
+    File location: <arkivstruktur.xml> avvik mld
+    File location: <arkivstruktur.xml> avvik mld
+
+    Lokasjon: endringslogg.xml
+
+    File location: <endringslogg.xml> avvik mld
+    File location: <> (<-"Ingen fil") avvik mld
+
+    N5.02
+    Type: Strukturkontroll  Ingen avvik funnet.
+
+     */
+
+    TestModel(){
+        // Html to String
+        getFileToString(filePath, htmlRawText);
+        // Get IDs
+        getAllIDs();
+        // Run code
+        start();
+    }
 
     /**
-     * Gets data from arkade rapport.
+     * Print all to docx
      */
-    public void getData() {
-        // e.g.
-        getDataFromHtml("N5.03");
-        getDataFromHtml("N5.02");
-
+    private void start(){
+        // Get avvik for every id
+        for (String index : htmlAllIDs){
+            getDataFromHtml(index);
+        }
+        // Write to docx
         writeToDocx();
     }
+
     /**
      * Get html as string
      * @param filePath FilePath to arkade Testrapport html
@@ -51,24 +85,27 @@ public class TestModel {
             System.out.println(ex.getMessage()); //NOSONAR
         }
     }
+    private void getAllIDs () {
+        Document doc = Jsoup.parse(htmlRawText.toString());
+
+        for (org.jsoup.nodes.Element elementx : doc.select("h3")){
+            htmlAllIDs.add( elementx.attr("id"));
+        }
+    }
     /**
      * Get issues from arkade testRapport html
      * @param index Index for arkade issues
      */
     public void getDataFromHtml(String index){
 
+        Document doc = Jsoup.parse(htmlRawText.toString());
 
-
-        String html = htmlRawText.toString();
-        Document doc = Jsoup.parse(html);
-
-        htmlTextFormatted.append(index).append("\n\n");
+        htmlTextFormatted.append(index).append("\n");
         Element element = doc.getElementById(index).parent();
         // p: "Type: Strukturkontroll" and "Ingen avvik funnet" if noe mistakes found.
-        htmlTextFormatted.append(element.select("p").text()).append("\n");
+        htmlTextFormatted.append(element.select("p").text()).append("\n\n");
 
         org.jsoup.select.Elements rows = element.select("tr");
-
 
 
         String location = "";
@@ -80,20 +117,24 @@ public class TestModel {
             boolean firstColumn = true;
             for (org.jsoup.nodes.Element column:columns)
             {
+                // First Column
                 if (firstColumn){
+                    // First Column changed
                     if (!location.contains(column.text())) {
                         location = column.text();
-                        htmlTextFormatted.append("\n").append(location).append("\n\n");
+                        htmlTextFormatted.append("\n").append("Lokasjon: ").append(location).append("\n");
                     }
                     firstColumn = false;
+                    htmlTextFormatted.append("\n").append("File location: <").append(column.text()).append("> ");
                 }
                 else {
-                    htmlTextFormatted.append(column.text()).append("\n\n");
+                    htmlTextFormatted.append(column.text()).append("\n");
                 }
             }
         }
 
-        System.out.println(htmlTextFormatted.toString()); //NOSONAR
+
+        //System.out.println(htmlTextFormatted.toString()); //NOSONAR
 
     }
     /**
@@ -105,7 +146,7 @@ public class TestModel {
             document = new XWPFDocument();
 
             //Write the Document in file system
-            FileOutputStream out = new FileOutputStream( "../Input/createdocument.docx");
+            FileOutputStream out = new FileOutputStream( outPutFile);
 
             //create Paragraph
             XWPFParagraph paragraph = document.createParagraph();
