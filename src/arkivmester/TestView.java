@@ -16,6 +16,20 @@ public class TestView extends Views{
     Container container;
     JComboBox<String> fileFormatCb;
 
+    JLabel testStatus;
+    JLabel arkadeStatus;
+    JLabel veraStatus;
+    JLabel kostvalStatus;
+    JLabel droidStatus;
+    JLabel xqueryStatus;
+
+    static final String WAITING = "Venter.";
+    static final String RUNNING = "Kjører...";
+    static final String DONE = "Ferdig.";
+    static final String NONE = "Ingen.";
+    static final String TESTRUNNING = "Kjører tester...";
+    static final String TESTDONE = "Alle tester er ferdige.";
+
     /**
      * Creates and shows the GUI
      */
@@ -41,7 +55,7 @@ public class TestView extends Views{
         JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 40, 0));
         statusPanel.setBorder(new EmptyBorder(20, 60, 0, 0));
         statusPanel.setBackground(Color.WHITE);
-        JLabel testStatus = new JLabel("Kjører tester...");
+        testStatus = new JLabel(TESTRUNNING);
         testStatus.setFont(primaryFont);
 
         //Button panel
@@ -70,10 +84,10 @@ public class TestView extends Views{
         arkadeTitle.setBounds(100, 50, 200, 30);
         arkadeTitle.setFont(primaryFont);
 
-        JLabel arkadeStatus = new JLabel("Ferdig.");
+        arkadeStatus = new JLabel(WAITING);
         arkadeStatus.setBounds(100, 90, 200, 30);
 
-        JLabel arkadeErrors = new JLabel("1000 avvik");
+        JLabel arkadeErrors = new JLabel("");
         arkadeErrors.setBounds(100, 110, 200, 30);
 
         //Section 2
@@ -81,10 +95,10 @@ public class TestView extends Views{
         veraTitle.setBounds(100, 180, 200, 30);
         veraTitle.setFont(primaryFont);
 
-        JLabel veraStatus = new JLabel("Ferdig.");
+        veraStatus = new JLabel(WAITING);
         veraStatus.setBounds(100, 220, 200, 30);
 
-        JLabel veraErrors = new JLabel("123 avvik");
+        JLabel veraErrors = new JLabel("");
         veraErrors.setBounds(100, 240, 200, 30);
 
         //Section 3
@@ -92,22 +106,33 @@ public class TestView extends Views{
         kostvalTitle.setBounds(100, 310, 200, 30);
         kostvalTitle.setFont(primaryFont);
 
-        JLabel kostvalStatus = new JLabel("Tester...");
+        kostvalStatus = new JLabel(WAITING);
         kostvalStatus.setBounds(100, 350, 200, 30);
 
         JLabel kostvalErrors = new JLabel("");
         kostvalErrors.setBounds(100, 370, 200, 30);
 
         //Section 4
+        JLabel droidTitle = new JLabel("DROID");
+        droidTitle.setBounds(300, 50, 200, 30);
+        droidTitle.setFont(primaryFont);
+
+        droidStatus = new JLabel(WAITING);
+        droidStatus.setBounds(300, 90, 200, 30);
+
+        JLabel droidErrors = new JLabel("");
+        droidErrors.setBounds(300, 110, 200, 30);
+
+        //Section 5
         JLabel xqueryTitle = new JLabel("XQuery tester");
-        xqueryTitle.setBounds(300, 50, 200, 30);
+        xqueryTitle.setBounds(300, 180, 200, 30);
         xqueryTitle.setFont(primaryFont);
 
-        JLabel xqueryStatus = new JLabel("Ingen.");
-        xqueryStatus.setBounds(300, 90, 200, 30);
+        xqueryStatus = new JLabel(NONE);
+        xqueryStatus.setBounds(300, 220, 200, 30);
 
         JLabel xqueryErrors = new JLabel("");
-        xqueryErrors.setBounds(300, 110, 200, 30);
+        xqueryErrors.setBounds(300, 240, 200, 30);
 
         //Adding components
         testPanel.add(arkadeTitle);
@@ -121,6 +146,10 @@ public class TestView extends Views{
         testPanel.add(kostvalTitle);
         testPanel.add(kostvalStatus);
         testPanel.add(kostvalErrors);
+
+        testPanel.add(droidTitle);
+        testPanel.add(droidStatus);
+        testPanel.add(droidErrors);
 
         testPanel.add(xqueryTitle);
         testPanel.add(xqueryStatus);
@@ -173,5 +202,45 @@ public class TestView extends Views{
      */
     public String getSelectedFormat() {
         return (String)fileFormatCb.getSelectedItem();
+    }
+
+    /**
+     * Updates the status of all tests in the view.
+     * @param status A static final String variable from {@link arkivmester.TestView}.
+     */
+    public void updateTestStatus(String status) {
+        testStatus.setText(status);
+    }
+
+    /**
+     * Updates the status of Arkade tests in the view.
+     * @param status A static final String variable from {@link arkivmester.TestView}.
+     */
+    public void updateArkadeStatus(String status) {
+        arkadeStatus.setText(status);
+    }
+
+    /**
+     * Updates the status of VeraPDF tests in the view.
+     * @param status A static final String variable from {@link arkivmester.TestView}.
+     */
+    public void updateVeraStatus(String status) {
+        veraStatus.setText(status);
+    }
+
+    /**
+     * Updates the status of Kost-Val tests in the view.
+     * @param status A static final String variable from {@link arkivmester.TestView}.
+     */
+    public void updateKostValStatus(String status) {
+        kostvalStatus.setText(status);
+    }
+
+    /**
+     * Updates the status of DROID tests in the view.
+     * @param status A static final String variable from {@link arkivmester.TestView}.
+     */
+    public void updateDroidStatus(String status) {
+        droidStatus.setText(status);
     }
 }

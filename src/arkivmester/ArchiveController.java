@@ -53,7 +53,7 @@ public class ArchiveController implements ViewObserver {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.submit(this::runTests);
 
-        testModel.parseReportHtml();
+        testView.updateTestStatus(TestView.TESTDONE);
     }
 
     /**
@@ -70,22 +70,30 @@ public class ArchiveController implements ViewObserver {
 
         if(Boolean.TRUE.equals(selectedTests.get(0))) {
             System.out.print("\nRunning arkade\n"); //NOSONAR
+            testView.updateArkadeStatus(TestView.RUNNING);
             thirdPartiesModel.runArkadeTest(archiveModel.tar);
             System.out.println("\n\tArkade test finished\n"); //NOSONAR
+            testView.updateArkadeStatus(TestView.DONE);
         }
         if(Boolean.TRUE.equals(selectedTests.get(1))) {
             System.out.println("\nRunning DROID\n"); //NOSONAR
+            testView.updateDroidStatus(TestView.RUNNING);
+            testView.updateDroidStatus(TestView.DONE);
             // TODO: Run DROID
         }
         if(Boolean.TRUE.equals(selectedTests.get(2))) {
             System.out.print("\nRunning Kost-Val\n"); //NOSONAR
+            testView.updateKostValStatus(TestView.RUNNING);
             thirdPartiesModel.runKostVal("C:\\archive\\" + fileName + "\\content\\dokument");
             System.out.println("\n\tKost-Val test finished\n"); //NOSONAR
+            testView.updateKostValStatus(TestView.DONE);
         }
         if(Boolean.TRUE.equals(selectedTests.get(3))) {
             System.out.print("\nRunning VeraPDF\n"); //NOSONAR
+            testView.updateVeraStatus(TestView.RUNNING);
             thirdPartiesModel.runVeraPDF("C:\\archive\\" + fileName + "\\content\\dokument");
             System.out.println("\n\tVeraPDF test finished\n"); //NOSONAR
+            testView.updateVeraStatus(TestView.DONE);
         }
     }
 
@@ -176,6 +184,7 @@ public class ArchiveController implements ViewObserver {
 
         rapportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
 
+        testModel.parseReportHtml();
         rapportModel.writeReportDocument();     // editing
         rapportModel.printReportToFile();
     }
