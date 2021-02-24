@@ -166,4 +166,34 @@ public class ThirdPartiesModel {
         }
 
     }
+
+    /**
+     * Queries an .xml file via an .xq XQuery/XPath file.
+     * @param xml Path to .xml.
+     * @param xq Path to .xq.
+     * @return String list of the results from the query.
+     */
+    public List<String> runBaseX(String xml, String xq)  {
+        String pwd = "cd \"C:\\Program Files (x86)\\BaseX\\bin\"";
+        List<String> result = new ArrayList<>();
+
+        ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -i " + xml + " " + xq);
+
+        try {
+            Process p = baseXBuilder.start();
+
+            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+            String line = r.readLine();
+            while (line != null) {
+                result.add(line);
+                line = r.readLine();
+            }
+            r.close();
+        } catch (IOException e) {
+            System.out.println(e.getMessage()); //#NOSONAR
+        }
+
+        return result;
+    }
 }
