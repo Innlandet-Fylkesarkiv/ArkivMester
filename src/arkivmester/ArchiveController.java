@@ -48,7 +48,7 @@ public class ArchiveController implements ViewObserver {
         testView = new TestView();
         testView.addObserver(this);
         testView.createAndShowGUI(mainView.getContainer());
-        mainView.removeEditInfoBtn();
+        mainView.toggleEditInfoBtn();
 
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.submit(this::runTests);

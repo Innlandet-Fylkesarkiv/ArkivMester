@@ -269,10 +269,10 @@ public class MainView extends Views{
     }
 
     /**
-     * Removes edit admin info button from the view.
+     * Toggles edit admin info button's visibility.
      */
-    public void removeEditInfoBtn(){
-        infoGrid.remove(editInfoBtn);
+    public void toggleEditInfoBtn(){
+        editInfoBtn.setVisible(!editInfoBtn.isVisible());
     }
 
     /**
@@ -307,11 +307,12 @@ public class MainView extends Views{
     /**
      * Resets main view.
      *
-     * The same as calling resetManualInfo() and deactivateButtons().
+     * The same as calling resetManualInfo(), deactivateButtons() and toggleEditInfoBtn().
      */
     public void resetMainView() {
         resetManualInfo();
         deactivateButtons();
+        toggleEditInfoBtn();
     }
 
     /**
