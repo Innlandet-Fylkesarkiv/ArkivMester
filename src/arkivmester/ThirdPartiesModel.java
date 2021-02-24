@@ -181,7 +181,7 @@ public class ThirdPartiesModel {
      * @return String list of the results from the query.
      */
     public List<String> runBaseX(String xml, String xq)  {
-        String pwd = "cd \"C:\\Program Files (x86)\\BaseX\\bin\"";
+        String pwd = "cd \"C:\\Program Files (x86)\\BaseX\\bin\""; //NOSONAR
         List<String> result = new ArrayList<>();
 
         ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -i " + xml + " " + xq);

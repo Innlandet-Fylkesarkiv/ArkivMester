@@ -19,7 +19,6 @@ public class MainView extends Views{
     private JPanel topPanel;
     private JPanel infoPanel;
     private JPanel mainPanel;
-    private JPanel infoGrid;
 
     //Buttons
     private JButton editInfoBtn;
@@ -188,7 +187,7 @@ public class MainView extends Views{
         editInfoBtn.setEnabled(false);
 
         //Grid
-        infoGrid = new JPanel(new GridBagLayout());
+        JPanel infoGrid = new JPanel(new GridBagLayout());
         infoGrid.setBorder(new EmptyBorder(42, 0, 0, 0));
         infoGrid.setBackground(Color.WHITE);
 
