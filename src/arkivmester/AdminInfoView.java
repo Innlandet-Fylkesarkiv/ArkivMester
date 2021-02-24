@@ -6,17 +6,22 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-//View class for the admin information window
+/**
+ * Handles the administrative information view.
+ *
+ * Allows for editing the administrative information fields.
+ * @since 1.0
+ * @version 1.0
+ * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen
+ */
 public class AdminInfoView extends Views {
     Container container;
 
     List<JTextField> valueList = new ArrayList<>();
 
-    AdminInfoView() {
-        //Empty constructor
-    }
-
-    //Sets up GUI
+    /**
+     * Creates and shows the GUI
+     */
     public void createAndShowGUI(Container cnt) {
         container = cnt;
 
@@ -40,7 +45,10 @@ public class AdminInfoView extends Views {
         container.add(infoContainer);
     }
 
-    //Sets up the grid panel
+    /**
+     * Sets up the grid panel.
+     * @param gridPanel Grid panel component which will be filled with table, buttons and title.
+     */
     private void setUpGridPanel(JPanel gridPanel) {
         int rows = 8;
 
@@ -113,20 +121,28 @@ public class AdminInfoView extends Views {
         gridPanel.add(cancelInfoBtn, gbc);
     }
 
-    //Clears the whole frame
+    /**
+     * Clears the entire container.
+     */
     public void clearContainer(){
         container.removeAll();
         container.revalidate();
     }
 
-    //Populates field text
+    /**
+     * Populates the administrative information fields.
+     * @param list Data to fill the fields. Stored in {@link arkivmester.RapportModel}.
+     */
     public void populateAdminInfo(List<String> list) {
         for (int i = 0; i<list.size(); i++) {
             valueList.get(i).setText(list.get(i));
         }
     }
 
-    //Retrieves field text
+    /**
+     * Regular getter for newly edited administrative information fields.
+     * @return Updated administrative information data as String list.
+     */
     public List<String> getManualInfo() {
         List<String> list = new ArrayList<>();
 

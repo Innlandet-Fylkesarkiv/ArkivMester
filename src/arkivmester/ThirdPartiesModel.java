@@ -1,13 +1,21 @@
 package arkivmester;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Contains the functions to run third party test tools.
+ *
+ * Contains multiple methods to run different third party tools to test the archive.
+ * @since 1.0
+ * @version 1.0
+ * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen
+ */
 public class ThirdPartiesModel {
-
     String cmd = "cmd.exe";
     private List<Boolean> selectedTests = new ArrayList<>();
     int amountOfTests = 4;
@@ -29,14 +37,13 @@ public class ThirdPartiesModel {
         }
     }
 
-
-    /*
-    Runs ArkadeCLI through cmd, the output gets printed to the console.
-    Report from the tests gets put in the output folder.
-
-    Params: path - a string that contains the path to the archive that is to be tested.
+    /**
+     * Runs ArkadeCLI through cmd, the output gets printed to the console.
+     * Report from the tests gets put in the output folder.
+     *
+     * @param path A file that contains the archive that is to be tested.
      */
-    public void runArkadeTest(String path) {
+    public void runArkadeTest(File path) {
 
 
         //path = "c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar"; // NOSONAR
@@ -66,11 +73,11 @@ public class ThirdPartiesModel {
 
     }
 
-    /*
-    Runs Kost-Val through command line, the output gets printed to the console.
-    Report from the test gets moved from the user folder to an output folder.
-
-    Params: path - a string that contains the path to the archive that is to be tested.
+    /**
+     * Runs Kost-Val through command line, the output gets printed to the console.
+     * Report from the test gets moved from the user folder to an output folder.
+     *
+     * @param path A string that contains the path to the archive that is to be tested
      */
     public void runKostVal(String path) {
 
@@ -95,7 +102,7 @@ public class ThirdPartiesModel {
 
             //Process builder to move report to an output folder.
             kostvalBuilder = new ProcessBuilder(
-                    cmd, "/c", "move %userprofile%\\.kost-val_2x\\logs\\*.xml* " + reportPath);
+                    cmd, "/c", "move %userprofile%\\.kost-val_2x\\logs\\*.* " + reportPath);
             kostvalBuilder.redirectErrorStream(true);
             p = kostvalBuilder.start();
 
@@ -112,11 +119,11 @@ public class ThirdPartiesModel {
 
     }
 
-    /*
-    Runs VeraPDF through command line. The report gets put in an output folder.
-
-    Params: path - a string that contains the path to the archive that is to be tested.
-    */
+    /**
+     * Runs VeraPDF through command line. The report gets put in an output folder.
+     *
+     * @param path A string that contains the path to the archive that is to be tested
+     */
     public void runVeraPDF(String path) {
 
         //verapdf --recurse c:\archive\test\pakke\content\DOKUMENT > c:\archive\verapdf.xml
@@ -136,12 +143,12 @@ public class ThirdPartiesModel {
         System.out.println("VeraPDF done, report at: " + reportPath); // NOSONAR
     }
 
-    /*
-    Runs 7Zip through command line and unzips the archive.
-
-    Params: path - a string that contains the path to the archive that is to be tested.
-   */
-    public void unzipArchive(String path) {
+    /**
+     * Runs 7Zip through command line and unzips the archive.
+     *
+     * @param path A file that contains the archive to be unzipped
+     */
+    public void unzipArchive(File path) {
 
         //path = "c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar"; // NOSONAR
         String outputpath = "C:\\archive";  //NOSONAR
@@ -165,5 +172,35 @@ public class ThirdPartiesModel {
             System.out.println(e.getMessage()); //NOSONAR
         }
 
+    }
+
+    /**
+     * Queries an .xml file via an .xq XQuery/XPath file.
+     * @param xml Path to .xml.
+     * @param xq Path to .xq.
+     * @return String list of the results from the query.
+     */
+    public List<String> runBaseX(String xml, String xq)  {
+        String pwd = "cd \"C:\\Program Files (x86)\\BaseX\\bin\""; //NOSONAR
+        List<String> result = new ArrayList<>();
+
+        ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -i " + xml + " " + xq);
+
+        try {
+            Process p = baseXBuilder.start();
+
+            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+            String line = r.readLine();
+            while (line != null) {
+                result.add(line);
+                line = r.readLine();
+            }
+            r.close();
+        } catch (IOException e) {
+            System.out.println(e.getMessage()); //#NOSONAR
+        }
+
+        return result;
     }
 }

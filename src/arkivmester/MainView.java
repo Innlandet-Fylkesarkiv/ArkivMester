@@ -6,7 +6,13 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-//View class for the main window
+/**
+ * Handles the main view, which is the front page.
+ *
+ * @since 1.0
+ * @version 1.0
+ * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen
+ */
 public class MainView extends Views{
     private JFrame f;
     private Container container;
@@ -18,14 +24,10 @@ public class MainView extends Views{
     private JButton editInfoBtn;
     private JButton chooseTestsBtn;
     private JButton startTestingBtn;
-    private JButton writeReportBtn; //#NOSONAR
+    private JButton writeReportBtn;
 
     //Info field list
     List<JTextArea> valueList = new ArrayList<>();
-
-    MainView() {
-        //Empty constructor
-    }
 
     /**
      * Creates and shows the GUI
@@ -62,7 +64,9 @@ public class MainView extends Views{
         container.validate();
     }
 
-    //Shows GUI after its created
+    /**
+     * Shows the main view after the container has been reset.
+     */
     public void showGUI() {
         container.add(mainPanel);
         container.add(infoPanel, BorderLayout.EAST);
@@ -70,7 +74,9 @@ public class MainView extends Views{
         f.setContentPane(container);
     }
 
-    //Create frame
+    /**
+     * Creates and sets the properties for the frame (window application).
+     */
     public void createFrame(){
         //Frame properties
         f = new JFrame("ArkivMester");
@@ -81,7 +87,9 @@ public class MainView extends Views{
         f.setResizable(false);
     }
 
-    //Sets up the top panel
+    /**
+     * Sets up the top panel.
+     */
     private void setUpTopPanel(JPanel topPanel) {
         //Top panel buttons
         JButton settingsBtn = new JButton("Innstillinger");
@@ -96,7 +104,9 @@ public class MainView extends Views{
         topPanel.add(aboutBtn);
     }
 
-    //Sets up the main panel
+    /**
+     * Sets up the main panel.
+     */
     private void setUpMainPanel(JPanel mainPanel) {
         //Vertical gap: 50 and 70
 
@@ -161,7 +171,9 @@ public class MainView extends Views{
         mainPanel.add(writeReportBtn);
     }
 
-    //Sets up the info panel
+    /**
+     * Sets up the info panel.
+     */
     private void setUpInfoPanel(JPanel infoPanel) {
         int rows = 8;
 
@@ -247,19 +259,24 @@ public class MainView extends Views{
         infoPanel.add(infoGrid, BorderLayout.NORTH);
     }
 
-    //Returns container
+    /**
+     * Regular getter for container.
+     * @return Frame's container used for creating new views.
+     */
     public Container getContainer() {
         return container;
     }
 
-    //Removes edit admin info button
-    public void removeEditInfoBtn(){
-        infoPanel.remove(editInfoBtn);
-        container.revalidate();
-        container.repaint();
+    /**
+     * Toggles edit admin info button's visibility.
+     */
+    public void toggleEditInfoBtn(){
+        editInfoBtn.setVisible(!editInfoBtn.isVisible());
     }
 
-    //Activates buttons when archive as been uploaded
+    /**
+     * Activates buttons when archive as been uploaded.
+     */
     public void activateButtons() {
         chooseTestsBtn.setEnabled(true);
         startTestingBtn.setEnabled(true);
@@ -267,7 +284,9 @@ public class MainView extends Views{
         //writeReportBtn.setEnabled(!writeReportBtn.isEnabled()); #NOSONAR
     }
 
-    //Deactivates buttons when view is reset
+    /**
+     * Deactivates buttons when view is reset.
+     */
     private void deactivateButtons() {
         chooseTestsBtn.setEnabled(false);
         startTestingBtn.setEnabled(false);
@@ -275,20 +294,30 @@ public class MainView extends Views{
         writeReportBtn.setEnabled(false);
     }
 
-    //Resets administrative information fields
+    /**
+     * Resets administrative information fields.
+     */
     public void resetManualInfo() {
         for (JTextArea value: valueList) {
            value.setText("");
         }
     }
 
-    //Resets mainview
+    /**
+     * Resets main view.
+     *
+     * The same as calling resetManualInfo(), deactivateButtons() and toggleEditInfoBtn().
+     */
     public void resetMainView() {
         resetManualInfo();
         deactivateButtons();
+        toggleEditInfoBtn();
     }
 
-    //Updates administrative information fields
+    /**
+     * Updates administrative information fields
+     * @param list Contains data in the correct order and must be same size as amount of fields.
+     */
     public void updateAdminInfo(List<String> list) {
         for (int i = 0; i<list.size(); i++) {
             valueList.get(i).setText(list.get(i));

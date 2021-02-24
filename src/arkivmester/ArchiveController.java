@@ -1,7 +1,20 @@
 package arkivmester;
 
-import java.io.IOException;
 
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.Arrays;
+
+/**
+ * Serves as the link between the views and the models.
+ *
+ * Controls the software by connecting the views and the models together. This class only chooses what actions will be
+ * be performed and when, not how.
+ * @since 1.0
+ * @version 1.0
+ * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen
+ */
 public class ArchiveController implements ViewObserver {
     MainView mainView;
     TestView testView;
@@ -20,12 +33,13 @@ public class ArchiveController implements ViewObserver {
         thirdPartiesModel = new ThirdPartiesModel();
     }
 
-
+    /**
+     * Starts the application by setting up the GUI.
+     */
     public void start() {
         mainView.createFrame();
         mainView.createAndShowGUI();
         mainView.addObserver(this);
-        rapportModel.start();
     }
 
     //When "Start testing" is clicked.
@@ -34,13 +48,44 @@ public class ArchiveController implements ViewObserver {
         testView = new TestView();
         testView.addObserver(this);
         testView.createAndShowGUI(mainView.getContainer());
-        mainView.removeEditInfoBtn();
-        //thirdPartiesModel.runArkadeTest("c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar"); //NOSONAR
-        //thirdPartiesModel.runKostVal("c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\dokument"); //NOSONAR
-        //thirdPartiesModel.runVeraPDF("c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\DOKUMENT"); //NOSONAR
-        //thirdPartiesModel.unzipArchive("c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar"); //NOSONAR
+        mainView.toggleEditInfoBtn();
+
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.submit(this::runTests);
+
+    }
+
+    /**
+     * Unzips the archive and runs the selected tests.
+     */
+    private void runTests() {
+        List<Boolean> selectedTests = thirdPartiesModel.getSelectedTests();
+        String fileName = archiveModel.tar.getName();
+        fileName = fileName.substring(0,fileName.lastIndexOf('.'));
+
+        thirdPartiesModel.unzipArchive(archiveModel.tar);
+        System.out.println("\n\tArchive unzipped\n"); //NOSONAR
 
 
+        if(Boolean.TRUE.equals(selectedTests.get(0))) {
+            System.out.print("\nRunning arkade\n"); //NOSONAR
+            thirdPartiesModel.runArkadeTest(archiveModel.tar);
+            System.out.println("\n\tArkade test finished\n"); //NOSONAR
+        }
+        if(Boolean.TRUE.equals(selectedTests.get(1))) {
+            System.out.println("\nRunning DROID\n"); //NOSONAR
+            // TODO: Run DROID
+        }
+        if(Boolean.TRUE.equals(selectedTests.get(2))) {
+            System.out.print("\nRunning Kost-Val\n"); //NOSONAR
+            thirdPartiesModel.runKostVal("C:\\archive\\" + fileName + "\\content\\dokument");
+            System.out.println("\n\tKost-Val test finished\n"); //NOSONAR
+        }
+        if(Boolean.TRUE.equals(selectedTests.get(3))) {
+            System.out.print("\nRunning VeraPDF\n"); //NOSONAR
+            thirdPartiesModel.runVeraPDF("C:\\archive\\" + fileName + "\\content\\dokument");
+            System.out.println("\n\tVeraPDF test finished\n"); //NOSONAR
+        }
     }
 
     //When "Test nytt uttrekk" is clicked.
@@ -50,7 +95,7 @@ public class ArchiveController implements ViewObserver {
         testView = null;
         mainView.showGUI();
         mainView.resetMainView();
-        rapportModel.resetAdminInfo();
+        archiveModel.resetAdminInfo();
         thirdPartiesModel.resetSelectedTests();
     }
 
@@ -60,19 +105,19 @@ public class ArchiveController implements ViewObserver {
         adminInfoView = new AdminInfoView();
         adminInfoView.addObserver(this);
         adminInfoView.createAndShowGUI(mainView.getContainer());
-        adminInfoView.populateAdminInfo(rapportModel.getAdminInfo());
+        adminInfoView.populateAdminInfo(archiveModel.getAdminInfo());
     }
 
     //When "Lagre" in admin info is clicked.
     @Override
     public void saveAdminInfo() {
-        rapportModel.updateAdminInfo(adminInfoView.getManualInfo());
+        archiveModel.updateAdminInfo(adminInfoView.getManualInfo());
 
         adminInfoView.clearContainer();
         adminInfoView = null;
 
         mainView.showGUI();
-        mainView.updateAdminInfo(rapportModel.getAdminInfo());
+        mainView.updateAdminInfo(archiveModel.getAdminInfo());
     }
 
     //When "Avbryt" is clicked.
@@ -102,14 +147,20 @@ public class ArchiveController implements ViewObserver {
     @Override
     public void uploadArchive() {
         int success = archiveModel.uploadFolder(mainView.getContainer());
+        String xq = "E:\\XQuery-Statements\\admininfo.xq";
 
         //Folder uploaded
         if(success == 1) {
-            mainView.activateButtons();
-            rapportModel.resetAdminInfo();
-            rapportModel.readAdminXmlFile(archiveModel.xmlMeta);
+            //Reset data
+            archiveModel.resetAdminInfo();
             thirdPartiesModel.resetSelectedTests();
-            mainView.updateAdminInfo(rapportModel.getAdminInfo());
+
+            //Get admin info
+            archiveModel.updateAdminInfo(thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), xq));
+
+            //Update view
+            mainView.activateButtons();
+            mainView.updateAdminInfo(archiveModel.getAdminInfo());
         }
         //Faulty folder
         else if(success == 0) {
@@ -121,7 +172,11 @@ public class ArchiveController implements ViewObserver {
     @Override
     public void makeReport() {
         String format = testView.getSelectedFormat(); //#NOSONAR
-        //generateReport() ...
+
+        rapportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
+
+        rapportModel.writeReportDocument();     // editing
+        rapportModel.printReportToFile();
     }
 
     //When "Lagre tests" is clicked.

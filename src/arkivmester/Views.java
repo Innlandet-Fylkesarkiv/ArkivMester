@@ -7,20 +7,52 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-//Super class for views
+/**
+ * Super class for all views.
+ *
+ * Implemented by {@link arkivmester.MainView}, {@link arkivmester.AdminInfoView}, {@link arkivmester.TestSettingsView}, {@link arkivmester.TestView}.
+ * @since 1.0
+ * @version 1.0
+ * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen
+ */
 public class Views implements ActionListener {
+    /**
+     * Width for the application view in pixels.
+     */
     protected int windowWidth = 1200;
+
+    /**
+     * Height for the application view in pixels.
+     */
     protected int windowHeight = 700;
+
+    /**
+     * Primary color for the application.
+     */
     protected Color primaryColor = new Color(8, 83, 148);
+
+    /**
+     * Primary font and font size for the application.
+     */
     protected Font primaryFont = new Font("Sans Serif", Font.PLAIN, 20);
+
+    /**
+     * List over all observers who have subscribed to this view.
+     */
     protected final List<ViewObserver> observers = new ArrayList<>();
 
-    //Subscribes observers to the observer list.
+    /**
+     * Adds and subscribes controllers to the observers list.
+     * @param observer Controller who subscribes and will be added to the observer list.
+     */
     public void addObserver(ViewObserver observer) {
         observers.add(observer);
     }
 
-    //Shared action listener for all buttons
+    /**
+     * Listens to all button clicks in this view and notifies all subscribed observers.
+     * @param e Button action event from GUI
+     */
     @Override
     public void actionPerformed(ActionEvent e) { //#NOSONAR
         String buttonName = e.getActionCommand();

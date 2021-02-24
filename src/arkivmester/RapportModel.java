@@ -1,278 +1,296 @@
 package arkivmester;
 
 import org.apache.poi.xwpf.usermodel.*;
-import org.w3c.dom.*;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-// Used for parsing of xml schema and exception handling
+/**
+ * Class for handling report document configurations.
+ */
+
 public class RapportModel {
-    private List<String> adminInfoList = new ArrayList<>(); //Always have 8 elements
-    int amountAdminFields = 8;
+
     XWPFDocument document;
+    String templateFile = "resources/Dokumentmal_fylkesarkivet_Noark5_testrapport.docx";
+    String outputFile = "C:/prog/Output/report_template.docx";
+
+    List<ChapterList> chapterList = new ArrayList<>();
+    private Iterator<ChapterList> chapterIterator = null;
+    private HeadersData headersData = new HeadersData();
 
     RapportModel() {
         //Rapport
         //kap 1, 1.1, 1.2
 
-        //Adds amountAdminFields empty fields in the list
-        for (int i = 0; i<amountAdminFields; i++) {
-            adminInfoList.add("");
+    }
+
+    /**
+     * Class for storing input of each chapter section of the report.
+     */
+
+    public class ChapterList {
+        private List<Integer> headers;
+        private List<String> result;
+
+        /**
+         * Initialize a default list of missing input.
+         */
+
+        ChapterList(List<Integer> h) {
+            headers = h.stream().filter(t -> t > 0).collect(Collectors.toList());
+            result = Arrays.asList("<Mangler verdi>");
         }
-    }
 
-    //Gets adminInfoList list
-    public List<String> getAdminInfo() {
-        return adminInfoList;
-    }
+        /**
+         * If chapter number is correct, set new input list value to chapter-section.
+         */
 
-    //Updates adminInfoList list
-    public void updateAdminInfo(List<String> list) {
-        adminInfoList = list;
-    }
-
-    //Resets adminInfoList
-    public void resetAdminInfo() {
-        for (int i = 0; i<adminInfoList.size(); i++) {
-            adminInfoList.set(i, "");
+        public void setInput(List<Integer> h, List<String> inputList) {
+            if(headers.equals(h)) result = inputList;
         }
-    }
-    
-    // Right know work as rapportModel.main in function
-    public void start() {
 
-        setUpBlankDocument();
+        /**
+         * Prints text of data stored.
+         */
 
-        chapterOne();
-
-    }
-
-    //Read administrative data from .xml file
-    public void readAdminXmlFile(File xml) {
-        try {
-            Document doc = parseFromXMLFile(xml.getAbsolutePath());
-
-            //4, Produksjonsdato for uttrekket
-            NodeList metsHdrList = Objects.requireNonNull(doc).getElementsByTagName("metsHdr");
-            Node metsHdr = metsHdrList.item(0);
-            if (metsHdr.getNodeType() == Node.ELEMENT_NODE) {
-                Element metsHdrElement = (Element)metsHdr;
-                adminInfoList.set(4, metsHdrElement.getAttribute("CREATEDATE"));
+        public void getText() {
+            for (int i = 0; i < headers.size(); i++) {
+                System.out.print(headers.get(i) + " ");     // NOSONAR
             }
-
-            //Agent nodes (1 and 2)
-            NodeList agentList = doc.getElementsByTagName("agent");
-            parseAgentNodes(agentList);
-
-        } catch (Exception e) {
-            System.out.println("Could not find .xml file"); //#NOSONAR
+            for (int i = 0; i < result.size(); i++) {
+                System.out.print(result.get(i) + " ");      // NOSONAR
+            }
+            System.out.print('\n');                         // NOSONAR
         }
     }
 
-    //Parsing agent nodes for administrative data
-    private void parseAgentNodes(NodeList agentList) {
-        List<Node> personList = new ArrayList<>();
-        Node person;
-        for (int i = 0; i < agentList.getLength(); i++) {
-            Node nNode = agentList.item(i);
+    /**
+     * Class for handling headers that are fetched from document.
+     */
 
-            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-                Element eElement = (Element)nNode;
-                NamedNodeMap attrs =  nNode.getAttributes();
+    public class HeadersData {
+        private List<String> name;
+        private Map<String, Integer> headerMap;
 
-                if(attrs.getLength() == 3) {
-                    parseCommuneCustomer(attrs, eElement);
+        /**
+         * Initialize empty header and value
+         */
 
-                    person = parseContactPerson(attrs, eElement);
-                    if (person!=null && person.getNodeType() == Node.ELEMENT_NODE) {
-                        personList.add(person);
-                    }
+        HeadersData() {
+            name = new ArrayList<>();
+            headerMap = new LinkedHashMap<>();
+        }
 
-                    //Missing noark version here (3)
+        /**
+         * Will store header name and increment value when there exist another name,
+         * otherwise will add the new name to a list
+         */
+
+        public void compareName(String other) {
+
+            boolean hit = false;
+
+            if(headerMap.computeIfPresent(other, (k, v) -> v+1) != null) {
+                //System.out.println(other + ": ");                   // NOSONAR
+                hit = true;
+                int temp = name.size()-1;
+                String currentName = name.get(temp);
+                while(!other.equals(currentName)) {
+                    //System.out.println(currentName + " removed!");  // NOSONAR
+                    headerMap.put(currentName, 0);
+                    currentName = name.get(--temp);
                 }
             }
+            //headerMap.forEach((k, v) -> System.out.println("\t" + k + " " + v));    // NOSONAR
+
+            while(name.size() > headerMap.size()) {
+                name.remove(name.size()-1);
+            }
+
+            if(!hit) {
+                //System.out.println(other + " added!");                              // NOSONAR
+                headerMap.put(other, 1);
+                name.add(other);
+            }
         }
 
-        //2, Kontaktperson (Formatting)
-        int size = personList.size();
-        for (int i = 0; i < size; i++) {
-            adminInfoList.set(2, adminInfoList.get(2) + personList.get(i).getTextContent());
+        /**
+         * Get values
+         */
 
-            if(size>1 && i != size-1) {
-                adminInfoList.set(2, adminInfoList.get(2) + ", ");
+        public List<Integer> getValues() {
+            return new ArrayList<>(headerMap.values());
+        }
+
+    }
+
+
+    /**
+     * Fetch all data from report and set up all chapters so that input can be changed
+     */
+
+    public void generateReport() {
+        setUpReportDocument(templateFile);
+
+        setUpAllInputChapters();
+
+    }
+
+
+    /**
+     * Try to fetch report template, and if there are no IO problems, it will be stored.
+     */
+
+    private void setUpReportDocument(String filepath) {
+        try (
+                FileInputStream fis = new FileInputStream(filepath)
+        ) {
+            document = new XWPFDocument(fis);
+        } catch (IOException | NullPointerException e) {
+            System.out.println(e.getMessage());             //NOSONAR
+        }
+
+    }
+
+    /**
+     * Create a list containing every chapter.
+     */
+
+    private void setUpAllInputChapters() {
+        Iterator<IBodyElement> bodyElementIterator = document.getBodyElementsIterator();
+
+        while(bodyElementIterator.hasNext()) {
+            IBodyElement element = bodyElementIterator.next();
+            if(element instanceof XWPFParagraph) {
+                XWPFParagraph p = (XWPFParagraph)element;
+
+                findNewHeader(p);
             }
         }
     }
 
-    //Parsing commune/customer nodes for administrative data
-    private void parseCommuneCustomer(NamedNodeMap attrs, Element eElement) {
-        //1, Kommune/Kunde (Query and Formatting)
-        //Attribute 1 in .xml is (1) in list
-        //Attribute 2 in .xml is (0) in list
-        //Attribute 3 in .xml is (2) in list
-        if(
-            ((Attr)attrs.item(0)).getValue().equals("SUBMITTER")
-                    && ((Attr)attrs.item(1)).getValue().equals("OTHER")
-                    && ((Attr)attrs.item(2)).getValue().equals("ORGANIZATION")) {
+    /**
+     * Check
+     */
 
-            NodeList nameList = eElement.getElementsByTagName("name");
-            Node name = nameList.item(0);
-            if (name.getNodeType() == Node.ELEMENT_NODE) {
-                adminInfoList.set(1, name.getTextContent());
+    private void findNewHeader(XWPFParagraph p) {
+        XWPFStyles styles = document.getStyles();
+
+        if(p.getStyle() != null) {
+
+            XWPFStyle style = styles.getStyle(p.getStyleID());
+
+            if(style.getStyleId().contains("Overskrift"))
+            {
+                headersData.compareName(style.getName());
+
+                chapterList.add(new ChapterList(headersData.getValues()));
             }
         }
     }
 
-    //Parsing contact person nodes for administrative data
-    private Node parseContactPerson(NamedNodeMap attrs, Element eElement) {
-        //2, Kontaktperson (Query)
-        //Attribute 1 in .xml is (1) in list
-        //Attribute 2 in .xml is (0) in list
-        //Attribute 3 in .xml is (2) in list
-        if(
-           ((Attr)attrs.item(0)).getValue().equals("SUBMITTER")
-                    && ((Attr)attrs.item(1)).getValue().equals("OTHER")
-                    && ((Attr)attrs.item(2)).getValue().equals("INDIVIDUAL"))  {
+    /**
+     * Replace every missing input with input fetched from program
+     */
 
-            NodeList tempList = eElement.getElementsByTagName("name");
-            return tempList.item(0);
-        }
+    public void writeReportDocument() {
 
-        //If node is not a contact person
-        return null;
-    }
+        Iterator<IBodyElement> bodyElementIterator = document.getBodyElementsIterator();
 
-    // Get xml kap 1 information
-    private void chapterOne() {
+        chapterIterator = chapterList.iterator();
 
-        String file = "src/resources/chapters/1.xml";
+        List<String> currentChapterInput = new ArrayList<>();
+        int currentIterator = 0;
 
-        try {
-            Document doc = parseFromXMLFile(file);
+        while(bodyElementIterator.hasNext()) {
+            IBodyElement element = bodyElementIterator.next();
+            if(element instanceof XWPFParagraph) {
+                XWPFParagraph p = (XWPFParagraph)element;
 
-            assert doc != null;
-            Element elem = doc.getDocumentElement();
-
-            System.out.println("Root element :" + elem.getNodeName());  //NOSONAR
-
-            NodeList nList = elem.getChildNodes();
-
-            String s;
-
-            Node n;
-
-            StringBuilder text = new StringBuilder();
-
-            for (int i = 0; i < nList.getLength(); i++) {
-
-                n = nList.item(i);
-
-                if (n.getNodeType() == Node.ELEMENT_NODE) {
-
-                    Element e = (Element) n;
-
-                    if (n.getNodeType() == Node.ELEMENT_NODE) {
-                        s = switch (e.getNodeName()) {
-                            // TODO: create a subtitle function for handling subtitle tags
-                            // TODO: create a title function for handling title tags
-                            case "bulletPoint" -> formatBulletPoint(n.getTextContent());
-                            case "paragraph" -> formatParagraph(n.getTextContent());
-                            // TODO: create input function for handling input tags
-                            default -> "";
-                        };
-                        text.append(s);
-                    }
+                if(foundNewHeader(p)) {
+                    currentChapterInput = getNextChapterList();
+                    currentIterator = 0;
                 }
+
+                currentIterator = editToFile(p, currentChapterInput, currentIterator);
             }
-            System.out.println(text); //NOSONAR
-
-            writeDocToPath(text.toString());
-        } catch (NullPointerException e) {
-            System.out.println(e.getMessage());             // NOSONAR TODO: have it in GUI message instead of terminal
         }
 
-    }
-    // Format bulletPoint
-    private String formatBulletPoint(String bulletPoint) {
-        String t = bulletPoint;
-        t = t.replace("         ", "   ");
-        t = t.replace("       ", "");
-        t = t.replace("*", "•");
-
-        return t;
-    }
-    // Format paragraph
-    private String formatParagraph(String paragraph) {
-        String t = paragraph;
-        t = t.replace("  ", "");
-
-        return t;
-    }
-
-    // Create rapport document
-    private void setUpBlankDocument() {
-        document = new XWPFDocument();
-        System.out.println("doc successfully set up"); //NOSONAR
-    }
-
-    private static Document parseFromXMLFile(String filepath) {   // NOSONAR
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-
-        try {
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            return builder.parse(filepath);
-
-        } catch (NullPointerException | ParserConfigurationException | SAXException | IOException e) {
-            System.out.println(e.getMessage());                                                 // NOSONAR
-            return null;
+        for (ChapterList chapter : chapterList) {
+            chapter.getText();
         }
     }
 
-    // Write to rapport document
-    private void writeDocToPath(String text) {
-        //Write the Document in file system
-        try {
+    /**
+     * Replace every missing input with input fetched from program
+     */
 
-            //Write the Document in file system
-            FileOutputStream out = new FileOutputStream(
-                    ("C:/prog/Output/report_template.docx"));
+    private boolean foundNewHeader(XWPFParagraph p) {
+        return (p.getStyle() != null && p.getStyleID().contains("Overskrift"));
+    }
 
+    /**
+     * Used for iterating the values in chapterlist in WriteReportDocument
+     */
 
+    private List<String> getNextChapterList() {
+        if(chapterIterator.hasNext()) {
+            return chapterIterator.next().result;
+        }
+        return Arrays.asList("");
+    }
 
-            XWPFParagraph paragraph = document.createParagraph();
-            XWPFRun run = paragraph.createRun();
+    /**
+     * Will look for input field in each paragraph and replace it with the ones from the list
+     */
 
-            if (text.contains("\n")) {
-                String[] lines = text.split("\n");
-                run.setText(lines[0], 0); // set first line into XWPFRun
-                for(int i=1;i<lines.length;i++){
-                    // add break and insert new text
-                    run.addBreak();
-                    run.setText(lines[i]);
-                }
-            } else {
-                run.setText(text, 0);
+    private int editToFile(XWPFParagraph p, List<String> cList, int cIterator) {
+        for(XWPFRun r : p.getRuns()) {
+            String text = r.getText(0);
+            if(text != null && text.contains("TODO")) {
+                text = text.replace("TODO", cList.get(cIterator));
+                r.setText(text, 0);
+                r.setBold(false);
+                cIterator = clamp(++cIterator, cList.size()-1);
             }
+        }
+        return cIterator;
+    }
 
-            document.write(out);
+    /**
+     * Will not clamp the max value so it does not go "out of bounds"
+     */
 
-            out.close();
+    public int clamp(int val, int max) {
+        return Math.min(val, max);
+    }
 
-            //System.out.println(_text);         //NOSONAR
-        } catch (IOException e) {
-            System.out.println(e.getMessage());     //NOSONAR
+    /**
+     * Print the newly edited document to a new file
+     */
+
+    public void printReportToFile() {
+        try {
+            FileOutputStream os = new FileOutputStream(outputFile);
+            document.write(os);
+            document.close();
+            os.close();
+        } catch (IOException | NullPointerException e) {
+            System.out.println(e.getMessage());                     // NOSONAR
         }
     }
 
+    /**
+     * Replace old inputs with new ones
+     */
+
+    public void setNewInput(List<Integer> h, List<String> inputList) {
+        for(ChapterList c : chapterList) {
+            c.setInput(h, inputList);
+        }
+    }
 }
