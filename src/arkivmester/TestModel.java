@@ -47,19 +47,14 @@ public class TestModel {
 
      */
 
-    TestModel(){
+    /**
+     * Print all to docx
+     */
+    public void parseReportHtml(){
         // Html to String
         getFileToString(filePath, htmlRawText);
         // Get IDs
         getAllIDs();
-        // Run code
-        start();
-    }
-
-    /**
-     * Print all to docx
-     */
-    private void start(){
         // Get avvik for every id
         for (String index : htmlAllIDs){
             getDataFromHtml(index);

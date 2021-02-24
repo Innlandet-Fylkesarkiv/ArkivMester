@@ -53,6 +53,7 @@ public class ArchiveController implements ViewObserver {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.submit(this::runTests);
 
+        testModel.parseReportHtml();
     }
 
     /**
