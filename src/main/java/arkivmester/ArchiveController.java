@@ -29,12 +29,14 @@ public class ArchiveController implements ViewObserver {
     Properties prop;
 
     ArchiveController() {
+        testSettingsModel = new TestSettingsModel();
+        prop = testSettingsModel.getConfig();
+
         mainView = new MainView();
         archiveModel = new ArchiveModel();
         rapportModel = new RapportModel();
         testModel = new TestModel();
-        thirdPartiesModel = new ThirdPartiesModel();
-        testSettingsModel = new TestSettingsModel();
+        thirdPartiesModel = new ThirdPartiesModel(prop);
     }
 
     /**
@@ -44,7 +46,6 @@ public class ArchiveController implements ViewObserver {
         mainView.createFrame();
         mainView.createAndShowGUI();
         mainView.addObserver(this);
-        prop = testSettingsModel.getConfig();
     }
 
     //When "Start testing" is clicked.

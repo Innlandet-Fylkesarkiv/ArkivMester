@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Contains the functions to run third party test tools.
@@ -19,8 +20,11 @@ public class ThirdPartiesModel {
     String cmd = "cmd.exe";
     private List<Boolean> selectedTests = new ArrayList<>();
     int amountOfTests = 4;
+    private Properties prop;
 
-    ThirdPartiesModel() {
+    ThirdPartiesModel(Properties prop) {
+        this.prop = prop;
+
         //Initiate selectedTests list
         for(int i = 0; i < amountOfTests; i++)
             selectedTests.add(true);
@@ -181,10 +185,10 @@ public class ThirdPartiesModel {
      * @return String list of the results from the query.
      */
     public List<String> runBaseX(String xml, String xq)  {
-        String pwd = "cd \"C:\\Program Files (x86)\\BaseX\\bin\""; //NOSONAR
+        String pwd = prop.getProperty("basexPath");
         List<String> result = new ArrayList<>();
 
-        ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -i " + xml + " " + xq);
+        ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c","cd \"" + pwd + "\" && basex -i " + xml + " " + xq);
 
         try {
             Process p = baseXBuilder.start();
