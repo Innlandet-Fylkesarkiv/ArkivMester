@@ -2,6 +2,7 @@ package arkivmester;
 
 
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.Arrays;
@@ -24,6 +25,8 @@ public class ArchiveController implements ViewObserver {
     RapportModel rapportModel;
     TestModel testModel;
     ThirdPartiesModel thirdPartiesModel;
+    TestSettingsModel testSettingsModel;
+    Properties prop;
 
     ArchiveController() {
         mainView = new MainView();
@@ -31,6 +34,7 @@ public class ArchiveController implements ViewObserver {
         rapportModel = new RapportModel();
         testModel = new TestModel();
         thirdPartiesModel = new ThirdPartiesModel();
+        testSettingsModel = new TestSettingsModel();
     }
 
     /**
@@ -40,6 +44,7 @@ public class ArchiveController implements ViewObserver {
         mainView.createFrame();
         mainView.createAndShowGUI();
         mainView.addObserver(this);
+        prop = testSettingsModel.getConfig();
     }
 
     //When "Start testing" is clicked.
@@ -156,7 +161,7 @@ public class ArchiveController implements ViewObserver {
     @Override
     public void uploadArchive() {
         int success = archiveModel.uploadFolder(mainView.getContainer());
-        String xq = "E:\\XQuery-Statements\\admininfo.xq";
+        String xq = prop.getProperty("xqueryExtFolder") + "\\admininfo.xq";
 
         //Folder uploaded
         if(success == 1) {
