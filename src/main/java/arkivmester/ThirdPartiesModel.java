@@ -48,13 +48,13 @@ public class ThirdPartiesModel {
 
         //path = "c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar"; // NOSONAR
         //Path to output folder where test report gets saved.
-        String outputPath = "c:\\arkade\\output"; //NOSONAR
+        String outputPath = "e:\\Arkade\\output"; //NOSONAR
         //Path to temp folder where temporary data about the tests gets stored.
-        String tempPath = "c:\\arkade\\"; //NOSONAR
+        String tempPath = "e:\\Arkade\\"; //NOSONAR
 
         //Process builder to run command line.
         ProcessBuilder arkadeBuilder = new ProcessBuilder(
-                cmd, "/c", "cd \"C:\\arkadecli\" && arkade test -a " + path +
+                cmd, "/c", "cd \"C:\\prog\\Arkade5\" && arkade test -a " + path +
                 " -o " + outputPath + " -p " + tempPath + " -t noark5");
         arkadeBuilder.redirectErrorStream(true);
         try {
@@ -86,7 +86,7 @@ public class ThirdPartiesModel {
 
         //Process builder to run kost-val from command line
         ProcessBuilder kostvalBuilder = new ProcessBuilder( //NOSONAR
-                cmd, "/c", "cd \"C:\\prog\\kost-val\" &&  java -jar cmd_KOST-Val.jar --sip " +
+                cmd, "/c", "cd \"C:\\prog\\KOSTVal\" &&  java -jar cmd_KOST-Val.jar --sip " +
                 path + " --en");
         kostvalBuilder.redirectErrorStream(true);
         try {
@@ -132,7 +132,7 @@ public class ThirdPartiesModel {
 
         //Process builder to run VeraPDF from command line
         ProcessBuilder veraPDFBuilder = new ProcessBuilder(
-                cmd, "/c", "cd \"C:\\prog\\Verapdf\" && verapdf --recurse " + path + " > " + reportPath);
+                cmd, "/c", "cd \"C:\\prog\\VeraPDF\" && verapdf --recurse " + path + " > " + reportPath);
         veraPDFBuilder.redirectErrorStream(true);
         try {
             veraPDFBuilder.start();

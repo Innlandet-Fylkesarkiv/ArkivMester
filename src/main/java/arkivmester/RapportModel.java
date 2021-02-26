@@ -15,12 +15,12 @@ import java.util.List;
 public class RapportModel {
 
     XWPFDocument document;
-    String templateFile = "resources/Dokumentmal_fylkesarkivet_Noark5_testrapport.docx";
+    String templateFile = "src/main/resources/Dokumentmal_fylkesarkivet_Noark5_testrapport.docx";
     String outputFile = "C:/prog/Output/report_template.docx";
 
     List<ChapterList> chapterList = new ArrayList<>();
     private Iterator<ChapterList> chapterIterator = null;
-    private HeadersData headersData = new HeadersData();
+    private final HeadersData headersData = new HeadersData();
 
     RapportModel() {
         //Rapport
@@ -32,8 +32,8 @@ public class RapportModel {
      * Class for storing input of each chapter section of the report.
      */
 
-    public class ChapterList {
-        private List<Integer> headers;
+    public static class ChapterList {
+        private final List<Integer> headers;
         private List<String> result;
 
         /**
@@ -42,7 +42,7 @@ public class RapportModel {
 
         ChapterList(List<Integer> h) {
             headers = h.stream().filter(t -> t > 0).collect(Collectors.toList());
-            result = Arrays.asList("<Mangler verdi>");
+            result = Collections.singletonList("<Mangler verdi>");
         }
 
         /**
@@ -58,11 +58,11 @@ public class RapportModel {
          */
 
         public void getText() {
-            for (int i = 0; i < headers.size(); i++) {
-                System.out.print(headers.get(i) + " ");     // NOSONAR
+            for (Integer header : headers) {
+                System.out.print(header + " ");             // NOSONAR
             }
-            for (int i = 0; i < result.size(); i++) {
-                System.out.print(result.get(i) + " ");      // NOSONAR
+            for (String s : result) {
+                System.out.print(s + " ");                  // NOSONAR
             }
             System.out.print('\n');                         // NOSONAR
         }
@@ -72,9 +72,9 @@ public class RapportModel {
      * Class for handling headers that are fetched from document.
      */
 
-    public class HeadersData {
-        private List<String> name;
-        private Map<String, Integer> headerMap;
+    public static class HeadersData {
+        private final List<String> name;
+        private final Map<String, Integer> headerMap;
 
         /**
          * Initialize empty header and value
@@ -241,7 +241,7 @@ public class RapportModel {
         if(chapterIterator.hasNext()) {
             return chapterIterator.next().result;
         }
-        return Arrays.asList("");
+        return Collections.singletonList("");
     }
 
     /**

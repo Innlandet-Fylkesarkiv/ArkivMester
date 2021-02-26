@@ -79,12 +79,12 @@ public class ArchiveController implements ViewObserver {
             System.out.println("\nRunning DROID\n"); //NOSONAR
             testView.updateDroidStatus(TestView.RUNNING);
             testView.updateDroidStatus(TestView.DONE);
-            // TODO: Run DROID
+
         }
         if(Boolean.TRUE.equals(selectedTests.get(2))) {
             System.out.print("\nRunning Kost-Val\n"); //NOSONAR
             testView.updateKostValStatus(TestView.RUNNING);
-            thirdPartiesModel.runKostVal("C:\\archive\\" + fileName + "\\content\\dokument");
+            thirdPartiesModel.runKostVal("C:\\archive\\" + "test" + "\\pakke\\content\\dokument");
             System.out.println("\n\tKost-Val test finished\n"); //NOSONAR
             testView.updateKostValStatus(TestView.DONE);
         }
@@ -182,9 +182,12 @@ public class ArchiveController implements ViewObserver {
     public void makeReport() {
         String format = testView.getSelectedFormat(); //#NOSONAR
 
+        rapportModel.generateReport(); // big question: (1 == 2) ? 3 : 2
+
         rapportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
 
         testModel.parseReportHtml();
+
         rapportModel.writeReportDocument();     // editing
         rapportModel.printReportToFile();
     }
