@@ -3,6 +3,10 @@
 # Learn more about .gitignore:
 #     https://www.atlassian.com/git/tutorials/saving-changes/gitignore
 
+#Temporary output folder
+output/*
+!output/README.md
+
 # Node artifact files
 node_modules/
 dist/
@@ -22,7 +26,6 @@ dist/
 
 # Maven
 target/
-dist/
 
 # JetBrains IDE
 .idea/

@@ -1,0 +1,1 @@
+Application's temporary output folder.
