@@ -4,15 +4,15 @@ import java.io.*;
 import java.util.Properties;
 
 public class SettingsModel {
-    File userFolder;
-    File alteredCfg;
-    File tempFolder;
-    Properties prop = new Properties();
+    private File userFolder;
+    private File alteredCfg;
+    private File tempFolder;
+    private Properties prop = new Properties();
 
     public Boolean setUpSettings() { // #NOSONAR (Creating tempFolder exceeds the Cognitive Complexity with 2)
         userFolder = new File(System.getProperty("user.home") + "\\arkivmester");
         alteredCfg = new File(userFolder.getPath() + "\\config.properties");
-        
+
         try {
             if(userFolder.exists() && userFolder.isDirectory()) {
 
@@ -43,6 +43,10 @@ public class SettingsModel {
 
     private Boolean createTempFolder() {
         tempFolder = new File(userFolder.getPath() + "\\temp");
+
+        if(tempFolder.exists() && tempFolder.isDirectory()) {
+            return true;
+        }
         return tempFolder.mkdir();
     }
 
@@ -79,6 +83,17 @@ public class SettingsModel {
         }
     }
 
-    //updateConfig()
-    //getProperties()
+    public Properties getProp() {
+        return prop;
+    }
+
+    public void updateConfig(String key, String value) {
+        prop.setProperty(key, value);
+
+        try (FileOutputStream fos = new FileOutputStream(alteredCfg)){
+            prop.store(fos, null);
+        } catch (IOException e) {
+            System.out.println(e.getMessage()); // #NOSONAR
+        }
+    }
 }

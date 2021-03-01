@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Contains the functions to run third party test tools.
@@ -180,8 +181,8 @@ public class ThirdPartiesModel {
      * @param xq Path to .xq.
      * @return String list of the results from the query.
      */
-    public List<String> runBaseX(String xml, String xq)  {
-        String pwd = "cd \"C:\\Program Files (x86)\\BaseX\\bin\""; //NOSONAR
+    public List<String> runBaseX(String xml, String xq, Properties prop)  {
+        String pwd = "cd \"" + prop.getProperty("basexPath") + "\""; //NOSONAR
         List<String> result = new ArrayList<>();
 
         ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -i " + xml + " " + xq);

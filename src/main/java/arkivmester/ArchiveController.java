@@ -2,6 +2,7 @@ package arkivmester;
 
 
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.Arrays;
@@ -161,6 +162,7 @@ public class ArchiveController implements ViewObserver {
     @Override
     public void uploadArchive() {
         int success = archiveModel.uploadFolder(mainView.getContainer());
+        Properties prop = settingsModel.getProp();
         String xq = "E:\\XQuery-Statements\\admininfo.xq";
 
         //Folder uploaded
@@ -170,7 +172,7 @@ public class ArchiveController implements ViewObserver {
             thirdPartiesModel.resetSelectedTests();
 
             //Get admin info
-            archiveModel.updateAdminInfo(thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), xq));
+            archiveModel.updateAdminInfo(thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), xq, prop));
 
             //Update view
             mainView.activateButtons();
