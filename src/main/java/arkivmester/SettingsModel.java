@@ -6,12 +6,13 @@ import java.util.Properties;
 public class SettingsModel {
     File userFolder;
     File alteredCfg;
+    File tempFolder;
     Properties prop = new Properties();
 
-    public Boolean setUpSettings() {
+    public Boolean setUpSettings() { // #NOSONAR (Creating tempFolder exceeds the Cognitive Complexity with 2)
         userFolder = new File(System.getProperty("user.home") + "\\arkivmester");
         alteredCfg = new File(userFolder.getPath() + "\\config.properties");
-
+        
         try {
             if(userFolder.exists() && userFolder.isDirectory()) {
 
@@ -21,6 +22,9 @@ public class SettingsModel {
                     if(Boolean.FALSE.equals(createConfig()))
                         return false;
                 }
+
+                if(Boolean.FALSE.equals(createTempFolder()))
+                    return false;
             }
             else {
                 if(!userFolder.mkdir())
@@ -29,11 +33,17 @@ public class SettingsModel {
                 if(Boolean.FALSE.equals(createConfig()))
                     return false;
             }
+
         } catch (SecurityException e) {
             System.out.println(e.getMessage()); // #NOSONAR
         }
 
         return true;
+    }
+
+    private Boolean createTempFolder() {
+        tempFolder = new File(userFolder.getPath() + "\\temp");
+        return tempFolder.mkdir();
     }
 
     private Boolean createConfig() {
