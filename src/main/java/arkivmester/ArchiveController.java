@@ -21,15 +21,15 @@ public class ArchiveController implements ViewObserver {
     AdminInfoView adminInfoView;
     TestSettingsView testSettingsView;
     ArchiveModel archiveModel;
-    RapportModel rapportModel;
-    TestModel testModel;
+    ReportModel reportModel;
+    ArkadeModel testModel;
     ThirdPartiesModel thirdPartiesModel;
 
     ArchiveController() {
         mainView = new MainView();
         archiveModel = new ArchiveModel();
-        rapportModel = new RapportModel();
-        testModel = new TestModel();
+        reportModel = new ReportModel();
+        testModel = new ArkadeModel();
         thirdPartiesModel = new ThirdPartiesModel();
     }
 
@@ -182,14 +182,14 @@ public class ArchiveController implements ViewObserver {
     public void makeReport() {
         String format = testView.getSelectedFormat(); //#NOSONAR
 
-        rapportModel.generateReport(); // big question: (1 == 2) ? 3 : 2
+        reportModel.generateReport(); // big question: (1 == 2) ? 3 : 2
 
-        rapportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
+        reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
 
         testModel.parseReportHtml();
 
-        rapportModel.writeReportDocument();     // editing
-        rapportModel.printReportToFile();
+        reportModel.writeReportDocument();     // editing
+        reportModel.printReportToFile();
     }
 
     //When "Lagre tests" is clicked.

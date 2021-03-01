@@ -12,7 +12,7 @@ import java.util.List;
  * Class for handling report document configurations.
  */
 
-public class RapportModel {
+public class ReportModel {
 
     XWPFDocument document;
     String templateFile = "src/main/resources/Dokumentmal_fylkesarkivet_Noark5_testrapport.docx";
@@ -22,7 +22,7 @@ public class RapportModel {
     private Iterator<ChapterList> chapterIterator = null;
     private final HeadersData headersData = new HeadersData();
 
-    RapportModel() {
+    ReportModel() {
         //Rapport
         //kap 1, 1.1, 1.2
 
