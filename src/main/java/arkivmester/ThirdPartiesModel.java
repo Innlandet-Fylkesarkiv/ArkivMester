@@ -177,11 +177,13 @@ public class ThirdPartiesModel {
 
     /**
      * Queries an .xml file via an .xq XQuery/XPath file.
-     * @param xml Path to .xml.
-     * @param xq Path to .xq.
+     * @param xml Path to .xml file.
+     * @param xqName Config key for .xq file.
      * @return String list of the results from the query.
      */
-    public List<String> runBaseX(String xml, String xq, Properties prop)  {
+    public List<String> runBaseX(String xml, String xqName, Properties prop)  {
+        String xq = prop.getProperty("xqueryExtFolder") + xqName;
+
         String pwd = "cd \"" + prop.getProperty("basexPath") + "\""; //NOSONAR
         List<String> result = new ArrayList<>();
 

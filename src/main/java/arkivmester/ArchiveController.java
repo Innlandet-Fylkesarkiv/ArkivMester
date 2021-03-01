@@ -163,7 +163,6 @@ public class ArchiveController implements ViewObserver {
     public void uploadArchive() {
         int success = archiveModel.uploadFolder(mainView.getContainer());
         Properties prop = settingsModel.getProp();
-        String xq = "E:\\XQuery-Statements\\admininfo.xq";
 
         //Folder uploaded
         if(success == 1) {
@@ -172,7 +171,7 @@ public class ArchiveController implements ViewObserver {
             thirdPartiesModel.resetSelectedTests();
 
             //Get admin info
-            archiveModel.updateAdminInfo(thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), xq, prop));
+            archiveModel.updateAdminInfo(thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "admininfo.xq", prop));
 
             //Update view
             mainView.activateButtons();
