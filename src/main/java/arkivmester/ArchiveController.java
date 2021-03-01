@@ -24,6 +24,7 @@ public class ArchiveController implements ViewObserver {
     ReportModel reportModel;
     ArkadeModel testModel;
     ThirdPartiesModel thirdPartiesModel;
+    SettingsModel settingsModel;
 
     ArchiveController() {
         mainView = new MainView();
@@ -31,6 +32,7 @@ public class ArchiveController implements ViewObserver {
         reportModel = new ReportModel();
         testModel = new ArkadeModel();
         thirdPartiesModel = new ThirdPartiesModel();
+        settingsModel = new SettingsModel();
     }
 
     /**
@@ -40,6 +42,9 @@ public class ArchiveController implements ViewObserver {
         mainView.createFrame();
         mainView.createAndShowGUI();
         mainView.addObserver(this);
+
+        if(Boolean.FALSE.equals(settingsModel.setUpSettings()))
+            System.out.println("Kan ikke lese config"); // #NOSONAR
     }
 
     //When "Start testing" is clicked.
