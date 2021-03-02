@@ -6,6 +6,7 @@ import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -13,56 +14,50 @@ import java.util.List;
 
 
 public class ArkadeModel {
-    // Write arkade testRapport to docx
-    XWPFDocument document;
-    // HtmlRawText formatted
-    List<String> htmlAllIDs = new ArrayList<>();
-    // Holds text from arkade testRapport html as string
-    StringBuilder htmlRawText = new StringBuilder();
-    // HtmlRawText formatted
-    StringBuilder htmlTextFormatted = new StringBuilder();
-
     // html file at   ../Input/arkaderapportrapport.html
     String filePath = "../Input/arkaderapportrapport.html";
     // output file at ../Output/createdocument.docx
     String outPutFile = "../Output/createdocument.docx";
 
-    /* Output format to docx e.g
-    N5.03
-    Type: Strukturkontroll
+    // Holds text from arkade testRapport html as string
+    StringBuilder htmlRawText = new StringBuilder();
 
+    /* Remove StringBuilder and XWPFDocument when all functions are used */
+    // HtmlRawText formatted for Word
+    StringBuilder htmlTextFormatted = new StringBuilder();
+    // Write arkade testRapport to docx
+    XWPFDocument document;
 
-    Lokasjon: arkivstruktur.xml
-
-    File location: <arkivstruktur.xml> avvik mld
-    File location: <arkivstruktur.xml> avvik mld
-
-    Lokasjon: endringslogg.xml
-
-    File location: <endringslogg.xml> avvik mld
-    File location: <> (<-"Ingen fil") avvik mld
-
-    N5.02
-    Type: Strukturkontroll  Ingen avvik funnet.
-
-     */
+    boolean test = false;
 
     /**
-     * Print all to docx
+     * Print all to docx.
+     * getFileToString to get the html content
+     * Remove everything except for getFileToString when all functions are used.
      */
     public void parseReportHtml(){
+
         // Html to String
         getFileToString(filePath, htmlRawText);
-        // Get IDs
-        getAllIDs();
-        // Get avvik for every id
-        for (String index : htmlAllIDs){
-            getDataFromHtml(index);
+        if (test){
+            // Get avvik for every id
+            for(String i: getAll()){
+                htmlTextFormatted.append(i);
+            }
+            htmlTextFormatted.append(getArkadeVersion());
         }
+        else {
+            List<String> printToWord = getDataFromHtml("N5.59");
+            for (String i : printToWord){
+                System.out.println(i); //NOSONAR
+                htmlTextFormatted.append(i).append("\n");
+            }
+        }
+
+
         // Write to docx
         writeToDocx();
     }
-
     /**
      * Get html as string
      * @param filePath FilePath to arkade Testrapport html
@@ -80,30 +75,58 @@ public class ArkadeModel {
             System.out.println(ex.getMessage()); //NOSONAR
         }
     }
-    private void getAllIDs () {
+    /**
+     * Get all IDs from arkade TestRapport
+     * @return List<String> AllIDs
+     */
+    private List<String> getAllIDs () {
+        // All IDs
+        List<String> htmlAllIDs = new ArrayList<>();
         Document doc = Jsoup.parse(htmlRawText.toString());
 
         for (org.jsoup.nodes.Element elementx : doc.select("h3")){
             htmlAllIDs.add( elementx.attr("id"));
         }
+        return htmlAllIDs;
     }
     /**
-     * Get issues from arkade testRapport html
-     * @param index Index for arkade issues
+     * Get AllIDS, Get avvik for every ID
+     * @return List<String> all avvik in testRapport
      */
-    public void getDataFromHtml(String index){
+    private List<String> getAll () {
+        List<String> htmlTable = new ArrayList<>();
+        // Get avvik for every id
+        for (String index : getAllIDs()){
+            htmlTable.addAll(getDataFromHtml(index));
+        }
+        return htmlTable;
+    }
+    /**
+     * Get arkade versjon.
+     * classes with class name: text-right THAN last element
+     * @return arkade versjon
+     */
+    public String getArkadeVersion(){
+        Document doc = Jsoup.parse(htmlRawText.toString());
+        Elements elements = doc.getElementsByClass(    "text-right");
+        return elements.last().text();
+    }
+    /**
+     * @param index ID for test class
+     * @return String list<String> (File Lokasjon, Arkade avvik) or emptyList if noe avvik
+     */
+    public List<String> getDataFromHtml(String index){
+
+        // reset list
+        List<String> htmlTable = new ArrayList<>();
+
 
         Document doc = Jsoup.parse(htmlRawText.toString());
 
-        htmlTextFormatted.append(index).append("\n");
         Element element = doc.getElementById(index).parent();
-        // p: "Type: Strukturkontroll" and "Ingen avvik funnet" if noe mistakes found.
-        htmlTextFormatted.append(element.select("p").text()).append("\n\n");
 
         org.jsoup.select.Elements rows = element.select("tr");
 
-
-        String location = "";
 
         for(org.jsoup.nodes.Element row :rows){
 
@@ -114,23 +137,15 @@ public class ArkadeModel {
             {
                 // First Column
                 if (firstColumn){
-                    // First Column changed
-                    if (!location.contains(column.text())) {
-                        location = column.text();
-                        htmlTextFormatted.append("\n").append("Lokasjon: ").append(location).append("\n");
-                    }
                     firstColumn = false;
-                    htmlTextFormatted.append("\n").append("File location: <").append(column.text()).append("> ");
+                    htmlTable.add("Lokasjon: " + column.text());
                 }
                 else {
-                    htmlTextFormatted.append(column.text()).append("\n");
+                    htmlTable.add(column.text());
                 }
             }
         }
-
-
-        //System.out.println(htmlTextFormatted.toString()); //NOSONAR
-
+        return htmlTable;
     }
     /**
      * Write output to docx
