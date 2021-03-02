@@ -191,7 +191,10 @@ public class ArchiveController implements ViewObserver {
             thirdPartiesModel.resetSelectedTests();
 
             //Get admin info
-            archiveModel.updateAdminInfo(thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "admininfo.xq", settingsModel.prop));
+            List<String> list;
+            list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "admininfo.xq", settingsModel.prop);
+            list = archiveModel.formatDate(list);
+            archiveModel.updateAdminInfo(list);
 
             //Update view
             mainView.activateButtons();

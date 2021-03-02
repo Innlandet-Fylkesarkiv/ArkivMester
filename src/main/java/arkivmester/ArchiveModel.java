@@ -89,13 +89,6 @@ public class ArchiveModel {
      * @param list String list of new administrative information data to be saved.
      */
     public void updateAdminInfo(List<String> list) {
-        //Formats date to norwegian format.
-        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
-        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd.MM.yyy", Locale.ENGLISH);
-        LocalDate date = LocalDate.parse(list.get(4), inputFormatter);
-        String formattedDate = outputFormatter.format(date);
-        list.set(4, formattedDate);
-
         adminInfoList = list;
     }
 
@@ -106,5 +99,15 @@ public class ArchiveModel {
         for (int i = 0; i<adminInfoList.size(); i++) {
             adminInfoList.set(i, "");
         }
+    }
+
+    public List<String> formatDate(List<String> list) {
+        //Formats date to norwegian format.
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd.MM.yyy", Locale.ENGLISH);
+        LocalDate date = LocalDate.parse(list.get(4), inputFormatter);
+        String formattedDate = outputFormatter.format(date);
+        list.set(4, formattedDate);
+        return list;
     }
 }
