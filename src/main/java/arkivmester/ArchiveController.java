@@ -63,6 +63,7 @@ public class ArchiveController implements ViewObserver {
         List<Boolean> selectedTests = thirdPartiesModel.getSelectedTests();
         String fileName = archiveModel.tar.getName();
         fileName = fileName.substring(0,fileName.lastIndexOf('.'));
+        String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument";
 
         thirdPartiesModel.unzipArchive(archiveModel.tar);
         System.out.println("\n\tArchive unzipped\n"); //NOSONAR
@@ -78,20 +79,22 @@ public class ArchiveController implements ViewObserver {
         if(Boolean.TRUE.equals(selectedTests.get(1))) {
             System.out.println("\nRunning DROID\n"); //NOSONAR
             testView.updateDroidStatus(TestView.RUNNING);
+            thirdPartiesModel.runDROID(docPath);
+            System.out.println("\n\tDROID finished\n"); //NOSONAR
             testView.updateDroidStatus(TestView.DONE);
 
         }
         if(Boolean.TRUE.equals(selectedTests.get(2))) {
             System.out.print("\nRunning Kost-Val\n"); //NOSONAR
             testView.updateKostValStatus(TestView.RUNNING);
-            thirdPartiesModel.runKostVal("C:\\archive\\" + "test" + "\\pakke\\content\\dokument");
+            thirdPartiesModel.runKostVal(docPath);
             System.out.println("\n\tKost-Val test finished\n"); //NOSONAR
             testView.updateKostValStatus(TestView.DONE);
         }
         if(Boolean.TRUE.equals(selectedTests.get(3))) {
             System.out.print("\nRunning VeraPDF\n"); //NOSONAR
             testView.updateVeraStatus(TestView.RUNNING);
-            thirdPartiesModel.runVeraPDF("C:\\archive\\" + fileName + "\\content\\dokument");
+            thirdPartiesModel.runVeraPDF(docPath);
             System.out.println("\n\tVeraPDF test finished\n"); //NOSONAR
             testView.updateVeraStatus(TestView.DONE);
         }
