@@ -31,7 +31,7 @@ public class ArkadeModel {
     boolean test = false;
 
     /**
-     * Print all to docx.
+     * Get Html as String, Runs all functions, Prints avvik to docx.
      * getFileToString to get the html content
      * Remove everything except for getFileToString when all functions are used.
      */
