@@ -49,9 +49,9 @@ public class ArkadeModel {
         else {
             List<String> printToWord = getDataFromHtml("N5.59");
             for (String i : printToWord){
-                System.out.println(i); //NOSONAR
                 htmlTextFormatted.append(i).append("\n");
             }
+            arkadeTestRapport();
         }
 
 
@@ -110,6 +110,26 @@ public class ArkadeModel {
         Document doc = Jsoup.parse(htmlRawText.toString());
         Elements elements = doc.getElementsByClass(    "text-right");
         return elements.last().text();
+    }
+    /**
+     * Get specific value from table
+     * @param index for test class
+     * @param containsValue value to get
+     * @return one element with containsValue or error message
+     */
+    public String getSpecificValue(String index, String containsValue){
+        String htmlValue = "Can't find " + containsValue;
+        int nrOfElements = 0;
+        for(String i : getDataFromHtml(index)){
+            if(i.contains(containsValue)){
+                htmlValue = i;
+                nrOfElements++;
+            }
+        }
+        if (nrOfElements>1){
+            htmlValue = "More than 1 element with " + containsValue;
+        }
+        return  htmlValue;
     }
     /**
      * @param index ID for test class
@@ -182,6 +202,27 @@ public class ArkadeModel {
         } catch (IOException e){
             System.out.println(e.getMessage());     //NOSONAR
         }
+    }
+
+    public void arkadeTestRapport(){
+        StringBuilder writeOut = new StringBuilder();
+        //Uttrekket er testet i Arkade 5 versjon VERSJONSNUMMER.
+        writeOut.append("Uttrekket er testet i Arkade 5 versjon: " +
+                getArkadeVersion().replace("Arkade 5 versjon: ", "") + "\n");
+
+        if(getDataFromHtml("N5.02").isEmpty()){
+            writeOut.append("Uttrekket er teknisk korrekt.\n");
+        } else {
+            // TableCode(getDataFromHtml("N5.02"))
+        }
+        if(getDataFromHtml("N5.02").isEmpty()){
+            writeOut.append("Uttrekket er teknisk korrekt. \n");
+        } else {
+            // TableCode(getDataFromHtml("N5.02"))
+        }
+        writeOut.append(getSpecificValue("N5.06", "Arkivdelstatus"));
+
+        System.out.println(writeOut);
     }
 
 }
