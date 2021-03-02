@@ -1,8 +1,6 @@
 package arkivmester;
 
-
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.Arrays;
@@ -162,7 +160,6 @@ public class ArchiveController implements ViewObserver {
     @Override
     public void uploadArchive() {
         int success = archiveModel.uploadFolder(mainView.getContainer());
-        Properties prop = settingsModel.getProp();
 
         //Folder uploaded
         if(success == 1) {
@@ -171,7 +168,7 @@ public class ArchiveController implements ViewObserver {
             thirdPartiesModel.resetSelectedTests();
 
             //Get admin info
-            archiveModel.updateAdminInfo(thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "admininfo.xq", prop));
+            archiveModel.updateAdminInfo(thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "admininfo.xq", settingsModel.prop));
 
             //Update view
             mainView.activateButtons();

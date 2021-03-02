@@ -3,14 +3,29 @@ package arkivmester;
 import java.io.*;
 import java.util.Properties;
 
+/**
+ * Contains configuration utility functions and the properties object.
+ *
+ * Contains multiple methods to run different third party tools to test the archive.
+ * @since 1.0
+ * @version 1.0
+ * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen
+ */
 public class SettingsModel {
     private File userFolder;
     private File alteredCfg;
-    private File tempFolder;
-    private Properties prop = new Properties();
 
+    /**
+     * Public properties object containing the application's configurations.
+     */
+    Properties prop = new Properties();
+
+    /**
+     * Creates user.home folder with temp folder and config.priorities.
+     * @return True or false depending if the operation was successful.
+     */
     public Boolean setUpSettings() { // #NOSONAR (Creating tempFolder exceeds the Cognitive Complexity with 2)
-        userFolder = new File(System.getProperty("user.home") + "\\arkivmester");
+        userFolder = new File(System.getProperty("user.home") + "\\.arkivmester");
         alteredCfg = new File(userFolder.getPath() + "\\config.properties");
 
         try {
@@ -22,9 +37,6 @@ public class SettingsModel {
                     if(Boolean.FALSE.equals(createConfig()))
                         return false;
                 }
-
-                if(Boolean.FALSE.equals(createTempFolder()))
-                    return false;
             }
             else {
                 if(!userFolder.mkdir())
@@ -34,6 +46,9 @@ public class SettingsModel {
                     return false;
             }
 
+            if(Boolean.FALSE.equals(createTempFolder())) {
+                return false;
+            }
         } catch (SecurityException e) {
             System.out.println(e.getMessage()); // #NOSONAR
         }
@@ -41,15 +56,28 @@ public class SettingsModel {
         return true;
     }
 
+    /**
+     * If temp folder does not exist it will be created.
+     * @return True or false depending if the operation was successful.
+     */
     private Boolean createTempFolder() {
-        tempFolder = new File(userFolder.getPath() + "\\temp");
-
-        if(tempFolder.exists() && tempFolder.isDirectory()) {
-            return true;
+        File tempFolder = new File(userFolder.getPath() + "\\temp");
+        if(!tempFolder.exists()) {
+            if(tempFolder.mkdir()) {
+                updateConfig("tempFolder", tempFolder.getAbsolutePath());
+                return true;
+            }
+            else
+                return false;
         }
-        return tempFolder.mkdir();
+        return true;
     }
 
+    /**
+     * If a config.priorities file does not exist in user.home it will be created by
+     * using the default file in resources.
+     * @return True or false depending if the operation was successful.
+     */
     private Boolean createConfig() {
         loadDefaultConfig();
 
@@ -67,6 +95,9 @@ public class SettingsModel {
         return true;
     }
 
+    /**
+     * Loads the default config.priorities file from resources into Properties prop.
+     */
     private void loadDefaultConfig() {
         try (InputStream is = getClass().getResourceAsStream("/config.properties")){
             prop.load(is);
@@ -75,6 +106,9 @@ public class SettingsModel {
         }
     }
 
+    /**
+     * Loads the config.priorities file from user.home into Properties prop.
+     */
     private void loadAlteredConfig() {
         try (FileInputStream fis = new FileInputStream(alteredCfg)) {
             prop.load(fis);
@@ -83,10 +117,11 @@ public class SettingsModel {
         }
     }
 
-    public Properties getProp() {
-        return prop;
-    }
-
+    /**
+     * Updates a property already existing in the config.properties file in user.home.
+     * @param key Property key that will be updated.
+     * @param value Value to update property with.
+     */
     public void updateConfig(String key, String value) {
         prop.setProperty(key, value);
 
