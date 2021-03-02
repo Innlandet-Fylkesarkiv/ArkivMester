@@ -3,8 +3,11 @@ package arkivmester;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Holds all data about the archive and its relevant utility functions.
@@ -86,6 +89,13 @@ public class ArchiveModel {
      * @param list String list of new administrative information data to be saved.
      */
     public void updateAdminInfo(List<String> list) {
+        //Formats date to norwegian format.
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd.MM.yyy", Locale.ENGLISH);
+        LocalDate date = LocalDate.parse(list.get(4), inputFormatter);
+        String formattedDate = outputFormatter.format(date);
+        list.set(4, formattedDate);
+
         adminInfoList = list;
     }
 
