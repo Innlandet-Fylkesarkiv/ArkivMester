@@ -59,4 +59,14 @@ public interface ViewObserver {
      * Cancels current test and wants to start a new, resets GUI and backend operations.
      */
     void newTest();
+
+    /**
+     * Opens the settings view for editing application configurations.
+     */
+    void openSettings();
+
+    /**
+     * Saves the current information and updates the configuration file.
+     */
+    void saveSettings();
 }

@@ -19,6 +19,7 @@ public class ArchiveController implements ViewObserver {
     TestView testView;
     AdminInfoView adminInfoView;
     TestSettingsView testSettingsView;
+    SettingsView settingsView;
     ArchiveModel archiveModel;
     ReportModel reportModel;
     ArkadeModel testModel;
@@ -112,6 +113,24 @@ public class ArchiveController implements ViewObserver {
         thirdPartiesModel.resetSelectedTests();
     }
 
+    //When "Innstillinger" is clicked.
+    @Override
+    public void openSettings() {
+        settingsView = new SettingsView();
+        settingsView.addObserver(this);
+        settingsView.createAndShowGUI(mainView.getContainer(), settingsModel.prop);
+    }
+
+    @Override
+    public void saveSettings() {
+        List<String> newProp = settingsView.getNewProp();
+        settingsModel.updateConfig(newProp.get(0), newProp.get(1));
+
+        settingsView.clearContainer();
+        settingsView = null;
+        mainView.showGUI();
+    }
+
     //When "Rediger informasjon" is clicked.
     @Override
     public void editAdminInfo() {
@@ -143,6 +162,10 @@ public class ArchiveController implements ViewObserver {
         else if (testSettingsView != null){
             testSettingsView.clearContainer();
             testSettingsView = null;
+        }
+        else if (settingsView != null){
+            settingsView.clearContainer();
+            settingsView = null;
         }
 
         mainView.showGUI();
