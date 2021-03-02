@@ -49,7 +49,7 @@ public class SettingsView extends Views {
     }
 
     /**
-     * Sets up the tests panel.
+     * Sets up the config panel.
      */
     private void setUpCfgPanel(JPanel cfgPanel, Properties prop) {
         //Grid
@@ -73,10 +73,9 @@ public class SettingsView extends Views {
 
             tempBtn.setBackground(primaryColor);
             tempBtn.setForeground(Color.WHITE);
+
             buttons.add(tempBtn);
         }
-
-
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -143,6 +142,10 @@ public class SettingsView extends Views {
         container.revalidate();
     }
 
+    /**
+     * Opens the file chooser and lets the user choose a new file location.
+     * @param row To identify which path which will be updated.
+     */
     private void updatePath(String row) {
         JFileChooser fc = new JFileChooser("C:/");
         fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
@@ -162,6 +165,10 @@ public class SettingsView extends Views {
         }
     }
 
+    /**
+     * Regular getter for newly edited configuration property.
+     * @return List of key and value strings of the new property.
+     */
     public List<String> getNewProp() {
         return newPropKV;
     }

@@ -70,6 +70,9 @@ public class SettingsModel {
             else
                 return false;
         }
+        else {
+            updateConfig("tempFolder", tempFolder.getAbsolutePath());
+        }
         return true;
     }
 
