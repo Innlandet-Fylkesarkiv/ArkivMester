@@ -15,6 +15,7 @@ import static java.lang.Thread.sleep;
  */
 public class ThirdPartiesModel {
     String cmd = "cmd.exe";
+    String cdString = "cd \"";
     private List<Boolean> selectedTests = new ArrayList<>();
     int amountOfTests = 4;
 
@@ -41,20 +42,21 @@ public class ThirdPartiesModel {
      *
      * @param path A file that contains the archive that is to be tested.
      */
-    public void runArkadeTest(File path) {
+    public void runArkadeTest(File path, Properties prop) throws IOException {
 
-        String cd = "cd \"C:\\prog\\Arkade5\"";
+        //String with path to arkadeCli
+        String cd = cdString + prop.getProperty("arkadePath") + "\"";
         //Path to output folder where test report gets saved.
-        String outputPath = "e:\\Arkade\\output"; //NOSONAR
+        String outputPath = prop.getProperty("arkadeOutput");
         //Path to temp folder where temporary data about the tests gets stored.
-        String tempPath = "e:\\Arkade\\"; //NOSONAR
+        String tempPath = prop.getProperty("arkadeTemp");
 
         //Process builder to run command line.
         ProcessBuilder arkadeBuilder = new ProcessBuilder(
                 cmd, "/c", cd + " && arkade test -a " + path +
                 " -o " + outputPath + " -p " + tempPath + " -t noark5");
         arkadeBuilder.redirectErrorStream(true);
-        try {
+
             Process p = arkadeBuilder.start();
             //Gets the console output and prints it.
             BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -66,9 +68,7 @@ public class ThirdPartiesModel {
 
             }
             r.close();
-        } catch (IOException e) {
-            System.out.println(e.getMessage()); // NOSONAR
-        }
+
 
     }
 
@@ -78,12 +78,12 @@ public class ThirdPartiesModel {
      *
      * @param path A string that contains the path to the archive that is to be tested
      */
-    public void runKostVal(String path) {
+    public void runKostVal(String path, Properties prop) {
 
-        //String to KOSTVal location
-        String cd = "cd \"C:\\prog\\KOSTVal\"";
+        //String with path to KostVal
+        String cd = cdString + prop.getProperty("kostvalPath") + "\"";
         //Path to folder where test report gets moved to.
-        String reportPath = "c:\\archive\\testoutput"; // NOSONAR
+        String reportPath = prop.getProperty("kostValReport");
 
         //Process builder to run kost-val from command line
         ProcessBuilder kostvalBuilder = new ProcessBuilder( //NOSONAR
@@ -129,12 +129,12 @@ public class ThirdPartiesModel {
      *
      * @param path A string that contains the path to the archive that is to be tested
      */
-    public void runVeraPDF(String path) {
+    public void runVeraPDF(String path, Properties prop) {
 
-        //String with path to VeraPDF location.
-        String cd = "cd \"C:\\prog\\VeraPDF\"";
+        //String with path to VeraPDF
+        String cd = cdString + prop.getProperty("veraPDFPath") + "\"";
         //Path to folder where test report gets moved to.
-        String reportPath = "c:\\archive\\testoutput\\verapdf.xml"; // NOSONAR
+        String reportPath = prop.getProperty("veraPDFReport") + "\\verapdf.xml";
 
         //Process builder to run VeraPDF from command line
         ProcessBuilder veraPDFBuilder = new ProcessBuilder(
@@ -154,15 +154,16 @@ public class ThirdPartiesModel {
      *
      * @param path A string that contains the path to the archive to be tested.
      */
-    public void runDROID(String path) {
+    public void runDROID(String path, Properties prop) {
 
-        //String to cd to jar location and run it.
-        String cd = "cd \"C:\\prog\\droid\"";
+        //String with path to droid location.
+        String cd = cdString + prop.getProperty("droidPath") + "\"";
+        //String with command to run .jar file
         String jar = " && java -jar droid-command-line-6.5.jar";
         //Path to droid profile needed to run droid.
-        String profilePath = "C:\\archive\\droid\\profile.droid"; //NOSONAR
+        String profilePath = prop.getProperty("droidOutput") + "\\profile.droid";
         //Path to folder where test output ends up.
-        String outputPath = "C:\\archive\\droid\\"; //NOSONAR
+        String outputPath = prop.getProperty("droidOutput");
 
         //Process builder to run DROID from command line
         ProcessBuilder droidBuilder = new ProcessBuilder(
@@ -183,7 +184,7 @@ public class ThirdPartiesModel {
             //Run second DROID function - making a spreadsheet of all files in archive.
             System.out.println("\nDroid 2"); //NOSONAR
             droidBuilder = new ProcessBuilder(
-                    cmd, "/c", cd + jar + " -p " + profilePath + " -e " + outputPath + "filliste.csv");
+                    cmd, "/c", cd + jar + " -p " + profilePath + " -e " + outputPath + "\\filliste.csv");
             p = droidBuilder.start();
             r = new BufferedReader(new InputStreamReader(p.getInputStream()));
             line = r.readLine();
@@ -197,7 +198,7 @@ public class ThirdPartiesModel {
             System.out.println("\nDroid 3"); //NOSONAR
             droidBuilder = new ProcessBuilder(
                     cmd, "/c", cd + jar + " -p " + profilePath + " -n \"Comprehensive breakdown\" " +
-                    "-t \"DROID Report XML\" -r " + outputPath + "droid.xml");
+                    "-t \"DROID Report XML\" -r " + outputPath + "\\droid.xml");
             p = droidBuilder.start();
             r = new BufferedReader(new InputStreamReader(p.getInputStream()));
             line = r.readLine();
@@ -211,7 +212,7 @@ public class ThirdPartiesModel {
             System.out.println("\nDroid 4"); //NOSONAR
             droidBuilder = new ProcessBuilder(
                     cmd, "/c", cd + jar + " -p " + profilePath + " -n \"Comprehensive breakdown\" " +
-                    "-t \"PDF\" -r " + outputPath + "droid.pdf");
+                    "-t \"PDF\" -r " + outputPath + "\\droid.pdf");
             p= droidBuilder.start();
             r = new BufferedReader(new InputStreamReader(p.getInputStream()));
             line = r.readLine();
@@ -237,14 +238,15 @@ public class ThirdPartiesModel {
      *
      * @param path A file that contains the archive to be unzipped
      */
-    public void unzipArchive(File path) {
+    public void unzipArchive(File path, Properties prop) {
 
-        //path = "c:\\archive\\899ec389-1dc0-41d0-b6ca-15f27642511b.tar"; // NOSONAR
-        String outputpath = "C:\\archive";  //NOSONAR
+        String cd = cdString + prop.getProperty("7ZipPath") + "\"";
+        //String outputpath = "C:\\archive";  //NOSONAR
+        String outputpath = prop.getProperty("7ZipOutput");
 
         //Process builder to run VeraPDF from command line
         ProcessBuilder zipBuilder = new ProcessBuilder(
-        cmd, "/c", "cd \"C:\\Programfiler\\7-Zip\" && 7z x " + path + " -o" +outputpath+" -r");
+        cmd, "/c", cd + " && 7z x " + path + " -o" +outputpath+" -r");
         zipBuilder.redirectErrorStream(true);
         try {
             Process p = zipBuilder.start();
