@@ -120,6 +120,7 @@ public class ArchiveController implements ViewObserver {
     //When "Innstillinger" is clicked.
     @Override
     public void openSettings() {
+        cancelButton();
         settingsView = new SettingsView();
         settingsView.addObserver(this);
         settingsView.createAndShowGUI(mainView.getContainer(), settingsModel.prop);
