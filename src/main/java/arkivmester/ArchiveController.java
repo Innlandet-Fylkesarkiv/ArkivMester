@@ -72,13 +72,18 @@ public class ArchiveController implements ViewObserver {
     private void runTests() {
         List<Boolean> selectedTests = thirdPartiesModel.getSelectedTests();
         String fileName = archiveModel.tar.getName();
-        fileName = fileName.substring(0,fileName.lastIndexOf('.'));
+        //fileName = fileName.substring(0,fileName.lastIndexOf('.'));
         String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument";
         //Should use the one below, but takes too long
         //String docPath = settingsModel.prop.getProperty("7ZipOutput") + fileName + "\\content\\dokument";
 
         //Unzips .tar folder with the archive.
-        thirdPartiesModel.unzipArchive(archiveModel.tar, settingsModel.prop);
+        try {
+            thirdPartiesModel.unzipArchive(archiveModel.tar, settingsModel.prop);
+        }catch (IOException e) {
+            System.out.println(e.getMessage()); //NOSONAR
+            mainView.exceptionPopup("Kunne ikke unzippe arkivet, prøv igjen.");
+        }
         System.out.println("\n\tArchive unzipped\n"); //NOSONAR
 
         //Run tests depending on if they are selected or not.
@@ -86,10 +91,13 @@ public class ArchiveController implements ViewObserver {
             System.out.print("\nRunning arkade\n"); //NOSONAR
             testView.updateArkadeStatus(TestView.RUNNING);
             try {
+
                 thirdPartiesModel.runArkadeTest(archiveModel.tar, settingsModel.prop);
-            }
-            catch (IOException e) {
-                System.out.println("hkjfsd");
+
+            } catch (IOException e) {
+                System.out.println(e.getMessage()); //NOSONAR
+                mainView.exceptionPopup("Arkade test feilet, prøv igjen.");
+
             }
             System.out.println("\n\tArkade test finished\n"); //NOSONAR
             testView.updateArkadeStatus(TestView.DONE);
@@ -97,7 +105,12 @@ public class ArchiveController implements ViewObserver {
         if(Boolean.TRUE.equals(selectedTests.get(1))) {
             System.out.println("\nRunning DROID\n"); //NOSONAR
             testView.updateDroidStatus(TestView.RUNNING);
-            thirdPartiesModel.runDROID(docPath, settingsModel.prop);
+            try {
+                thirdPartiesModel.runDROID(docPath, settingsModel.prop);
+            } catch (IOException e) {
+                System.out.println(e.getMessage()); //NOSONAR
+                mainView.exceptionPopup("DROID test feilet, prøv igjen.");
+            }
             System.out.println("\n\tDROID finished\n"); //NOSONAR
             testView.updateDroidStatus(TestView.DONE);
 
@@ -105,14 +118,24 @@ public class ArchiveController implements ViewObserver {
         if(Boolean.TRUE.equals(selectedTests.get(2))) {
             System.out.print("\nRunning Kost-Val\n"); //NOSONAR
             testView.updateKostValStatus(TestView.RUNNING);
-            thirdPartiesModel.runKostVal(docPath, settingsModel.prop);
+            try {
+                thirdPartiesModel.runKostVal(docPath, settingsModel.prop);
+            }catch (IOException e) {
+                System.out.println(e.getMessage()); //NOSONAR
+                mainView.exceptionPopup("Kost-Val test feilet, prøv igjen.");
+            }
             System.out.println("\n\tKost-Val test finished\n"); //NOSONAR
             testView.updateKostValStatus(TestView.DONE);
         }
         if(Boolean.TRUE.equals(selectedTests.get(3))) {
             System.out.print("\nRunning VeraPDF\n"); //NOSONAR
             testView.updateVeraStatus(TestView.RUNNING);
-            thirdPartiesModel.runVeraPDF(docPath, settingsModel.prop);
+            try {
+                thirdPartiesModel.runVeraPDF(docPath, settingsModel.prop);
+            } catch (IOException e) {
+                System.out.println(e.getMessage()); //NOSONAR
+                mainView.exceptionPopup("VeraPDF test feilet, prøv igjen");
+            }
             System.out.println("\n\tVeraPDF test finished\n"); //NOSONAR
             testView.updateVeraStatus(TestView.DONE);
         }

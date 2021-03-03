@@ -56,19 +56,17 @@ public class ThirdPartiesModel {
                 cmd, "/c", cd + " && arkade test -a " + path +
                 " -o " + outputPath + " -p " + tempPath + " -t noark5");
         arkadeBuilder.redirectErrorStream(true);
-
-            Process p = arkadeBuilder.start();
-            //Gets the console output and prints it.
-            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            String line;
+        Process p = arkadeBuilder.start();
+        //Gets the console output and prints it.
+        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String line;
+        line = r.readLine();
+        while (line != null) {
+            System.out.println(line); //NOSONAR
             line = r.readLine();
-            while (line != null) {
-                System.out.println(line); //NOSONAR
-                line = r.readLine();
 
-            }
-            r.close();
-
+        }
+        r.close();
 
     }
 
@@ -78,7 +76,7 @@ public class ThirdPartiesModel {
      *
      * @param path A string that contains the path to the archive that is to be tested
      */
-    public void runKostVal(String path, Properties prop) {
+    public void runKostVal(String path, Properties prop) throws IOException {
 
         //String with path to KostVal
         String cd = cdString + prop.getProperty("kostvalPath") + "\"";
@@ -90,37 +88,33 @@ public class ThirdPartiesModel {
                 cmd, "/c", cd + " &&  java -jar cmd_KOST-Val.jar --sip " +
                 path + " --en");
         kostvalBuilder.redirectErrorStream(true);
-        try {
-            Process p = kostvalBuilder.start();
-            //Gets the console output and prints it.
-            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            String line;
+        Process p = kostvalBuilder.start();
+        //Gets the console output and prints it.
+        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String line;
+        line = r.readLine();
+        while (line != null) {
+            System.out.println(line); //NOSONAR
             line = r.readLine();
-            while (line != null) {
-                System.out.println(line); //NOSONAR
-                line = r.readLine();
 
-            }
-            r.close();
-
-            //Process builder to move report to an output folder.
-            kostvalBuilder = new ProcessBuilder(
-                    cmd, "/c", "move %userprofile%\\.kost-val_2x\\logs\\*.* " + reportPath);
-            kostvalBuilder.redirectErrorStream(true);
-            p = kostvalBuilder.start();
-
-            //Gets the console output and prints it.
-            r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            line = r.readLine();
-            while (line != null) {
-                System.out.println(line); //NOSONAR
-                line = r.readLine();
-
-            }
-            r.close();
-        } catch (IOException e) {
-            System.out.println(e.getMessage()); //NOSONAR
         }
+        r.close();
+
+        //Process builder to move report to an output folder.
+        kostvalBuilder = new ProcessBuilder(
+                cmd, "/c", "move %userprofile%\\.kost-val_2x\\logs\\*.* " + reportPath);
+        kostvalBuilder.redirectErrorStream(true);
+        p = kostvalBuilder.start();
+
+        //Gets the console output and prints it.
+        r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        line = r.readLine();
+        while (line != null) {
+            System.out.println(line); //NOSONAR
+            line = r.readLine();
+
+        }
+        r.close();
 
     }
 
@@ -129,7 +123,7 @@ public class ThirdPartiesModel {
      *
      * @param path A string that contains the path to the archive that is to be tested
      */
-    public void runVeraPDF(String path, Properties prop) {
+    public void runVeraPDF(String path, Properties prop) throws IOException {
 
         //String with path to VeraPDF
         String cd = cdString + prop.getProperty("veraPDFPath") + "\"";
@@ -140,11 +134,7 @@ public class ThirdPartiesModel {
         ProcessBuilder veraPDFBuilder = new ProcessBuilder(
                 cmd, "/c", cd + " && verapdf --recurse " + path + " > " + reportPath);
         veraPDFBuilder.redirectErrorStream(true);
-        try {
-            veraPDFBuilder.start();
-        } catch (IOException e) {
-            System.out.println(e.getMessage()); // NOSONAR
-        }
+        veraPDFBuilder.start();
 
         System.out.println("VeraPDF done, report at: " + reportPath); // NOSONAR
     }
@@ -154,7 +144,7 @@ public class ThirdPartiesModel {
      *
      * @param path A string that contains the path to the archive to be tested.
      */
-    public void runDROID(String path, Properties prop) {
+    public void runDROID(String path, Properties prop) throws IOException {
 
         //String with path to droid location.
         String cd = cdString + prop.getProperty("droidPath") + "\"";
@@ -168,69 +158,60 @@ public class ThirdPartiesModel {
         //Process builder to run DROID from command line
         ProcessBuilder droidBuilder = new ProcessBuilder(
                 cmd, "/c", cd + jar + " -R -a " + path + " -p " + profilePath);
-        try{
-            //Run first DROID function - making the droid profile.
-            System.out.println("\nDroid 1"); //NOSONAR
-            Process p = droidBuilder.start();
-            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            String line = r.readLine();
-            while(line != null) {
-                System.out.println(line); //NOSONAR
-                line = r.readLine();
 
-            }
-            r.close();
-
-            //Run second DROID function - making a spreadsheet of all files in archive.
-            System.out.println("\nDroid 2"); //NOSONAR
-            droidBuilder = new ProcessBuilder(
-                    cmd, "/c", cd + jar + " -p " + profilePath + " -e " + outputPath + "\\filliste.csv");
-            p = droidBuilder.start();
-            r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        //Run first DROID function - making the droid profile.
+        System.out.println("\nDroid 1"); //NOSONAR
+        Process p = droidBuilder.start();
+        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String line = r.readLine();
+        while(line != null) {
+            System.out.println(line); //NOSONAR
             line = r.readLine();
-            while (line != null) {
-                System.out.println(line); //NOSONAR
-                line = r.readLine();
-            }
-            r.close();
-
-            //Run third DROID function - making a xml test report.
-            System.out.println("\nDroid 3"); //NOSONAR
-            droidBuilder = new ProcessBuilder(
-                    cmd, "/c", cd + jar + " -p " + profilePath + " -n \"Comprehensive breakdown\" " +
-                    "-t \"DROID Report XML\" -r " + outputPath + "\\droid.xml");
-            p = droidBuilder.start();
-            r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            line = r.readLine();
-            while (line != null) {
-                System.out.println(line); //NOSONAR
-                line = r.readLine();
-            }
-            r.close();
-
-            //Run fourth DROID function - making a pdf test report.
-            System.out.println("\nDroid 4"); //NOSONAR
-            droidBuilder = new ProcessBuilder(
-                    cmd, "/c", cd + jar + " -p " + profilePath + " -n \"Comprehensive breakdown\" " +
-                    "-t \"PDF\" -r " + outputPath + "\\droid.pdf");
-            p= droidBuilder.start();
-            r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            line = r.readLine();
-            while (line != null) {
-                System.out.println(line); //NOSONAR
-                line = r.readLine();
-            }
-            r.close();
 
         }
-        catch (IOException e) {
-            System.out.println(e.getMessage()); //NOSONAR
-        }
+        r.close();
 
-        //C:\prog\Droid>java -jar droid-command-line-6.5.jar -R -a c:\archive\899ec389-1dc0-41d0-b6ca-15f27642511b\content\DOKUMENT -p c:\archive\droid\profile.droid
-        //C:\prog\Droid>java -jar droid-command-line-6.5.jar -p c:\archive\droid\profile.droid -e c:\archive\droid\filliste.csv
-        //java -jar droid-command-line-6.5.jar -p c:\archive\droid\profile.droid -n "Comprehensive breakdown" -t "DROID Report XML" -r c:\archive\droid\droid.xml
-        //java -jar droid-command-line-6.5.jar -p c:\archive\droid\profile.droid -n "Comprehensive breakdown" -t "PDF" -r c:\archive\droid\droid.pdf
+        //Run second DROID function - making a spreadsheet of all files in archive.
+        System.out.println("\nDroid 2"); //NOSONAR
+        droidBuilder = new ProcessBuilder(
+                cmd, "/c", cd + jar + " -p " + profilePath + " -e " + outputPath + "\\filliste.csv");
+        p = droidBuilder.start();
+        r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        line = r.readLine();
+        while (line != null) {
+            System.out.println(line); //NOSONAR
+            line = r.readLine();
+        }
+        r.close();
+
+        //Run third DROID function - making a xml test report.
+        System.out.println("\nDroid 3"); //NOSONAR
+        droidBuilder = new ProcessBuilder(
+                cmd, "/c", cd + jar + " -p " + profilePath + " -n \"Comprehensive breakdown\" " +
+                "-t \"DROID Report XML\" -r " + outputPath + "\\droid.xml");
+        p = droidBuilder.start();
+        r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        line = r.readLine();
+        while (line != null) {
+            System.out.println(line); //NOSONAR
+            line = r.readLine();
+        }
+        r.close();
+
+        //Run fourth DROID function - making a pdf test report.
+        System.out.println("\nDroid 4"); //NOSONAR
+        droidBuilder = new ProcessBuilder(
+                cmd, "/c", cd + jar + " -p " + profilePath + " -n \"Comprehensive breakdown\" " +
+                "-t \"PDF\" -r " + outputPath + "\\droid.pdf");
+        p= droidBuilder.start();
+        r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        line = r.readLine();
+        while (line != null) {
+            System.out.println(line); //NOSONAR
+            line = r.readLine();
+        }
+        r.close();
+
     }
 
     /**
@@ -238,32 +219,28 @@ public class ThirdPartiesModel {
      *
      * @param path A file that contains the archive to be unzipped
      */
-    public void unzipArchive(File path, Properties prop) {
+    public void unzipArchive(File path, Properties prop) throws IOException {
 
+        //String with path to 7zip location.
         String cd = cdString + prop.getProperty("7ZipPath") + "\"";
-        //String outputpath = "C:\\archive";  //NOSONAR
+        //Path to where the archive gets unzipped to
         String outputpath = prop.getProperty("7ZipOutput");
 
         //Process builder to run VeraPDF from command line
         ProcessBuilder zipBuilder = new ProcessBuilder(
         cmd, "/c", cd + " && 7z x " + path + " -o" +outputpath+" -r");
         zipBuilder.redirectErrorStream(true);
-        try {
-            Process p = zipBuilder.start();
-            //Gets the console output and prints it.
-            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            String line;
+        Process p = zipBuilder.start();
+        //Gets the console output and prints it.
+        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String line;
+        line = r.readLine();
+        while (line != null) {
+            System.out.println(line); //NOSONAR
             line = r.readLine();
-            while (line != null) {
-                System.out.println(line); //NOSONAR
-                line = r.readLine();
 
-            }
-            r.close();
         }
-        catch (IOException e) {
-            System.out.println(e.getMessage()); //NOSONAR
-        }
+        r.close();
 
     }
 
