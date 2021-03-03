@@ -1,12 +1,16 @@
 package arkivmester;
 
 import org.apache.poi.xwpf.usermodel.*;
-import java.io.*;
-import java.util.*;
-import java.util.stream.Collectors;
+import org.apache.xmlbeans.XmlCursor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Class for handling report document configurations.
@@ -22,11 +26,7 @@ public class RapportModel {
     private Iterator<ChapterList> chapterIterator = null;
     private final HeadersData headersData = new HeadersData();
 
-    RapportModel() {
-        //Rapport
-        //kap 1, 1.1, 1.2
-
-    }
+    private final String fontFamily = "Roboto (Brødtekst)";
 
     /**
      * Class for storing input of each chapter section of the report.
@@ -34,7 +34,9 @@ public class RapportModel {
 
     public static class ChapterList {
         private final List<Integer> headers;
-        private List<String> result;
+        private List<List<String>> result;
+        private String type;
+        private int cindex;
 
         /**
          * Initialize a default list of missing input.
@@ -42,7 +44,9 @@ public class RapportModel {
 
         ChapterList(List<Integer> h) {
             headers = h.stream().filter(t -> t > 0).collect(Collectors.toList());
-            result = Collections.singletonList("<Mangler verdi>");
+            result = Collections.singletonList(Collections.singletonList("<Mangler verdi>"));
+            type = "input";
+            cindex = 0;
         }
 
         /**
@@ -50,7 +54,61 @@ public class RapportModel {
          */
 
         public void setInput(List<Integer> h, List<String> inputList) {
-            if(headers.equals(h)) result = inputList;
+            if(headers.equals(h)) {
+                result = Collections.singletonList(inputList);
+            }
+        }
+
+        /**
+         * If chapter number is correct, set table as input to chapter-section.
+         */
+
+        public void setTable(List<Integer> h, List<List<String>> tableList) {
+            if(headers.equals(h)) {
+                result = tableList;
+                type = "table";
+            }
+        }
+
+        /**
+         * If chapter number is correct, set new paragraph value to chapter-section.
+         */
+
+        public void setParagraph(List<Integer> h, List<String> inputList) {
+            if(headers.equals(h)) {
+                result = Collections.singletonList(inputList);
+                type = "paragraph";
+            }
+        }
+
+        /**
+         * If chapter number is correct, set table as input to chapter-section.
+         */
+
+        public String currentItem() {
+            int size = result.size();
+            int len = result.get(0).size();
+
+            String temp = result.get(cindex % size).get(cindex / size);
+            cindex = clamp(cindex, (size * len)-1);
+
+            return temp;
+        }
+
+        /**
+         * If chapter number is correct, set table as input to chapter-section.
+         */
+
+        public String getType() {
+            return type;
+        }
+
+        /**
+         * Will not clamp the max value so it does not go "out of bounds"
+         */
+
+        private int  clamp(int val, int max) {
+            return Math.min(++val, max);
         }
 
         /**
@@ -59,10 +117,10 @@ public class RapportModel {
 
         public void getText() {
             for (Integer header : headers) {
-                System.out.print(header + " ");             // NOSONAR
+                System.out.print(header + " ");     // NOSONAR
             }
-            for (String s : result) {
-                System.out.print(s + " ");                  // NOSONAR
+            for (List<String> strings : result) {
+                System.out.print(strings + " ");      // NOSONAR
             }
             System.out.print('\n');                         // NOSONAR
         }
@@ -199,12 +257,13 @@ public class RapportModel {
 
     public void writeReportDocument() {
 
-        Iterator<IBodyElement> bodyElementIterator = document.getBodyElementsIterator();
+        List<IBodyElement> bodyList = new CopyOnWriteArrayList<>(document.getBodyElements());
+
+        Iterator<IBodyElement> bodyElementIterator = bodyList.iterator();
 
         chapterIterator = chapterList.iterator();
 
-        List<String> currentChapterInput = new ArrayList<>();
-        int currentIterator = 0;
+        ChapterList currentChapterInput = new ChapterList(Collections.singletonList(0));
 
         while(bodyElementIterator.hasNext()) {
             IBodyElement element = bodyElementIterator.next();
@@ -213,10 +272,9 @@ public class RapportModel {
 
                 if(foundNewHeader(p)) {
                     currentChapterInput = getNextChapterList();
-                    currentIterator = 0;
                 }
 
-                currentIterator = editToFile(p, currentChapterInput, currentIterator);
+                editDocument(p, currentChapterInput);
             }
         }
 
@@ -237,38 +295,90 @@ public class RapportModel {
      * Used for iterating the values in chapterlist in WriteReportDocument
      */
 
-    private List<String> getNextChapterList() {
+    private ChapterList getNextChapterList() {
         if(chapterIterator.hasNext()) {
-            return chapterIterator.next().result;
+            return chapterIterator.next();
         }
-        return Collections.singletonList("");
+        return new ChapterList(Collections.singletonList(0));
     }
 
     /**
      * Will look for input field in each paragraph and replace it with the ones from the list
      */
 
-    private int editToFile(XWPFParagraph p, List<String> cList, int cIterator) {
+    private void editDocument(XWPFParagraph p, ChapterList cChapter) {
         for(XWPFRun r : p.getRuns()) {
-            String text = r.getText(0);
-            if(text != null && text.contains("TODO")) {
-                text = text.replace("TODO", cList.get(cIterator));
-                r.setText(text, 0);
-                r.setBold(false);
-                cIterator = clamp(++cIterator, cList.size()-1);
+            String text = "" + r.getText(0);
+            if(text.contains("TODO")) {
+
+                switch(cChapter.getType()) {
+                    case "input":
+                        insertInputToDocument(text, cChapter.currentItem(), r);
+                        break;
+                    case "paragraph":
+                        insertParagraphToDocument(cChapter.currentItem(), p);
+                        break;
+                    case "table":
+                        insertTableToDocument(cChapter, p);
+                        break;
+                    default:
+                }
             }
         }
-        return cIterator;
     }
+
+    //region Description
+
+    private void insertInputToDocument(String text, String input, XWPFRun r) {
+        text = text.replace("TODO", input);
+        setRun(r, fontFamily , 11, false, text);
+    }
+
+    private void insertParagraphToDocument(String input, XWPFParagraph p) {
+        XmlCursor cursor = p.getCTP().newCursor();//this is the key!
+
+        XWPFParagraph para = document.insertNewParagraph(cursor);
+
+        setRun(para.createRun() , fontFamily , 11, false, input);
+
+        document.removeBodyElement(document.getPosOfParagraph(p));
+    }
+
+    private void insertTableToDocument(ChapterList cChapter, XWPFParagraph p) {
+        XmlCursor cursor = p.getCTP().newCursor();//this is the key!
+
+        XWPFTable table = document.insertNewTbl(cursor);
+        table.removeRow(0);
+
+        XWPFParagraph paragraph;
+
+        for(int i = 0; i < cChapter.result.get(0).size(); i++) {
+            XWPFTableRow tableOneRowVersion = table.createRow();
+            for(int j = 0; j < cChapter.result.size(); j++) {
+                if(i == 0) {
+                    tableOneRowVersion.addNewTableCell();
+                }
+                paragraph = tableOneRowVersion.getCell(j).addParagraph();
+                setRun(paragraph.createRun() , "Roboto (Brødtekst)" , 11, (i == 0), cChapter.currentItem());
+                tableOneRowVersion.getCell(j).setWidth("1500");
+            }
+        }
+
+        document.removeBodyElement(document.getPosOfParagraph(p));
+    }
+
+
 
     /**
-     * Will not clamp the max value so it does not go "out of bounds"
+     * Print paragraph text into table cell
      */
 
-    public int clamp(int val, int max) {
-        return Math.min(val, max);
+    public void setRun(XWPFRun run, String font, int size, boolean bold, String text) {
+        run.setFontFamily(font);
+        run.setFontSize(size);
+        run.setText(text, 0);
+        run.setBold(bold);
     }
-
     /**
      * Print the newly edited document to a new file
      */
@@ -293,4 +403,42 @@ public class RapportModel {
             c.setInput(h, inputList);
         }
     }
+
+    /**
+     * Replace old inputs with a table field
+     */
+
+    public void setNewTable(List<Integer> h, List<List<String>> tablefield) {
+        for(ChapterList c : chapterList) {
+            c.setTable(h, tablefield);
+        }
+    }
+
+    public void setNewTable(List<Integer> h, List<String> tableHeaders, List<String> tableContent) {
+
+        List<List<String>> ll = new ArrayList<>();
+        for(int i = 0; i < tableHeaders.size(); i++) {
+            final int tempInt = i;
+            List<String> temp = IntStream.range(i, tableContent.size())
+                    .filter(n -> n % tableHeaders.size() == tempInt)
+                    .mapToObj(tableContent::get)
+                    .collect(Collectors.toList());
+            temp.add(0, tableHeaders.get(i));
+            ll.add(temp);
+        }
+        for(ChapterList c : chapterList) {
+            c.setTable(h, ll);
+        }
+    }
+
+    /**
+     * Replace old inputs with a paragraph
+     */
+
+    public void setNewParagraph(List<Integer> h, List<String> para) {
+        for(ChapterList c : chapterList) {
+            c.setParagraph(h, para);
+        }
+    }
+
 }
