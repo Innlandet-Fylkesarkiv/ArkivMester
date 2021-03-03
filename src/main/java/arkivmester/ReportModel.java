@@ -26,7 +26,7 @@ public class ReportModel {
     private Iterator<ChapterList> chapterIterator = null;
     private final HeadersData headersData = new HeadersData();
 
-    private final String fontFamily = "Roboto (Brødtekst)";
+    private static final String FONT = "Roboto (Brødtekst)";
 
     /**
      * Class for storing input of each chapter section of the report.
@@ -331,7 +331,7 @@ public class ReportModel {
 
     private void insertInputToDocument(String text, String input, XWPFRun r) {
         text = text.replace("TODO", input);
-        setRun(r, fontFamily , 11, false, text);
+        setRun(r, FONT , 11, false, text);
     }
 
     private void insertParagraphToDocument(String input, XWPFParagraph p) {
@@ -339,7 +339,7 @@ public class ReportModel {
 
         XWPFParagraph para = document.insertNewParagraph(cursor);
 
-        setRun(para.createRun() , fontFamily , 11, false, input);
+        setRun(para.createRun() , FONT , 11, false, input);
 
         document.removeBodyElement(document.getPosOfParagraph(p));
     }
@@ -359,7 +359,7 @@ public class ReportModel {
                     tableOneRowVersion.addNewTableCell();
                 }
                 paragraph = tableOneRowVersion.getCell(j).addParagraph();
-                setRun(paragraph.createRun() , "Roboto (Brødtekst)" , 11, (i == 0), cChapter.currentItem());
+                setRun(paragraph.createRun() , FONT, 11, (i == 0), cChapter.currentItem());
                 tableOneRowVersion.getCell(j).setWidth("1500");
             }
         }
