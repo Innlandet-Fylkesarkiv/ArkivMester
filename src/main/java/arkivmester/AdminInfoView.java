@@ -52,6 +52,9 @@ public class AdminInfoView extends Views {
     private void setUpGridPanel(JPanel gridPanel) {
         int rows = 8;
 
+        JLabel infoLabel = new JLabel("Rediger administrativ informasjon:");
+        infoLabel.setFont(primaryFont);
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -87,6 +90,12 @@ public class AdminInfoView extends Views {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10,0,0,10);
 
+        gbc.gridwidth = 2;
+        gridPanel.add(infoLabel, gbc);
+
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+
         //Col 1
         gridPanel.add(data1, gbc);
         gbc.gridy++;
@@ -106,7 +115,7 @@ public class AdminInfoView extends Views {
         gbc.gridx++;
 
         //Col 2
-        gbc.gridy = 0;
+        gbc.gridy = 1;
 
         for(int i = 0; i<rows; i++) {
             gridPanel.add(valueList.get(i), gbc);

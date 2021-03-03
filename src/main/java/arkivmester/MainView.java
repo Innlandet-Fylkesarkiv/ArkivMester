@@ -323,4 +323,12 @@ public class MainView extends Views{
             valueList.get(i).setText(list.get(i));
         }
     }
+
+    /**
+     * Creates a popup pane with error symbol and exception message.
+     * @param msg Contains the exception message for the popup pane.
+     */
+    public void exceptionPopup(String msg) {
+        JOptionPane.showMessageDialog(null, msg, "Feil", JOptionPane.ERROR_MESSAGE);
+    }
 }
