@@ -1,6 +1,7 @@
 package arkivmester;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.Properties;
 
 /**
@@ -22,101 +23,71 @@ public class SettingsModel {
 
     /**
      * Creates user.home folder with temp folder and config.priorities.
-     * @return True or false depending if the operation was successful.
+     * @throws IOException The file could not be read or written to due to permissions or not existing.
      */
-    public Boolean setUpSettings() { // #NOSONAR (Creating tempFolder exceeds the Cognitive Complexity with 2)
+    public void setUpSettings() throws IOException {
         userFolder = new File(System.getProperty("user.home") + "\\.arkivmester");
         alteredCfg = new File(userFolder.getPath() + "\\config.properties");
 
-        try {
-            if(userFolder.exists() && userFolder.isDirectory()) {
-
-                if(alteredCfg.exists() && !alteredCfg.isDirectory())
-                    loadAlteredConfig();
-                else {
-                    if(Boolean.FALSE.equals(createConfig()))
-                        return false;
-                }
-            }
-            else {
-                if(!userFolder.mkdir())
-                    return false;
-
-                if(Boolean.FALSE.equals(createConfig()))
-                    return false;
-            }
-
-            if(Boolean.FALSE.equals(createTempFolder())) {
-                return false;
-            }
-        } catch (SecurityException e) {
-            System.out.println(e.getMessage()); // #NOSONAR
+        if(userFolder.exists() && userFolder.isDirectory()) {
+            if(alteredCfg.exists() && !alteredCfg.isDirectory())
+                loadAlteredConfig();
+            else
+                createConfig();
+        }
+        else {
+            Files.createDirectory(userFolder.toPath());
+            createConfig();
         }
 
-        return true;
+        handleTempFolder();
     }
 
     /**
      * If temp folder does not exist it will be created.
-     * @return True or false depending if the operation was successful.
+     * @throws IOException Folder in user.home could not be created.
      */
-    private Boolean createTempFolder() {
+    private void handleTempFolder() throws IOException {
         File tempFolder = new File(userFolder.getPath() + "\\temp");
+
         if(!tempFolder.exists()) {
-            if(tempFolder.mkdir()) {
-                updateConfig("tempFolder", tempFolder.getAbsolutePath());
-                return true;
-            }
-            else
-                return false;
+            Files.createDirectory(userFolder.toPath());
         }
-        else {
-            updateConfig("tempFolder", tempFolder.getAbsolutePath());
-        }
-        return true;
+
+        updateConfig("tempFolder", tempFolder.getAbsolutePath());
     }
 
     /**
      * If a config.priorities file does not exist in user.home it will be created by
      * using the default file in resources.
-     * @return True or false depending if the operation was successful.
+     * @throws IOException Config file in user.home could not be created.
      */
-    private Boolean createConfig() {
+    private void createConfig() throws IOException {
         loadDefaultConfig();
+        Files.createFile(alteredCfg.toPath());
 
-        try {
-            if(!alteredCfg.createNewFile())
-                return false;
-
-            try (FileOutputStream fos = new FileOutputStream(alteredCfg)) {
-                prop.store(fos, null);
-            }
-        } catch (IOException e) {
-            System.out.println(e.getMessage()); // #NOSONAR
+        try (FileOutputStream fos = new FileOutputStream(alteredCfg)) {
+            prop.store(fos, null);
         }
-
-        return true;
     }
 
     /**
      * Loads the default config.priorities file from resources into Properties prop.
+     * @throws IOException Properties object could not load the input stream.
      */
-    private void loadDefaultConfig() {
-        try (InputStream is = getClass().getResourceAsStream("/config.properties")){
-            prop.load(is);
-        } catch (IOException e) {
-            System.out.println(e.getMessage()); // #NOSONAR
-        }
+    private void loadDefaultConfig() throws IOException {
+        InputStream is = getClass().getResourceAsStream("/config.properties");
+        prop.load(is);
+        is.close();
     }
 
     /**
      * Loads the config.priorities file from user.home into Properties prop.
+     * @throws IOException Properties object could not load the input stream because alteredCfg not found.
      */
-    private void loadAlteredConfig() {
+    private void loadAlteredConfig() throws IOException {
         try (FileInputStream fis = new FileInputStream(alteredCfg)) {
             prop.load(fis);
-        } catch (IOException e) {
-            System.out.println(e.getMessage()); // #NOSONAR
         }
     }
 

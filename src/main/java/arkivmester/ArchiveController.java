@@ -1,5 +1,6 @@
 package arkivmester;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -43,8 +44,11 @@ public class ArchiveController implements ViewObserver {
         mainView.createAndShowGUI();
         mainView.addObserver(this);
 
-        if(Boolean.FALSE.equals(settingsModel.setUpSettings()))
-            System.out.println("Kan ikke lese config"); // #NOSONAR
+        try {
+            settingsModel.setUpSettings();
+        } catch (IOException e) {
+            mainView.exceptionPopup("Kan ikke lese config.");
+        }
     }
 
     //When "Start testing" is clicked.
@@ -191,8 +195,7 @@ public class ArchiveController implements ViewObserver {
             thirdPartiesModel.resetSelectedTests();
 
             //Get admin info
-            List<String> list;
-            list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "admininfo.xq", settingsModel.prop);
+            List<String> list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "admininfo.xq", settingsModel.prop);
             list = archiveModel.formatDate(list);
             archiveModel.updateAdminInfo(list);
 
@@ -202,7 +205,7 @@ public class ArchiveController implements ViewObserver {
         }
         //Faulty folder
         else if(success == 0) {
-            System.out.println("Mappen inneholder ikke .tar og .xml");//#NOSONAR
+            mainView.exceptionPopup("Mappen inneholder ikke .tar og .xml");
         }
     }
 
