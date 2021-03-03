@@ -1,8 +1,6 @@
 package arkivmester;
 
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.apache.poi.xwpf.usermodel.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -29,12 +27,18 @@ public class ArkadeModel {
     XWPFDocument document;
 
     boolean test = false;
-
     /**
      * Get Html as String, Runs all functions, Prints avvik to docx.
      * getFileToString to get the html content
      * Remove everything except for getFileToString when all functions are used.
      */
+    ArkadeModel(){
+        getFileToString(filePath, htmlRawText);
+
+        parseReportHtml(); // todo remove this before push
+    }
+
+
     public void parseReportHtml(){
 
         // Html to String
@@ -47,16 +51,12 @@ public class ArkadeModel {
             htmlTextFormatted.append(getArkadeVersion());
         }
         else {
-            List<String> printToWord = getDataFromHtml("N5.59");
-            for (String i : printToWord){
-                htmlTextFormatted.append(i).append("\n");
-            }
-            arkadeTestRapport();
+            // Write to docx
+            writeToDocx();
         }
 
 
-        // Write to docx
-        writeToDocx();
+
     }
     /**
      * Get html as string
@@ -184,17 +184,7 @@ public class ArkadeModel {
 
             String text = htmlTextFormatted.toString();
 
-            if (text.contains("\n")) { //NOSONAR
-                String[] lines = text.split("\n");
-                run.setText(lines[0], 0); // set first line into XWPFRun
-                for(int i=1;i<lines.length;i++){
-                    // add break and insert new text
-                    run.addBreak();
-                    run.setText(lines[i]);
-                }
-            } else {
-                run.setText(text, 0);
-            }
+            arkadeTestRapport(run);
 
             document.write(out);
             out.close();
@@ -204,16 +194,31 @@ public class ArkadeModel {
         }
     }
 
-    public void arkadeTestRapport(){
+    public void arkadeTestRapport(XWPFRun run){
         StringBuilder writeOut = new StringBuilder();
         //Uttrekket er testet i Arkade 5 versjon VERSJONSNUMMER.
-        writeOut.append("Uttrekket er testet i Arkade 5 versjon: " +
-                getArkadeVersion().replace("Arkade 5 versjon: ", "") + "\n");
+        String version = "Uttrekket er testet i Arkade 5 versjon: " + getArkadeVersion().replace("Arkade 5 versjon: ", "");
+        run.setText(version);
+        // New Line
+        run.addBreak();
+        run.setText("N5.02");
+        run.addBreak();
+
+        XWPFTable table = document.createTable();
+        XWPFTableRow tableRowOne = table.getRow(0);
+        tableRowOne.getCell(0).setText("col one, row one");
+        tableRowOne.addNewTableCell().setText("col two, row one");
+        //document.insertNewTbl(paragraph);
+
+        run.addBreak();
+        run.setText("N5.02");
+        run.setText("N5.02");
 
         if(getDataFromHtml("N5.02").isEmpty()){
             writeOut.append("Uttrekket er teknisk korrekt.\n");
         } else {
-            // TableCode(getDataFromHtml("N5.02"))
+            // TableCode(getDataFromHtml("N5.02")) -- int liste, liste header, string liste
+
         }
         if(getDataFromHtml("N5.02").isEmpty()){
             writeOut.append("Uttrekket er teknisk korrekt. \n");
@@ -221,8 +226,13 @@ public class ArkadeModel {
             // TableCode(getDataFromHtml("N5.02"))
         }
         writeOut.append(getSpecificValue("N5.06", "Arkivdelstatus"));
+        writeOut.append(getArkadeVersion());
 
         System.out.println(writeOut);
+        for(String i : getDataFromHtml("N5.02")){
+            System.out.println(i + "\n");
+
+        }
     }
 
 }

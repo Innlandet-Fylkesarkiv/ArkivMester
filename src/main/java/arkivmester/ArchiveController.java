@@ -31,7 +31,6 @@ public class ArchiveController implements ViewObserver {
         reportModel = new ReportModel();
         testModel = new ArkadeModel();
         thirdPartiesModel = new ThirdPartiesModel();
-        testModel.parseReportHtml(); // ToDO remove this
     }
 
     /**
