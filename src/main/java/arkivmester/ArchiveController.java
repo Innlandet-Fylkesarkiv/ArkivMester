@@ -50,6 +50,7 @@ public class ArchiveController implements ViewObserver {
         testView.createAndShowGUI(mainView.getContainer());
         mainView.toggleEditInfoBtn();
 
+        //Schedule the runTests function to give the UI time to update before tests are run.
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.submit(this::runTests);
 
@@ -65,10 +66,11 @@ public class ArchiveController implements ViewObserver {
         fileName = fileName.substring(0,fileName.lastIndexOf('.'));
         String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument";
 
+        //Unzips .tar folder with the archive.
         thirdPartiesModel.unzipArchive(archiveModel.tar);
         System.out.println("\n\tArchive unzipped\n"); //NOSONAR
 
-
+        //Run tests depending on if they are selected or not.
         if(Boolean.TRUE.equals(selectedTests.get(0))) {
             System.out.print("\nRunning arkade\n"); //NOSONAR
             testView.updateArkadeStatus(TestView.RUNNING);
