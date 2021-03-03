@@ -100,6 +100,14 @@ public class Views implements ActionListener {
                 for (ViewObserver obs : observers)
                     obs.saveTestSettings();
                 break;
+            case "Innstillinger":
+                for (ViewObserver obs : observers)
+                    obs.openSettings();
+                break;
+            case "Lagre innstillinger":
+                for (ViewObserver obs : observers)
+                    obs.saveSettings();
+                break;
             default:
                 break;
         }

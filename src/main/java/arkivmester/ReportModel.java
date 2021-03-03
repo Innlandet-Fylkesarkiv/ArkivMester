@@ -16,7 +16,7 @@ import java.util.stream.IntStream;
  * Class for handling report document configurations.
  */
 
-public class RapportModel {
+public class ReportModel {
 
     XWPFDocument document;
     String templateFile = "src/main/resources/Dokumentmal_fylkesarkivet_Noark5_testrapport.docx";

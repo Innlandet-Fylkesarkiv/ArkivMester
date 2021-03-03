@@ -131,7 +131,7 @@ public class AdminInfoView extends Views {
 
     /**
      * Populates the administrative information fields.
-     * @param list Data to fill the fields. Stored in {@link RapportModel}.
+     * @param list Data to fill the fields. Stored in {@link ReportModel}.
      */
     public void populateAdminInfo(List<String> list) {
         for (int i = 0; i<list.size(); i++) {

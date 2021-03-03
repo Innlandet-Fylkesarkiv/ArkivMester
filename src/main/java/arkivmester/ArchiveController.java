@@ -1,6 +1,5 @@
 package arkivmester;
 
-
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -20,17 +19,20 @@ public class ArchiveController implements ViewObserver {
     TestView testView;
     AdminInfoView adminInfoView;
     TestSettingsView testSettingsView;
+    SettingsView settingsView;
     ArchiveModel archiveModel;
-    RapportModel rapportModel;
-    TestModel testModel;
+    ReportModel reportModel;
+    ArkadeModel testModel;
     ThirdPartiesModel thirdPartiesModel;
+    SettingsModel settingsModel;
 
     ArchiveController() {
         mainView = new MainView();
         archiveModel = new ArchiveModel();
-        rapportModel = new RapportModel();
-        testModel = new TestModel();
+        reportModel = new ReportModel();
+        testModel = new ArkadeModel();
         thirdPartiesModel = new ThirdPartiesModel();
+        settingsModel = new SettingsModel();
     }
 
     /**
@@ -40,6 +42,9 @@ public class ArchiveController implements ViewObserver {
         mainView.createFrame();
         mainView.createAndShowGUI();
         mainView.addObserver(this);
+
+        if(Boolean.FALSE.equals(settingsModel.setUpSettings()))
+            System.out.println("Kan ikke lese config"); // #NOSONAR
     }
 
     //When "Start testing" is clicked.
@@ -108,6 +113,24 @@ public class ArchiveController implements ViewObserver {
         thirdPartiesModel.resetSelectedTests();
     }
 
+    //When "Innstillinger" is clicked.
+    @Override
+    public void openSettings() {
+        settingsView = new SettingsView();
+        settingsView.addObserver(this);
+        settingsView.createAndShowGUI(mainView.getContainer(), settingsModel.prop);
+    }
+
+    @Override
+    public void saveSettings() {
+        List<String> newProp = settingsView.getNewProp();
+        settingsModel.updateConfig(newProp.get(0), newProp.get(1));
+
+        settingsView.clearContainer();
+        settingsView = null;
+        mainView.showGUI();
+    }
+
     //When "Rediger informasjon" is clicked.
     @Override
     public void editAdminInfo() {
@@ -140,6 +163,10 @@ public class ArchiveController implements ViewObserver {
             testSettingsView.clearContainer();
             testSettingsView = null;
         }
+        else if (settingsView != null){
+            settingsView.clearContainer();
+            settingsView = null;
+        }
 
         mainView.showGUI();
     }
@@ -156,7 +183,6 @@ public class ArchiveController implements ViewObserver {
     @Override
     public void uploadArchive() {
         int success = archiveModel.uploadFolder(mainView.getContainer());
-        String xq = "E:\\XQuery-Statements\\admininfo.xq";
 
         //Folder uploaded
         if(success == 1) {
@@ -165,7 +191,10 @@ public class ArchiveController implements ViewObserver {
             thirdPartiesModel.resetSelectedTests();
 
             //Get admin info
-            archiveModel.updateAdminInfo(thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), xq));
+            List<String> list;
+            list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "admininfo.xq", settingsModel.prop);
+            list = archiveModel.formatDate(list);
+            archiveModel.updateAdminInfo(list);
 
             //Update view
             mainView.activateButtons();
@@ -182,14 +211,14 @@ public class ArchiveController implements ViewObserver {
     public void makeReport() {
         String format = testView.getSelectedFormat(); //#NOSONAR
 
-        rapportModel.generateReport(); // big question: (1 == 2) ? 3 : 2
+        reportModel.generateReport(); // big question: (1 == 2) ? 3 : 2
 
-        rapportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
+        reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
 
         testModel.parseReportHtml();
 
-        rapportModel.writeReportDocument();     // editing
-        rapportModel.printReportToFile();
+        reportModel.writeReportDocument();     // editing
+        reportModel.printReportToFile();
     }
 
     //When "Lagre tests" is clicked.

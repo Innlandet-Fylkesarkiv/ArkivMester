@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class TestModel {
+public class ArkadeModel {
     // Write arkade testRapport to docx
     XWPFDocument document;
     // HtmlRawText formatted
