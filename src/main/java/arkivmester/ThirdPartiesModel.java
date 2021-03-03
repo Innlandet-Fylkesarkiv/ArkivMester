@@ -1,16 +1,15 @@
 package arkivmester;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
+
+import static java.lang.Thread.sleep;
 
 /**
- * Contains the functions to run third party test tools.
- *
  * Contains multiple methods to run different third party tools to test the archive.
+ *
  * @since 1.0
  * @version 1.0
  * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen
@@ -176,28 +175,35 @@ public class ThirdPartiesModel {
 
     /**
      * Queries an .xml file via an .xq XQuery/XPath file.
-     * @param xml Path to .xml.
-     * @param xq Path to .xq.
+     * @param xml Path to .xml file.
+     * @param xqName Config key for .xq file.
+     * @param prop Properties object containing the config.
      * @return String list of the results from the query.
      */
-    public List<String> runBaseX(String xml, String xq)  {
-        String pwd = "cd \"C:\\Program Files (x86)\\BaseX\\bin\""; //NOSONAR
+    public List<String> runBaseX(String xml, String xqName, Properties prop)  {
+        String xq = prop.getProperty("xqueryExtFolder") + xqName;
+        String temp = prop.getProperty("tempFolder") + "\\xqueryResult.txt";
+        String pwd = "cd \"" + prop.getProperty("basexPath") + "\""; //NOSONAR
         List<String> result = new ArrayList<>();
 
-        ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -i " + xml + " " + xq);
+        ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o " + temp + " -i " + xml + " " + xq);
 
         try {
-            Process p = baseXBuilder.start();
+            File xqueryResult = new File(temp);
 
-            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            baseXBuilder.start();
+            sleep(1000);
 
-            String line = r.readLine();
-            while (line != null) {
-                result.add(line);
-                line = r.readLine();
+            try (BufferedReader r = new BufferedReader(new FileReader(xqueryResult))) {
+                String line = r.readLine();
+                while (line != null) {
+                    result.add(line);
+                    line = r.readLine();
+                }
             }
-            r.close();
-        } catch (IOException e) {
+
+        } catch (IOException | InterruptedException e) {
+            Thread.currentThread().interrupt();
             System.out.println(e.getMessage()); //#NOSONAR
         }
 
