@@ -31,6 +31,8 @@ public class SettingsView extends Views {
         container = cnt;
 
         //Clears container
+        if(container.getComponentCount()==4)
+            container.remove(0); //Second info panel
         container.remove(0); //Main panel
         container.remove(0); //Info panel
         container.revalidate();
