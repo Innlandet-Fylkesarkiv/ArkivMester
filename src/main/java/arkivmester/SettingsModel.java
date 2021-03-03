@@ -73,7 +73,7 @@ public class SettingsModel {
 
     /**
      * Loads the default config.priorities file from resources into Properties prop.
-     * @throws IOException Properties object could not load the input stream.
+     * @throws IOException Properties object could not load input stream.
      */
     private void loadDefaultConfig() throws IOException {
         InputStream is = getClass().getResourceAsStream("/config.properties");
@@ -83,7 +83,7 @@ public class SettingsModel {
 
     /**
      * Loads the config.priorities file from user.home into Properties prop.
-     * @throws IOException Properties object could not load the input stream because alteredCfg not found.
+     * @throws IOException Properties object could not load input stream.
      */
     private void loadAlteredConfig() throws IOException {
         try (FileInputStream fis = new FileInputStream(alteredCfg)) {
@@ -95,14 +95,13 @@ public class SettingsModel {
      * Updates a property already existing in the config.properties file in user.home.
      * @param key Property key that will be updated.
      * @param value Value to update property with.
+     * @throws IOException Properties object could write to output stream.
      */
-    public void updateConfig(String key, String value) {
+    public void updateConfig(String key, String value) throws IOException {
         prop.setProperty(key, value);
 
         try (FileOutputStream fos = new FileOutputStream(alteredCfg)){
             prop.store(fos, null);
-        } catch (IOException e) {
-            System.out.println(e.getMessage()); // #NOSONAR
         }
     }
 }

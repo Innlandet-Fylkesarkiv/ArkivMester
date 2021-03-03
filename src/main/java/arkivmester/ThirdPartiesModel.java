@@ -181,7 +181,7 @@ public class ThirdPartiesModel {
      * @return String list of the results from the query.
      */
     public List<String> runBaseX(String xml, String xqName, Properties prop)  {
-        String xq = prop.getProperty("xqueryExtFolder") + xqName;
+        String xq = prop.getProperty("xqueryExtFolder") + "\\" + xqName;
         String temp = prop.getProperty("tempFolder") + "\\xqueryResult.txt";
         String pwd = "cd \"" + prop.getProperty("basexPath") + "\""; //NOSONAR
         List<String> result = new ArrayList<>();

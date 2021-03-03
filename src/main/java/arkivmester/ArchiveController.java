@@ -47,7 +47,7 @@ public class ArchiveController implements ViewObserver {
         try {
             settingsModel.setUpSettings();
         } catch (IOException e) {
-            mainView.exceptionPopup("Kan ikke lese config.");
+            mainView.exceptionPopup("Kan ikke lese config fil.");
         }
     }
 
@@ -128,7 +128,12 @@ public class ArchiveController implements ViewObserver {
     @Override
     public void saveSettings() {
         List<String> newProp = settingsView.getNewProp();
-        settingsModel.updateConfig(newProp.get(0), newProp.get(1));
+
+        try {
+            settingsModel.updateConfig(newProp.get(0), newProp.get(1));
+        } catch (IOException e) {
+            mainView.exceptionPopup("Kan ikke skrive til config fil.");
+        }
 
         settingsView.clearContainer();
         settingsView = null;
