@@ -51,7 +51,7 @@ public class SettingsModel {
         File tempFolder = new File(userFolder.getPath() + "\\temp");
 
         if(!tempFolder.exists()) {
-            Files.createDirectory(userFolder.toPath());
+            Files.createDirectory(tempFolder.toPath());
         }
 
         updateConfig("tempFolder", tempFolder.getAbsolutePath());
