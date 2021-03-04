@@ -1,6 +1,5 @@
 package arkivmester;
 
-import org.apache.poi.xwpf.usermodel.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -14,19 +13,17 @@ import java.util.List;
 public class ArkadeModel {
     // html file at   ../Input/arkaderapportrapport.html
     String filePath = "../Input/arkaderapportrapport.html";
-    // output file at ../Output/createdocument.docx
-    String outPutFile = "../Output/createdocument.docx";
 
     // Holds text from arkade testRapport html as string
     StringBuilder htmlRawText = new StringBuilder();
 
-    /* Remove StringBuilder and XWPFDocument when all functions are used */
+    /* Remove StringBuilder and test bool when all functions are used */
     // HtmlRawText formatted for Word
     StringBuilder htmlTextFormatted = new StringBuilder();
-    // Write arkade testRapport to docx
-    XWPFDocument document;
+    /* Remove StringBuilder and test bool when all functions are used */
 
     boolean test = false;
+
     /**
      * Get Html as String, Runs all functions, Prints deviation to docx.
      * getFileToString to get the html content
@@ -34,11 +31,12 @@ public class ArkadeModel {
      */
     ArkadeModel(){
         getFileToString(filePath, htmlRawText);
-
-        parseReportHtml(); // todo remove this before push
+        parseReportHtml();
     }
 
-
+    /**
+     * Run all function. Remove after alle function are used in ArchiveController
+     */
     public void parseReportHtml(){
 
         // Html to String
@@ -48,11 +46,12 @@ public class ArkadeModel {
             for(String i: getAll()){
                 htmlTextFormatted.append(i);
             }
-            htmlTextFormatted.append(getArkadeVersion());
+            htmlTextFormatted.append(getSpecificValue("N5.10", "ArkadeTest"));
         }
         else {
             // Write to docx
-            writeToDocx();
+            htmlTextFormatted.append(getArkadeVersion());
+            htmlTextFormatted.append(getDataFromHtml("N5.03"));
         }
     }
 
@@ -112,6 +111,7 @@ public class ArkadeModel {
         Elements elements = doc.getElementsByClass(    "text-right");
         return elements.last().text();
     }
+
     /**
      * Get specific value from table
      * @param index for test class
@@ -145,7 +145,12 @@ public class ArkadeModel {
 
 
         Document doc = Jsoup.parse(htmlRawText.toString());
-        // N6.10
+
+        if(doc.getElementById(index) == null) {
+            System.out.println("No index: " + index); //NOSONAR
+            return htmlTable;
+        }
+
         Element element = doc.getElementById(index).parent();
 
         org.jsoup.select.Elements rows = element.select("tr");
@@ -161,7 +166,6 @@ public class ArkadeModel {
                 // First Column
                 if (firstColumn){
                     firstColumn = false;
-                    //htmlTable.add("Lokasjon: " + column.text());
                     htmlTable.add("" + column.text());
                 }
                 else {
@@ -171,73 +175,4 @@ public class ArkadeModel {
         }
         return htmlTable;
     }
-
-    /**
-     * Write output to docx
-     */
-    private void writeToDocx(){
-
-        try {
-            document = new XWPFDocument();
-
-            //Write the Document in file system
-            FileOutputStream out = new FileOutputStream( outPutFile);
-
-            //create Paragraph
-            XWPFParagraph paragraph = document.createParagraph();
-            XWPFRun run = paragraph.createRun();
-
-            String text = htmlTextFormatted.toString();
-
-            arkadeTestRapport(run);
-
-            document.write(out);
-            out.close();
-            System.out.println("createparagraph.docx written successfully"); //NOSONAR
-        } catch (IOException e){
-            System.out.println(e.getMessage());     //NOSONAR
-        }
-    }
-
-    public void arkadeTestRapport(XWPFRun run){
-        StringBuilder writeOut = new StringBuilder();
-        //Uttrekket er testet i Arkade 5 versjon VERSJONSNUMMER.
-        String version = "Uttrekket er testet i Arkade 5 versjon: " +
-                getArkadeVersion().replace("Arkade 5 versjon: ", "");
-        run.setText(version);
-        // New Line
-        run.addBreak();
-        run.setText("N5.02");
-        run.addBreak();
-
-        XWPFTable table = document.createTable();
-        XWPFTableRow tableRowOne = table.getRow(0);
-        tableRowOne.getCell(0).setText("col one, row one");
-        tableRowOne.addNewTableCell().setText("col two, row one");
-        //document.insertNewTbl(paragraph);
-
-        run.addBreak();
-        run.setText("N5.02");
-        run.setText("N5.02");
-
-        if(getDataFromHtml("N5.02").isEmpty()){
-            writeOut.append("Uttrekket er teknisk korrekt.\n");
-        } else {
-            // TableCode(getDataFromHtml("N5.02")) -- int liste, liste header, string liste
-        }
-        if(getDataFromHtml("N5.02").isEmpty()){
-            writeOut.append("Uttrekket er teknisk korrekt. \n");
-        } else {
-            // TableCode(getDataFromHtml("N5.02"))
-        }
-        writeOut.append(getSpecificValue("N5.06", "Arkivdelstatus"));
-        writeOut.append(getArkadeVersion());
-
-        System.out.println(writeOut);
-        for(String i : getDataFromHtml("N5.02")){
-            System.out.println(i + "\n");
-
-        }
-    }
-
 }

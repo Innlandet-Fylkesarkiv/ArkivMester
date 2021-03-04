@@ -20,7 +20,7 @@ public class ReportModel {
 
     XWPFDocument document;
     String templateFile = "src/main/resources/Dokumentmal_fylkesarkivet_Noark5_testrapport.docx";
-    String outputFile = "../Output/createdocumentTest.docx";
+    String outputFile = "../Output/createdocument.docx";
 
     List<ChapterList> chapterList = new ArrayList<>();
     private Iterator<ChapterList> chapterIterator = null;
