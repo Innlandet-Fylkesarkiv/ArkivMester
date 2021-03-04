@@ -12,7 +12,7 @@ import java.util.List;
 
 public class ArkadeModel {
     // html file at   ../Input/arkaderapportrapport.html
-    String filePath = "../Input/arkaderapportrapport.html";
+    String filePath = "C:/Prog/Input/arkaderapportrapport.html";
 
     // Holds text from arkade testreport html as string
     StringBuilder htmlRawText = new StringBuilder();

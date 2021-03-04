@@ -242,7 +242,7 @@ public class ReportModel {
 
             XWPFStyle style = styles.getStyle(p.getStyleID());
 
-            if(style.getStyleId().contains("Overskrift") || style.getStyleId().contains("heading"))
+            if(style.getStyleId().contains("Overskrift") || style.getStyleId().contains("Heading"))
             {
                 headersData.compareName(style.getName());
 
@@ -399,8 +399,10 @@ public class ReportModel {
      */
 
     public void setNewInput(List<Integer> h, List<String> inputList) {
-        for(ChapterList c : chapterList) {
-            c.setInput(h, inputList);
+        if(!inputList.isEmpty()) {
+            for(ChapterList c : chapterList) {
+                c.setInput(h, inputList);
+            }
         }
     }
 
@@ -409,8 +411,10 @@ public class ReportModel {
      */
 
     public void setNewTable(List<Integer> h, List<List<String>> tablefield) {
-        for(ChapterList c : chapterList) {
-            c.setTable(h, tablefield);
+        if(!tablefield.isEmpty()) {
+            for(ChapterList c : chapterList) {
+                c.setTable(h, tablefield);
+            }
         }
     }
 
@@ -426,8 +430,10 @@ public class ReportModel {
             temp.add(0, tableHeaders.get(i));
             ll.add(temp);
         }
-        for(ChapterList c : chapterList) {
-            c.setTable(h, ll);
+        if(!ll.isEmpty()) {
+            for(ChapterList c : chapterList) {
+                c.setTable(h, ll);
+            }
         }
     }
 
@@ -436,8 +442,10 @@ public class ReportModel {
      */
 
     public void setNewParagraph(List<Integer> h, List<String> para) {
-        for(ChapterList c : chapterList) {
-            c.setParagraph(h, para);
+        if(!para.isEmpty()) {
+            for(ChapterList c : chapterList) {
+                c.setParagraph(h, para);
+            }
         }
     }
 

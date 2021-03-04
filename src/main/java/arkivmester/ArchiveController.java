@@ -1,6 +1,7 @@
 package arkivmester;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -24,7 +25,7 @@ public class ArchiveController implements ViewObserver {
     SettingsView settingsView;
     ArchiveModel archiveModel;
     ReportModel reportModel;
-    ArkadeModel testModel;
+    ArkadeModel arkadeModel;
     ThirdPartiesModel thirdPartiesModel;
     SettingsModel settingsModel;
 
@@ -32,7 +33,7 @@ public class ArchiveController implements ViewObserver {
         mainView = new MainView();
         archiveModel = new ArchiveModel();
         reportModel = new ReportModel();
-        testModel = new ArkadeModel();
+        arkadeModel = new ArkadeModel();
         thirdPartiesModel = new ThirdPartiesModel();
         settingsModel = new SettingsModel();
     }
@@ -52,9 +53,9 @@ public class ArchiveController implements ViewObserver {
         }
     }
 
-    private void arkadeTestRapport(){
+    private void arkadeTestReport(){
         // 3 og 3.1 arkade version
-        String version = testModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
+        String version = arkadeModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
 
         reportModel.setNewInput(Arrays.asList(3, 1), Collections.singletonList(version));
         // 3.1.1
@@ -63,7 +64,7 @@ public class ArchiveController implements ViewObserver {
 
     }
     private void writeDeviation(List<Integer> kap, String index, String header1, String header2){
-        List<String> avvik = testModel.getDataFromHtml(index);
+        List<String> avvik = arkadeModel.getDataFromHtml(index);
         if (!avvik.isEmpty()) {
             reportModel.setNewTable(kap, Arrays.asList(Arrays.asList(header1, header2), avvik));
         } else {
@@ -279,8 +280,17 @@ public class ArchiveController implements ViewObserver {
 
         reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
 
-        arkadeTestRapport();
-        testModel.parseReportHtml(); // remove when all function used in testModel
+        //List<String> list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "admininfo.xq", settingsModel.prop);
+
+        List<String> list = new ArrayList<>();
+        list.addAll(thirdPartiesModel.runBaseX("C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\dias-mets.xml", "1.2_1.xq", settingsModel.prop));
+
+        System.out.print("list size: " + list);
+
+        reportModel.setNewInput(Arrays.asList(1, 2), list);
+
+        //arkadeTestRapport();
+        //arkadeModel.parseReportHtml(); // remove when all function used in testModel
 
         reportModel.writeReportDocument();     // editing
         reportModel.printReportToFile();
