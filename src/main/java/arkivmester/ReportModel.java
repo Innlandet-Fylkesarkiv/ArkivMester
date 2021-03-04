@@ -22,6 +22,8 @@ public class ReportModel {
     String templateFile = "src/main/resources/Dokumentmal_fylkesarkivet_Noark5_testrapport.docx";
     String outputFile = "../Output/createdocument.docx";
 
+    static String notFoundField = "<Fant ikke verdi>";
+
     List<ChapterList> chapterList = new ArrayList<>();
     private Iterator<ChapterList> chapterIterator = null;
     private final HeadersData headersData = new HeadersData();
@@ -33,6 +35,9 @@ public class ReportModel {
      */
 
     public static class ChapterList {
+
+        static String missingField = "<Mangler verdi>";
+
         private final List<Integer> headers;
         private List<List<String>> result;
         private String type;
@@ -44,7 +49,7 @@ public class ReportModel {
 
         ChapterList(List<Integer> h) {
             headers = h.stream().filter(t -> t > 0).collect(Collectors.toList());
-            result = Collections.singletonList(Collections.singletonList("<Mangler verdi>"));
+            result = Collections.singletonList(Collections.singletonList(missingField));
             type = "input";
             cindex = 0;
         }
@@ -56,8 +61,7 @@ public class ReportModel {
         public void setInput(List<Integer> h, List<String> inputList) {
             if(headers.equals(h)) {
                 result = Collections.singletonList(inputList);
-                result.get(0).add("<Mangler verdi>");
-                System.out.println(result);
+                result.get(0).add(missingField);
             }
         }
 
@@ -69,7 +73,7 @@ public class ReportModel {
             if(headers.equals(h)) {
                 result = tableList;
                 type = "table";
-                result.add(0, Collections.singletonList("<Mangler verdi>"));
+                result.add(0, Collections.singletonList(missingField));
             }
         }
 
@@ -81,7 +85,7 @@ public class ReportModel {
             if(headers.equals(h)) {
                 result = Collections.singletonList(inputList);
                 type = "paragraph";
-                result.add(0, Collections.singletonList("<Mangler verdi>"));
+                result.add(0, Collections.singletonList(missingField));
             }
         }
 
@@ -330,7 +334,7 @@ public class ReportModel {
     //region Description
 
     private void insertInputToDocument(String text, String input, XWPFRun r) {
-        text = text.replace("TODO", (!input.equals("") ? input : "<Fant ikke verdi>"));
+        text = text.replace("TODO", (!input.equals("") ? input : notFoundField));
         setRun(r, FONT , 11, false, text);
     }
 
@@ -339,7 +343,7 @@ public class ReportModel {
 
         XWPFParagraph para = document.insertNewParagraph(cursor);
 
-        setRun(para.createRun() , FONT , 11, false, (!input.equals("") ? input : "<Fant ikke verdi>"));
+        setRun(para.createRun() , FONT , 11, false, (!input.equals("") ? input : notFoundField));
 
         document.removeBodyElement(document.getPosOfParagraph(p));
     }
@@ -364,7 +368,7 @@ public class ReportModel {
                         FONT,
                         11,
                         (i == 0),
-                        (!cChapter.currentItem().equals("") ? cChapter.currentItem() : "<Fant ikke verdi>"));
+                        (!cChapter.currentItem().equals("") ? cChapter.currentItem() : notFoundField));
 
                 tableOneRowVersion.getCell(j).setWidth("1500");
             }

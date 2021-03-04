@@ -280,17 +280,13 @@ public class ArchiveController implements ViewObserver {
 
         reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
 
-        //List<String> list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "admininfo.xq", settingsModel.prop);
-
         List<String> list = new ArrayList<>();
         list.addAll(thirdPartiesModel.runBaseX("C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\dias-mets.xml", "1.2_1.xq", settingsModel.prop));
 
-        System.out.print("list size: " + list);
-
         reportModel.setNewInput(Arrays.asList(1, 2), list);
 
-        //arkadeTestRapport();
-        //arkadeModel.parseReportHtml(); // remove when all function used in testModel
+        arkadeTestReport();
+        arkadeModel.parseReportHtml(); // remove when all function used in testModel
 
         reportModel.writeReportDocument();     // editing
         reportModel.printReportToFile();
