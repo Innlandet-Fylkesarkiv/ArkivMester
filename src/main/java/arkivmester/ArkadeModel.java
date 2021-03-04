@@ -1,11 +1,9 @@
 package arkivmester;
 
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -13,60 +11,53 @@ import java.util.List;
 
 
 public class ArkadeModel {
-    // Write arkade testRapport to docx
-    XWPFDocument document;
-    // HtmlRawText formatted
-    List<String> htmlAllIDs = new ArrayList<>();
-    // Holds text from arkade testRapport html as string
-    StringBuilder htmlRawText = new StringBuilder();
-    // HtmlRawText formatted
-    StringBuilder htmlTextFormatted = new StringBuilder();
-
     // html file at   ../Input/arkaderapportrapport.html
     String filePath = "../Input/arkaderapportrapport.html";
-    // output file at ../Output/createdocument.docx
-    String outPutFile = "../Output/createdocument.docx";
 
-    /* Output format to docx e.g
-    N5.03
-    Type: Strukturkontroll
+    // Holds text from arkade testreport html as string
+    StringBuilder htmlRawText = new StringBuilder();
 
+    /* Remove StringBuilder and test bool when all functions are used */
+    // HtmlRawText formatted for Word
+    StringBuilder htmlTextFormatted = new StringBuilder();
+    /* Remove StringBuilder and test bool when all functions are used */
 
-    Lokasjon: arkivstruktur.xml
-
-    File location: <arkivstruktur.xml> avvik mld
-    File location: <arkivstruktur.xml> avvik mld
-
-    Lokasjon: endringslogg.xml
-
-    File location: <endringslogg.xml> avvik mld
-    File location: <> (<-"Ingen fil") avvik mld
-
-    N5.02
-    Type: Strukturkontroll  Ingen avvik funnet.
-
-     */
+    boolean test = false;
 
     /**
-     * Print all to docx
+     * Get Html as String, Runs all functions, Prints deviation to docx.
+     * GetFileToString to get the html content
+     * Remove everything except for getFileToString when all functions are used.
+     */
+    ArkadeModel(){
+
+    }
+
+    /**
+     * Get Html as String getFileToString.
+     * Run all function. Remove after all function are used in ArchiveController
      */
     public void parseReportHtml(){
         // Html to String
         getFileToString(filePath, htmlRawText);
-        // Get IDs
-        getAllIDs();
-        // Get avvik for every id
-        for (String index : htmlAllIDs){
-            getDataFromHtml(index);
+        if (test){
+            // Get deviation for every id
+            for(String i: getAll()){
+                htmlTextFormatted.append(i);
+            }
+            htmlTextFormatted.append(getSpecificValue("N5.10", "ArkadeTest"));
         }
-        // Write to docx
-        writeToDocx();
+        else {
+            // Write to docx
+            htmlTextFormatted.append(getArkadeVersion());
+            htmlTextFormatted.append(getDataFromHtml("N5.03"));
+        }
     }
 
     /**
-     * Get html as string
-     * @param filePath FilePath to arkade Testrapport html
-     * @param htmlTextHolder Text holder
+     * Get arkade testreport as string
+     * @param filePath filePath to arkade testreport html
+     * @param htmlTextHolder text holder
      */
     private void getFileToString(String filePath,  StringBuilder htmlTextHolder){
         try (FileReader fr = new FileReader(filePath);
@@ -80,30 +71,89 @@ public class ArkadeModel {
             System.out.println(ex.getMessage()); //NOSONAR
         }
     }
-    private void getAllIDs () {
+
+    /**
+     * Get all IDs from arkade TestReport
+     * @return List of deviation IDs
+     */
+    private List<String> getAllIDs () {
+        // All IDs
+        List<String> htmlAllIDs = new ArrayList<>();
         Document doc = Jsoup.parse(htmlRawText.toString());
 
         for (org.jsoup.nodes.Element elementx : doc.select("h3")){
             htmlAllIDs.add( elementx.attr("id"));
         }
+        return htmlAllIDs;
     }
+
     /**
-     * Get issues from arkade testRapport html
-     * @param index Index for arkade issues
+     * Get all IDs, Get deviation for every ID
+     * @return all deviation in file testreport
      */
-    public void getDataFromHtml(String index){
+    private List<String> getAll () {
+        List<String> htmlTable = new ArrayList<>();
+        // Get deviation for every id
+        for (String index : getAllIDs()){
+            htmlTable.addAll(getDataFromHtml(index));
+        }
+        return htmlTable;
+    }
+
+    /**
+     * Get arkade version.
+     * @return arkade version
+     */
+    public String getArkadeVersion(){
+        Document doc = Jsoup.parse(htmlRawText.toString());
+        Elements elements = doc.getElementsByClass("text-right");
+        return elements.last().text();
+    }
+
+    /**
+     * Get specific value from deviation table
+     * @param index for test class
+     * @param containsValue value to get
+     * @return one element with containsValue or error message
+     */
+    public String getSpecificValue(String index, String containsValue){
+        String htmlValue = "Can't find " + containsValue;
+        int nrOfElements = 0;
+        for(String i : getDataFromHtml(index)){
+            if(i.contains(containsValue)){
+                htmlValue = i;
+                nrOfElements++;
+            }
+        }
+        if (nrOfElements>1){
+            htmlValue = "More than 1 element with " + containsValue;
+        }
+        return  htmlValue;
+    }
+
+    /**
+     * Get deviation table by ID
+     * @param index ID for test class
+     * @return List where every other element contains
+     *      File Location and Arkade deviation or emptyList if no deviation table
+     */
+    public List<String> getDataFromHtml(String index){
+
+        // reset list
+        List<String> htmlTable = new ArrayList<>();
+
 
         Document doc = Jsoup.parse(htmlRawText.toString());
 
-        htmlTextFormatted.append(index).append("\n");
+        if(doc.getElementById(index) == null) {
+            System.out.println("No index: " + index); //NOSONAR
+            return htmlTable;
+        }
+
         Element element = doc.getElementById(index).parent();
-        // p: "Type: Strukturkontroll" and "Ingen avvik funnet" if noe mistakes found.
-        htmlTextFormatted.append(element.select("p").text()).append("\n\n");
 
         org.jsoup.select.Elements rows = element.select("tr");
 
-
-        String location = "";
 
         for(org.jsoup.nodes.Element row :rows){
 
@@ -114,59 +164,14 @@ public class ArkadeModel {
             {
                 // First Column
                 if (firstColumn){
-                    // First Column changed
-                    if (!location.contains(column.text())) {
-                        location = column.text();
-                        htmlTextFormatted.append("\n").append("Lokasjon: ").append(location).append("\n");
-                    }
                     firstColumn = false;
-                    htmlTextFormatted.append("\n").append("File location: <").append(column.text()).append("> ");
+                    htmlTable.add("" + column.text());
                 }
                 else {
-                    htmlTextFormatted.append(column.text()).append("\n");
+                    htmlTable.add(column.text());
                 }
             }
         }
-
-
-        //System.out.println(htmlTextFormatted.toString()); //NOSONAR
-
+        return htmlTable;
     }
-    /**
-     * Write output to docx
-     */
-    private void writeToDocx(){
-
-        try {
-            document = new XWPFDocument();
-
-            //Write the Document in file system
-            FileOutputStream out = new FileOutputStream( outPutFile);
-
-            //create Paragraph
-            XWPFParagraph paragraph = document.createParagraph();
-            XWPFRun run = paragraph.createRun();
-
-            String text = htmlTextFormatted.toString();
-
-            if (text.contains("\n")) { //NOSONAR
-                String[] lines = text.split("\n");
-                run.setText(lines[0], 0); // set first line into XWPFRun
-                for(int i=1;i<lines.length;i++){
-                    // add break and insert new text
-                    run.addBreak();
-                    run.setText(lines[i]);
-                }
-            } else {
-                run.setText(text, 0);
-            }
-
-            document.write(out);
-            out.close();
-            System.out.println("createparagraph.docx written successfully"); //NOSONAR
-        } catch (IOException e){
-            System.out.println(e.getMessage());     //NOSONAR
-        }
-    }
-
 }

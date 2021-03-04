@@ -20,7 +20,7 @@ public class ReportModel {
 
     XWPFDocument document;
     String templateFile = "src/main/resources/Dokumentmal_fylkesarkivet_Noark5_testrapport.docx";
-    String outputFile = "C:/prog/Output/report_template.docx";
+    String outputFile = "../Output/createdocument.docx";
 
     List<ChapterList> chapterList = new ArrayList<>();
     private Iterator<ChapterList> chapterIterator = null;
@@ -242,7 +242,7 @@ public class ReportModel {
 
             XWPFStyle style = styles.getStyle(p.getStyleID());
 
-            if(style.getStyleId().contains("Overskrift"))
+            if(style.getStyleId().contains("Overskrift") || style.getStyleId().contains("heading"))
             {
                 headersData.compareName(style.getName());
 
@@ -288,7 +288,7 @@ public class ReportModel {
      */
 
     private boolean foundNewHeader(XWPFParagraph p) {
-        return (p.getStyle() != null && p.getStyleID().contains("Overskrift"));
+        return (p.getStyle() != null && (p.getStyleID().contains("Overskrift") || p.getStyleID().contains("Heading")));
     }
 
     /**

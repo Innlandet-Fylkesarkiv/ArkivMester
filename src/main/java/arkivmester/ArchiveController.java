@@ -1,6 +1,7 @@
 package arkivmester;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -48,6 +49,25 @@ public class ArchiveController implements ViewObserver {
             settingsModel.setUpSettings();
         } catch (IOException e) {
             mainView.exceptionPopup("Kan ikke lese config fil.");
+        }
+    }
+
+    private void arkadeTestRapport(){
+        // 3 og 3.1 arkade version
+        String version = testModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
+
+        reportModel.setNewInput(Arrays.asList(3, 1), Collections.singletonList(version));
+        // 3.1.1
+        writeDeviation(Arrays.asList(3, 1, 1),"N5.01", "Lokasjon", "Avvik");
+        writeDeviation(Arrays.asList(3, 1, 1),"N5.02", "Lokasjon2", "Avvik2");
+
+    }
+    private void writeDeviation(List<Integer> kap, String index, String header1, String header2){
+        List<String> avvik = testModel.getDataFromHtml(index);
+        if (!avvik.isEmpty()) {
+            reportModel.setNewTable(kap, Arrays.asList(Arrays.asList(header1, header2), avvik));
+        } else {
+            reportModel.setNewInput(kap, Collections.singletonList("Uttrekket er teknisk korrekt."));
         }
     }
 
@@ -259,11 +279,13 @@ public class ArchiveController implements ViewObserver {
 
         reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
 
-        testModel.parseReportHtml();
+        arkadeTestRapport();
+        testModel.parseReportHtml(); // remove when all function used in testModel
 
         reportModel.writeReportDocument();     // editing
         reportModel.printReportToFile();
     }
+
 
     //When "Lagre tests" is clicked.
     @Override
