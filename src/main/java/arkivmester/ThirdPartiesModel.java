@@ -41,6 +41,8 @@ public class ThirdPartiesModel {
      * Report from the tests gets put in the output folder.
      *
      * @param path A file that contains the archive that is to be tested.
+     * @param prop Properties object containing the config.
+     * @throws IOException Cannot run program.
      */
     public void runArkadeTest(File path, Properties prop) throws IOException {
 
@@ -75,6 +77,8 @@ public class ThirdPartiesModel {
      * Report from the test gets moved from the user folder to an output folder.
      *
      * @param path A string that contains the path to the archive that is to be tested
+     * @param prop Properties object containing the config.
+     * @throws IOException Cannot run program.
      */
     public void runKostVal(String path, Properties prop) throws IOException {
 
@@ -122,6 +126,8 @@ public class ThirdPartiesModel {
      * Runs VeraPDF through command line. The report gets put in an output folder.
      *
      * @param path A string that contains the path to the archive that is to be tested
+     * @param prop Properties object containing the config.
+     * @throws IOException Cannot run program.
      */
     public void runVeraPDF(String path, Properties prop) throws IOException {
 
@@ -143,6 +149,8 @@ public class ThirdPartiesModel {
      * Runs DROID through command line. Creates four different files and places them in a folder.
      *
      * @param path A string that contains the path to the archive to be tested.
+     * @param prop Properties object containing the config.
+     * @throws IOException Cannot run program.
      */
     public void runDROID(String path, Properties prop) throws IOException {
 
@@ -218,6 +226,8 @@ public class ThirdPartiesModel {
      * Runs 7Zip through command line and unzips the archive.
      *
      * @param path A file that contains the archive to be unzipped
+     * @param prop Properties object containing the config.
+     * @throws IOException Cannot run program.
      */
     public void unzipArchive(File path, Properties prop) throws IOException {
 
@@ -254,7 +264,7 @@ public class ThirdPartiesModel {
     public List<String> runBaseX(String xml, String xqName, Properties prop)  {
         String xq = prop.getProperty("xqueryExtFolder") + "\\" + xqName;
         String temp = prop.getProperty("tempFolder") + "\\xqueryResult.txt";
-        String pwd = "cd \"" + prop.getProperty("basexPath") + "\""; //NOSONAR
+        String pwd = cdString + prop.getProperty("basexPath") + "\""; //NOSONAR
         List<String> result = new ArrayList<>();
 
         ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o " + temp + " -i " + xml + " " + xq);

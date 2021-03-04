@@ -54,9 +54,9 @@ public class SettingsView extends Views {
     private void setUpCfgPanel(JPanel cfgPanel, Properties prop) {
         //Grid
         JPanel gridPanel = new JPanel(new GridBagLayout());
+        //JScrollPane gridPanel = new JScrollPane(gridPane);
         gridPanel.setBorder(new EmptyBorder(0, 0, 300, 600));
         gridPanel.setBackground(Color.WHITE);
-
         JLabel infoLabel = new JLabel("Alle program lokasjoner:");
         infoLabel.setFont(primaryFont);
 
@@ -141,7 +141,8 @@ public class SettingsView extends Views {
         gbc.gridx++;
         gridPanel.add(cancelInfoBtn, gbc);
 
-        cfgPanel.add(gridPanel);
+        JScrollPane gridPane = new JScrollPane(gridPanel);
+        cfgPanel.add(gridPane);
     }
 
     /**
