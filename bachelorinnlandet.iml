@@ -28,9 +28,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="lib" level="project" />
-    <orderEntry type="library" name="bachelorinnlandet" level="project" />
-    <orderEntry type="library" name="jsoup" level="project" />
     <orderEntry type="module-library" scope="TEST">
       <library name="JUnit5.4">
         <CLASSES>

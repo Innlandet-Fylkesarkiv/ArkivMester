@@ -79,6 +79,7 @@ public class ArchiveController implements ViewObserver {
         testView.createAndShowGUI(mainView.getContainer());
         mainView.toggleEditInfoBtn();
 
+        //Schedule the runTests function to give the UI time to update before tests are run.
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.submit(this::runTests);
 
@@ -91,36 +92,70 @@ public class ArchiveController implements ViewObserver {
     private void runTests() {
         List<Boolean> selectedTests = thirdPartiesModel.getSelectedTests();
         String fileName = archiveModel.tar.getName();
-        fileName = fileName.substring(0,fileName.lastIndexOf('.'));
+        //fileName = fileName.substring(0,fileName.lastIndexOf('.'));
+        String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument";
+        //Should use the one below, but takes too long
+        //String docPath = settingsModel.prop.getProperty("7ZipOutput") + fileName + "\\content\\dokument";
 
-        thirdPartiesModel.unzipArchive(archiveModel.tar);
+        //Unzips .tar folder with the archive.
+        try {
+            thirdPartiesModel.unzipArchive(archiveModel.tar, settingsModel.prop);
+        }catch (IOException e) {
+            System.out.println(e.getMessage()); //NOSONAR
+            mainView.exceptionPopup("Kunne ikke unzippe arkivet, prøv igjen.");
+        }
         System.out.println("\n\tArchive unzipped\n"); //NOSONAR
 
-
+        //Run tests depending on if they are selected or not.
         if(Boolean.TRUE.equals(selectedTests.get(0))) {
             System.out.print("\nRunning arkade\n"); //NOSONAR
             testView.updateArkadeStatus(TestView.RUNNING);
-            thirdPartiesModel.runArkadeTest(archiveModel.tar);
+            try {
+
+                thirdPartiesModel.runArkadeTest(archiveModel.tar, settingsModel.prop);
+
+            } catch (IOException e) {
+                System.out.println(e.getMessage()); //NOSONAR
+                mainView.exceptionPopup("Arkade test feilet, prøv igjen.");
+
+            }
             System.out.println("\n\tArkade test finished\n"); //NOSONAR
             testView.updateArkadeStatus(TestView.DONE);
         }
         if(Boolean.TRUE.equals(selectedTests.get(1))) {
             System.out.println("\nRunning DROID\n"); //NOSONAR
             testView.updateDroidStatus(TestView.RUNNING);
+            try {
+                thirdPartiesModel.runDROID(docPath, settingsModel.prop);
+            } catch (IOException e) {
+                System.out.println(e.getMessage()); //NOSONAR
+                mainView.exceptionPopup("DROID test feilet, prøv igjen.");
+            }
+            System.out.println("\n\tDROID finished\n"); //NOSONAR
             testView.updateDroidStatus(TestView.DONE);
 
         }
         if(Boolean.TRUE.equals(selectedTests.get(2))) {
             System.out.print("\nRunning Kost-Val\n"); //NOSONAR
             testView.updateKostValStatus(TestView.RUNNING);
-            thirdPartiesModel.runKostVal("C:\\archive\\" + "test" + "\\pakke\\content\\dokument");
+            try {
+                thirdPartiesModel.runKostVal(docPath, settingsModel.prop);
+            }catch (IOException e) {
+                System.out.println(e.getMessage()); //NOSONAR
+                mainView.exceptionPopup("Kost-Val test feilet, prøv igjen.");
+            }
             System.out.println("\n\tKost-Val test finished\n"); //NOSONAR
             testView.updateKostValStatus(TestView.DONE);
         }
         if(Boolean.TRUE.equals(selectedTests.get(3))) {
             System.out.print("\nRunning VeraPDF\n"); //NOSONAR
             testView.updateVeraStatus(TestView.RUNNING);
-            thirdPartiesModel.runVeraPDF("C:\\archive\\" + fileName + "\\content\\dokument");
+            try {
+                thirdPartiesModel.runVeraPDF(docPath, settingsModel.prop);
+            } catch (IOException e) {
+                System.out.println(e.getMessage()); //NOSONAR
+                mainView.exceptionPopup("VeraPDF test feilet, prøv igjen");
+            }
             System.out.println("\n\tVeraPDF test finished\n"); //NOSONAR
             testView.updateVeraStatus(TestView.DONE);
         }

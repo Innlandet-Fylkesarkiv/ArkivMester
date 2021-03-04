@@ -7,6 +7,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class ArchiveControllerTest {
 
     @Test
-    void start() { // #NOSONAR
+    void start() {
     }
 }
