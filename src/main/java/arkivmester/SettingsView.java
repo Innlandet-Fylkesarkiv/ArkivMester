@@ -31,6 +31,8 @@ public class SettingsView extends Views {
         container = cnt;
 
         //Clears container
+        if(container.getComponentCount()==4)
+            container.remove(0); //Second info panel
         container.remove(0); //Main panel
         container.remove(0); //Info panel
         container.revalidate();
@@ -56,6 +58,9 @@ public class SettingsView extends Views {
         JPanel gridPanel = new JPanel(new GridBagLayout());
         gridPanel.setBorder(new EmptyBorder(0, 0, 300, 600));
         gridPanel.setBackground(Color.WHITE);
+
+        JLabel infoLabel = new JLabel("Alle program lokasjoner:");
+        infoLabel.setFont(primaryFont);
 
         int rows = prop.size();
 
@@ -88,7 +93,8 @@ public class SettingsView extends Views {
         saveInfoBtn.setBackground(primaryColor);
         saveInfoBtn.setForeground(Color.WHITE);
 
-        JButton cancelInfoBtn = new JButton("Avbryt");
+        JButton cancelInfoBtn = new JButton("Tilbake");
+        cancelInfoBtn.setActionCommand("Avbryt");
         cancelInfoBtn.addActionListener(this);
         cancelInfoBtn.setBackground(primaryColor);
         cancelInfoBtn.setForeground(Color.WHITE);
@@ -98,6 +104,12 @@ public class SettingsView extends Views {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10,0,0,10);
 
+        gbc.gridwidth = 2;
+        gridPanel.add(infoLabel, gbc);
+
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+
         //Col 1
         for(int i = 0; i<rows; i++) {
             gridPanel.add(keys.get(i), gbc);
@@ -106,7 +118,7 @@ public class SettingsView extends Views {
 
         //Col 2
         gbc.gridx++;
-        gbc.gridy = 0;
+        gbc.gridy = 1;
 
         for(int i = 0; i<rows; i++) {
             gridPanel.add(values.get(i), gbc);
@@ -115,7 +127,7 @@ public class SettingsView extends Views {
 
         //Col 3
         gbc.gridx++;
-        gbc.gridy = 0;
+        gbc.gridy = 1;
 
         for(int i = 0; i<rows; i++) {
             gridPanel.add(buttons.get(i), gbc);

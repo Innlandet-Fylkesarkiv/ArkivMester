@@ -62,7 +62,7 @@ public class TestSettingsView extends Views {
      */
     private void setUpTestsPanel(JPanel testsPanel) {
         //Title
-        JLabel testsTitle = new JLabel("Tester som skal kjøres");
+        JLabel testsTitle = new JLabel("Tester som skal kjøres:");
         testsTitle.setFont(primaryFont);
 
         //Checkboxes

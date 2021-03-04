@@ -1,5 +1,6 @@
 package arkivmester;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -43,8 +44,11 @@ public class ArchiveController implements ViewObserver {
         mainView.createAndShowGUI();
         mainView.addObserver(this);
 
-        if(Boolean.FALSE.equals(settingsModel.setUpSettings()))
-            System.out.println("Kan ikke lese config"); // #NOSONAR
+        try {
+            settingsModel.setUpSettings();
+        } catch (IOException e) {
+            mainView.exceptionPopup("Kan ikke lese config fil.");
+        }
     }
 
     private void arkadeTestRapport(){
@@ -135,6 +139,7 @@ public class ArchiveController implements ViewObserver {
     //When "Innstillinger" is clicked.
     @Override
     public void openSettings() {
+        cancelButton();
         settingsView = new SettingsView();
         settingsView.addObserver(this);
         settingsView.createAndShowGUI(mainView.getContainer(), settingsModel.prop);
@@ -143,7 +148,12 @@ public class ArchiveController implements ViewObserver {
     @Override
     public void saveSettings() {
         List<String> newProp = settingsView.getNewProp();
-        settingsModel.updateConfig(newProp.get(0), newProp.get(1));
+
+        try {
+            settingsModel.updateConfig(newProp.get(0), newProp.get(1));
+        } catch (IOException e) {
+            mainView.exceptionPopup("Kan ikke skrive til config fil.");
+        }
 
         settingsView.clearContainer();
         settingsView = null;
@@ -210,8 +220,7 @@ public class ArchiveController implements ViewObserver {
             thirdPartiesModel.resetSelectedTests();
 
             //Get admin info
-            List<String> list;
-            list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "admininfo.xq", settingsModel.prop);
+            List<String> list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "admininfo.xq", settingsModel.prop);
             list = archiveModel.formatDate(list);
             archiveModel.updateAdminInfo(list);
 
@@ -221,7 +230,7 @@ public class ArchiveController implements ViewObserver {
         }
         //Faulty folder
         else if(success == 0) {
-            System.out.println("Mappen inneholder ikke .tar og .xml");//#NOSONAR
+            mainView.exceptionPopup("Mappen inneholder ikke .tar og .xml");
         }
     }
 
