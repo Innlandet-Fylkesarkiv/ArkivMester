@@ -28,7 +28,7 @@ public class ArkadeModel {
 
     boolean test = false;
     /**
-     * Get Html as String, Runs all functions, Prints avvik to docx.
+     * Get Html as String, Runs all functions, Prints deviation to docx.
      * getFileToString to get the html content
      * Remove everything except for getFileToString when all functions are used.
      */
@@ -44,7 +44,7 @@ public class ArkadeModel {
         // Html to String
         getFileToString(filePath, htmlRawText);
         if (test){
-            // Get avvik for every id
+            // Get deviation for every id
             for(String i: getAll()){
                 htmlTextFormatted.append(i);
             }
@@ -54,10 +54,8 @@ public class ArkadeModel {
             // Write to docx
             writeToDocx();
         }
-
-
-
     }
+
     /**
      * Get html as string
      * @param filePath FilePath to arkade Testrapport html
@@ -75,6 +73,7 @@ public class ArkadeModel {
             System.out.println(ex.getMessage()); //NOSONAR
         }
     }
+
     /**
      * Get all IDs from arkade TestRapport
      * @return List<String> AllIDs
@@ -89,18 +88,20 @@ public class ArkadeModel {
         }
         return htmlAllIDs;
     }
+
     /**
-     * Get AllIDS, Get avvik for every ID
-     * @return List<String> all avvik in testRapport
+     * Get AllIDS, Get deviation for every ID
+     * @return List<String> all deviation in testRapport
      */
     private List<String> getAll () {
         List<String> htmlTable = new ArrayList<>();
-        // Get avvik for every id
+        // Get deviation for every id
         for (String index : getAllIDs()){
             htmlTable.addAll(getDataFromHtml(index));
         }
         return htmlTable;
     }
+
     /**
      * Get arkade versjon.
      * classes with class name: text-right THAN last element
@@ -131,9 +132,11 @@ public class ArkadeModel {
         }
         return  htmlValue;
     }
+
     /**
+     * Get deviation table by ID
      * @param index ID for test class
-     * @return String list<String> (File Lokasjon, Arkade avvik) or emptyList if noe avvik
+     * @return String list<String> (File Lokasjon, Arkade deviation) or emptyList if noe deviation
      */
     public List<String> getDataFromHtml(String index){
 
@@ -142,7 +145,7 @@ public class ArkadeModel {
 
 
         Document doc = Jsoup.parse(htmlRawText.toString());
-
+        // N6.10
         Element element = doc.getElementById(index).parent();
 
         org.jsoup.select.Elements rows = element.select("tr");
@@ -158,7 +161,8 @@ public class ArkadeModel {
                 // First Column
                 if (firstColumn){
                     firstColumn = false;
-                    htmlTable.add("Lokasjon: " + column.text());
+                    //htmlTable.add("Lokasjon: " + column.text());
+                    htmlTable.add("" + column.text());
                 }
                 else {
                     htmlTable.add(column.text());
@@ -167,6 +171,7 @@ public class ArkadeModel {
         }
         return htmlTable;
     }
+
     /**
      * Write output to docx
      */
@@ -197,7 +202,8 @@ public class ArkadeModel {
     public void arkadeTestRapport(XWPFRun run){
         StringBuilder writeOut = new StringBuilder();
         //Uttrekket er testet i Arkade 5 versjon VERSJONSNUMMER.
-        String version = "Uttrekket er testet i Arkade 5 versjon: " + getArkadeVersion().replace("Arkade 5 versjon: ", "");
+        String version = "Uttrekket er testet i Arkade 5 versjon: " +
+                getArkadeVersion().replace("Arkade 5 versjon: ", "");
         run.setText(version);
         // New Line
         run.addBreak();
@@ -218,7 +224,6 @@ public class ArkadeModel {
             writeOut.append("Uttrekket er teknisk korrekt.\n");
         } else {
             // TableCode(getDataFromHtml("N5.02")) -- int liste, liste header, string liste
-
         }
         if(getDataFromHtml("N5.02").isEmpty()){
             writeOut.append("Uttrekket er teknisk korrekt. \n");

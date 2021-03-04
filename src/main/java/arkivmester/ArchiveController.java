@@ -47,6 +47,25 @@ public class ArchiveController implements ViewObserver {
             System.out.println("Kan ikke lese config"); // #NOSONAR
     }
 
+    private void arkadeTestRapport(){
+        // 3 og 3.1 arkade version
+        String version = testModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
+
+        reportModel.setNewInput(Arrays.asList(3, 1), Arrays.asList(version));
+        // 3.1.1
+        writeDeviation(Arrays.asList(3, 1, 1),"N5.01", "Lokasjon", "Avvik");
+        //writeDeviation(Arrays.asList(3, 1, 1),"N5.02", "Lokasjon", "Avvik");
+
+    }
+    private void writeDeviation(List<Integer> kap, String index, String header1, String header2){
+        List<String> avvik = testModel.getDataFromHtml(index);
+        if (!avvik.isEmpty()) {
+            reportModel.setNewTable(kap, Arrays.asList(Arrays.asList(header1, header2), avvik));
+        } else {
+            reportModel.setNewInput(kap, Arrays.asList("Uttrekket er teknisk korrekt."));
+        }
+    }
+
     //When "Start testing" is clicked.
     @Override
     public void testStarted() {
@@ -215,11 +234,13 @@ public class ArchiveController implements ViewObserver {
 
         reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
 
+        arkadeTestRapport();
         testModel.parseReportHtml();
 
         reportModel.writeReportDocument();     // editing
         reportModel.printReportToFile();
     }
+
 
     //When "Lagre tests" is clicked.
     @Override
