@@ -14,7 +14,7 @@ public class ArkadeModel {
     // html file at   ../Input/arkaderapportrapport.html
     String filePath = "../Input/arkaderapportrapport.html";
 
-    // Holds text from arkade testRapport html as string
+    // Holds text from arkade testreport html as string
     StringBuilder htmlRawText = new StringBuilder();
 
     /* Remove StringBuilder and test bool when all functions are used */
@@ -26,19 +26,18 @@ public class ArkadeModel {
 
     /**
      * Get Html as String, Runs all functions, Prints deviation to docx.
-     * getFileToString to get the html content
+     * GetFileToString to get the html content
      * Remove everything except for getFileToString when all functions are used.
      */
     ArkadeModel(){
-        getFileToString(filePath, htmlRawText);
-        parseReportHtml();
+
     }
 
     /**
-     * Run all function. Remove after alle function are used in ArchiveController
+     * Get Html as String getFileToString.
+     * Run all function. Remove after all function are used in ArchiveController
      */
     public void parseReportHtml(){
-
         // Html to String
         getFileToString(filePath, htmlRawText);
         if (test){
@@ -56,9 +55,9 @@ public class ArkadeModel {
     }
 
     /**
-     * Get html as string
-     * @param filePath FilePath to arkade Testrapport html
-     * @param htmlTextHolder Text holder
+     * Get arkade testreport as string
+     * @param filePath filePath to arkade testreport html
+     * @param htmlTextHolder text holder
      */
     private void getFileToString(String filePath,  StringBuilder htmlTextHolder){
         try (FileReader fr = new FileReader(filePath);
@@ -74,8 +73,8 @@ public class ArkadeModel {
     }
 
     /**
-     * Get all IDs from arkade TestRapport
-     * @return List<String> AllIDs
+     * Get all IDs from arkade TestReport
+     * @return List of deviation IDs
      */
     private List<String> getAllIDs () {
         // All IDs
@@ -89,8 +88,8 @@ public class ArkadeModel {
     }
 
     /**
-     * Get AllIDS, Get deviation for every ID
-     * @return List<String> all deviation in testRapport
+     * Get all IDs, Get deviation for every ID
+     * @return all deviation in file testreport
      */
     private List<String> getAll () {
         List<String> htmlTable = new ArrayList<>();
@@ -102,18 +101,17 @@ public class ArkadeModel {
     }
 
     /**
-     * Get arkade versjon.
-     * classes with class name: text-right THAN last element
-     * @return arkade versjon
+     * Get arkade version.
+     * @return arkade version
      */
     public String getArkadeVersion(){
         Document doc = Jsoup.parse(htmlRawText.toString());
-        Elements elements = doc.getElementsByClass(    "text-right");
+        Elements elements = doc.getElementsByClass("text-right");
         return elements.last().text();
     }
 
     /**
-     * Get specific value from table
+     * Get specific value from deviation table
      * @param index for test class
      * @param containsValue value to get
      * @return one element with containsValue or error message
@@ -136,7 +134,8 @@ public class ArkadeModel {
     /**
      * Get deviation table by ID
      * @param index ID for test class
-     * @return String list<String> (File Lokasjon, Arkade deviation) or emptyList if noe deviation
+     * @return List where every other element contains
+     *      File Location and Arkade deviation or emptyList if no deviation table
      */
     public List<String> getDataFromHtml(String index){
 
