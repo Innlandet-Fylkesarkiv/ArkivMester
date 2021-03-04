@@ -1,6 +1,7 @@
 package arkivmester;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -27,6 +28,8 @@ public class ArchiveController implements ViewObserver {
     ArkadeModel testModel;
     ThirdPartiesModel thirdPartiesModel;
     SettingsModel settingsModel;
+
+    ArrayList<String> attachments = new ArrayList<>();
 
     ArchiveController() {
         mainView = new MainView();
@@ -71,20 +74,10 @@ public class ArchiveController implements ViewObserver {
         }
     }
 
-    //When "Start testing" is clicked.
-    @Override
-    public void testStarted() {
-        testView = new TestView();
-        testView.addObserver(this);
-        testView.createAndShowGUI(mainView.getContainer());
-        mainView.toggleEditInfoBtn();
-
-        //Schedule the runTests function to give the UI time to update before tests are run.
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.submit(this::runTests);
-
-        testView.updateTestStatus(TestView.TESTDONE);
+    private void writeChapterFive() {
+        reportModel.setNewInput(Arrays.asList(1, 2),attachments);
     }
+
 
     /**
      * Unzips the archive and runs the selected tests.
@@ -121,6 +114,8 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tArkade test finished\n"); //NOSONAR
             testView.updateArkadeStatus(TestView.DONE);
+            attachments.add("Arkade Rapport");
+
         }
         if(Boolean.TRUE.equals(selectedTests.get(1))) {
             System.out.println("\nRunning DROID\n"); //NOSONAR
@@ -133,6 +128,7 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tDROID finished\n"); //NOSONAR
             testView.updateDroidStatus(TestView.DONE);
+            attachments.add("Droid rapport");
 
         }
         if(Boolean.TRUE.equals(selectedTests.get(2))) {
@@ -146,6 +142,7 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tKost-Val test finished\n"); //NOSONAR
             testView.updateKostValStatus(TestView.DONE);
+            attachments.add("Kost-val rapport");
         }
         if(Boolean.TRUE.equals(selectedTests.get(3))) {
             System.out.print("\nRunning VeraPDF\n"); //NOSONAR
@@ -158,8 +155,27 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tVeraPDF test finished\n"); //NOSONAR
             testView.updateVeraStatus(TestView.DONE);
+            attachments.add("VeraPDF rapport");
         }
+        System.out.println("\nTesting Ferdig\n"); //NOSONAR
     }
+
+    //When "Start testing" is clicked.
+    @Override
+    public void testStarted() {
+        testView = new TestView();
+        testView.addObserver(this);
+        testView.createAndShowGUI(mainView.getContainer());
+        mainView.toggleEditInfoBtn();
+
+        //Schedule the runTests function to give the UI time to update before tests are run.
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.submit(this::runTests);
+
+        testView.updateTestStatus(TestView.TESTDONE);
+    }
+
+
 
     //When "Test nytt uttrekk" is clicked.
     @Override
@@ -279,8 +295,9 @@ public class ArchiveController implements ViewObserver {
 
         reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
 
-        arkadeTestRapport();
-        testModel.parseReportHtml(); // remove when all function used in testModel
+        //arkadeTestRapport();
+        writeChapterFive();
+        //testModel.parseReportHtml(); // remove when all function used in testModel
 
         reportModel.writeReportDocument();     // editing
         reportModel.printReportToFile();
