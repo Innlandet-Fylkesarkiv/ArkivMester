@@ -56,6 +56,8 @@ public class ReportModel {
         public void setInput(List<Integer> h, List<String> inputList) {
             if(headers.equals(h)) {
                 result = Collections.singletonList(inputList);
+                result.get(0).add("<Mangler verdi>");
+                System.out.println(result);
             }
         }
 
@@ -67,6 +69,7 @@ public class ReportModel {
             if(headers.equals(h)) {
                 result = tableList;
                 type = "table";
+                result.add(0, Collections.singletonList("<Mangler verdi>"));
             }
         }
 
@@ -78,6 +81,7 @@ public class ReportModel {
             if(headers.equals(h)) {
                 result = Collections.singletonList(inputList);
                 type = "paragraph";
+                result.add(0, Collections.singletonList("<Mangler verdi>"));
             }
         }
 
@@ -153,24 +157,20 @@ public class ReportModel {
             boolean hit = false;
 
             if(headerMap.computeIfPresent(other, (k, v) -> v+1) != null) {
-                //System.out.println(other + ": ");                   // NOSONAR
                 hit = true;
                 int temp = name.size()-1;
                 String currentName = name.get(temp);
                 while(!other.equals(currentName)) {
-                    //System.out.println(currentName + " removed!");  // NOSONAR
                     headerMap.put(currentName, 0);
                     currentName = name.get(--temp);
                 }
             }
-            //headerMap.forEach((k, v) -> System.out.println("\t" + k + " " + v));    // NOSONAR
 
             while(name.size() > headerMap.size()) {
                 name.remove(name.size()-1);
             }
 
             if(!hit) {
-                //System.out.println(other + " added!");                              // NOSONAR
                 headerMap.put(other, 1);
                 name.add(other);
             }
@@ -330,7 +330,7 @@ public class ReportModel {
     //region Description
 
     private void insertInputToDocument(String text, String input, XWPFRun r) {
-        text = text.replace("TODO", input);
+        text = text.replace("TODO", (!input.equals("") ? input : "<Fant ikke verdi>"));
         setRun(r, FONT , 11, false, text);
     }
 
@@ -339,7 +339,7 @@ public class ReportModel {
 
         XWPFParagraph para = document.insertNewParagraph(cursor);
 
-        setRun(para.createRun() , FONT , 11, false, input);
+        setRun(para.createRun() , FONT , 11, false, (!input.equals("") ? input : "<Fant ikke verdi>"));
 
         document.removeBodyElement(document.getPosOfParagraph(p));
     }
@@ -359,7 +359,13 @@ public class ReportModel {
                     tableOneRowVersion.addNewTableCell();
                 }
                 paragraph = tableOneRowVersion.getCell(j).addParagraph();
-                setRun(paragraph.createRun() , FONT, 11, (i == 0), cChapter.currentItem());
+                setRun(
+                        paragraph.createRun(),
+                        FONT,
+                        11,
+                        (i == 0),
+                        (!cChapter.currentItem().equals("") ? cChapter.currentItem() : "<Fant ikke verdi>"));
+
                 tableOneRowVersion.getCell(j).setWidth("1500");
             }
         }
