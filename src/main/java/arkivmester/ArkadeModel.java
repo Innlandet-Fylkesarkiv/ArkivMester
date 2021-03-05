@@ -106,6 +106,10 @@ public class ArkadeModel {
      */
     public String getArkadeVersion(){
         Document doc = Jsoup.parse(htmlRawText.toString());
+        if(doc.getElementsByClass("text-right") == null) {
+            System.out.println("Can't find ArkadeVersion"); //NOSONAR
+            return null;
+        }
         Elements elements = doc.getElementsByClass("text-right");
         return elements.last().text();
     }

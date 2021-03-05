@@ -279,8 +279,8 @@ public class ArchiveController implements ViewObserver {
 
         reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
 
-        arkadeTestRapport();
         testModel.parseReportHtml(); // remove when all function used in testModel
+        arkadeTestRapport();
 
         reportModel.writeReportDocument();     // editing
         reportModel.printReportToFile();
