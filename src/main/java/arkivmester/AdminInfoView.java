@@ -52,8 +52,8 @@ public class AdminInfoView extends Views {
     private void setUpGridPanel(JPanel gridPanel) {
         int rows = 8;
 
-        JLabel infoLabel = new JLabel("Rediger administrativ informasjon:");
-        infoLabel.setFont(primaryFont);
+        JLabel editAdminInfoTitle = new JLabel("Rediger administrativ informasjon:");
+        editAdminInfoTitle.setFont(primaryFont);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -80,10 +80,10 @@ public class AdminInfoView extends Views {
         saveInfoBtn.setBackground(primaryColor);
         saveInfoBtn.setForeground(Color.WHITE);
 
-        JButton cancelInfoBtn = new JButton("Avbryt");
-        cancelInfoBtn.addActionListener(this);
-        cancelInfoBtn.setBackground(primaryColor);
-        cancelInfoBtn.setForeground(Color.WHITE);
+        JButton cancelAdminInfo = new JButton("Avbryt");
+        cancelAdminInfo.addActionListener(this);
+        cancelAdminInfo.setBackground(primaryColor);
+        cancelAdminInfo.setForeground(Color.WHITE);
 
         //Adding components together
         gbc.anchor = GridBagConstraints.EAST;
@@ -91,7 +91,7 @@ public class AdminInfoView extends Views {
         gbc.insets = new Insets(10,0,0,10);
 
         gbc.gridwidth = 2;
-        gridPanel.add(infoLabel, gbc);
+        gridPanel.add(editAdminInfoTitle, gbc);
 
         gbc.gridy++;
         gbc.gridwidth = 1;
@@ -127,7 +127,7 @@ public class AdminInfoView extends Views {
 
         gridPanel.add(saveInfoBtn, gbc);
         gbc.gridy++;
-        gridPanel.add(cancelInfoBtn, gbc);
+        gridPanel.add(cancelAdminInfo, gbc);
     }
 
     /**

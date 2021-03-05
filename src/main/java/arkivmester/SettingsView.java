@@ -18,7 +18,7 @@ import java.util.Properties;
  */
 public class SettingsView extends Views {
     private Container container;
-    JButton saveInfoBtn;
+    JButton saveSettingsBtn;
     List<JLabel> keys = new ArrayList<>();
     List<JLabel> values = new ArrayList<>();
     List<JButton> buttons = new ArrayList<>();
@@ -56,11 +56,11 @@ public class SettingsView extends Views {
     private void setUpCfgPanel(JPanel cfgPanel, Properties prop) {
         //Grid
         JPanel gridPanel = new JPanel(new GridBagLayout());
-        //JScrollPane gridPanel = new JScrollPane(gridPane);
         gridPanel.setBorder(new EmptyBorder(0, 0, 300, 600));
         gridPanel.setBackground(Color.WHITE);
-        JLabel infoLabel = new JLabel("Alle program lokasjoner:");
-        infoLabel.setFont(primaryFont);
+
+        JLabel configTitle = new JLabel("Alle program lokasjoner:");
+        configTitle.setFont(primaryFont);
 
         int rows = prop.size();
 
@@ -87,17 +87,17 @@ public class SettingsView extends Views {
         gbc.gridy = 0;
 
         //Buttons
-        saveInfoBtn = new JButton("Lagre innstillinger");
-        saveInfoBtn.addActionListener(this);
-        saveInfoBtn.setEnabled(false);
-        saveInfoBtn.setBackground(primaryColor);
-        saveInfoBtn.setForeground(Color.WHITE);
+        saveSettingsBtn = new JButton("Lagre innstillinger");
+        saveSettingsBtn.addActionListener(this);
+        saveSettingsBtn.setEnabled(false);
+        saveSettingsBtn.setBackground(primaryColor);
+        saveSettingsBtn.setForeground(Color.WHITE);
 
-        JButton cancelInfoBtn = new JButton("Tilbake");
-        cancelInfoBtn.setActionCommand("Avbryt");
-        cancelInfoBtn.addActionListener(this);
-        cancelInfoBtn.setBackground(primaryColor);
-        cancelInfoBtn.setForeground(Color.WHITE);
+        JButton cancelCfg = new JButton("Tilbake");
+        cancelCfg.setActionCommand("Avbryt");
+        cancelCfg.addActionListener(this);
+        cancelCfg.setBackground(primaryColor);
+        cancelCfg.setForeground(Color.WHITE);
 
         //Adding components together
         gbc.anchor = GridBagConstraints.EAST;
@@ -105,7 +105,7 @@ public class SettingsView extends Views {
         gbc.insets = new Insets(10,0,0,10);
 
         gbc.gridwidth = 2;
-        gridPanel.add(infoLabel, gbc);
+        gridPanel.add(configTitle, gbc);
 
         gbc.gridy++;
         gbc.gridwidth = 1;
@@ -139,9 +139,9 @@ public class SettingsView extends Views {
 
         gbc.gridy++;
         gbc.gridx = 0;
-        gridPanel.add(saveInfoBtn, gbc);
+        gridPanel.add(saveSettingsBtn, gbc);
         gbc.gridx++;
-        gridPanel.add(cancelInfoBtn, gbc);
+        gridPanel.add(cancelCfg, gbc);
 
         JScrollPane gridPane = new JScrollPane(gridPanel);
         cfgPanel.add(gridPane);
@@ -172,7 +172,7 @@ public class SettingsView extends Views {
             newPropKV.add(value);
             values.get(Integer.parseInt(row)).setText(value);
 
-            saveInfoBtn.setEnabled(true);
+            saveSettingsBtn.setEnabled(true);
         } else {
             System.out.println("Cancelling choosing new path");//#NOSONAR
         }
