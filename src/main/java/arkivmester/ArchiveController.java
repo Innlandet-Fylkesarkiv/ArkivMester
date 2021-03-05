@@ -65,7 +65,7 @@ public class ArchiveController implements ViewObserver {
         if (!avvik.isEmpty()) {
             reportModel.setNewTable(kap, Arrays.asList(Arrays.asList(header1, header2), avvik));
         } else {
-            reportModel.setNewInput(kap, Collections.singletonList("Uttrekket er teknisk korrekt."));
+            reportModel.setNewParagraph(kap, Collections.singletonList("Uttrekket er teknisk korrekt."));
         }
     }
 
