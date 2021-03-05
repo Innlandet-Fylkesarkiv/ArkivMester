@@ -107,7 +107,7 @@ public class ArkadeModel {
     public String getArkadeVersion(){
         Document doc = Jsoup.parse(htmlRawText.toString());
         Elements elements = doc.getElementsByClass("text-right");
-        return elements.text();
+        return elements.last().text();
     }
 
     /**
