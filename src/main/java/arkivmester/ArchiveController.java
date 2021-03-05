@@ -1,12 +1,9 @@
 package arkivmester;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.Arrays;
 
 /**
  * Serves as the link between the views and the models.
@@ -280,8 +277,19 @@ public class ArchiveController implements ViewObserver {
 
         reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
 
+        Map<String, String> map = new LinkedHashMap<>();
+
+        map.put("1.2_1.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\dias-mets.xml");
+        map.put("1.2_2.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\arkivuttrekk.xml");
+        map.put("1.2_3.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\loependeJournal.xml");
+        map.put("1.2_4.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\offentligJournal.xml");
+        map.put("1.2_5.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\arkivstruktur.xml");
+
         List<String> list = new ArrayList<>();
-        list.addAll(thirdPartiesModel.runBaseX("C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\dias-mets.xml", "1.2_1.xq", settingsModel.prop));
+
+        for(Map.Entry<String, String> entry : map.entrySet()) {
+            list.addAll(thirdPartiesModel.runBaseX(entry.getValue(), entry.getKey(), settingsModel.prop));
+        }
 
         reportModel.setNewInput(Arrays.asList(1, 2), list);
 

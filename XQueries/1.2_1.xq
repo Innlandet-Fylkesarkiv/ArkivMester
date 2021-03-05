@@ -6,6 +6,6 @@ let $aarmottatt := ""
 
 let $startdato := xh:mets/xh:metsHdr/xh:altRecordID[@TYPE="STARTDATE"]/text()
 
-let $sluttdato := xh:mets/xh:metsHdr/xh:altRecordID[@TYPE="ENDDATE"]/text()
+let $sluttdato := xh:mets/xh:metsHdr/concat(xh:altRecordID[@TYPE="ENDDATE"]/text(), '<ENDDATE>')
 
 return ($kommune, $aarmottatt, $startdato, $sluttdato)
