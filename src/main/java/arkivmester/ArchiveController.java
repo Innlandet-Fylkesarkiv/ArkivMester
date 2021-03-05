@@ -89,11 +89,11 @@ public class ArchiveController implements ViewObserver {
      */
     private void runTests() {
         List<Boolean> selectedTests = thirdPartiesModel.getSelectedTests();
-        String fileName = archiveModel.tar.getName();
-        //fileName = fileName.substring(0,fileName.lastIndexOf('.'));
+        String fileName = archiveModel.tar.getName();                                   // NOSONAR
+        //fileName = fileName.substring(0,fileName.lastIndexOf('.'));                   // NOSONAR
         String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument";
         //Should use the one below, but takes too long
-        //String docPath = settingsModel.prop.getProperty("7ZipOutput") + fileName + "\\content\\dokument";
+        //String docPath = settingsModel.prop.getProperty("7ZipOutput") + fileName + "\\content\\dokument"; // NOSONAR
 
         //Unzips .tar folder with the archive.
         try {
