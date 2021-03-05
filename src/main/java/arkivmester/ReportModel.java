@@ -60,8 +60,8 @@ public class ReportModel {
 
         public void setInput(List<Integer> h, List<String> inputList) {
             if(headers.equals(h)) {
-                result = Collections.singletonList(inputList);
-                result.get(0).add(missingField);
+                result = new ArrayList<>();
+                result.add(0, inputList);
             }
         }
 
