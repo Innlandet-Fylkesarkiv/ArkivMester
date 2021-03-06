@@ -60,8 +60,10 @@ public class ArchiveController implements ViewObserver {
         writeDeviation(Arrays.asList(3, 1, 1),"N5.01", "Lokasjon", "Avvik");
         writeDeviation(Arrays.asList(3, 1, 1),"N5.02", "Lokasjon2", "Avvik2");
 
+
     }
-    private void writeDeviation(List<Integer> kap, String index, String header1, String header2){
+
+    private void writeDeviation(List<Integer> kap, String index, String header1, String header2) {
         List<String> avvik = arkadeModel.getDataFromHtml(index);
         if (!avvik.isEmpty()) {
             reportModel.setNewTable(kap, Arrays.asList(Arrays.asList(header1, header2), avvik));
@@ -293,6 +295,26 @@ public class ArchiveController implements ViewObserver {
         }
 
         reportModel.setNewInput(Arrays.asList(1, 2), list);
+        //Alle arkiverte registreringer har dokumentbeskrivelser.
+        //ANTALL registreringer er tomme og uten dokumenter, men da alle disse er arkivert og dette er et fysisk uttrekk godkjennes dette.
+        //ANTALL registreringer er tomme og uten dokumenter, og er lagt til som vedlegg.
+
+        String para = thirdPartiesModel.runBaseX(
+                "C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\arkivstruktur.xml",
+                "3.1.11.xq",
+                settingsModel.prop).get(0);
+
+        // 3.1.11_case1 = "Alle arkiverte registreringer har dokumentbeskrivelser.";
+        // 3.1.11_case2 = " registreringer er tomme og uten dokumenter, men da alle disse er " +
+        //                "arkivert og dette er et fysisk uttrekk godkjennes dette.";
+        // 3.1.11_case3 = "registreringer er tomme og uten dokumenter, og er lagt til som vedlegg."
+
+        //para += properties(3.1.11_case2);
+
+        para += " registreringer er tomme og uten dokumenter, men da alle disse er " +
+                "arkivert og dette er et fysisk uttrekk godkjennes dette.";
+
+        reportModel.setNewParagraph(Arrays.asList(3, 1, 11), Arrays.asList(para));
 
         //arkadeModel.parseReportHtml(); // remove when all function used in testModel
         arkadeTestReport();
