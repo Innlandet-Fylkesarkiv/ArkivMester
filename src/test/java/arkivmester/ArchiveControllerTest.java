@@ -6,5 +6,6 @@ class ArchiveControllerTest {
 
     @Test
     void start() {              // NOSONAR
+
     }
 }

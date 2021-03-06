@@ -51,6 +51,7 @@ public class ArchiveController implements ViewObserver {
     }
 
     private void arkadeTestReport(){
+        arkadeModel.parseReportHtml(); // remove when all function used in testModel
         // 3 og 3.1 arkade version
         String version = arkadeModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
 
@@ -293,7 +294,7 @@ public class ArchiveController implements ViewObserver {
 
         reportModel.setNewInput(Arrays.asList(1, 2), list);
 
-        arkadeModel.parseReportHtml(); // remove when all function used in testModel
+        //arkadeModel.parseReportHtml(); // remove when all function used in testModel
         arkadeTestReport();
 
         reportModel.writeReportDocument();     // editing
