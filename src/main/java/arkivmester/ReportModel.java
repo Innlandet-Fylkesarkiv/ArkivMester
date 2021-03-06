@@ -399,8 +399,8 @@ public class ReportModel {
     /**
      * Replace old inputs with a paragraph
      */
-    public void setNewParagraph(List<Integer> h, List<String> para) {
-        setNewChapter(h, Collections.singletonList(para), TextStyle.PARAGRAPH);
+    public void setNewParagraph(List<Integer> h, String para) {
+        setNewChapter(h, Collections.singletonList(Collections.singletonList(para)), TextStyle.PARAGRAPH);
     }
 
     private void setNewChapter(List<Integer> h, List<List<String>> input, TextStyle type) {

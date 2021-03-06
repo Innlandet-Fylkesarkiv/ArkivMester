@@ -1,5 +1,8 @@
 package arkivmester;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -25,6 +28,7 @@ public class ArchiveController implements ViewObserver {
     ArkadeModel arkadeModel;
     ThirdPartiesModel thirdPartiesModel;
     SettingsModel settingsModel;
+    Properties chapterProp;
 
     ArchiveController() {
         mainView = new MainView();
@@ -33,6 +37,13 @@ public class ArchiveController implements ViewObserver {
         arkadeModel = new ArkadeModel();
         thirdPartiesModel = new ThirdPartiesModel();
         settingsModel = new SettingsModel();
+
+        chapterProp = new Properties();
+        try {
+            chapterProp.load(new FileInputStream(new File("src/main/resources/chapterOutput.properties")));
+        } catch (NullPointerException | IOException e) {
+            System.out.println(e.getMessage());         // NOSONAR
+        }
     }
 
     /**
@@ -68,7 +79,7 @@ public class ArchiveController implements ViewObserver {
         if (!avvik.isEmpty()) {
             reportModel.setNewTable(kap, Arrays.asList(Arrays.asList(header1, header2), avvik));
         } else {
-            reportModel.setNewParagraph(kap, Collections.singletonList("Uttrekket er teknisk korrekt."));
+            reportModel.setNewParagraph(kap, "Uttrekket er teknisk korrekt.");
         }
     }
 
@@ -304,17 +315,16 @@ public class ArchiveController implements ViewObserver {
                 "3.1.11.xq",
                 settingsModel.prop).get(0);
 
-        // 3.1.11_case1 = "Alle arkiverte registreringer har dokumentbeskrivelser.";
+            // 3.1.11_case1 = "Alle arkiverte registreringer har dokumentbeskrivelser.";
         // 3.1.11_case2 = " registreringer er tomme og uten dokumenter, men da alle disse er " +
         //                "arkivert og dette er et fysisk uttrekk godkjennes dette.";
         // 3.1.11_case3 = "registreringer er tomme og uten dokumenter, og er lagt til som vedlegg."
 
         //para += properties(3.1.11_case2);
 
-        para += " registreringer er tomme og uten dokumenter, men da alle disse er " +
-                "arkivert og dette er et fysisk uttrekk godkjennes dette.";
+        para = String.format(chapterProp.getProperty("3.1.11_case2"), para);
 
-        reportModel.setNewParagraph(Arrays.asList(3, 1, 11), Arrays.asList(para));
+        reportModel.setNewParagraph(Arrays.asList(3, 1, 11), para);
 
         //arkadeModel.parseReportHtml(); // remove when all function used in testModel
         arkadeTestReport();
