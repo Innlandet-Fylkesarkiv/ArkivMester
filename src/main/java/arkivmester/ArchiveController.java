@@ -315,16 +315,18 @@ public class ArchiveController implements ViewObserver {
                 "3.1.11.xq",
                 settingsModel.prop).get(0);
 
-            // 3.1.11_case1 = "Alle arkiverte registreringer har dokumentbeskrivelser.";
-        // 3.1.11_case2 = " registreringer er tomme og uten dokumenter, men da alle disse er " +
-        //                "arkivert og dette er et fysisk uttrekk godkjennes dette.";
-        // 3.1.11_case3 = "registreringer er tomme og uten dokumenter, og er lagt til som vedlegg."
-
-        //para += properties(3.1.11_case2);
-
         para = String.format(chapterProp.getProperty("3.1.11_case2"), para);
 
         reportModel.setNewParagraph(Arrays.asList(3, 1, 11), para);
+
+        List<String> temp = thirdPartiesModel.runBaseX(
+                "C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\arkivstruktur.xml",
+                "3.1.13.xq",
+                settingsModel.prop);
+
+        para = String.format(chapterProp.getProperty("3.1.13_case2_1"), temp.size());
+
+        reportModel.setNewParagraph(Arrays.asList(3, 1, 13), para);
 
         //arkadeModel.parseReportHtml(); // remove when all function used in testModel
         arkadeTestReport();
