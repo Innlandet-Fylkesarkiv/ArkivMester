@@ -75,7 +75,7 @@ public class ArchiveController implements ViewObserver {
     }
 
     private void writeChapterFive() {
-        reportModel.setNewInput(Arrays.asList(1, 2),attachments);
+        reportModel.setNewInput(Arrays.asList(5),attachments);
     }
 
 
