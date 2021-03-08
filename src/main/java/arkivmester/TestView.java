@@ -215,8 +215,8 @@ public class TestView extends Views{
      */
     public void updateTestStatus(String status) {
         testStatus.setText(status);
-        if(status.equals(DONE))
-            arkadeStatus.setForeground(Color.GREEN);
+        if(status.equals(TESTDONE))
+            testStatus.setForeground(Color.GREEN);
     }
 
     /**
