@@ -1,13 +1,10 @@
 package arkivmester;
 
 import java.io.IOException;
-<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-=======
 import java.util.*;
->>>>>>> 07a5c15f3606eb4019eb9dcfe3794b1ddc614feb
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -80,6 +77,7 @@ public class ArchiveController implements ViewObserver {
 
     private void writeChapterFive() {
         reportModel.setNewInput(Arrays.asList(5),attachments);
+        reportModel.setNewParagraph(Arrays.asList(5), attachments);
     }
 
 
@@ -118,7 +116,6 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tArkade test finished\n"); //NOSONAR
             testView.updateArkadeStatus(TestView.DONE);
-            attachments.add("Arkade Rapport");
 
         }
         if(Boolean.TRUE.equals(selectedTests.get(1))) {
@@ -146,7 +143,7 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tKost-Val test finished\n"); //NOSONAR
             testView.updateKostValStatus(TestView.DONE);
-            attachments.add("Kost-val rapport");
+            attachments.add("Kost-val testrapport");
         }
         if(Boolean.TRUE.equals(selectedTests.get(3))) {
             System.out.print("\nRunning VeraPDF\n"); //NOSONAR
@@ -159,7 +156,7 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tVeraPDF test finished\n"); //NOSONAR
             testView.updateVeraStatus(TestView.DONE);
-            attachments.add("VeraPDF rapport");
+            attachments.add("VeraPDF testrapport");
         }
         System.out.println("\nTesting Ferdig\n"); //NOSONAR
     }
@@ -299,11 +296,8 @@ public class ArchiveController implements ViewObserver {
 
         reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
 
-<<<<<<< HEAD
-        //arkadeTestRapport();
-        writeChapterFive();
+
         //testModel.parseReportHtml(); // remove when all function used in testModel
-=======
         Map<String, String> map = new LinkedHashMap<>();
 
         map.put("1.2_1.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\dias-mets.xml");
@@ -321,8 +315,8 @@ public class ArchiveController implements ViewObserver {
         reportModel.setNewInput(Arrays.asList(1, 2), list);
 
         //arkadeModel.parseReportHtml(); // remove when all function used in testModel
-        arkadeTestReport();
->>>>>>> 07a5c15f3606eb4019eb9dcfe3794b1ddc614feb
+        //arkadeTestReport();
+        writeChapterFive();
 
         reportModel.writeReportDocument();     // editing
         reportModel.printReportToFile();
