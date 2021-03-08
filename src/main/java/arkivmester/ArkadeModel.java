@@ -26,7 +26,7 @@ public class ArkadeModel {
 
     /**
      * Get Html as String, Runs all functions, Prints deviation to docx.
-     * GetFileToString to get the html content
+     * GetFileToString to get the html content.
      * Remove everything except for getFileToString when all functions are used.
      */
     ArkadeModel(){
@@ -35,7 +35,7 @@ public class ArkadeModel {
 
     /**
      * Get Html as String getFileToString.
-     * Run all function. Remove after all function are used in ArchiveController
+     * Run all function. Remove after all function are used in ArchiveController.
      */
     public void parseReportHtml(){
         // Html to String
@@ -49,17 +49,17 @@ public class ArkadeModel {
         }
         else {
             // Write to docx
-            htmlTextFormatted.append(getArkadeVersion());
-            htmlTextFormatted.append(getDataFromHtml("N5.03"));
+            System.out.println(htmlTextFormatted); //NOSONAR
         }
     }
 
     /**
-     * Get arkade testreport as string
-     * @param filePath filePath to arkade testreport html
-     * @param htmlTextHolder text holder
+     * Get arkade testreport as string.
+     * @param filePath filePath to arkade testreport html.
+     * @param htmlTextHolder text holder.
      */
     private void getFileToString(String filePath,  StringBuilder htmlTextHolder){
+        //prop.getProperty("arkadeOutput") tmp files in arkadeMaster mappe
         try (FileReader fr = new FileReader(filePath);
              BufferedReader br = new BufferedReader(fr)) {
 
@@ -73,8 +73,8 @@ public class ArkadeModel {
     }
 
     /**
-     * Get all IDs from arkade TestReport
-     * @return List of deviation IDs
+     * Get all IDs from arkade Testreport.
+     * @return List of deviation IDs.
      */
     private List<String> getAllIDs () {
         // All IDs
@@ -88,8 +88,8 @@ public class ArkadeModel {
     }
 
     /**
-     * Get all IDs, Get deviation for every ID
-     * @return all deviation in file testreport
+     * Get all IDs, Get deviation for every ID.
+     * @return all deviation in file testreport.
      */
     private List<String> getAll () {
         List<String> htmlTable = new ArrayList<>();
@@ -102,22 +102,26 @@ public class ArkadeModel {
 
     /**
      * Get arkade version.
-     * @return arkade version
+     * @return arkade version.
      */
     public String getArkadeVersion(){
         Document doc = Jsoup.parse(htmlRawText.toString());
+        if(doc.getElementsByClass("text-right") == null) {
+            System.out.println("Can't find ArkadeVersion"); //NOSONAR
+            return "";
+        }
         Elements elements = doc.getElementsByClass("text-right");
         return elements.last().text();
     }
 
     /**
-     * Get specific value from deviation table
-     * @param index for test class
-     * @param containsValue value to get
-     * @return one element with containsValue or error message
+     * Get specific value from deviation table.
+     * @param index for test class.
+     * @param containsValue value to get.
+     * @return one element with containsValue or error message.
      */
     public String getSpecificValue(String index, String containsValue){
-        String htmlValue = "Can't find " + containsValue;
+        String htmlValue = "";
         int nrOfElements = 0;
         for(String i : getDataFromHtml(index)){
             if(i.contains(containsValue)){
@@ -126,16 +130,20 @@ public class ArkadeModel {
             }
         }
         if (nrOfElements>1){
-            htmlValue = "More than 1 element with " + containsValue;
+            htmlValue = "";
+            System.out.println("More than 1 element with " + containsValue); //NOSONAR
+        }
+        else if (nrOfElements == 0) {
+            System.out.println("Can't find deviation with: " + containsValue); //NOSONAR
         }
         return  htmlValue;
     }
 
     /**
-     * Get deviation table by ID
-     * @param index ID for test class
-     * @return List where every other element contains
-     *      File Location and Arkade deviation or emptyList if no deviation table
+     * Get deviation table by ID.
+     * @param index ID for test class.
+     * @return List where every other element contains.
+     *      File Location and Arkade deviation or emptyList if no deviation table.
      */
     public List<String> getDataFromHtml(String index){
 

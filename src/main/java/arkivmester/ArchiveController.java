@@ -1,12 +1,15 @@
 package arkivmester;
 
 import java.io.IOException;
+<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+=======
+import java.util.*;
+>>>>>>> 07a5c15f3606eb4019eb9dcfe3794b1ddc614feb
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.Arrays;
 
 /**
  * Serves as the link between the views and the models.
@@ -25,7 +28,7 @@ public class ArchiveController implements ViewObserver {
     SettingsView settingsView;
     ArchiveModel archiveModel;
     ReportModel reportModel;
-    ArkadeModel testModel;
+    ArkadeModel arkadeModel;
     ThirdPartiesModel thirdPartiesModel;
     SettingsModel settingsModel;
 
@@ -35,7 +38,7 @@ public class ArchiveController implements ViewObserver {
         mainView = new MainView();
         archiveModel = new ArchiveModel();
         reportModel = new ReportModel();
-        testModel = new ArkadeModel();
+        arkadeModel = new ArkadeModel();
         thirdPartiesModel = new ThirdPartiesModel();
         settingsModel = new SettingsModel();
     }
@@ -55,9 +58,10 @@ public class ArchiveController implements ViewObserver {
         }
     }
 
-    private void arkadeTestRapport(){
+    private void arkadeTestReport(){
+        arkadeModel.parseReportHtml(); // remove when all function used in testModel
         // 3 og 3.1 arkade version
-        String version = testModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
+        String version = arkadeModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
 
         reportModel.setNewInput(Arrays.asList(3, 1), Collections.singletonList(version));
         // 3.1.1
@@ -66,7 +70,7 @@ public class ArchiveController implements ViewObserver {
 
     }
     private void writeDeviation(List<Integer> kap, String index, String header1, String header2){
-        List<String> avvik = testModel.getDataFromHtml(index);
+        List<String> avvik = arkadeModel.getDataFromHtml(index);
         if (!avvik.isEmpty()) {
             reportModel.setNewTable(kap, Arrays.asList(Arrays.asList(header1, header2), avvik));
         } else {
@@ -84,11 +88,11 @@ public class ArchiveController implements ViewObserver {
      */
     private void runTests() {
         List<Boolean> selectedTests = thirdPartiesModel.getSelectedTests();
-        String fileName = archiveModel.tar.getName();
-        //fileName = fileName.substring(0,fileName.lastIndexOf('.'));
+        String fileName = archiveModel.tar.getName();                                   // NOSONAR
+        //fileName = fileName.substring(0,fileName.lastIndexOf('.'));                   // NOSONAR
         String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument";
         //Should use the one below, but takes too long
-        //String docPath = settingsModel.prop.getProperty("7ZipOutput") + fileName + "\\content\\dokument";
+        //String docPath = settingsModel.prop.getProperty("7ZipOutput") + fileName + "\\content\\dokument"; // NOSONAR
 
         //Unzips .tar folder with the archive.
         try {
@@ -295,9 +299,30 @@ public class ArchiveController implements ViewObserver {
 
         reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
 
+<<<<<<< HEAD
         //arkadeTestRapport();
         writeChapterFive();
         //testModel.parseReportHtml(); // remove when all function used in testModel
+=======
+        Map<String, String> map = new LinkedHashMap<>();
+
+        map.put("1.2_1.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\dias-mets.xml");
+        map.put("1.2_2.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\arkivuttrekk.xml");
+        map.put("1.2_3.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\loependeJournal.xml");
+        map.put("1.2_4.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\offentligJournal.xml");
+        map.put("1.2_5.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\arkivstruktur.xml");
+
+        List<String> list = new ArrayList<>();
+
+        for(Map.Entry<String, String> entry : map.entrySet()) {
+            list.addAll(thirdPartiesModel.runBaseX(entry.getValue(), entry.getKey(), settingsModel.prop));
+        }
+
+        reportModel.setNewInput(Arrays.asList(1, 2), list);
+
+        //arkadeModel.parseReportHtml(); // remove when all function used in testModel
+        arkadeTestReport();
+>>>>>>> 07a5c15f3606eb4019eb9dcfe3794b1ddc614feb
 
         reportModel.writeReportDocument();     // editing
         reportModel.printReportToFile();
