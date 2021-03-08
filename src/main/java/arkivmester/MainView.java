@@ -3,6 +3,8 @@ package arkivmester;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,6 +82,12 @@ public class MainView extends Views{
     public void createFrame(){
         //Frame properties
         f = new JFrame("ArkivMester");
+
+        URL url = ClassLoader.getSystemResource("appicon.png");
+        Toolkit kit = Toolkit.getDefaultToolkit();
+        Image img = kit.createImage(url);
+        f.setIconImage(img);
+
         f.setSize(windowWidth, windowHeight);
         f.setVisible(true);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //#NOSONAR
