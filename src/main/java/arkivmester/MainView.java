@@ -27,6 +27,7 @@ public class MainView extends Views{
     private JButton chooseTestsBtn;
     private JButton startTestingBtn;
     private JButton writeReportBtn;
+    private JButton settingsBtn;
 
     //Info field list
     List<JTextArea> valueList = new ArrayList<>();
@@ -100,7 +101,7 @@ public class MainView extends Views{
      */
     private void setUpTopPanel(JPanel topPanel) {
         //Top panel buttons
-        JButton settingsBtn = new JButton("Innstillinger");
+        settingsBtn = new JButton("Innstillinger");
         settingsBtn.addActionListener(this);
         settingsBtn.setBackground(Color.WHITE);
 
@@ -338,5 +339,12 @@ public class MainView extends Views{
      */
     public void exceptionPopup(String msg) {
         JOptionPane.showMessageDialog(null, msg, "Feil", JOptionPane.ERROR_MESSAGE);
+    }
+
+    /**
+     * Deactivates the settings button if activated and vice versa.
+     */
+    public void toggleSettingsBtn() {
+        settingsBtn.setEnabled(!settingsBtn.isEnabled());
     }
 }
