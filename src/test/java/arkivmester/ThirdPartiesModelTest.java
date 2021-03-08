@@ -28,7 +28,7 @@ class ThirdPartiesModelTest {
 
     @Test
     void resetSelectedTests() {
-        
+
     }
 
     @Test

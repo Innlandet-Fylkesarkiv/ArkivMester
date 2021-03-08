@@ -65,6 +65,7 @@ public class ArchiveController implements ViewObserver {
         writeDeviation(Arrays.asList(3, 1, 1),"N5.01", "Lokasjon", "Avvik");
         writeDeviation(Arrays.asList(3, 1, 1),"N5.02", "Lokasjon2", "Avvik2");
 
+
     }
     private void writeDeviation(List<Integer> kap, String index, String header1, String header2){
         List<String> avvik = arkadeModel.getDataFromHtml(index);
@@ -317,6 +318,12 @@ public class ArchiveController implements ViewObserver {
         //arkadeModel.parseReportHtml(); // remove when all function used in testModel
         //arkadeTestReport();
         writeChapterFive();
+        if(arkadeModel.getFileToString(settingsModel.prop)){
+            arkadeTestReport();
+        }
+        else {
+            System.out.println("Can't get testreport html "); //NOSONAR
+        }
 
         reportModel.writeReportDocument();     // editing
         reportModel.printReportToFile();
