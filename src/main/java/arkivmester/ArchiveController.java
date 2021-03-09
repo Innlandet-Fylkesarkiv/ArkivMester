@@ -76,6 +76,9 @@ public class ArchiveController implements ViewObserver {
         }
     }
 
+    /**
+     * Adds attacments to chapter five in the report.
+     */
     private void writeChapterFive() {
         reportModel.setNewInput(Arrays.asList(5),attachments);
         reportModel.setNewParagraph(Arrays.asList(5), attachments);
