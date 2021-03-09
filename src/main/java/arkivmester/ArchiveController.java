@@ -82,21 +82,6 @@ public class ArchiveController implements ViewObserver {
         }
     }
 
-    //When "Start testing" is clicked.
-    @Override
-    public void testStarted() {
-        testView = new TestView();
-        testView.addObserver(this);
-        testView.createAndShowGUI(mainView.getContainer());
-        mainView.toggleEditInfoBtn();
-
-        //Schedule the runTests function to give the UI time to update before tests are run.
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.submit(this::runTests);
-
-        testView.updateTestStatus(TestView.TESTDONE);
-    }
-
     /**
      * Unzips the archive and runs the selected tests.
      */
@@ -118,6 +103,7 @@ public class ArchiveController implements ViewObserver {
         System.out.println("\n\tArchive unzipped\n"); //NOSONAR
 
         //Run tests depending on if they are selected or not.
+        //Arkade
         if(Boolean.TRUE.equals(selectedTests.get(0))) {
             System.out.print("\nRunning arkade\n"); //NOSONAR
             testView.updateArkadeStatus(TestView.RUNNING);
@@ -133,31 +119,8 @@ public class ArchiveController implements ViewObserver {
             System.out.println("\n\tArkade test finished\n"); //NOSONAR
             testView.updateArkadeStatus(TestView.DONE);
         }
-        if(Boolean.TRUE.equals(selectedTests.get(1))) {
-            System.out.println("\nRunning DROID\n"); //NOSONAR
-            testView.updateDroidStatus(TestView.RUNNING);
-            try {
-                thirdPartiesModel.runDROID(docPath, settingsModel.prop);
-            } catch (IOException e) {
-                System.out.println(e.getMessage()); //NOSONAR
-                mainView.exceptionPopup("DROID test feilet, prøv igjen.");
-            }
-            System.out.println("\n\tDROID finished\n"); //NOSONAR
-            testView.updateDroidStatus(TestView.DONE);
 
-        }
-        if(Boolean.TRUE.equals(selectedTests.get(2))) {
-            System.out.print("\nRunning Kost-Val\n"); //NOSONAR
-            testView.updateKostValStatus(TestView.RUNNING);
-            try {
-                thirdPartiesModel.runKostVal(docPath, settingsModel.prop);
-            }catch (IOException e) {
-                System.out.println(e.getMessage()); //NOSONAR
-                mainView.exceptionPopup("Kost-Val test feilet, prøv igjen.");
-            }
-            System.out.println("\n\tKost-Val test finished\n"); //NOSONAR
-            testView.updateKostValStatus(TestView.DONE);
-        }
+        //VeraPDF
         if(Boolean.TRUE.equals(selectedTests.get(3))) {
             System.out.print("\nRunning VeraPDF\n"); //NOSONAR
             testView.updateVeraStatus(TestView.RUNNING);
@@ -170,6 +133,52 @@ public class ArchiveController implements ViewObserver {
             System.out.println("\n\tVeraPDF test finished\n"); //NOSONAR
             testView.updateVeraStatus(TestView.DONE);
         }
+
+        //KostVal
+        if(Boolean.TRUE.equals(selectedTests.get(2))) {
+            System.out.print("\nRunning Kost-Val\n"); //NOSONAR
+            testView.updateKostValStatus(TestView.RUNNING);
+            try {
+                thirdPartiesModel.runKostVal(docPath, settingsModel.prop);
+            }catch (IOException e) {
+                System.out.println(e.getMessage()); //NOSONAR
+                mainView.exceptionPopup("Kost-Val test feilet, prøv igjen.");
+            }
+            System.out.println("\n\tKost-Val test finished\n"); //NOSONAR
+            testView.updateKostValStatus(TestView.DONE);
+        }
+
+        //DROID
+        if(Boolean.TRUE.equals(selectedTests.get(1))) {
+            System.out.println("\nRunning DROID\n"); //NOSONAR
+            testView.updateDroidStatus(TestView.RUNNING);
+            try {
+                thirdPartiesModel.runDROID(docPath, settingsModel.prop);
+            } catch (IOException e) {
+                System.out.println(e.getMessage()); //NOSONAR
+                mainView.exceptionPopup("DROID test feilet, prøv igjen.");
+            }
+            System.out.println("\n\tDROID finished\n"); //NOSONAR
+            testView.updateDroidStatus(TestView.DONE);
+        }
+
+        testView.updateTestStatus(TestView.TESTDONE);
+        testView.activateCreateReportBtn();
+    }
+
+    //When "Start testing" is clicked.
+    @Override
+    public void testStarted() {
+        testView = new TestView();
+        testView.addObserver(this);
+        testView.createAndShowGUI(mainView.getContainer());
+        testView.updateStatus(thirdPartiesModel.getSelectedTests());
+        mainView.toggleEditInfoBtn();
+        mainView.toggleSettingsBtn();
+
+        //Schedule the runTests function to give the UI time to update before tests are run.
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.submit(this::runTests);
     }
 
     //When "Test nytt uttrekk" is clicked.
@@ -181,6 +190,7 @@ public class ArchiveController implements ViewObserver {
         mainView.resetMainView();
         archiveModel.resetAdminInfo();
         thirdPartiesModel.resetSelectedTests();
+        mainView.toggleSettingsBtn();
     }
 
     //When "Innstillinger" is clicked.
@@ -327,10 +337,17 @@ public class ArchiveController implements ViewObserver {
         reportModel.setNewParagraph(Arrays.asList(3, 1, 13), Arrays.asList(para, "placeholder"));
 
         //arkadeModel.parseReportHtml(); // remove when all function used in testModel
-        arkadeTestReport();
+        if(arkadeModel.getFileToString(settingsModel.prop)){
+            arkadeTestReport();
+        }
+        else {
+            System.out.println("Can't get testreport html "); //NOSONAR
+        }
 
         reportModel.writeReportDocument();     // editing
         reportModel.printReportToFile();
+
+        testView.activatePackToAipBtn();
     }
 
 

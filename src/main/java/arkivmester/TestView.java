@@ -3,6 +3,7 @@ package arkivmester;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.List;
 
 /**
  * Handles the test view.
@@ -15,6 +16,8 @@ import java.awt.*;
 public class TestView extends Views{
     Container container;
     JComboBox<String> fileFormatCb;
+    JButton createReportBtn;
+    JButton packToAipBtn;
 
     JLabel testStatus;
     JLabel arkadeStatus;
@@ -166,15 +169,17 @@ public class TestView extends Views{
         fileFormatCb.setForeground(Color.WHITE);
         fileFormatCb.setPreferredSize(new Dimension(100, 20));
 
-        JButton createRapportBtn = new JButton("Lag rapport");
-        createRapportBtn.addActionListener(this);
-        createRapportBtn.setBackground(primaryColor);
-        createRapportBtn.setForeground(Color.WHITE);
+        createReportBtn = new JButton("Lag rapport");
+        createReportBtn.addActionListener(this);
+        createReportBtn.setBackground(primaryColor);
+        createReportBtn.setForeground(Color.WHITE);
+        createReportBtn.setEnabled(false);
 
-        JButton packToAipBtn = new JButton("Pakk til AIP");
+        packToAipBtn = new JButton("Pakk til AIP");
         packToAipBtn.addActionListener(this);
         packToAipBtn.setBackground(primaryColor);
         packToAipBtn.setForeground(Color.WHITE);
+        packToAipBtn.setEnabled(false);
 
         JButton testNewBtn = new JButton("Test nytt uttrekk");
         testNewBtn.addActionListener(this);
@@ -183,7 +188,7 @@ public class TestView extends Views{
 
         //Adding components
         buttonPanel.add(fileFormatCb);
-        buttonPanel.add(createRapportBtn);
+        buttonPanel.add(createReportBtn);
         buttonPanel.add(packToAipBtn);
         buttonPanel.add(testNewBtn);
     }
@@ -210,6 +215,8 @@ public class TestView extends Views{
      */
     public void updateTestStatus(String status) {
         testStatus.setText(status);
+        if(status.equals(TESTDONE))
+            testStatus.setForeground(Color.GREEN);
     }
 
     /**
@@ -218,6 +225,10 @@ public class TestView extends Views{
      */
     public void updateArkadeStatus(String status) {
         arkadeStatus.setText(status);
+        if(status.equals(DONE))
+            arkadeStatus.setForeground(Color.GREEN);
+        else if(status.equals(NONE))
+            arkadeStatus.setForeground(Color.RED);
     }
 
     /**
@@ -226,6 +237,10 @@ public class TestView extends Views{
      */
     public void updateVeraStatus(String status) {
         veraStatus.setText(status);
+        if(status.equals(DONE))
+            veraStatus.setForeground(Color.GREEN);
+        else if(status.equals(NONE))
+            veraStatus.setForeground(Color.RED);
     }
 
     /**
@@ -234,6 +249,10 @@ public class TestView extends Views{
      */
     public void updateKostValStatus(String status) {
         kostvalStatus.setText(status);
+        if(status.equals(DONE))
+            kostvalStatus.setForeground(Color.GREEN);
+        else if(status.equals(NONE))
+            kostvalStatus.setForeground(Color.RED);
     }
 
     /**
@@ -242,5 +261,45 @@ public class TestView extends Views{
      */
     public void updateDroidStatus(String status) {
         droidStatus.setText(status);
+        if(status.equals(DONE))
+            droidStatus.setForeground(Color.GREEN);
+        else if(status.equals(NONE))
+            droidStatus.setForeground(Color.RED);
+    }
+
+    /**
+     * Activates the create report button after the tests are done.
+     */
+    public void activateCreateReportBtn() {
+        createReportBtn.setEnabled(true);
+    }
+
+    /**
+     * Activates the create report button after the tests are done and the report is created.
+     */
+    public void activatePackToAipBtn() {
+        packToAipBtn.setEnabled(true);
+    }
+
+    /**
+     * Updates the test statuses to "None" if it is excluded from the main test.
+     */
+    public void updateStatus(List<Boolean> selectedTests) {
+
+        //Arkade
+        if(Boolean.FALSE.equals(selectedTests.get(0)))
+            updateArkadeStatus(NONE);
+
+        //DROID
+        if(Boolean.FALSE.equals(selectedTests.get(1)))
+            updateDroidStatus(NONE);
+
+        //KostVal
+        if(Boolean.FALSE.equals(selectedTests.get(2)))
+            updateKostValStatus(NONE);
+
+        //VeraPDF
+        if(Boolean.FALSE.equals(selectedTests.get(3)))
+            updateVeraStatus(NONE);
     }
 }

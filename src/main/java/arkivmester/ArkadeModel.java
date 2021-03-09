@@ -8,6 +8,8 @@ import org.jsoup.select.Elements;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Properties;
 
 
 public class ArkadeModel {
@@ -38,8 +40,7 @@ public class ArkadeModel {
      * Run all function. Remove after all function are used in ArchiveController.
      */
     public void parseReportHtml(){
-        // Html to String
-        getFileToString(filePath, htmlRawText);
+
         if (test){
             // Get deviation for every id
             for(String i: getAll()){
@@ -54,22 +55,35 @@ public class ArkadeModel {
     }
 
     /**
-     * Get arkade testreport as string.
-     * @param filePath filePath to arkade testreport html.
-     * @param htmlTextHolder text holder.
+     * Get first file(testreport html) in Arkade/Output folder as a string.
+     * @param prop filePath to arkade testreport html.
      */
-    private void getFileToString(String filePath,  StringBuilder htmlTextHolder){
-        //prop.getProperty("arkadeOutput") tmp files in arkadeMaster mappe
+    public boolean getFileToString(Properties prop){
+        // Folder path: Arkade/output
+        filePath = prop.getProperty("arkadeOutput");
+
+        try {
+            // Dir: "arkadeOutput" folder
+            File dir = new File(filePath);
+            // Get first file in dir
+            filePath = filePath + '\\' + Objects.requireNonNull(dir.list())[0];
+        } catch (Exception ex) {
+            System.out.println("Get first file in Arkade/output. Error: " + ex.getMessage()); //NOSONAR
+            return false;
+        }
+
         try (FileReader fr = new FileReader(filePath);
              BufferedReader br = new BufferedReader(fr)) {
 
             String val;
             while ((val = br.readLine()) != null) {
-                htmlTextHolder.append(val);
+                htmlRawText.append(val);
             }
         } catch (Exception ex) {
             System.out.println(ex.getMessage()); //NOSONAR
+            return false;
         }
+        return true;
     }
 
     /**
