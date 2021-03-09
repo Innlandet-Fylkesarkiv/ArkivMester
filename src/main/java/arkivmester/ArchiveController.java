@@ -1,5 +1,7 @@
 package arkivmester;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,6 +30,7 @@ public class ArchiveController implements ViewObserver {
     ArkadeModel arkadeModel;
     ThirdPartiesModel thirdPartiesModel;
     SettingsModel settingsModel;
+    Properties chapterProp;
 
     ArrayList<String> attachments = new ArrayList<>();
 
@@ -38,6 +41,15 @@ public class ArchiveController implements ViewObserver {
         arkadeModel = new ArkadeModel();
         thirdPartiesModel = new ThirdPartiesModel();
         settingsModel = new SettingsModel();
+
+        chapterProp = new Properties();
+        try (
+                FileInputStream fis = new FileInputStream(new File("src/main/resources/chapterOutput.properties"))
+                ){
+            chapterProp.load(fis);
+        } catch (NullPointerException | IOException e) {
+            System.out.println(e.getMessage());         // NOSONAR
+        }
     }
 
     /**
@@ -64,15 +76,14 @@ public class ArchiveController implements ViewObserver {
         // 3.1.1
         writeDeviation(Arrays.asList(3, 1, 1),"N5.01", "Lokasjon", "Avvik");
         writeDeviation(Arrays.asList(3, 1, 1),"N5.02", "Lokasjon2", "Avvik2");
-
-
     }
-    private void writeDeviation(List<Integer> kap, String index, String header1, String header2){
+
+    private void writeDeviation(List<Integer> kap, String index, String header1, String header2) {
         List<String> avvik = arkadeModel.getDataFromHtml(index);
         if (!avvik.isEmpty()) {
             reportModel.setNewTable(kap, Arrays.asList(Arrays.asList(header1, header2), avvik));
         } else {
-            reportModel.setNewInput(kap, Collections.singletonList("Uttrekket er teknisk korrekt."));
+            reportModel.setNewParagraph(kap, Arrays.asList("Uttrekket er teknisk korrekt."));
         }
     }
 
@@ -106,6 +117,7 @@ public class ArchiveController implements ViewObserver {
         System.out.println("\n\tArchive unzipped\n"); //NOSONAR
 
         //Run tests depending on if they are selected or not.
+        //Arkade
         if(Boolean.TRUE.equals(selectedTests.get(0))) {
             System.out.print("\nRunning arkade\n"); //NOSONAR
             testView.updateArkadeStatus(TestView.RUNNING);
@@ -122,20 +134,22 @@ public class ArchiveController implements ViewObserver {
             testView.updateArkadeStatus(TestView.DONE);
 
         }
-        if(Boolean.TRUE.equals(selectedTests.get(1))) {
-            System.out.println("\nRunning DROID\n"); //NOSONAR
-            testView.updateDroidStatus(TestView.RUNNING);
+
+        //VeraPDF
+        if(Boolean.TRUE.equals(selectedTests.get(3))) {
+            System.out.print("\nRunning VeraPDF\n"); //NOSONAR
+            testView.updateVeraStatus(TestView.RUNNING);
             try {
-                thirdPartiesModel.runDROID(docPath, settingsModel.prop);
+                thirdPartiesModel.runVeraPDF(docPath, settingsModel.prop);
             } catch (IOException e) {
                 System.out.println(e.getMessage()); //NOSONAR
-                mainView.exceptionPopup("DROID test feilet, prøv igjen.");
+                mainView.exceptionPopup("VeraPDF test feilet, prøv igjen");
             }
-            System.out.println("\n\tDROID finished\n"); //NOSONAR
-            testView.updateDroidStatus(TestView.DONE);
-            attachments.add("Droid rapport");
-
+            System.out.println("\n\tVeraPDF test finished\n"); //NOSONAR
+            testView.updateVeraStatus(TestView.DONE);
         }
+
+        //KostVal
         if(Boolean.TRUE.equals(selectedTests.get(2))) {
             System.out.print("\nRunning Kost-Val\n"); //NOSONAR
             testView.updateKostValStatus(TestView.RUNNING);
@@ -149,20 +163,25 @@ public class ArchiveController implements ViewObserver {
             testView.updateKostValStatus(TestView.DONE);
             attachments.add("Kost-val testrapport");
         }
-        if(Boolean.TRUE.equals(selectedTests.get(3))) {
-            System.out.print("\nRunning VeraPDF\n"); //NOSONAR
-            testView.updateVeraStatus(TestView.RUNNING);
+
+        //DROID
+        if(Boolean.TRUE.equals(selectedTests.get(1))) {
+            System.out.println("\nRunning DROID\n"); //NOSONAR
+            testView.updateDroidStatus(TestView.RUNNING);
             try {
-                thirdPartiesModel.runVeraPDF(docPath, settingsModel.prop);
+                thirdPartiesModel.runDROID(docPath, settingsModel.prop);
             } catch (IOException e) {
                 System.out.println(e.getMessage()); //NOSONAR
-                mainView.exceptionPopup("VeraPDF test feilet, prøv igjen");
+                mainView.exceptionPopup("DROID test feilet, prøv igjen.");
             }
-            System.out.println("\n\tVeraPDF test finished\n"); //NOSONAR
-            testView.updateVeraStatus(TestView.DONE);
-            attachments.add("VeraPDF testrapport");
+            System.out.println("\n\tDROID finished\n"); //NOSONAR
+            testView.updateDroidStatus(TestView.DONE);
         }
         System.out.println("\nTesting Ferdig\n"); //NOSONAR
+
+        testView.updateTestStatus(TestView.TESTDONE);
+        testView.activateCreateReportBtn();
+
     }
 
     //When "Start testing" is clicked.
@@ -171,15 +190,14 @@ public class ArchiveController implements ViewObserver {
         testView = new TestView();
         testView.addObserver(this);
         testView.createAndShowGUI(mainView.getContainer());
+        testView.updateStatus(thirdPartiesModel.getSelectedTests());
         mainView.toggleEditInfoBtn();
+        mainView.toggleSettingsBtn();
 
         //Schedule the runTests function to give the UI time to update before tests are run.
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.submit(this::runTests);
-
-        testView.updateTestStatus(TestView.TESTDONE);
     }
-
 
 
     //When "Test nytt uttrekk" is clicked.
@@ -191,6 +209,7 @@ public class ArchiveController implements ViewObserver {
         mainView.resetMainView();
         archiveModel.resetAdminInfo();
         thirdPartiesModel.resetSelectedTests();
+        mainView.toggleSettingsBtn();
     }
 
     //When "Innstillinger" is clicked.
@@ -295,6 +314,7 @@ public class ArchiveController implements ViewObserver {
     @Override
     public void makeReport() {
         String format = testView.getSelectedFormat(); //#NOSONAR
+        String testArkivstruktur = "C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\arkivstruktur.xml";
 
         reportModel.generateReport(); // big question: (1 == 2) ? 3 : 2
 
@@ -308,7 +328,7 @@ public class ArchiveController implements ViewObserver {
         map.put("1.2_2.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\arkivuttrekk.xml");
         map.put("1.2_3.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\loependeJournal.xml");
         map.put("1.2_4.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\offentligJournal.xml");
-        map.put("1.2_5.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\arkivstruktur.xml");
+        map.put("1.2_5.xq",testArkivstruktur);
 
         List<String> list = new ArrayList<>();
 
@@ -317,6 +337,25 @@ public class ArchiveController implements ViewObserver {
         }
 
         reportModel.setNewInput(Arrays.asList(1, 2), list);
+        //Alle arkiverte registreringer har dokumentbeskrivelser.
+        //ANTALL registreringer er tomme og uten dokumenter, men da alle disse er arkivert og dette er et fysisk uttrekk godkjennes dette.
+        //ANTALL registreringer er tomme og uten dokumenter, og er lagt til som vedlegg.
+
+        String para = thirdPartiesModel.runBaseX(
+                testArkivstruktur,
+                "3.1.11.xq",
+                settingsModel.prop).get(0);
+
+        reportModel.setNewParagraph(Arrays.asList(3, 1, 11), Arrays.asList(para));
+
+        List<String> temp = thirdPartiesModel.runBaseX(
+                testArkivstruktur,
+                "3.1.13.xq",
+                settingsModel.prop);
+
+        para = "" + temp.size();
+
+        reportModel.setNewParagraph(Arrays.asList(3, 1, 13), Arrays.asList(para, "placeholder"));
 
         //arkadeModel.parseReportHtml(); // remove when all function used in testModel
         //arkadeTestReport();
@@ -330,6 +369,8 @@ public class ArchiveController implements ViewObserver {
 
         reportModel.writeReportDocument();     // editing
         reportModel.printReportToFile();
+
+        testView.activatePackToAipBtn();
     }
 
 
