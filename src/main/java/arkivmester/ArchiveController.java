@@ -91,8 +91,15 @@ public class ArchiveController implements ViewObserver {
      * Adds attacments to chapter five in the report.
      */
     private void writeChapterFive() {
-        reportModel.setNewInput(Arrays.asList(5),attachments);
-        reportModel.setNewParagraph(Arrays.asList(5), attachments);
+        //reportModel.setNewInput(Arrays.asList(5),attachments);
+        //reportModel.setNewParagraph(Arrays.asList(5), attachments);
+        //reportModel.setNewParagraph(Collections.singletonList(5), Collections.singletonList("Test"));
+        if(!attachments.isEmpty()) {
+            for (String attachment : attachments) {
+                reportModel.setNewParagraph(Collections.singletonList(5), Collections.singletonList(attachment));
+            }
+        }
+
     }
 
 
@@ -132,6 +139,7 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tArkade test finished\n"); //NOSONAR
             testView.updateArkadeStatus(TestView.DONE);
+            attachments.add("Arkade5 testrapport");
 
         }
 
@@ -147,6 +155,7 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tVeraPDF test finished\n"); //NOSONAR
             testView.updateVeraStatus(TestView.DONE);
+            attachments.add("VeraPDF testrapport");
         }
 
         //KostVal
@@ -176,6 +185,7 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tDROID finished\n"); //NOSONAR
             testView.updateDroidStatus(TestView.DONE);
+            attachments.add("DROID rapporter");
         }
         System.out.println("\nTesting Ferdig\n"); //NOSONAR
 
