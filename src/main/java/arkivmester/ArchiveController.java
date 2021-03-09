@@ -2,7 +2,6 @@ package arkivmester;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -39,8 +38,10 @@ public class ArchiveController implements ViewObserver {
         settingsModel = new SettingsModel();
 
         chapterProp = new Properties();
-        try {
-            chapterProp.load(new FileInputStream(new File("src/main/resources/chapterOutput.properties")));
+        try (
+                FileInputStream fis = new FileInputStream(new File("src/main/resources/chapterOutput.properties"))
+                ){
+            chapterProp.load(fis);
         } catch (NullPointerException | IOException e) {
             System.out.println(e.getMessage());         // NOSONAR
         }
@@ -284,6 +285,7 @@ public class ArchiveController implements ViewObserver {
     @Override
     public void makeReport() {
         String format = testView.getSelectedFormat(); //#NOSONAR
+        String testArkivstruktur = "C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\arkivstruktur.xml";
 
         reportModel.generateReport(); // big question: (1 == 2) ? 3 : 2
 
@@ -295,7 +297,7 @@ public class ArchiveController implements ViewObserver {
         map.put("1.2_2.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\arkivuttrekk.xml");
         map.put("1.2_3.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\loependeJournal.xml");
         map.put("1.2_4.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\offentligJournal.xml");
-        map.put("1.2_5.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\arkivstruktur.xml");
+        map.put("1.2_5.xq",testArkivstruktur);
 
         List<String> list = new ArrayList<>();
 
@@ -309,16 +311,14 @@ public class ArchiveController implements ViewObserver {
         //ANTALL registreringer er tomme og uten dokumenter, og er lagt til som vedlegg.
 
         String para = thirdPartiesModel.runBaseX(
-                "C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\arkivstruktur.xml",
+                testArkivstruktur,
                 "3.1.11.xq",
                 settingsModel.prop).get(0);
-
-        //para = String.format(chapterProp.getProperty("3.1.11_case2"), para);
 
         reportModel.setNewParagraph(Arrays.asList(3, 1, 11), Arrays.asList(para));
 
         List<String> temp = thirdPartiesModel.runBaseX(
-                "C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\arkivstruktur.xml",
+                testArkivstruktur,
                 "3.1.13.xq",
                 settingsModel.prop);
 
