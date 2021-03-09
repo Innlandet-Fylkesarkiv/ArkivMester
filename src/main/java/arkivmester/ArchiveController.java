@@ -70,8 +70,6 @@ public class ArchiveController implements ViewObserver {
         // 3.1.1
         writeDeviation(Arrays.asList(3, 1, 1),"N5.01", "Lokasjon", "Avvik");
         writeDeviation(Arrays.asList(3, 1, 1),"N5.02", "Lokasjon2", "Avvik2");
-
-
     }
 
     private void writeDeviation(List<Integer> kap, String index, String header1, String header2) {
@@ -79,7 +77,7 @@ public class ArchiveController implements ViewObserver {
         if (!avvik.isEmpty()) {
             reportModel.setNewTable(kap, Arrays.asList(Arrays.asList(header1, header2), avvik));
         } else {
-            reportModel.setNewParagraph(kap, "Uttrekket er teknisk korrekt.");
+            reportModel.setNewParagraph(kap, Arrays.asList("Uttrekket er teknisk korrekt."));
         }
     }
 
@@ -315,18 +313,18 @@ public class ArchiveController implements ViewObserver {
                 "3.1.11.xq",
                 settingsModel.prop).get(0);
 
-        para = String.format(chapterProp.getProperty("3.1.11_case2"), para);
+        //para = String.format(chapterProp.getProperty("3.1.11_case2"), para);
 
-        reportModel.setNewParagraph(Arrays.asList(3, 1, 11), para);
+        reportModel.setNewParagraph(Arrays.asList(3, 1, 11), Arrays.asList(para));
 
         List<String> temp = thirdPartiesModel.runBaseX(
                 "C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\arkivstruktur.xml",
                 "3.1.13.xq",
                 settingsModel.prop);
 
-        para = String.format(chapterProp.getProperty("3.1.13_case2_1"), temp.size());
+        para = "" + temp.size();
 
-        reportModel.setNewParagraph(Arrays.asList(3, 1, 13), para);
+        reportModel.setNewParagraph(Arrays.asList(3, 1, 13), Arrays.asList(para, "placeholder"));
 
         //arkadeModel.parseReportHtml(); // remove when all function used in testModel
         arkadeTestReport();
