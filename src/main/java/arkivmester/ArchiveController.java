@@ -91,9 +91,6 @@ public class ArchiveController implements ViewObserver {
      * Adds attacments to chapter five in the report.
      */
     private void writeChapterFive() {
-        //reportModel.setNewInput(Arrays.asList(5),attachments);
-        //reportModel.setNewParagraph(Arrays.asList(5), attachments);
-        //reportModel.setNewParagraph(Collections.singletonList(5), Collections.singletonList("Test"));
         if(!attachments.isEmpty()) {
             for (String attachment : attachments) {
                 reportModel.setNewParagraph(Collections.singletonList(5), Collections.singletonList(attachment));
@@ -368,7 +365,6 @@ public class ArchiveController implements ViewObserver {
         reportModel.setNewParagraph(Arrays.asList(3, 1, 13), Arrays.asList(para, "placeholder"));
 
         //arkadeModel.parseReportHtml(); // remove when all function used in testModel
-        //arkadeTestReport();
         writeChapterFive();
         if(arkadeModel.getFileToString(settingsModel.prop)){
             arkadeTestReport();
