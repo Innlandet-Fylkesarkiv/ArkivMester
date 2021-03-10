@@ -3,10 +3,10 @@ package arkivmester;
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.xmlbeans.XmlCursor;
 
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import java.io.InputStream;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,7 +27,7 @@ public class ReportModel {
 
     XWPFDocument document;
     String chapterFolder = "../Input/kapitler/";
-    String templateFile = "src/main/resources/Dokumentmal_fylkesarkivet_Noark5_testrapport.docx";
+    String templateFile = "/Dokumentmal_fylkesarkivet_Noark5_testrapport.docx";
     String outputFile = "../Output/createdocument.docx";
 
     static String notFoundField = "<Fant ikke verdi>";
@@ -193,7 +193,7 @@ public class ReportModel {
      */
     public static XWPFDocument getDocumentFile(String filepath) {
         try (
-                FileInputStream fis = new FileInputStream(filepath)
+                InputStream fis = ReportModel.class.getResourceAsStream(filepath)
         ) {
             return new XWPFDocument(fis);
         } catch (IOException | NullPointerException e) {

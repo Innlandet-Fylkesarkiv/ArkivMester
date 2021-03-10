@@ -70,7 +70,7 @@ public class ThirdPartiesModel {
         //String with path to KostVal
         String cd = cdString + prop.getProperty("kostvalPath") + "\"";
         //Path to folder where test report gets moved to.
-        String reportPath = prop.getProperty("kostValReport");
+        String reportPath = prop.getProperty("tempFolder");
 
         //Run kost-val from command line
         runCMD(cd + " &&  java -jar cmd_KOST-Val.jar --sip " + path + " --en");
@@ -91,7 +91,7 @@ public class ThirdPartiesModel {
         //String with path to VeraPDF
         String cd = cdString + prop.getProperty("veraPDFPath") + "\"";
         //Path to folder where test report gets moved to.
-        String reportPath = prop.getProperty("veraPDFReport") + "\\verapdf.xml";
+        String reportPath = prop.getProperty("tempFolder") + "\\verapdf.xml";
 
         //Run verapdf through command line.
         runCMD(cd + " && verapdf --recurse " + path + " > " + reportPath);
