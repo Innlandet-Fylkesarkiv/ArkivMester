@@ -43,11 +43,9 @@ public class ReportModel {
 
     public static class ChapterList {
 
-        static String missingField = "<Mangler verdi>";
-
         private final List<Integer> headers;
-        private List<String> result;
-        private TextStyle type;
+        private final List<String> result;
+        private final TextStyle type;
         private int cindex;
         private boolean cases;
 
@@ -66,11 +64,12 @@ public class ReportModel {
          *
          */
         public void updateText(List<String> input) {
-            if(input.size() > 0) {
+            if(!input.isEmpty()) {
                 int index = 0;
                 for(int i = 0; i < result.size(); i++) {
                     String s = result.get(i);
-                    Pattern pat = Pattern.compile("[^a-zA-Z ][A-Z]{3,}([ ][A-Z]{3,})*[^a-zA-Z ]|[A-Z]{4,}");
+                    // "ASGVDVJ GVDJDBJE JDJHFHJE " jhbfajhbgheghjeaASHGVDjfajgfjeg
+                    Pattern pat = Pattern.compile("[^a-zA-Z ][A-Z]{3,}([ ][A-Z]{3,}){0,5}[^a-zA-Z ]|[A-Z]{4,}");
                     Matcher m = pat.matcher(s);
                     while (m.find()) {
                         String word = m.group();
@@ -221,7 +220,7 @@ public class ReportModel {
                     for(List<String> list : input) {
                         chapterList.get(h).add(new ChapterList(h, list, TextStyle.PARAGRAPH, false));
                     }
-                    if(input.isEmpty()) chapterList.get(h).add(new ChapterList(h, Arrays.asList(notFoundField), TextStyle.PARAGRAPH, false));
+                    if(input.isEmpty()) chapterList.get(h).add(new ChapterList(h, Collections.singletonList(notFoundField), TextStyle.PARAGRAPH, false));
                 }
             }
         }
@@ -282,10 +281,9 @@ public class ReportModel {
 
     private void addParagraphToDocument(List<ChapterList> currentChapterInput, XWPFParagraph p) {
         if(currentChapterInput != null) {
-            for(int i = 0; i < currentChapterInput.size(); i++) {
-                ChapterList chap = currentChapterInput.get(i);
-                if(chap.getType().equals(TextStyle.PARAGRAPH) && chap.cases) {
-                    for(String s : chap.result) {
+            for (ChapterList chap : currentChapterInput) {
+                if (chap.getType().equals(TextStyle.PARAGRAPH) && chap.cases) {
+                    for (String s : chap.result) {
                         insertParagraphToDocument(s, p);
                     }
                 }
@@ -298,18 +296,16 @@ public class ReportModel {
      */
     private void editDocument(XWPFParagraph p, List<ChapterList> cChapter) {
         for(XWPFRun r : p.getRuns()) {
-            if(r.getText(0) != null && r.getText(0).contains("TODO")) {
-                if(cChapter != null) {
-                    for(ChapterList chapter : cChapter) {
-                        switch(chapter.getType()) {
-                            case INPUT:
-                                insertInputToDocument(r.getText(0), chapter.currentItem(), r);
-                                break;
-                            case TABLE:
-                                insertTableToDocument(chapter, p);
-                                break;
-                            default:
-                        }
+            if(cChapter != null && r.getText(0) != null && r.getText(0).contains("TODO")) {
+                for(ChapterList chapter : cChapter) {
+                    switch (chapter.getType()) {
+                        case INPUT:
+                            insertInputToDocument(r.getText(0), chapter.currentItem(), r);
+                            break;
+                        case TABLE:
+                            insertTableToDocument(chapter, p);
+                            break;
+                        default:
                     }
                 }
             }
@@ -429,7 +425,7 @@ public class ReportModel {
     }
 
     private void setNewChapter(List<Integer> h, List<String> input, TextStyle type) {
-        if (chapterList.get(h).get(0).result.get(0) == notFoundField) {
+        if (chapterList.get(h).get(0).result.get(0).equals(notFoundField)) {
             chapterList.put(h, new ArrayList<>());
         }
         chapterList.get(h).add(new ChapterList(h, input, type, true));
@@ -487,7 +483,7 @@ public class ReportModel {
     private String formatChapterNumber(List<Integer> h) {
         StringBuilder s = new StringBuilder();
         for(int i : h) {
-            s.append(i + ".");
+            s.append(i).append(".");
         }
         s.append("docx");
         return s.toString();
