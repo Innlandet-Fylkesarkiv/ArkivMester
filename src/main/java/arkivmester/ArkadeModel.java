@@ -32,8 +32,6 @@ public class ArkadeModel {
      */
     ArkadeModel(){
         testFunction();
-        System.out.println(saksparter());
-        System.out.println(merknader());
     }
 
     /**
@@ -57,18 +55,22 @@ public class ArkadeModel {
     /** 3.1.16. Check for number of registrations with saksparter.
      * @return Comment on number of saksparter
      */
-    public String saksparter(){
-        int saksparter = getTotalt("N5.35");
-        int antallReg = getTotalt("N5.16");
+    public Integer saksparter(){
+        Integer saksparter = getTotalt("N5.35");
+        Integer antallReg = getTotalt("N5.16");
+
 
         if(saksparter <= 0){
-            return "Ingen saksparter er registrert.";
+            // Ingen saksparter er registrert.
+            return 0;
         }
-        else if(saksparter > (antallReg / 4)){
-            return saksparter + " saksparter er registrert, varsel: over 25% av antall registreringer har saksparter";
+        else if(saksparter < (antallReg / 4)){
+            // saksparter + saksparter er registrert, og virker normalt for uttrekket.
+            return 1;
         }
         else{
-            return saksparter + " saksparter er registrert, og virker normalt for uttrekket. ";
+            // saksparter + saksparter er registrert, varsel: over 25% av antall registreringer har saksparter
+            return 2;
         }
     }
     /** 3.1.17. Get Merkader
