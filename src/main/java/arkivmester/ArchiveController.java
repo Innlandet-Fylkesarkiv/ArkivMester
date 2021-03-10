@@ -76,8 +76,16 @@ public class ArchiveController implements ViewObserver {
         // 3.1.1
         writeDeviation(Arrays.asList(3, 1, 1),"N5.01", "Lokasjon", "Avvik");
         writeDeviation(Arrays.asList(3, 1, 1),"N5.02", "Lokasjon2", "Avvik2");
+
+
     }
 
+    /**
+     * @param kap docx kap
+     * @param index test ID
+     * @param header1 table header 1
+     * @param header2 table header 2
+     */
     private void writeDeviation(List<Integer> kap, String index, String header1, String header2) {
         List<String> avvik = arkadeModel.getDataFromHtml(index);
         if (!avvik.isEmpty()) {
@@ -366,6 +374,7 @@ public class ArchiveController implements ViewObserver {
 
         //arkadeModel.parseReportHtml(); // remove when all function used in testModel
         writeChapterFive();
+
         if(arkadeModel.getFileToString(settingsModel.prop)){
             arkadeTestReport();
         }

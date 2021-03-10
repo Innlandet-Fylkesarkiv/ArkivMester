@@ -26,13 +26,76 @@ public class ArkadeModel {
 
     boolean test = false;
 
-    /**
-     * Get Html as String, Runs all functions, Prints deviation to docx.
+    /** Get Html as String, Runs all functions, Prints deviation to docx.
      * GetFileToString to get the html content.
      * Remove everything except for getFileToString when all functions are used.
      */
     ArkadeModel(){
+        testFunction();
+    }
 
+    /**
+     * For testing
+     */
+    public void testFunction(){
+        try (FileReader fr = new FileReader(filePath);
+             BufferedReader br = new BufferedReader(fr)) {
+
+            String val;
+            while ((val = br.readLine()) != null) {
+                htmlRawText.append(val);
+            }
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage()); //NOSONAR
+        }
+        parseReportHtml();
+
+    }
+
+    /** 3.1.16. Check for number of registrations with saksparter.
+     * @return Comment on number of saksparter
+     */
+    public Integer saksparter(){
+        Integer saksparter = getTotalt("N5.35");
+        Integer antallReg = getTotalt("N5.16");
+
+
+        if(saksparter <= 0){
+            // Ingen saksparter er registrert.
+            return 0;
+        }
+        else if(saksparter < (antallReg / 4)){
+            // saksparter + saksparter er registrert, og virker normalt for uttrekket.
+            return 1;
+        }
+        else{
+            // saksparter + saksparter er registrert, varsel: over 25% av antall registreringer har saksparter
+            return 2;
+        }
+    }
+    /** 3.1.17. Get Merkader
+     * @return empty string if no merknader else comment
+     */
+    public String merknader(){
+        int merknader = getTotalt("N5.36");
+        if(merknader <= 0){
+            return "Ingen merknader er registrert. ";
+        }
+        return "";
+    }
+
+    /** Get Totalt from deviation table.
+     * @param index for test class.
+     * @return Totalt or -1 if no deviation table.
+     */
+    public Integer getTotalt(String index){
+        List<String> merknader = getDataFromHtml(index);
+
+        if(merknader.size() < 2){
+            System.out.println(index + " has less than 2 elements"); //NOSONAR
+            return -1;
+        }
+        return Integer.parseInt(merknader.get(1).replaceAll("\\D+", ""));
     }
 
     /**
