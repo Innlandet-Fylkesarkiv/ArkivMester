@@ -72,7 +72,7 @@ public class ArchiveController implements ViewObserver {
         // 3 og 3.1 arkade version
         String version = arkadeModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
 
-        reportModel.setNewInput(Arrays.asList(3, 1), Collections.singletonList(version));
+        reportModel.setNewInput(Arrays.asList(3, 1), Collections.singletonList(version), Arrays.asList(0));
         // 3.1.1
         writeDeviation(Arrays.asList(3, 1, 1),"N5.01", "Lokasjon", "Avvik");
         writeDeviation(Arrays.asList(3, 1, 1),"N5.02", "Lokasjon2", "Avvik2");
@@ -83,7 +83,7 @@ public class ArchiveController implements ViewObserver {
         if (!avvik.isEmpty()) {
             reportModel.setNewTable(kap, Arrays.asList(header1, header2), avvik);
         } else {
-            //reportModel.setNewParagraph(kap, Arrays.asList("Uttrekket er teknisk korrekt."));
+            reportModel.setNewInput(kap, Collections.emptyList(), Arrays.asList(0));
         }
     }
 

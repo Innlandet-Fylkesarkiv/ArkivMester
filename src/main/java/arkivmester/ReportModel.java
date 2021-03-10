@@ -66,16 +66,18 @@ public class ReportModel {
          *
          */
         public void updateText(List<String> input) {
-            int index = 0;
-            for(int i = 0; i < result.size(); i++) {
-                String s = result.get(i);
-                Pattern pat = Pattern.compile("[^a-zA-Z ][A-Z]{3,}([ ][A-Z]{3,})*[^a-zA-Z ]|[A-Z]{4,}");
-                Matcher m = pat.matcher(s);
-                while (m.find()) {
-                    String word = m.group();
-                    s = s.replace(word, input.get(index));
-                    result.set(i, s);
-                    index = clamp(index+1, input.size()-1);
+            if(input.size() > 0) {
+                int index = 0;
+                for(int i = 0; i < result.size(); i++) {
+                    String s = result.get(i);
+                    Pattern pat = Pattern.compile("[^a-zA-Z ][A-Z]{3,}([ ][A-Z]{3,})*[^a-zA-Z ]|[A-Z]{4,}");
+                    Matcher m = pat.matcher(s);
+                    while (m.find()) {
+                        String word = m.group();
+                        s = s.replace(word, input.get(index));
+                        result.set(i, s);
+                        index = clamp(index+1, input.size()-1);
+                    }
                 }
             }
             cases = true;
