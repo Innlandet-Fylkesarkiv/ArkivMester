@@ -3,6 +3,9 @@ package arkivmester;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -28,6 +31,8 @@ public class ArchiveController implements ViewObserver {
     ThirdPartiesModel thirdPartiesModel;
     SettingsModel settingsModel;
     Properties chapterProp;
+
+    ArrayList<String> attachments = new ArrayList<>();
 
     ArchiveController() {
         mainView = new MainView();
@@ -83,6 +88,17 @@ public class ArchiveController implements ViewObserver {
     }
 
     /**
+     * Adds attacments to chapter five in the report.
+     */
+    private void writeChapterFive() {
+        if(!attachments.isEmpty()) {
+            reportModel.setNewParagraph(Collections.singletonList(5), attachments);
+        }
+
+    }
+
+
+    /**
      * Unzips the archive and runs the selected tests.
      */
     private void runTests() {
@@ -118,6 +134,8 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tArkade test finished\n"); //NOSONAR
             testView.updateArkadeStatus(TestView.DONE);
+            attachments.add("Arkade5 testrapport");
+
         }
 
         //VeraPDF
@@ -132,6 +150,7 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tVeraPDF test finished\n"); //NOSONAR
             testView.updateVeraStatus(TestView.DONE);
+            attachments.add("VeraPDF testrapport");
         }
 
         //KostVal
@@ -146,6 +165,7 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tKost-Val test finished\n"); //NOSONAR
             testView.updateKostValStatus(TestView.DONE);
+            attachments.add("Kost-val testrapport");
         }
 
         //DROID
@@ -160,10 +180,13 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tDROID finished\n"); //NOSONAR
             testView.updateDroidStatus(TestView.DONE);
+            attachments.add("DROID rapporter");
         }
+        System.out.println("\nTesting Ferdig\n"); //NOSONAR
 
         testView.updateTestStatus(TestView.TESTDONE);
         testView.activateCreateReportBtn();
+
     }
 
     //When "Start testing" is clicked.
@@ -180,6 +203,7 @@ public class ArchiveController implements ViewObserver {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.submit(this::runTests);
     }
+
 
     //When "Test nytt uttrekk" is clicked.
     @Override
@@ -301,6 +325,8 @@ public class ArchiveController implements ViewObserver {
 
         reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
 
+
+        //testModel.parseReportHtml(); // remove when all function used in testModel
         Map<String, String> map = new LinkedHashMap<>();
 
         map.put("1.2_1.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\dias-mets.xml");
@@ -325,7 +351,7 @@ public class ArchiveController implements ViewObserver {
                 "3.1.11.xq",
                 settingsModel.prop).get(0);
 
-        reportModel.setNewInput(Arrays.asList(3, 1, 11), Arrays.asList(para), Arrays.asList(1));
+        reportModel.setNewInput(Arrays.asList(3, 1, 11), Collections.singletonList(para), Collections.singletonList(1));
 
         List<String> temp = thirdPartiesModel.runBaseX(
                 testArkivstruktur,
@@ -334,17 +360,16 @@ public class ArchiveController implements ViewObserver {
 
         para = "" + temp.size();
 
-        reportModel.setNewInput(Arrays.asList(3, 1, 13), Arrays.asList(para, "placeholder"), Arrays.asList(1));
+        reportModel.setNewInput(Arrays.asList(3, 1, 13), Arrays.asList(para, "placeholder"), Collections.singletonList(1));
 
         //arkadeModel.parseReportHtml(); // remove when all function used in testModel
+        writeChapterFive();
         if(arkadeModel.getFileToString(settingsModel.prop)){
             arkadeTestReport();
         }
         else {
             System.out.println("Can't get testreport html "); //NOSONAR
         }
-
-        reportModel.setNewParagraph(Arrays.asList(5), Arrays.asList("para", "placeholder"));
 
         reportModel.writeReportDocument();     // editing
         reportModel.printReportToFile();
