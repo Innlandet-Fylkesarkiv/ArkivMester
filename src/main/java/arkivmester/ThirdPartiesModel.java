@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static java.lang.Thread.sleep;
-
 /**
  * Contains multiple methods to run different third party tools to test the archive.
  *
@@ -170,16 +168,21 @@ public class ThirdPartiesModel {
     public List<String> runBaseX(String xml, String xqName, Properties prop)  {
         String xq = prop.getProperty("xqueryExtFolder") + "\\" + xqName;
         String temp = prop.getProperty("tempFolder") + "\\xqueryResult.txt";
-        String pwd = cdString + prop.getProperty("basexPath") + "\""; //NOSONAR
+        String pwd = cdString + prop.getProperty("basexPath") + "\"";
         List<String> result = new ArrayList<>();
 
         ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o " + temp + " -i " + xml + " " + xq);
 
-        File xqueryResult = new File(temp);
-        try (InputStream bytes = new FileInputStream(xqueryResult)) {
+        try {
             Process p = baseXBuilder.start();
             p.waitFor();
-            sleep(0);
+        } catch (IOException | InterruptedException e) {
+            System.out.println(e.getMessage()); //#NOSONAR
+            Thread.currentThread().interrupt();
+        }
+
+        File xqueryResult = new File(temp);
+        try (InputStream bytes = new FileInputStream(xqueryResult)) {
 
             Reader chars = new InputStreamReader(bytes, StandardCharsets.UTF_8);
 
@@ -191,8 +194,7 @@ public class ThirdPartiesModel {
                 }
             }
 
-        } catch (IOException | InterruptedException e) {
-            Thread.currentThread().interrupt();
+        } catch (IOException e) {
             System.out.println(e.getMessage()); //#NOSONAR
         }
 
