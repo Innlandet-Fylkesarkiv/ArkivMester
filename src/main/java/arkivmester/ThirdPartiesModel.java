@@ -273,7 +273,7 @@ public class ThirdPartiesModel {
             File xqueryResult = new File(temp);
 
             baseXBuilder.start();
-            sleep(1000);
+            sleep(2000);
 
             try (BufferedReader r = new BufferedReader(new FileReader(xqueryResult))) {
                 String line = r.readLine();

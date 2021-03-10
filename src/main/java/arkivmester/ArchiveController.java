@@ -76,9 +76,9 @@ public class ArchiveController implements ViewObserver {
     private void writeDeviation(List<Integer> kap, String index, String header1, String header2) {
         List<String> avvik = arkadeModel.getDataFromHtml(index);
         if (!avvik.isEmpty()) {
-            reportModel.setNewTable(kap, Arrays.asList(Arrays.asList(header1, header2), avvik));
+            reportModel.setNewTable(kap, Arrays.asList(header1, header2), avvik);
         } else {
-            reportModel.setNewParagraph(kap, Arrays.asList("Uttrekket er teknisk korrekt."));
+            //reportModel.setNewParagraph(kap, Arrays.asList("Uttrekket er teknisk korrekt."));
         }
     }
 
@@ -325,7 +325,7 @@ public class ArchiveController implements ViewObserver {
                 "3.1.11.xq",
                 settingsModel.prop).get(0);
 
-        reportModel.setNewParagraph(Arrays.asList(3, 1, 11), Arrays.asList(para));
+        reportModel.setNewInput(Arrays.asList(3, 1, 11), Arrays.asList(para), Arrays.asList(1));
 
         List<String> temp = thirdPartiesModel.runBaseX(
                 testArkivstruktur,
@@ -334,7 +334,7 @@ public class ArchiveController implements ViewObserver {
 
         para = "" + temp.size();
 
-        reportModel.setNewParagraph(Arrays.asList(3, 1, 13), Arrays.asList(para, "placeholder"));
+        reportModel.setNewInput(Arrays.asList(3, 1, 13), Arrays.asList(para, "placeholder"), Arrays.asList(1));
 
         //arkadeModel.parseReportHtml(); // remove when all function used in testModel
         if(arkadeModel.getFileToString(settingsModel.prop)){
@@ -343,6 +343,8 @@ public class ArchiveController implements ViewObserver {
         else {
             System.out.println("Can't get testreport html "); //NOSONAR
         }
+
+        reportModel.setNewParagraph(Arrays.asList(5), Arrays.asList("para", "placeholder"));
 
         reportModel.writeReportDocument();     // editing
         reportModel.printReportToFile();

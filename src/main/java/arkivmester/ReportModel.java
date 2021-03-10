@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * Class for handling report document configurations.
@@ -20,13 +20,13 @@ import java.util.stream.IntStream;
 public class ReportModel {
 
     enum TextStyle {
-        PLACEFOLDER,
         INPUT,
         PARAGRAPH,
         TABLE
     }
 
     XWPFDocument document;
+    String chapterFolder = "../Input/kapitler/";
     String templateFile = "src/main/resources/Dokumentmal_fylkesarkivet_Noark5_testrapport.docx";
     String outputFile = "../Output/createdocument.docx";
 
@@ -43,38 +43,42 @@ public class ReportModel {
 
     public static class ChapterList {
 
-        String chapterFolder = "../Input/kapitler/";
         static String missingField = "<Mangler verdi>";
 
         private final List<Integer> headers;
-        private final List<List<String>> result;
-        public final List<String> output;
-        private final TextStyle type;
+        private List<String> result;
+        private TextStyle type;
         private int cindex;
-        private int rindex;
+        private boolean cases;
 
         /**
          * Initialize a default list of missing input.
          */
-        ChapterList(List<Integer> h) {
-            headers = h.stream().filter(t -> t > 0).collect(Collectors.toList());
-            result = Collections.singletonList(Collections.singletonList(missingField));
-            type = TextStyle.PLACEFOLDER;
-            cindex = 0;
-            rindex = 0;
-            output = getFileFromHeader();
-        }
-
-        /**
-         * Initialize a default list of missing input.
-         */
-        ChapterList(List<Integer> h, List<List<String>> input, TextStyle ts) {
+        ChapterList(List<Integer> h, List<String> input, TextStyle ts, boolean c) {
             headers = h.stream().filter(t -> t > 0).collect(Collectors.toList());
             result = input;
             type = ts;
             cindex = 0;
-            rindex = 0;
-            output = getFileFromHeader();
+            cases = c;
+        }
+
+        /**
+         *
+         */
+        public void updateText(List<String> input) {
+            int index = 0;
+            for(int i = 0; i < result.size(); i++) {
+                String s = result.get(i);
+                Pattern pat = Pattern.compile("[^a-zA-Z ][A-Z]{3,}([ ][A-Z]{3,})*[^a-zA-Z ]|[A-Z]{4,}");
+                Matcher m = pat.matcher(s);
+                while (m.find()) {
+                    String word = m.group();
+                    s = s.replace(word, input.get(index));
+                    result.set(i, s);
+                    index = clamp(index+1, input.size()-1);
+                }
+            }
+            cases = true;
         }
 
         /**
@@ -82,9 +86,9 @@ public class ReportModel {
          */
         public String currentItem() {
 
-            int size = output.size();
+            int size = result.size();
 
-            String temp = (size > 0) ? output.get(cindex) : "";
+            String temp = result.get(cindex);
             cindex = clamp(cindex+1, (size)-1);
 
             return temp;
@@ -105,74 +109,6 @@ public class ReportModel {
         }
 
         /**
-         * Gets text of output from chapter file
-         */
-        private List<String> getFileFromHeader() {
-            String chapterFile = formatChapterNumber();
-
-            XWPFDocument doc = getDocumentFile(chapterFolder + chapterFile);
-
-            if(doc != null) {
-                return getOutputValuesFromFile(doc);
-            } else {
-                return result.get(0);
-            }
-        }
-
-        /**
-         * Gets text of output from chapter file
-         */
-        private List<String> getOutputValuesFromFile(XWPFDocument doc) {
-            List<XWPFParagraph> paragraphs = doc.getParagraphs();
-
-            List<String> temp = new ArrayList<>();
-
-            boolean hit = false;
-            for(XWPFParagraph p : paragraphs) {
-                if(!hit) {
-                    if(p.getText().contains("Output")) {
-                        hit = true;
-                    }
-                }
-                else {
-                    if(!p.getText().equals("")) {
-                        String s = p.getText();
-
-                        Pattern pat = Pattern.compile("[^a-zA-Z ][A-Z]([ ][A-Z])*[^a-zA-Z ]|[A-Z]{4,}");
-                        Matcher m = pat.matcher(s);
-                        while (m.find()) {
-                            String word = m.group();
-                            s = s.replace(word, getNextResult());
-                        }
-
-                        temp.add(s);
-                    }
-                }
-            }
-
-            return temp;
-        }
-
-        private String getNextResult() {
-            String temp = result.get(0).get(rindex);
-            rindex = clamp(rindex+1, result.get(0).size()-1);
-            return temp;
-        }
-
-        /**
-         * Formats Chapter number given by converting it from List<Integer> into filename.
-         * For example [1, 1] turns into "1.1".
-         */
-        private String formatChapterNumber() {
-            StringBuilder s = new StringBuilder();
-            for(int i : headers) {
-                s.append(i + ".");
-            }
-            s.append("docx");
-            return s.toString();
-        }
-
-        /**
          * Prints text of data stored.
          */
 
@@ -180,15 +116,10 @@ public class ReportModel {
             for (Integer header : headers) {
                 System.out.print(header + " ");      // NOSONAR
             }
-            for (List<String> strings : result) {
+            for (String strings : result) {
                 System.out.print(strings + " ");      // NOSONAR
             }
-            System.out.print('\n');                         // NOSONAR
-            if(output != null) {
-                for(String out : output) {
-                    System.out.println(out);      // NOSONAR
-                }
-            }
+            System.out.print("\n");                 // NOSONAR
         }
     }
 
@@ -265,7 +196,6 @@ public class ReportModel {
         ) {
             return new XWPFDocument(fis);
         } catch (IOException | NullPointerException e) {
-            System.out.println(e.getMessage());             //NOSONAR
             return null;
         }
 
@@ -283,7 +213,13 @@ public class ReportModel {
                 XWPFParagraph p = (XWPFParagraph)element;
 
                 if(findNewHeader(p)) {
-                    chapterList.put(headersData.getNumbering(), Arrays.asList(new ChapterList(headersData.getNumbering())));
+                    List<Integer> h = headersData.getNumbering();
+                    List<List<String>> input = getFileFromHeader(h);
+                    chapterList.put(h, new ArrayList<>());
+                    for(List<String> list : input) {
+                        chapterList.get(h).add(new ChapterList(h, list, TextStyle.PARAGRAPH, false));
+                    }
+                    if(input.isEmpty()) chapterList.get(h).add(new ChapterList(h, Arrays.asList(notFoundField), TextStyle.PARAGRAPH, false));
                 }
             }
         }
@@ -329,7 +265,7 @@ public class ReportModel {
             XWPFParagraph p = document.getParagraphs().get(i);
 
             if(hit) {
-                insertParagraphToDocument(currentChapterInput, p);
+                addParagraphToDocument(currentChapterInput, p);
                 hit = false;
             }
 
@@ -342,11 +278,14 @@ public class ReportModel {
         }
     }
 
-    private void insertParagraphToDocument(List<ChapterList> currentChapterInput, XWPFParagraph p) {
-        if(currentChapterInput != null && currentChapterInput.get(0).getType().equals(TextStyle.PARAGRAPH)) {
-            for(ChapterList chap : currentChapterInput) {
-                for(int j = 0; j < chap.output.size(); j++) {
-                    insertParagraphToDocument(currentChapterInput.get(0).currentItem(), p);
+    private void addParagraphToDocument(List<ChapterList> currentChapterInput, XWPFParagraph p) {
+        if(currentChapterInput != null) {
+            for(int i = 0; i < currentChapterInput.size(); i++) {
+                ChapterList chap = currentChapterInput.get(i);
+                if(chap.getType().equals(TextStyle.PARAGRAPH) && chap.cases) {
+                    for(String s : chap.result) {
+                        insertParagraphToDocument(s, p);
+                    }
                 }
             }
         }
@@ -357,17 +296,18 @@ public class ReportModel {
      */
     private void editDocument(XWPFParagraph p, List<ChapterList> cChapter) {
         for(XWPFRun r : p.getRuns()) {
-            if(cChapter != null && r.getText(0) != null && r.getText(0).contains("TODO")) {
-                for(ChapterList chapter : cChapter) {
-                    switch(chapter.getType()) {
-                        case PLACEFOLDER:
-                        case INPUT:
-                            insertInputToDocument(r.getText(0), chapter.currentItem(), r);
-                            break;
-                        case TABLE:
-                            insertTableToDocument(chapter, p);
-                            break;
-                        default:
+            if(r.getText(0) != null && r.getText(0).contains("TODO")) {
+                if(cChapter != null) {
+                    for(ChapterList chapter : cChapter) {
+                        switch(chapter.getType()) {
+                            case INPUT:
+                                insertInputToDocument(r.getText(0), chapter.currentItem(), r);
+                                break;
+                            case TABLE:
+                                insertTableToDocument(chapter, p);
+                                break;
+                            default:
+                        }
                     }
                 }
             }
@@ -378,7 +318,7 @@ public class ReportModel {
 
     private void insertInputToDocument(String text, String input, XWPFRun r) {
         text = text.replace("TODO", (!input.equals("") ? input : notFoundField));
-        setRun(r, FONT , 11, false, text);
+        setRun(r, FONT , 11, false, text, false);
     }
 
     private void insertParagraphToDocument(String input, XWPFParagraph p) {
@@ -386,7 +326,7 @@ public class ReportModel {
 
         XWPFParagraph para = document.insertNewParagraph(cursor);
 
-        setRun(para.createRun() , FONT , 11, false, (!input.equals("") ? input : notFoundField));
+        setRun(para.createRun() , FONT , 11, false, (!input.equals("") ? input : notFoundField), true);
     }
 
     private void insertTableToDocument(ChapterList cChapter, XWPFParagraph p) {
@@ -397,7 +337,7 @@ public class ReportModel {
 
         XWPFParagraph paragraph;
 
-        for(int i = 0; i < cChapter.result.get(0).size(); i++) {
+        for(int i = 0; i < cChapter.result.size(); i++) {
             XWPFTableRow tableOneRowVersion = table.createRow();
             for(int j = 0; j < cChapter.result.size(); j++) {
                 if(i == 0) {
@@ -409,7 +349,9 @@ public class ReportModel {
                         FONT,
                         11,
                         (i == 0),
-                        (!cChapter.currentItem().equals("") ? cChapter.currentItem() : notFoundField));
+                        (!cChapter.currentItem().equals("") ? cChapter.currentItem() : notFoundField),
+                        false
+                );
 
                 tableOneRowVersion.getCell(j).setWidth("1500");
             }
@@ -423,11 +365,12 @@ public class ReportModel {
      * Print paragraph text into table cell
      */
 
-    public void setRun(XWPFRun run, String font, int size, boolean bold, String text) {
+    public void setRun(XWPFRun run, String font, int size, boolean bold, String text, boolean addBreak) {
         run.setFontFamily(font);
         run.setFontSize(size);
         run.setText(text, 0);
         run.setBold(bold);
+        if(addBreak) run.addBreak();
     }
     /**
      * Print the newly edited document to a new file
@@ -449,30 +392,29 @@ public class ReportModel {
      * Replace old inputs with new ones
      */
 
+    public void setNewInput(List<Integer> h, List<String> inputList, List<Integer> cases) {
+        for(int i : cases) {
+            chapterList.get(h).get(i).updateText(inputList);
+        }
+    }
+
     public void setNewInput(List<Integer> h, List<String> inputList) {
-        setNewChapter(h, Collections.singletonList(inputList), TextStyle.INPUT);
+        chapterList.put(h, new ArrayList<>());
+        chapterList.get(h).add(new ChapterList(h, inputList, TextStyle.INPUT, true));
     }
 
     /**
      * Replace old inputs with a table field
      */
 
-    public void setNewTable(List<Integer> h, List<List<String>> tablefield) {
+    public void setNewTable(List<Integer> h, List<String> tablefield) {
         setNewChapter(h, tablefield, TextStyle.TABLE);
     }
 
     public void setNewTable(List<Integer> h, List<String> tableHeaders, List<String> tableContent) {
 
-        List<List<String>> ll = new ArrayList<>();
-        for(int i = 0; i < tableHeaders.size(); i++) {
-            final int tempInt = i;
-            List<String> temp = IntStream.range(i, tableContent.size())
-                    .filter(n -> n % tableHeaders.size() == tempInt)
-                    .mapToObj(tableContent::get)
-                    .collect(Collectors.toList());
-            temp.add(0, tableHeaders.get(i));
-            ll.add(temp);
-        }
+        List<String> ll = Stream.concat(tableHeaders.stream(), tableContent.stream())
+                .collect(Collectors.toList());
 
         setNewChapter(h, ll, TextStyle.TABLE);
     }
@@ -481,16 +423,72 @@ public class ReportModel {
      * Replace old inputs with a paragraph
      */
     public void setNewParagraph(List<Integer> h, List<String> para) {
-        setNewChapter(h, Collections.singletonList(para), TextStyle.PARAGRAPH);
+        setNewChapter(h, para, TextStyle.PARAGRAPH);
     }
 
-    private void setNewChapter(List<Integer> h, List<List<String>> input, TextStyle type) {
-        if(!input.isEmpty()) {
-            if(chapterList.get(h).get(0).getType().equals(TextStyle.PLACEFOLDER)) {
-                chapterList.put(h, new ArrayList<>());
-            }
-            chapterList.get(h).add(new ChapterList(h, input, type));
+    private void setNewChapter(List<Integer> h, List<String> input, TextStyle type) {
+        if (chapterList.get(h).get(0).result.get(0) == notFoundField) {
+            chapterList.put(h, new ArrayList<>());
         }
+        chapterList.get(h).add(new ChapterList(h, input, type, true));
+    }
+
+    /**
+     * Gets text of output from chapter file
+     */
+    private List<List<String>> getFileFromHeader(List<Integer> h) {
+        String chapterFile = formatChapterNumber(h);
+
+        XWPFDocument doc = getDocumentFile(chapterFolder + chapterFile);
+
+        if(doc != null) {
+            return getOutputValuesFromFile(doc);
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Gets text of output from chapter file
+     */
+    private List<List<String>> getOutputValuesFromFile(XWPFDocument doc) {
+        List<XWPFParagraph> paragraphs = doc.getParagraphs();
+
+        List<List<String>> temp = new ArrayList<>();
+        temp.add(new ArrayList<>());
+
+        int index = 0;
+
+        boolean hit = false;
+        for(XWPFParagraph p : paragraphs) {
+            if(hit && !p.getText().equals("")) {
+                if(!p.getText().contains("AND/OR")) {
+                    temp.get(index).add(p.getText());
+                }
+                else {
+                    temp.add(new ArrayList<>());
+                    index++;
+                }
+            }
+            if(p.getText().contains("Output")) {
+                hit = true;
+            }
+        }
+
+        return temp;
+    }
+
+    /**
+     * Formats Chapter number given by converting it from List<Integer> into filename.
+     * For example [1, 1] turns into "1.1".
+     */
+    private String formatChapterNumber(List<Integer> h) {
+        StringBuilder s = new StringBuilder();
+        for(int i : h) {
+            s.append(i + ".");
+        }
+        s.append("docx");
+        return s.toString();
     }
 
 }
