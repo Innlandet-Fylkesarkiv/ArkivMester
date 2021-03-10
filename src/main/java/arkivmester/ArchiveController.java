@@ -1,6 +1,7 @@
 package arkivmester;
 
 import java.io.IOException;
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -65,7 +66,53 @@ public class ArchiveController implements ViewObserver {
         writeDeviation(Arrays.asList(3, 1, 1),"N5.01", "Lokasjon", "Avvik");
         writeDeviation(Arrays.asList(3, 1, 1),"N5.02", "Lokasjon2", "Avvik2");
 
+        List<String> threeOneTwelve = arkadeModel.getDataFromHtml("N5.22");
+        int arkivert = arkadeModel.getTotal("N5.22", 1);
+        int journalfort = arkadeModel.getTotal("N5.22", 5);
 
+        if(journalfort <= 0) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), Arrays.asList(0));
+        } else {
+            if(arkivert <= 0) {
+                reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), Arrays.asList(2));
+            } else {
+                reportModel.setNewInput(Arrays.asList(3, 1, 12), Arrays.asList(""+journalfort), Arrays.asList(1));
+            }
+        }
+
+
+
+        //Chapter 3.1.16 - Saksparter
+        List<Integer> saksparter = arkadeModel.saksparter();
+        if(saksparter.get(0) > 0){
+            reportModel.setNewInput(Arrays.asList(3, 1, 16), Collections.singletonList(
+                    saksparter.get(0).toString()), Collections.singletonList(saksparter.get(1)));
+        } else {
+            reportModel.setNewInput(Arrays.asList(3, 1, 16), Collections.emptyList(),
+                        Collections.singletonList(saksparter.get(1)));
+        }
+        //Chapter 3.1.17 - Merknader
+        if (arkadeModel.merknader().isEmpty()){
+            reportModel.setNewInput(Arrays.asList(3, 1, 17), Collections.emptyList(),
+                    Collections.singletonList(0));
+            reportModel.setNewParagraph(Arrays.asList(3, 1, 17), Collections.singletonList("Rename tittel from 3.1.17 to merknader "));
+            reportModel.setNewParagraph(Arrays.asList(3, 3, 3), Collections.singletonList("DELETE ME: 3.3.3"));
+        }
+
+        //Chapter 3.1.18 - Kryssreferanser
+
+        if(arkadeModel.getTotal("N5.37") > 0){
+            reportModel.setNewInput(Arrays.asList(3, 1, 18), Collections.emptyList() , Collections.singletonList(0));
+        }
+        //Delete 3.3.4, Title = "Kryssreferanser"
+
+        //Chapter 3.1.19 - Presedenser
+        if(arkadeModel.getTotal("N5.38") > 0 ) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), Collections.singletonList(0));
+        }
+        else {
+            reportModel.setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), Collections.singletonList(1));
+        }
     }
 
     /**
@@ -130,7 +177,7 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tArkade test finished\n"); //NOSONAR
             testView.updateArkadeStatus(TestView.DONE);
-            attachments.add("Arkade5 testrapport");
+            attachments.add("\u2022 Arkade5 testrapport");
 
         }
 
@@ -146,7 +193,7 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tVeraPDF test finished\n"); //NOSONAR
             testView.updateVeraStatus(TestView.DONE);
-            attachments.add("VeraPDF testrapport");
+            attachments.add("\u2022 VeraPDF testrapport");
         }
 
         //KostVal
@@ -161,7 +208,7 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tKost-Val test finished\n"); //NOSONAR
             testView.updateKostValStatus(TestView.DONE);
-            attachments.add("Kost-val testrapport");
+            attachments.add("\u2022 Kost-val testrapport");
         }
 
         //DROID
@@ -176,7 +223,7 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tDROID finished\n"); //NOSONAR
             testView.updateDroidStatus(TestView.DONE);
-            attachments.add("DROID rapporter");
+            attachments.add("\u2022 DROID rapporter");
         }
         System.out.println("\nTesting Ferdig\n"); //NOSONAR
 
@@ -347,7 +394,7 @@ public class ArchiveController implements ViewObserver {
                 "3.1.11.xq",
                 settingsModel.prop).get(0);
 
-        reportModel.setNewInput(Arrays.asList(3, 1, 10), Collections.singletonList(para), Collections.singletonList(0));
+        reportModel.setNewInput(Arrays.asList(3, 1, 10), Collections.emptyList(), Collections.singletonList(0));
 
         reportModel.setNewInput(Arrays.asList(3, 1, 11), Collections.singletonList(para), Collections.singletonList(1));
 
@@ -358,7 +405,22 @@ public class ArchiveController implements ViewObserver {
 
         para = "" + temp.size();
 
+
+
         reportModel.setNewInput(Arrays.asList(3, 1, 13), Arrays.asList(para, "placeholder"), Collections.singletonList(1));
+
+        reportModel.setNewInput(Arrays.asList(3, 1, 15), Collections.emptyList(), Collections.singletonList(0));
+
+        temp = thirdPartiesModel.runBaseX(
+                testArkivstruktur,
+                "3.1.20.xq",
+                settingsModel.prop);
+
+        if(temp.isEmpty()) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.emptyList(), Collections.singletonList(0));
+        } else {
+            reportModel.setNewInput(Arrays.asList(3, 1, 20), Arrays.asList("" + temp.size()), Collections.singletonList(1));
+        }
 
         //arkadeModel.parseReportHtml(); // remove when all function used in testModel
         writeChapterFive();

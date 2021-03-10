@@ -55,29 +55,31 @@ public class ArkadeModel {
     /** 3.1.16. Check for number of registrations with saksparter.
      * @return Comment on number of saksparter
      */
-    public Integer saksparter(){
-        Integer saksparter = getTotalt("N5.35");
-        Integer antallReg = getTotalt("N5.16");
+        public List<Integer> saksparter(){
+        List<Integer> list = new ArrayList<>();
+        Integer saksparter = getTotal("N5.35");
+        Integer antallReg = getTotal("N5.16");
 
-
+        list.add(saksparter);
         if(saksparter <= 0){
             // Ingen saksparter er registrert.
-            return 0;
+            list.add(0);
         }
         else if(saksparter < (antallReg / 4)){
             // saksparter + saksparter er registrert, og virker normalt for uttrekket.
-            return 1;
+            list.add(1);
         }
         else{
             // saksparter + saksparter er registrert, varsel: over 25% av antall registreringer har saksparter
-            return 2;
+            list.add(2);
         }
+        return list;
     }
     /** 3.1.17. Get Merkader
      * @return empty string if no merknader else comment
      */
     public String merknader(){
-        int merknader = getTotalt("N5.36");
+        int merknader = getTotal("N5.36");
         if(merknader <= 0){
             return "Ingen merknader er registrert. ";
         }
@@ -88,14 +90,25 @@ public class ArkadeModel {
      * @param index for test class.
      * @return Totalt or -1 if no deviation table.
      */
-    public Integer getTotalt(String index){
-        List<String> merknader = getDataFromHtml(index);
+    public Integer getTotal(String index){
+        List<String> total = getDataFromHtml(index);
 
-        if(merknader.size() < 2){
+        if(total.size() < 2){
             System.out.println(index + " has less than 2 elements"); //NOSONAR
             return -1;
         }
-        return Integer.parseInt(merknader.get(1).replaceAll("\\D+", ""));
+        return Integer.parseInt(total.get(1).replaceAll("\\D+", ""));
+    }
+
+
+    public Integer getTotal(String index, int element){
+        List<String> total = getDataFromHtml(index);
+
+        if(total.size() < element){
+            System.out.println(index + " has less than 2 elements"); //NOSONAR
+            return -1;
+        }
+        return Integer.parseInt(total.get(element).replaceAll("\\D+", ""));
     }
 
     /**
