@@ -1,7 +1,6 @@
 package arkivmester;
 
 import java.io.IOException;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -66,17 +65,16 @@ public class ArchiveController implements ViewObserver {
         writeDeviation(Arrays.asList(3, 1, 1),"N5.01", "Lokasjon", "Avvik");
         writeDeviation(Arrays.asList(3, 1, 1),"N5.02", "Lokasjon2", "Avvik2");
 
-        List<String> threeOneTwelve = arkadeModel.getDataFromHtml("N5.22");
         int arkivert = arkadeModel.getTotal("N5.22", 1);
         int journalfort = arkadeModel.getTotal("N5.22", 5);
 
         if(journalfort <= 0) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), Arrays.asList(0));
+            reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), Collections.singletonList(0));
         } else {
             if(arkivert <= 0) {
-                reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), Arrays.asList(2));
+                reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), Collections.singletonList(2));
             } else {
-                reportModel.setNewInput(Arrays.asList(3, 1, 12), Arrays.asList(""+journalfort), Arrays.asList(1));
+                reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.singletonList("" + journalfort), Collections.singletonList(1));
             }
         }
 
@@ -419,7 +417,7 @@ public class ArchiveController implements ViewObserver {
         if(temp.isEmpty()) {
             reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.emptyList(), Collections.singletonList(0));
         } else {
-            reportModel.setNewInput(Arrays.asList(3, 1, 20), Arrays.asList(temp.size() + ""), Collections.singletonList(1));
+            reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.singletonList(temp.size() + ""), Collections.singletonList(1));
         }
 
         //arkadeModel.parseReportHtml(); // remove when all function used in testModel
