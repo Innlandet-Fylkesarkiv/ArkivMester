@@ -170,16 +170,21 @@ public class ThirdPartiesModel {
     public List<String> runBaseX(String xml, String xqName, Properties prop)  {
         String xq = prop.getProperty("xqueryExtFolder") + "\\" + xqName;
         String temp = prop.getProperty("tempFolder") + "\\xqueryResult.txt";
-        String pwd = cdString + prop.getProperty("basexPath") + "\""; //NOSONAR
+        String pwd = cdString + prop.getProperty("basexPath") + "\"";
         List<String> result = new ArrayList<>();
 
         ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o " + temp + " -i " + xml + " " + xq);
 
+        try {
+            Process p = baseXBuilder.start();
+            p.waitFor();
+        } catch (IOException | InterruptedException e) {
+            System.out.println(e.getMessage()); //#NOSONAR
+            Thread.currentThread().interrupt();
+        }
+
         File xqueryResult = new File(temp);
         try (InputStream bytes = new FileInputStream(xqueryResult)) {
-            baseXBuilder.start();
-            sleep(1000);
-
             Reader chars = new InputStreamReader(bytes, StandardCharsets.UTF_8);
 
             try (BufferedReader r = new BufferedReader(chars)) {
@@ -190,8 +195,7 @@ public class ThirdPartiesModel {
                 }
             }
 
-        } catch (IOException | InterruptedException e) {
-            Thread.currentThread().interrupt();
+        } catch (IOException e) {
             System.out.println(e.getMessage()); //#NOSONAR
         }
 
