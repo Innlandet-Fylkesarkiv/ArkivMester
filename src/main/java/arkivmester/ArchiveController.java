@@ -419,7 +419,7 @@ public class ArchiveController implements ViewObserver {
         if(temp.isEmpty()) {
             reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.emptyList(), Collections.singletonList(0));
         } else {
-            reportModel.setNewInput(Arrays.asList(3, 1, 20), Arrays.asList("" + temp.size()), Collections.singletonList(1));
+            reportModel.setNewInput(Arrays.asList(3, 1, 20), Arrays.asList(temp.size() + ""), Collections.singletonList(1));
         }
 
         //arkadeModel.parseReportHtml(); // remove when all function used in testModel
