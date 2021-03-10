@@ -1,7 +1,5 @@
 package arkivmester;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +28,6 @@ public class ArchiveController implements ViewObserver {
     ArkadeModel arkadeModel;
     ThirdPartiesModel thirdPartiesModel;
     SettingsModel settingsModel;
-    Properties chapterProp;
 
     ArrayList<String> attachments = new ArrayList<>();
 
@@ -41,15 +38,6 @@ public class ArchiveController implements ViewObserver {
         arkadeModel = new ArkadeModel();
         thirdPartiesModel = new ThirdPartiesModel();
         settingsModel = new SettingsModel();
-
-        chapterProp = new Properties();
-        try (
-                FileInputStream fis = new FileInputStream(new File("src/main/resources/chapterOutput.properties"))
-                ){
-            chapterProp.load(fis);
-        } catch (NullPointerException | IOException e) {
-            System.out.println(e.getMessage());         // NOSONAR
-        }
     }
 
     /**
