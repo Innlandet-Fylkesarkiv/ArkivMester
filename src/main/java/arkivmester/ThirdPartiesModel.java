@@ -1,6 +1,7 @@
 package arkivmester;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -269,13 +270,14 @@ public class ThirdPartiesModel {
 
         ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o " + temp + " -i " + xml + " " + xq);
 
-        try {
-            File xqueryResult = new File(temp);
-
+        File xqueryResult = new File(temp);
+        try (InputStream bytes = new FileInputStream(xqueryResult)) {
             baseXBuilder.start();
             sleep(1000);
 
-            try (BufferedReader r = new BufferedReader(new FileReader(xqueryResult))) {
+            Reader chars = new InputStreamReader(bytes, StandardCharsets.UTF_8);
+
+            try (BufferedReader r = new BufferedReader(chars)) {
                 String line = r.readLine();
                 while (line != null) {
                     result.add(line);
