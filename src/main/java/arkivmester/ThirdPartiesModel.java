@@ -178,7 +178,7 @@ public class ThirdPartiesModel {
      * @param prop Properties object containing the config.
      * @return String list of the results from the query.
      */
-    public List<String> runBaseX(String xml, String xqName, Properties prop)  {
+    public List<String> runBaseX(String xml, String xqName, Properties prop) throws IOException {
         String xq = prop.getProperty("xqueryExtFolder") + "\\" + xqName;
         String temp = prop.getProperty("tempFolder") + "\\xqueryResult.txt";
         String pwd = cdString + prop.getProperty("basexPath") + "\"";
@@ -189,8 +189,7 @@ public class ThirdPartiesModel {
         try {
             Process p = baseXBuilder.start();
             p.waitFor();
-        } catch (IOException | InterruptedException e) {
-            System.out.println(e.getMessage()); //#NOSONAR
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
 
@@ -206,9 +205,6 @@ public class ThirdPartiesModel {
                     line = r.readLine();
                 }
             }
-
-        } catch (IOException e) {
-            System.out.println(e.getMessage()); //#NOSONAR
         }
 
         return result;

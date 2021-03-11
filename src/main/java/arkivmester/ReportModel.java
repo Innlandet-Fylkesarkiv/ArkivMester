@@ -54,10 +54,11 @@ public class ReportModel {
 
         /**
          * Initialize a default list of missing input.
-         * @param h
-         * @param input
-         * @param ts
-         * @param c
+         * @param h the number index of a specific header
+         * @param input the input text that are going to be put from either file or code
+         * @param ts    the type of text as an enum(PARAGRAPH, INPUT, TABLE)
+         * @param c     if the program are going to write this part to document
+         * @return
          */
         ChapterList(List<Integer> h, List<String> input, TextStyle ts, boolean c) {
             headers = h.stream().filter(t -> t > 0).collect(Collectors.toList());
@@ -413,7 +414,7 @@ public class ReportModel {
             document.close();
             os.close();
             System.out.println("\nfile created successfully!");     // NOSONAR
-        } catch (IOException | NullPointerException e) {
+            } catch (IOException e) {
             System.out.println(e.getMessage());                    // NOSONAR
         }
     }

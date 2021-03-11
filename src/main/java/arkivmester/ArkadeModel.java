@@ -54,15 +54,15 @@ public class ArkadeModel {
     }
 
     /** 3.1.17. Get Merkader
-     * Todo rename this to anyMerknader
-     * @return "" if merknader, else comment
+     * @return if merknader "", else comment
      */
-    public String merknader(){
+    public boolean ingenMerknader(){
         int merknader = getTotal("N5.36", 1);
         if(merknader <= 0){
-            return "Ingen merknader er registrert. ";
+            //Ingen merknader er registrert.
+            return true;
         }
-        return "";
+        return false;
     }
 
     /** Get Totalt from deviation table.
