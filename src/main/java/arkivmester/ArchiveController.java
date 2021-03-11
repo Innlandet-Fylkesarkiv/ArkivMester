@@ -195,6 +195,12 @@ public class ArchiveController implements ViewObserver {
         mainView.toggleEditInfoBtn();
         mainView.toggleSettingsBtn();
 
+        try {
+            settingsModel.handleOutputFolders();
+        } catch (IOException e) {
+            mainView.exceptionPopup("Kunne ikke skrive til user.home mappen.");
+        }
+
         //Schedule the runTests function to give the UI time to update before tests are run.
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.submit(this::runTests);
