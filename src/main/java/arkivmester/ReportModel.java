@@ -43,6 +43,8 @@ public class ReportModel {
 
     public static class ChapterList {
 
+        String regex = "[^a-zA-Z ][A-Z]{3,}([ ][A-Z]{3,}){0,5}[^a-zA-Z ]|[A-Z]{4,}";
+
         private final List<Integer> headers;
         private final List<String> result;
         private final TextStyle type;
@@ -68,8 +70,7 @@ public class ReportModel {
                 int index = 0;
                 for(int i = 0; i < result.size(); i++) {
                     String s = result.get(i);
-                    // "ASGVDVJ GVDJDBJE JDJHFHJE " jhbfajhbgheghjeaASHGVDjfajgfjeg
-                    Pattern pat = Pattern.compile("[^a-zA-Z ][A-Z]{3,}([ ][A-Z]{3,}){0,5}[^a-zA-Z ]|[A-Z]{4,}");
+                    Pattern pat = Pattern.compile(regex);
                     Matcher m = pat.matcher(s);
                     while (m.find()) {
                         String word = m.group();
@@ -86,7 +87,6 @@ public class ReportModel {
          * If chapter number is correct, set table as input to chapter-section.
          */
         public String currentItem() {
-
             int size = result.size();
 
             String temp = result.get(cindex);
@@ -110,9 +110,8 @@ public class ReportModel {
         }
 
         /**
-         * Prints text of data stored.
+         * Prints header number and text from data stored.
          */
-
         public void getText() {
             for (Integer header : headers) {
                 System.out.print(header + " ");      // NOSONAR
@@ -260,19 +259,15 @@ public class ReportModel {
 
         List<ChapterList> currentChapterInput = new ArrayList<>();
 
-        boolean hit = false;
-
         for(int i = 0; i < document.getParagraphs().size(); i++) {
             XWPFParagraph p = document.getParagraphs().get(i);
 
-            if(hit) {
-                addParagraphToDocument(currentChapterInput, p);
-                hit = false;
-            }
-
             if(findNewHeader(p)) {
                 currentChapterInput = chapterList.get(headersData.getNumbering());
-                hit = true;
+
+                if(i + 1 < document.getParagraphs().size()) {
+                    addParagraphToDocument(currentChapterInput, document.getParagraphs().get(i+1));
+                }
             }
 
             editDocument(p, currentChapterInput);
