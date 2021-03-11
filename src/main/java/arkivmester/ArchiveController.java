@@ -8,6 +8,8 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Serves as the link between the views and the models.
  *
@@ -29,11 +31,16 @@ public class ArchiveController implements ViewObserver {
     ThirdPartiesModel thirdPartiesModel;
     SettingsModel settingsModel;
 
+    ScheduledExecutorService scheduler;
+
     /**
      * List of the attachments which will be printed in chapter 5.
      */
     ArrayList<String> attachments = new ArrayList<>();
 
+    /**
+     * Initializes models and views.
+     */
     ArchiveController() {
         mainView = new MainView();
         archiveModel = new ArchiveModel();
@@ -243,7 +250,7 @@ public class ArchiveController implements ViewObserver {
         }
 
         //Schedule the runTests function to give the UI time to update before tests are run.
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler = Executors.newScheduledThreadPool(1);
         scheduler.submit(this::runTests);
     }
 
@@ -251,6 +258,7 @@ public class ArchiveController implements ViewObserver {
     //When "Test nytt uttrekk" is clicked.
     @Override
     public void newTest() {
+        scheduler.shutdown();
         testView.clearContainer();
         testView = null;
         mainView.showGUI();
@@ -459,7 +467,7 @@ public class ArchiveController implements ViewObserver {
 
         reportModel.writeReportDocument();     // editing
         reportModel.printReportToFile(settingsModel.prop);
-
+        testView.updateTestStatus("<html>Rapporten er generert og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\TestReport\\</html>");
         testView.activatePackToAipBtn();
 
 
