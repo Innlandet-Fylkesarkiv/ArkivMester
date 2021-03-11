@@ -87,6 +87,18 @@ public class SettingsModel {
         if(!arkadeFolder.exists()) {
             Files.createDirectory(arkadeFolder.toPath());
         }
+
+        //Arkade Output
+        File arkadeOutputFolder = new File(userFolder.getPath() + "\\temp\\Arkade\\Report");
+        if(!arkadeOutputFolder.exists()) {
+            Files.createDirectory(arkadeOutputFolder.toPath());
+        }
+
+        //TestReport
+        File testReportFolder = new File(userFolder.getPath() + "\\temp\\TestReport");
+        if(!testReportFolder.exists()) {
+            Files.createDirectory(testReportFolder.toPath());
+        }
     }
 
     /**

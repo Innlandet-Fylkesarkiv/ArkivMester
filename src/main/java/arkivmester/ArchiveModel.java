@@ -101,6 +101,11 @@ public class ArchiveModel {
         }
     }
 
+    /**
+     * Converts the computer date format to norwegian date format.
+     * @param list Administrative data list where the date is at index 4.
+     * @return The same data list, but with the updated date.
+     */
     public List<String> formatDate(List<String> list) {
         //Formats date to norwegian format.
         DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);

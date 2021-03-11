@@ -11,6 +11,7 @@ import java.util.Properties;
  *
  * @since 1.0
  * @version 1.0
+ * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen
  */
 public class ThirdPartiesModel {
     String cmd = "cmd.exe";
@@ -18,17 +19,33 @@ public class ThirdPartiesModel {
     private List<Boolean> selectedTests = new ArrayList<>();
     int amountOfTests = 4;
 
+    /**
+     * Initializes the selectedTests list to true.
+     */
     ThirdPartiesModel() {
-        //Initiate selectedTests list
         for(int i = 0; i < amountOfTests; i++)
             selectedTests.add(true);
     }
+
+    /**
+     * Updates selectedTests with updated data.
+     * @param selectedList Updated selectedTests from the UI.
+     */
     public void updateSelectedTests(List<Boolean> selectedList) {
         selectedTests = selectedList;
     }
+
+    /**
+     * Regular getter for selectedTests list.
+     * @return selectedTests boolean list.
+     */
     public List<Boolean> getSelectedTests() {
         return selectedTests;
     }
+
+    /**
+     * Resets the selectedTests to true. Used when the program resets.
+     */
     public void resetSelectedTests() {
         for (int i = 0; i<amountOfTests; i++) {
             selectedTests.set(i, true);
@@ -48,9 +65,9 @@ public class ThirdPartiesModel {
         //String with path to arkadeCli
         String cd = cdString + prop.getProperty("arkadePath") + "\"";
         //Path to output folder where test report gets saved.
-        String outputPath = prop.getProperty("arkadeOutput");
+        String outputPath = prop.getProperty("tempFolder") + "\\Arkade\\Report";
         //Path to temp folder where temporary data about the tests gets stored.
-        String tempPath = prop.getProperty("arkadeTemp");
+        String tempPath = prop.getProperty("tempFolder") + "\\Arkade";
 
         //Run ArkadeCli through command line.
         runCMD(cd + " && arkade test -a " + path + " -o " + outputPath + " -p " + tempPath + " -t noark5");
@@ -70,7 +87,7 @@ public class ThirdPartiesModel {
         //String with path to KostVal
         String cd = cdString + prop.getProperty("kostvalPath") + "\"";
         //Path to folder where test report gets moved to.
-        String reportPath = prop.getProperty("tempFolder");
+        String reportPath = prop.getProperty("tempFolder") + "\\KostVal";
 
         //Run kost-val from command line
         runCMD(cd + " &&  java -jar cmd_KOST-Val.jar --sip " + path + " --en");
@@ -91,7 +108,7 @@ public class ThirdPartiesModel {
         //String with path to VeraPDF
         String cd = cdString + prop.getProperty("veraPDFPath") + "\"";
         //Path to folder where test report gets moved to.
-        String reportPath = prop.getProperty("tempFolder") + "\\verapdf.xml";
+        String reportPath = prop.getProperty("tempFolder") + "\\VeraPDF" + "\\verapdf.xml";
 
         //Run verapdf through command line.
         runCMD(cd + " && verapdf --recurse " + path + " > " + reportPath);
@@ -113,9 +130,9 @@ public class ThirdPartiesModel {
         //String with command to run .jar file
         String jar = " && java -jar droid-command-line-6.5.jar";
         //Path to droid profile needed to run droid.
-        String profilePath = prop.getProperty("droidOutput") + "\\profile.droid";
+        String profilePath = prop.getProperty("tempFolder") + "\\DROID" + "\\profile.droid";
         //Path to folder where test output ends up.
-        String outputPath = prop.getProperty("droidOutput");
+        String outputPath = prop.getProperty("tempFolder") + "\\DROID";
 
         //Run first DROID function - making the droid profile.
         System.out.println("\nDroid 1"); //NOSONAR
@@ -134,10 +151,7 @@ public class ThirdPartiesModel {
         System.out.println("\nDroid 4"); //NOSONAR
         runCMD(cd + jar + " -p " + profilePath + " -n \"Comprehensive breakdown\" " +
                 "-t \"PDF\" -r " + outputPath + "\\droid.pdf");
-
     }
-
-
 
     /**
      * Runs 7Zip through command line and unzips the archive.
@@ -151,11 +165,10 @@ public class ThirdPartiesModel {
         //String with path to 7zip location.
         String cd = cdString + prop.getProperty("7ZipPath") + "\"";
         //Path to where the archive gets unzipped to
-        String outputpath = prop.getProperty("7ZipOutput");
+        String outputpath = prop.getProperty("tempFolder");
 
         //Run VeraPDF from command line
         runCMD(cd + " && 7z x " + path + " -o" +outputpath+" -r");
-
     }
 
     /**

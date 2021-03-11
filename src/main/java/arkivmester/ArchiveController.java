@@ -29,6 +29,9 @@ public class ArchiveController implements ViewObserver {
     ThirdPartiesModel thirdPartiesModel;
     SettingsModel settingsModel;
 
+    /**
+     * List of the attachments which will be printed in chapter 5.
+     */
     ArrayList<String> attachments = new ArrayList<>();
 
     ArchiveController() {
@@ -55,6 +58,9 @@ public class ArchiveController implements ViewObserver {
         }
     }
 
+    /**
+     *
+     */
     private void arkadeTestReport(){
         arkadeModel.parseReportHtml(); // remove when all function used in testModel
         // 3 og 3.1 arkade version
@@ -78,8 +84,6 @@ public class ArchiveController implements ViewObserver {
             }
         }
 
-
-
         //Chapter 3.1.16 - Saksparter
         List<Integer> saksparter = arkadeModel.saksparter();
         if(saksparter.get(0) > 0){
@@ -89,8 +93,9 @@ public class ArchiveController implements ViewObserver {
             reportModel.setNewInput(Arrays.asList(3, 1, 16), Collections.emptyList(),
                         Collections.singletonList(saksparter.get(1)));
         }
-        //Chapter 3.1.17 - Merknader
-        if (arkadeModel.merknader().isEmpty()){
+
+        //Chapter 3.1.17 - Merknader. If merknader
+        if (!arkadeModel.merknader().isEmpty()){
             reportModel.setNewInput(Arrays.asList(3, 1, 17), Collections.emptyList(),
                     Collections.singletonList(0));
             reportModel.setNewParagraph(Arrays.asList(3, 1, 17), Collections.singletonList("Rename tittel from 3.1.17 to merknader "));
@@ -98,14 +103,13 @@ public class ArchiveController implements ViewObserver {
         }
 
         //Chapter 3.1.18 - Kryssreferanser
-
-        if(arkadeModel.getTotal("N5.37") > 0){
+        if(arkadeModel.getTotal("N5.37", 1) > 0){
             reportModel.setNewInput(Arrays.asList(3, 1, 18), Collections.emptyList() , Collections.singletonList(0));
+            //Delete 3.3.4, Title = "Kryssreferanser"
         }
-        //Delete 3.3.4, Title = "Kryssreferanser"
 
         //Chapter 3.1.19 - Presedenser
-        if(arkadeModel.getTotal("N5.38") > 0 ) {
+        if(arkadeModel.getTotal("N5.38", 1) > 0 ) {
             reportModel.setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), Collections.singletonList(0));
         }
         else {
@@ -114,6 +118,7 @@ public class ArchiveController implements ViewObserver {
     }
 
     /**
+     *
      * @param kap docx kap
      * @param index test ID
      * @param header1 table header 1
@@ -128,15 +133,6 @@ public class ArchiveController implements ViewObserver {
         }
     }
 
-    /**
-     * Adds attacments to chapter five in the report.
-     */
-    private void writeChapterFive() {
-        if(!attachments.isEmpty()) {
-            reportModel.setNewParagraph(Collections.singletonList(5), attachments);
-        }
-
-    }
 
 
     /**
@@ -148,7 +144,7 @@ public class ArchiveController implements ViewObserver {
         //fileName = fileName.substring(0,fileName.lastIndexOf('.'));                   // NOSONAR
         String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument";
         //Should use the one below, but takes too long
-        //String docPath = settingsModel.prop.getProperty("7ZipOutput") + fileName + "\\content\\dokument"; // NOSONAR
+        //String docPath = settingsModel.prop.getProperty("tempFolder") + fileName + "\\content\\dokument"; // NOSONAR
 
         //Unzips .tar folder with the archive.
         try {
@@ -273,6 +269,7 @@ public class ArchiveController implements ViewObserver {
         settingsView.createAndShowGUI(mainView.getContainer(), settingsModel.prop);
     }
 
+    //When "Lagre instillinger" is clicked.
     @Override
     public void saveSettings() {
         List<String> newProp = settingsView.getNewProp();
@@ -348,7 +345,7 @@ public class ArchiveController implements ViewObserver {
             thirdPartiesModel.resetSelectedTests();
 
             //Get admin info
-            List<String> list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "admininfo.xq", settingsModel.prop);
+            List<String> list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "1.1.xq", settingsModel.prop);
             list = archiveModel.formatDate(list);
             archiveModel.updateAdminInfo(list);
 
@@ -366,7 +363,11 @@ public class ArchiveController implements ViewObserver {
     @Override
     public void makeReport() {
         String format = testView.getSelectedFormat(); //#NOSONAR
-        String testArkivstruktur = "C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\arkivstruktur.xml";
+        String fileName = archiveModel.tar.getName();
+        fileName = fileName.substring(0,fileName.lastIndexOf('.'));
+        String archivePath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName;
+
+        String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml";
 
         reportModel.generateReport(); // big question: (1 == 2) ? 3 : 2
 
@@ -376,14 +377,13 @@ public class ArchiveController implements ViewObserver {
         //testModel.parseReportHtml(); // remove when all function used in testModel
         Map<String, String> map = new LinkedHashMap<>();
 
-        map.put("1.2_1.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\dias-mets.xml");
-        map.put("1.2_2.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\arkivuttrekk.xml");
-        map.put("1.2_3.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\loependeJournal.xml");
-        map.put("1.2_4.xq","C:\\Arkade5\\arkade-tmp\\work\\20210304224533-899ec389-1dc0-41d0-b6ca-15f27642511b\\content\\offentligJournal.xml");
-        map.put("1.2_5.xq",testArkivstruktur);
+        map.put("1.2_1.xq",archivePath + "\\dias-mets.xml");
+        map.put("1.2_2.xq",archivePath + "\\content\\arkivuttrekk.xml");
+        map.put("1.2_3.xq",archivePath + "\\content\\loependeJournal.xml");
+        map.put("1.2_4.xq",archivePath + "\\content\\offentligJournal.xml");
+        map.put("1.2_5.xq",archivePath + testArkivstruktur);
 
         List<String> list = new ArrayList<>();
-
         for(Map.Entry<String, String> entry : map.entrySet()) {
             list.addAll(thirdPartiesModel.runBaseX(entry.getValue(), entry.getKey(), settingsModel.prop));
         }
@@ -393,41 +393,48 @@ public class ArchiveController implements ViewObserver {
         //ANTALL registreringer er tomme og uten dokumenter, men da alle disse er arkivert og dette er et fysisk uttrekk godkjennes dette.
         //ANTALL registreringer er tomme og uten dokumenter, og er lagt til som vedlegg.
 
-        String para = thirdPartiesModel.runBaseX(
-                testArkivstruktur,
-                "3.1.11.xq",
-                settingsModel.prop).get(0);
 
         reportModel.setNewInput(Arrays.asList(3, 1, 10), Collections.emptyList(), Collections.singletonList(0));
 
-        reportModel.setNewInput(Arrays.asList(3, 1, 11), Collections.singletonList(para), Collections.singletonList(1));
+        List<String> para = thirdPartiesModel.runBaseX(
+                archivePath + testArkivstruktur,
+                "3.1.11.xq",
+                settingsModel.prop);
+
+        if(para.size() == 0) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 11), Collections.emptyList(), Collections.singletonList(0));
+        } else {
+            reportModel.setNewInput(Arrays.asList(3, 1, 11), Collections.singletonList("" + para.size()), Collections.singletonList(1));
+        }
 
         List<String> temp = thirdPartiesModel.runBaseX(
-                testArkivstruktur,
+                archivePath + testArkivstruktur,
                 "3.1.13.xq",
                 settingsModel.prop);
 
-        para = "" + temp.size();
-
-
-
-        reportModel.setNewInput(Arrays.asList(3, 1, 13), Arrays.asList(para, "placeholder"), Collections.singletonList(1));
+        reportModel.setNewInput(Arrays.asList(3, 1, 13), Arrays.asList("" + temp.size(), "placeholder"), Collections.singletonList(1));
 
         reportModel.setNewInput(Arrays.asList(3, 1, 15), Collections.emptyList(), Collections.singletonList(0));
 
+        //Chapter 3.1.20
         temp = thirdPartiesModel.runBaseX(
-                testArkivstruktur,
+                archivePath + testArkivstruktur,
                 "3.1.20.xq",
                 settingsModel.prop);
 
-        if(temp.isEmpty()) {
+        if(temp.isEmpty() ) {
             reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.emptyList(), Collections.singletonList(0));
         } else {
             reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.singletonList(temp.size() + ""), Collections.singletonList(1));
         }
 
         //arkadeModel.parseReportHtml(); // remove when all function used in testModel
-        writeChapterFive();
+
+        //Chapter 5 - Attachments
+        if(!attachments.isEmpty()) {
+            reportModel.setNewParagraph(Collections.singletonList(5), attachments);
+        }
+
 
         if(arkadeModel.getFileToString(settingsModel.prop)){
             arkadeTestReport();
@@ -437,7 +444,7 @@ public class ArchiveController implements ViewObserver {
         }
 
         reportModel.writeReportDocument();     // editing
-        reportModel.printReportToFile();
+        reportModel.printReportToFile(settingsModel.prop);
 
         testView.activatePackToAipBtn();
     }

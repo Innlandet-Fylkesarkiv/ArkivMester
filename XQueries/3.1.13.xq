@@ -19,4 +19,4 @@ let $r := //dokumentbeskrivelse[not (dokumentstatus = "Dokumentet er ferdigstilt
       dokumentnummer, ' (', 
       tilknyttetRegistreringSom,'); ', 
       tittel)
-return ($r, count($r))
+return $r

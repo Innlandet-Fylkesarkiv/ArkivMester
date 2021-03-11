@@ -15,8 +15,11 @@ import java.util.stream.Stream;
 
 /**
  * Class for handling report document configurations.
+ *
+ * @since 1.0
+ * @version 1.0
+ * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen
  */
-
 public class ReportModel {
 
     enum TextStyle {
@@ -26,9 +29,8 @@ public class ReportModel {
     }
 
     XWPFDocument document;
-    String chapterFolder = "../Input/kapitler/";
+    String chapterFolder = "/chapters/";
     String templateFile = "/Dokumentmal_fylkesarkivet_Noark5_testrapport.docx";
-    String outputFile = "../Output/createdocument.docx";
 
     static String notFoundField = "<Fant ikke verdi>";
 
@@ -40,7 +42,6 @@ public class ReportModel {
     /**
      * Class for storing input of each chapter section of the report.
      */
-
     public static class ChapterList {
 
         String regex = "[^a-zA-Z ][A-Z]{3,}([ ][A-Z]{3,}){0,5}[^a-zA-Z ]|[A-Z]{4,}";
@@ -53,6 +54,10 @@ public class ReportModel {
 
         /**
          * Initialize a default list of missing input.
+         * @param h
+         * @param input
+         * @param ts
+         * @param c
          */
         ChapterList(List<Integer> h, List<String> input, TextStyle ts, boolean c) {
             headers = h.stream().filter(t -> t > 0).collect(Collectors.toList());
@@ -64,6 +69,7 @@ public class ReportModel {
 
         /**
          *
+         * @param input
          */
         public void updateText(List<String> input) {
             if(!input.isEmpty()) {
@@ -85,6 +91,7 @@ public class ReportModel {
 
         /**
          * If chapter number is correct, set table as input to chapter-section.
+         * @return
          */
         public String currentItem() {
             int size = result.size();
@@ -97,6 +104,7 @@ public class ReportModel {
 
         /**
          * If chapter number is correct, set table as input to chapter-section.
+         * @return
          */
         public TextStyle getType() {
             return type;
@@ -104,6 +112,9 @@ public class ReportModel {
 
         /**
          * Will not clamp the max value so it does not go "out of bounds"
+         * @param val
+         * @param max
+         * @return
          */
         private int  clamp(int val, int max) {
             return Math.min(val, max);
@@ -126,7 +137,6 @@ public class ReportModel {
     /**
      * Class for handling headers that are fetched from document.
      */
-
     public static class HeadersData {
         private final List<String> name;
         private final Map<String, Integer> headerMap;
@@ -134,7 +144,6 @@ public class ReportModel {
         /**
          * Initialize empty header and value
          */
-
         HeadersData() {
             name = new ArrayList<>();
             headerMap = new LinkedHashMap<>();
@@ -143,8 +152,8 @@ public class ReportModel {
         /**
          * Will store header name and increment value when there exist another name,
          * otherwise will add the new name to a list
+         * @param other
          */
-
         public void compareName(String other) {
 
             boolean hit = false;
@@ -171,11 +180,11 @@ public class ReportModel {
 
         /**
          * Get values
+         * @return
          */
         public List<Integer> getNumbering() {
             return headerMap.values().stream().filter(i -> i > 0).collect(Collectors.toList());
         }
-
     }
 
     /**
@@ -189,16 +198,17 @@ public class ReportModel {
 
     /**
      * Try to fetch report template, and if there are no IO problems, it will be stored.
+     * @param filepath
+     * @return
      */
-    public static XWPFDocument getDocumentFile(String filepath) {
+    public XWPFDocument getDocumentFile(String filepath) {
         try (
-                InputStream fis = ReportModel.class.getResourceAsStream(filepath)
+                InputStream fis = getClass().getResourceAsStream(filepath)
         ) {
             return new XWPFDocument(fis);
         } catch (IOException | NullPointerException e) {
             return null;
         }
-
     }
 
     /**
@@ -227,6 +237,8 @@ public class ReportModel {
 
     /**
      * Checks if paragraph is a Header
+     * @param p
+     * @return
      */
     private boolean findNewHeader(XWPFParagraph p) {
         XWPFStyles styles = document.getStyles();
@@ -246,7 +258,6 @@ public class ReportModel {
     /**
      * Replace every missing input with input fetched from program
      */
-
     public void writeReportDocument() {
 
         for(Map.Entry<List<Integer>, List<ChapterList>> entry : chapterList.entrySet()) {
@@ -274,6 +285,11 @@ public class ReportModel {
         }
     }
 
+    /**
+     *
+     * @param currentChapterInput
+     * @param p
+     */
     private void addParagraphToDocument(List<ChapterList> currentChapterInput, XWPFParagraph p) {
         if(currentChapterInput != null) {
             for (ChapterList chap : currentChapterInput) {
@@ -288,6 +304,8 @@ public class ReportModel {
 
     /**
      * Will look for input field in each paragraph and replace it with the ones from the list
+     * @param p
+     * @param cChapter
      */
     private void editDocument(XWPFParagraph p, List<ChapterList> cChapter) {
         for(XWPFRun r : p.getRuns()) {
@@ -306,14 +324,24 @@ public class ReportModel {
             }
         }
     }
-
     //region Description
 
+    /**
+     *
+     * @param text
+     * @param input
+     * @param r
+     */
     private void insertInputToDocument(String text, String input, XWPFRun r) {
         text = text.replace("TODO", (!input.equals("") ? input : notFoundField));
         setRun(r, FONT , 11, false, text, false);
     }
 
+    /**
+     *
+     * @param input
+     * @param p
+     */
     private void insertParagraphToDocument(String input, XWPFParagraph p) {
         XmlCursor cursor = p.getCTP().newCursor();//this is the key!
 
@@ -322,6 +350,11 @@ public class ReportModel {
         setRun(para.createRun() , FONT , 11, false, (!input.equals("") ? input : notFoundField), true);
     }
 
+    /**
+     *
+     * @param cChapter
+     * @param p
+     */
     private void insertTableToDocument(ChapterList cChapter, XWPFParagraph p) {
         XmlCursor cursor = p.getCTP().newCursor();//this is the key!
 
@@ -350,14 +383,17 @@ public class ReportModel {
             }
         }
     }
-
     //region end
-
 
     /**
      * Print paragraph text into table cell
+     * @param run
+     * @param font
+     * @param size
+     * @param bold
+     * @param text
+     * @param addBreak
      */
-
     public void setRun(XWPFRun run, String font, int size, boolean bold, String text, boolean addBreak) {
         run.setFontFamily(font);
         run.setFontSize(size);
@@ -365,32 +401,40 @@ public class ReportModel {
         run.setBold(bold);
         if(addBreak) run.addBreak();
     }
+
     /**
      * Print the newly edited document to a new file
+     * @param prop
      */
-
-    public void printReportToFile() {
+    public void printReportToFile(Properties prop) {
         try {
-            FileOutputStream os = new FileOutputStream(outputFile);
+            FileOutputStream os = new FileOutputStream(prop.get("tempFolder") + "\\TestReport\\Testrapport.docx");
             document.write(os);
             document.close();
             os.close();
             System.out.println("\nfile created successfully!");     // NOSONAR
         } catch (IOException | NullPointerException e) {
-            System.out.println(e.getMessage());                     // NOSONAR
+            System.out.println(e.getMessage());                    // NOSONAR
         }
     }
 
     /**
      * Replace old inputs with new ones
+     * @param h
+     * @param inputList
+     * @param cases
      */
-
     public void setNewInput(List<Integer> h, List<String> inputList, List<Integer> cases) {
         for(int i : cases) {
             chapterList.get(h).get(i).updateText(inputList);
         }
     }
 
+    /**
+     *
+     * @param h
+     * @param inputList
+     */
     public void setNewInput(List<Integer> h, List<String> inputList) {
         chapterList.put(h, new ArrayList<>());
         chapterList.get(h).add(new ChapterList(h, inputList, TextStyle.INPUT, true));
@@ -398,12 +442,19 @@ public class ReportModel {
 
     /**
      * Replace old inputs with a table field
+     * @param h
+     * @param tablefield
      */
-
     public void setNewTable(List<Integer> h, List<String> tablefield) {
         setNewChapter(h, tablefield, TextStyle.TABLE);
     }
 
+    /**
+     *
+     * @param h
+     * @param tableHeaders
+     * @param tableContent
+     */
     public void setNewTable(List<Integer> h, List<String> tableHeaders, List<String> tableContent) {
 
         List<String> ll = Stream.concat(tableHeaders.stream(), tableContent.stream())
@@ -414,11 +465,19 @@ public class ReportModel {
 
     /**
      * Replace old inputs with a paragraph
+     * @param h
+     * @param para
      */
     public void setNewParagraph(List<Integer> h, List<String> para) {
         setNewChapter(h, para, TextStyle.PARAGRAPH);
     }
 
+    /**
+     *
+     * @param h
+     * @param input
+     * @param type
+     */
     private void setNewChapter(List<Integer> h, List<String> input, TextStyle type) {
         if (chapterList.get(h).get(0).result.get(0).equals(notFoundField)) {
             chapterList.put(h, new ArrayList<>());
@@ -428,6 +487,8 @@ public class ReportModel {
 
     /**
      * Gets text of output from chapter file
+     * @param h
+     * @return
      */
     private List<List<String>> getFileFromHeader(List<Integer> h) {
         String chapterFile = formatChapterNumber(h);
@@ -443,6 +504,8 @@ public class ReportModel {
 
     /**
      * Gets text of output from chapter file
+     * @param doc
+     * @return
      */
     private List<List<String>> getOutputValuesFromFile(XWPFDocument doc) {
         List<XWPFParagraph> paragraphs = doc.getParagraphs();
@@ -474,6 +537,8 @@ public class ReportModel {
     /**
      * Formats Chapter number given by converting it from List<Integer> into filename.
      * For example [1, 1] turns into "1.1".
+     * @param h
+     * @return
      */
     private String formatChapterNumber(List<Integer> h) {
         StringBuilder s = new StringBuilder();
