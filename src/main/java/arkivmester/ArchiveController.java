@@ -147,6 +147,7 @@ public class ArchiveController implements ViewObserver {
      */
     private void runTests() {
         List<Boolean> selectedTests = thirdPartiesModel.getSelectedTests();
+        thirdPartiesModel.initializePath(settingsModel.prop);
         String fileName = archiveModel.tar.getName();                                   // NOSONAR
         //fileName = fileName.substring(0,fileName.lastIndexOf('.'));                   // NOSONAR
         String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument";
