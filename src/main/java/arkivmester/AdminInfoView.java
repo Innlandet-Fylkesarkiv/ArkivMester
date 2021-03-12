@@ -52,6 +52,9 @@ public class AdminInfoView extends Views {
     private void setUpGridPanel(JPanel gridPanel) {
         int rows = 8;
 
+        JLabel editAdminInfoTitle = new JLabel("Rediger administrativ informasjon:");
+        editAdminInfoTitle.setFont(primaryFont);
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -77,15 +80,21 @@ public class AdminInfoView extends Views {
         saveInfoBtn.setBackground(primaryColor);
         saveInfoBtn.setForeground(Color.WHITE);
 
-        JButton cancelInfoBtn = new JButton("Avbryt");
-        cancelInfoBtn.addActionListener(this);
-        cancelInfoBtn.setBackground(primaryColor);
-        cancelInfoBtn.setForeground(Color.WHITE);
+        JButton cancelAdminInfo = new JButton("Avbryt");
+        cancelAdminInfo.addActionListener(this);
+        cancelAdminInfo.setBackground(primaryColor);
+        cancelAdminInfo.setForeground(Color.WHITE);
 
         //Adding components together
         gbc.anchor = GridBagConstraints.EAST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10,0,0,10);
+
+        gbc.gridwidth = 2;
+        gridPanel.add(editAdminInfoTitle, gbc);
+
+        gbc.gridy++;
+        gbc.gridwidth = 1;
 
         //Col 1
         gridPanel.add(data1, gbc);
@@ -106,7 +115,7 @@ public class AdminInfoView extends Views {
         gbc.gridx++;
 
         //Col 2
-        gbc.gridy = 0;
+        gbc.gridy = 1;
 
         for(int i = 0; i<rows; i++) {
             gridPanel.add(valueList.get(i), gbc);
@@ -118,7 +127,7 @@ public class AdminInfoView extends Views {
 
         gridPanel.add(saveInfoBtn, gbc);
         gbc.gridy++;
-        gridPanel.add(cancelInfoBtn, gbc);
+        gridPanel.add(cancelAdminInfo, gbc);
     }
 
     /**
@@ -131,7 +140,7 @@ public class AdminInfoView extends Views {
 
     /**
      * Populates the administrative information fields.
-     * @param list Data to fill the fields. Stored in {@link RapportModel}.
+     * @param list Data to fill the fields. Stored in {@link ReportModel}.
      */
     public void populateAdminInfo(List<String> list) {
         for (int i = 0; i<list.size(); i++) {

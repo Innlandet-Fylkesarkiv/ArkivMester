@@ -62,7 +62,7 @@ public class TestSettingsView extends Views {
      */
     private void setUpTestsPanel(JPanel testsPanel) {
         //Title
-        JLabel testsTitle = new JLabel("Tester som skal kjøres");
+        JLabel testsTitle = new JLabel("Tester som skal kjøres:");
         testsTitle.setFont(primaryFont);
 
         //Checkboxes
@@ -77,15 +77,15 @@ public class TestSettingsView extends Views {
         testBoxes.get(3).setText("VeraPdf");
 
         //Buttons
-        JButton saveInfoBtn = new JButton("Lagre tests");
-        saveInfoBtn.addActionListener(this);
-        saveInfoBtn.setBackground(primaryColor);
-        saveInfoBtn.setForeground(Color.WHITE);
+        JButton saveTestsBtn = new JButton("Lagre tests");
+        saveTestsBtn.addActionListener(this);
+        saveTestsBtn.setBackground(primaryColor);
+        saveTestsBtn.setForeground(Color.WHITE);
 
-        JButton cancelInfoBtn = new JButton("Avbryt");
-        cancelInfoBtn.addActionListener(this);
-        cancelInfoBtn.setBackground(primaryColor);
-        cancelInfoBtn.setForeground(Color.WHITE);
+        JButton cancelTestSettings = new JButton("Avbryt");
+        cancelTestSettings.addActionListener(this);
+        cancelTestSettings.setBackground(primaryColor);
+        cancelTestSettings.setForeground(Color.WHITE);
 
         //Adding components together
         testsPanel.add(testsTitle);
@@ -98,9 +98,9 @@ public class TestSettingsView extends Views {
 
         testsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
-        testsPanel.add(saveInfoBtn);
+        testsPanel.add(saveTestsBtn);
         testsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        testsPanel.add(cancelInfoBtn);
+        testsPanel.add(cancelTestSettings);
     }
 
     /**
