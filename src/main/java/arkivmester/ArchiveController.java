@@ -8,8 +8,6 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import static java.lang.Thread.sleep;
-
 /**
  * Serves as the link between the views and the models.
  *
@@ -140,8 +138,6 @@ public class ArchiveController implements ViewObserver {
         }
     }
 
-
-
     /**
      * Unzips the archive and runs the selected tests.
      */
@@ -149,10 +145,10 @@ public class ArchiveController implements ViewObserver {
         List<Boolean> selectedTests = thirdPartiesModel.getSelectedTests();
         thirdPartiesModel.initializePath(settingsModel.prop);
         String fileName = archiveModel.tar.getName();                                   // NOSONAR
-        //fileName = fileName.substring(0,fileName.lastIndexOf('.'));                   // NOSONAR
-        String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument";
+        fileName = fileName.substring(0,fileName.lastIndexOf('.'));                   // NOSONAR
+        //String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument"; // NOSONAR
         //Should use the one below, but takes too long
-        //String docPath = settingsModel.prop.getProperty("tempFolder") + fileName + "\\content\\dokument"; // NOSONAR
+        String docPath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\content\\dokument"; // NOSONAR
 
         //Unzips .tar folder with the archive.
         try {
@@ -359,6 +355,7 @@ public class ArchiveController implements ViewObserver {
         if(success == 1) {
             //Reset data
             archiveModel.resetAdminInfo();
+            mainView.resetManualInfo();
             thirdPartiesModel.resetSelectedTests();
 
             //Get admin info
