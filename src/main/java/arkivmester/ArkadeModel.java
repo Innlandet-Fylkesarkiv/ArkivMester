@@ -58,11 +58,8 @@ public class ArkadeModel {
      */
     public boolean ingenMerknader(){
         int merknader = getTotal("N5.36", 1);
-        if(merknader <= 0){
-            //Ingen merknader er registrert.
-            return true;
-        }
-        return false;
+        //Ingen merknader er registrert.
+        return merknader <= 0;
     }
 
     /** Get Totalt from deviation table.

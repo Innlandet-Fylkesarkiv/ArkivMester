@@ -384,7 +384,7 @@ public class ArchiveController implements ViewObserver {
         String format = testView.getSelectedFormat(); //#NOSONAR
         String fileName = archiveModel.tar.getName();
         fileName = fileName.substring(0,fileName.lastIndexOf('.'));
-        String archivePath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName;
+        String archivePath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName; // #NOSONAR
 
         String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml";
 

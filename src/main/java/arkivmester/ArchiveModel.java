@@ -123,11 +123,11 @@ public class ArchiveModel {
      * Temp function
      */
     public void deleteUnZippedArchive(Properties prop, String name) throws IOException {
-        File zipped = new File(prop.get("tempFolder") + "\\"+ name);
+        File zipped = new File(prop.get("tempFolder") + "\\"+ name); // #NOSONAR
 
         if(zipped.exists()) {
             Path directory = zipped.toPath();
-            Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+            Files.walkFileTree(directory, new SimpleFileVisitor<>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) throws IOException {
                     Files.delete(file); // this will work because it's always a File
