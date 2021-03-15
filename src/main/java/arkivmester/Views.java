@@ -108,6 +108,10 @@ public class Views implements ActionListener {
                 for (ViewObserver obs : observers)
                     obs.saveSettings();
                 break;
+            case "Om":
+                for (ViewObserver obs : observers)
+                    obs.openAbout();
+                break;
             default:
                 break;
         }

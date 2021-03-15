@@ -23,6 +23,7 @@ public class ArchiveController implements ViewObserver {
     AdminInfoView adminInfoView;
     TestSettingsView testSettingsView;
     SettingsView settingsView;
+    AboutView aboutView;
     ArchiveModel archiveModel;
     ReportModel reportModel;
     ArkadeModel arkadeModel;
@@ -302,6 +303,20 @@ public class ArchiveController implements ViewObserver {
         mainView.showGUI();
     }
 
+    //When "Om" is clicked
+    @Override
+    public void openAbout() {
+        cancelButton();
+        aboutView = new AboutView();
+        aboutView.addObserver(this);
+
+        try {
+            aboutView.createAndShowGUI(mainView.getContainer());
+        } catch (IOException e) {
+            mainView.exceptionPopup("Kunne ikke finne applikasjons logo");
+        }
+    }
+
     //When "Rediger informasjon" is clicked.
     @Override
     public void editAdminInfo() {
@@ -480,7 +495,6 @@ public class ArchiveController implements ViewObserver {
             mainView.exceptionPopup("Kunne ikke slette unzipped uttrekk");
         }
     }
-
 
     //When "Lagre tests" is clicked.
     @Override
