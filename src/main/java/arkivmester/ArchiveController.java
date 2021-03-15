@@ -108,18 +108,71 @@ public class ArchiveController implements ViewObserver {
         }
 
         //Chapter 3.1.18 - Kryssreferanser
-        if(arkadeModel.getTotal("N5.37", 1) > 0){
+        if(arkadeModel.getTotal("N5.37", 1) <= 0){
             reportModel.setNewInput(Arrays.asList(3, 1, 18), Collections.emptyList() , Collections.singletonList(0));
             //Delete 3.3.4, Title = "Kryssreferanser"
         }
 
         //Chapter 3.1.19 - Presedenser
-        if(arkadeModel.getTotal("N5.38", 1) > 0 ) {
+        if(arkadeModel.getTotal("N5.38", 1) <= 0 ) {
             reportModel.setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), Collections.singletonList(0));
         }
         else {
             reportModel.setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), Collections.singletonList(1));
         }
+
+        //Chapter 3.1.22 - Dokumentflyter
+        if(arkadeModel.getTotal("N.41",1) <= 0) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 22), Collections.emptyList(), Collections.singletonList(0));
+            //Delete 3.3.5, Title = Dokumentflyter
+        }
+
+        //Chapter 3.1.24 - Gradering
+        if(arkadeModel.getTotal("N5.43", 1) <= 0) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 24), Collections.emptyList(), Collections.singletonList(0));
+        }
+        else  {
+            reportModel.setNewInput(Arrays.asList(3, 1, 24), Collections.emptyList(), Collections.singletonList(1));
+        }
+
+        //Chapter 3.1.25 - Kassasjoner
+        if(arkadeModel.getTotal("N5.44", 1) <= 0 && arkadeModel.getTotal("N5.45", 1) <=0) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), Collections.singletonList(0));
+        }
+        else {
+            reportModel.setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), Collections.singletonList(1));
+        }
+
+        //Chapter 3.1.28 - Arkivdelreferanser
+        if(arkadeModel.getDataFromHtml("N5.48").isEmpty()) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 28), Collections.emptyList(), Collections.singletonList(0));
+        }
+        else {
+            reportModel.setNewInput(Arrays.asList(3, 1, 28), Collections.emptyList(), Collections.singletonList(1));
+        }
+
+        //Chapter 3.1.32 - Endringslogg
+        // Endre tittel til: Endringslogg testes i kapittel 3.3.8
+
+        //Chapter 3.1.33
+        if(arkadeModel.getDataFromHtml("N5.63").isEmpty()) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 33), Collections.emptyList(), Collections.singletonList(0));
+        }
+        else {
+            reportModel.setNewInput(Arrays.asList(3, 1, 33), Collections.emptyList(), Collections.singletonList(1));
+        }
+
+        //Chapter 3.1.4
+        //Endre tittel til: Se eget klassifikasjonskapittel 3.3.1.
+
+        //Chapter 3.1.6
+        //Endre tittel til: Se eget klassifikasjonskapittel 3.3.1.
+
+        //Chapter 3.1.29
+        //Endre tittel til: Se eget klassifikasjonskapittel 3.3.1.
+
+
+
     }
 
     /**
