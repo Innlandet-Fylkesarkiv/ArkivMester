@@ -1,7 +1,11 @@
 package arkivmester;
 
 import java.io.*;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Properties;
 
 /**
@@ -98,6 +102,31 @@ public class SettingsModel {
         File testReportFolder = new File(userFolder.getPath() + "\\temp\\TestReport");
         if(!testReportFolder.exists()) {
             Files.createDirectory(testReportFolder.toPath());
+        }
+    }
+
+    public void prepToAIP(String fileName) throws IOException {
+        File preppedFolder = new File(userFolder.getPath() + "\\" + fileName);
+
+        if(preppedFolder.exists()) {
+            Path directory = preppedFolder.toPath();
+            Files.walkFileTree(directory, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) throws IOException {
+                    Files.delete(file); // this will work because it's always a File
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir); //this will work because Files in the directory are already deleted
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
+        else {
+            Files.createDirectory(preppedFolder.toPath());
+            
         }
     }
 
