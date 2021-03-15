@@ -144,11 +144,12 @@ public class ArchiveController implements ViewObserver {
     private void runTests() {
         List<Boolean> selectedTests = thirdPartiesModel.getSelectedTests();
         thirdPartiesModel.initializePath(settingsModel.prop);
-        String fileName = archiveModel.tar.getName();                                   // NOSONAR
-        fileName = fileName.substring(0,fileName.lastIndexOf('.'));                   // NOSONAR
-        //String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument"; // NOSONAR
+        //String fileName = archiveModel.tar.getName();                                   // NOSONAR
+        //fileName = fileName.substring(0,fileName.lastIndexOf('.'));                   // NOSONAR
+        String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument"; // NOSONAR
         //Should use the one below, but takes too long
-        String docPath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\content\\dokument"; // NOSONAR
+        //String docPath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\content\\dokument"; // NOSONAR
+
 
         //Unzips .tar folder with the archive.
         try {
@@ -227,28 +228,31 @@ public class ArchiveController implements ViewObserver {
 
         testView.updateTestStatus(TestView.TESTDONE);
         testView.activateCreateReportBtn();
-
     }
 
     //When "Start testing" is clicked.
     @Override
     public void testStarted() {
-        testView = new TestView();
-        testView.addObserver(this);
-        testView.createAndShowGUI(mainView.getContainer());
-        testView.updateStatus(thirdPartiesModel.getSelectedTests());
-        mainView.toggleEditInfoBtn();
-        mainView.toggleSettingsBtn();
+        if(Boolean.TRUE.equals(thirdPartiesModel.checkIfToolsArePresent(settingsModel.prop))) {
+            testView = new TestView();
+            testView.addObserver(this);
+            testView.createAndShowGUI(mainView.getContainer());
+            testView.updateStatus(thirdPartiesModel.getSelectedTests());
+            mainView.toggleEditInfoBtn();
+            mainView.toggleSettingsBtn();
 
-        try {
-            settingsModel.handleOutputFolders();
-        } catch (IOException e) {
-            mainView.exceptionPopup("Kunne ikke skrive til user.home mappen.");
+            try {
+                settingsModel.handleOutputFolders();
+            } catch (IOException e) {
+                mainView.exceptionPopup("Kunne ikke skrive til user.home mappen.");
+            }
+
+            //Schedule the runTests function to give the UI time to update before tests are run.
+            scheduler = Executors.newScheduledThreadPool(1);
+            scheduler.submit(this::runTests);
         }
-
-        //Schedule the runTests function to give the UI time to update before tests are run.
-        scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.submit(this::runTests);
+        else
+            mainView.exceptionPopup("Kan ikke kjøre fordi det mangler en eller flere verktøy på maskinen");
     }
 
 

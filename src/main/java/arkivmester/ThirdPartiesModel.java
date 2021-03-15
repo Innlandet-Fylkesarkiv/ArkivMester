@@ -237,4 +237,35 @@ public class ThirdPartiesModel {
         }
         r.close();
     }
+
+    public Boolean checkIfToolsArePresent(Properties prop) {
+        File file;
+        if(Boolean.TRUE.equals(selectedTests.get(0))) {
+            file = new File(prop.getProperty("arkadePath"));
+            if(!file.exists())
+                return false;
+        }
+        if(Boolean.TRUE.equals(selectedTests.get(1))) {
+            file = new File(prop.getProperty("droidPath"));
+            if(!file.exists())
+                return false;
+        }
+        if(Boolean.TRUE.equals(selectedTests.get(2))) {
+            file = new File(prop.getProperty("kostvalPath"));
+            if(!file.exists())
+                return false;
+        }
+        if(Boolean.TRUE.equals(selectedTests.get(3))) {
+            file = new File(prop.getProperty("veraPDFPath"));
+            if(!file.exists())
+                return false;
+        }
+
+        file = new File(prop.getProperty("basexPath"));
+        if(!file.exists())
+            return false;
+
+        file = new File(prop.getProperty("7ZipPath"));
+        return file.exists();
+    }
 }
