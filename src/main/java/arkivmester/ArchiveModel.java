@@ -7,6 +7,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -109,13 +110,16 @@ public class ArchiveModel {
      * @param list Administrative data list where the date is at index 4.
      * @return The same data list, but with the updated date.
      */
-    public List<String> formatDate(List<String> list) {
+    public List<String> formatDate(List<String> list) throws
+            DateTimeParseException {
         //Formats date to norwegian format.
-        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
-        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd.MM.yyy", Locale.ENGLISH);
-        LocalDate date = LocalDate.parse(list.get(4), inputFormatter);
-        String formattedDate = outputFormatter.format(date);
-        list.set(4, formattedDate);
+        if(!list.get(4).equals("")) {
+            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
+            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd.MM.yyy", Locale.ENGLISH);
+            LocalDate date = LocalDate.parse(list.get(4), inputFormatter);
+            String formattedDate = outputFormatter.format(date);
+            list.set(4, formattedDate);
+        }
         return list;
     }
 

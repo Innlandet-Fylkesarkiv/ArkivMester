@@ -1,6 +1,7 @@
 package arkivmester;
 
 import java.io.IOException;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -381,8 +382,12 @@ public class ArchiveController implements ViewObserver {
             List<String> list;
             try {
                 list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "1.1.xq", settingsModel.prop);
-                list = archiveModel.formatDate(list);
-                archiveModel.updateAdminInfo(list);
+                try {
+                    list = archiveModel.formatDate(list);
+                    archiveModel.updateAdminInfo(list);
+                } catch (DateTimeParseException e) {
+                    mainView.exceptionPopup("CREATEDATE formatet i metadata.xml er feil.");
+                }
             } catch (IOException e) {
                 mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
             }
