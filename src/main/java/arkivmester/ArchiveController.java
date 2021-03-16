@@ -253,7 +253,7 @@ public class ArchiveController implements ViewObserver {
             scheduler.submit(this::runTests);
         }
         else
-            mainView.exceptionPopup("Kan ikke kjøre fordi det mangler en eller flere verktøy på maskinen");
+            mainView.exceptionPopup("Det mangler en eller flere verktøy på maskinen");
     }
 
 
@@ -502,10 +502,15 @@ public class ArchiveController implements ViewObserver {
     @Override
     public void saveTestSettings() {
         //Get settings Save settings
-        thirdPartiesModel.updateSelectedTests(testSettingsView.getSelectedTests());
-        testSettingsView.clearContainer();
-        testSettingsView = null;
+        if(Boolean.TRUE.equals(thirdPartiesModel.noEmptyTests(testSettingsView.getSelectedTests()))) {
+            thirdPartiesModel.updateSelectedTests(testSettingsView.getSelectedTests());
+            testSettingsView.clearContainer();
+            testSettingsView = null;
+            mainView.showGUI();
+        }
+        else
+            mainView.exceptionPopup("Det må være minst 1 inkludert deltest");
 
-        mainView.showGUI();
+
     }
 }

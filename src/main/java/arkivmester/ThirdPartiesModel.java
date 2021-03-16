@@ -238,6 +238,11 @@ public class ThirdPartiesModel {
         r.close();
     }
 
+    /**
+     * Checks if the third party tools are present where the config defines.
+     * @param prop Properties object containing the config.
+     * @return True if all tools are present, false if there is one or more tools missing.
+     */
     public Boolean checkIfToolsArePresent(Properties prop) {
         File file;
 
@@ -266,10 +271,27 @@ public class ThirdPartiesModel {
         }
         if(Boolean.TRUE.equals(selectedTests.get(3))) {
             file = new File(prop.getProperty("veraPDFPath") + "\\verapdf.bat");
-            return file.isFile();
+            if(!file.isFile())
+                return false;
         }
 
 
         return true;
+    }
+
+    /**
+     * Checks if there is at least 1 included test before saving.
+     * @param list Boolean list from the UI which is not yet saved.
+     * @return True if there is at least 1 included test, false if there are none included tests.
+     */
+    public Boolean noEmptyTests(List<Boolean> list) {
+        int count = 0;
+
+        for(Boolean val: list) {
+            if(Boolean.FALSE.equals(val))
+                count++;
+        }
+
+        return count != list.size();
     }
 }
