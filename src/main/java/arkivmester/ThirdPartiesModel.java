@@ -240,32 +240,36 @@ public class ThirdPartiesModel {
 
     public Boolean checkIfToolsArePresent(Properties prop) {
         File file;
-        if(Boolean.TRUE.equals(selectedTests.get(0))) {
-            file = new File(prop.getProperty("arkadePath"));
-            if(!file.exists())
-                return false;
-        }
-        if(Boolean.TRUE.equals(selectedTests.get(1))) {
-            file = new File(prop.getProperty("droidPath"));
-            if(!file.exists())
-                return false;
-        }
-        if(Boolean.TRUE.equals(selectedTests.get(2))) {
-            file = new File(prop.getProperty("kostvalPath"));
-            if(!file.exists())
-                return false;
-        }
-        if(Boolean.TRUE.equals(selectedTests.get(3))) {
-            file = new File(prop.getProperty("veraPDFPath"));
-            if(!file.exists())
-                return false;
-        }
 
-        file = new File(prop.getProperty("basexPath"));
+        file = new File(prop.getProperty("basexPath") + "\\basex.bat");
         if(!file.exists())
             return false;
 
-        file = new File(prop.getProperty("7ZipPath"));
-        return file.exists();
+        file = new File(prop.getProperty("7ZipPath") + "\\7zG.exe");
+        if(!file.exists())
+            return false;
+
+        if(Boolean.TRUE.equals(selectedTests.get(0))) {
+            file = new File(prop.getProperty("arkadePath") + "\\Bundled\\Siegfried\\siegfried.exe");
+            if(!file.isFile())
+                return false;
+        }
+        if(Boolean.TRUE.equals(selectedTests.get(1))) {
+            file = new File(prop.getProperty("droidPath") + "\\droid-command-line-6.5.jar");
+            if(!file.isFile())
+                return false;
+        }
+        if(Boolean.TRUE.equals(selectedTests.get(2))) {
+            file = new File(prop.getProperty("kostvalPath") + "\\cmd_KOST-Val.jar");
+            if(!file.isFile())
+                return false;
+        }
+        if(Boolean.TRUE.equals(selectedTests.get(3))) {
+            file = new File(prop.getProperty("veraPDFPath") + "\\verapdf.bat");
+            return file.isFile();
+        }
+
+
+        return true;
     }
 }

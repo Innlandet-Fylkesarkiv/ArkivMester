@@ -152,7 +152,6 @@ public class ArchiveController implements ViewObserver {
         //Should use the one below, but takes too long
         //String docPath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\content\\dokument"; // NOSONAR
 
-
         //Unzips .tar folder with the archive.
         try {
             thirdPartiesModel.unzipArchive(archiveModel.tar, settingsModel.prop);
@@ -382,14 +381,12 @@ public class ArchiveController implements ViewObserver {
             List<String> list;
             try {
                 list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "1.1.xq", settingsModel.prop);
-                try {
-                    list = archiveModel.formatDate(list);
-                    archiveModel.updateAdminInfo(list);
-                } catch (DateTimeParseException e) {
-                    mainView.exceptionPopup("CREATEDATE formatet i metadata.xml er feil.");
-                }
+                list = archiveModel.formatDate(list);
+                archiveModel.updateAdminInfo(list);
             } catch (IOException e) {
                 mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
+            } catch (DateTimeParseException e) {
+                mainView.exceptionPopup("CREATEDATE formatet i metadata.xml er feil.");
             }
 
             //Update view
