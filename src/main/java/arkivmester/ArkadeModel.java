@@ -18,7 +18,7 @@ import java.util.*;
 public class ArkadeModel {
     // html file at   ../Input/arkaderapportrapport.html
     String filePath = "../Input/arkaderapportrapport.html";
-
+    //
     // Holds text from arkade testreport html as string
     StringBuilder htmlRawText = new StringBuilder();
 
