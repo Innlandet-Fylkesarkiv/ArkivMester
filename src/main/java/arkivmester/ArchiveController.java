@@ -76,8 +76,8 @@ public class ArchiveController implements ViewObserver {
         writeDeviation(Arrays.asList(3, 1, 1),"N5.01", "Lokasjon", "Avvik");
         writeDeviation(Arrays.asList(3, 1, 1),"N5.02", "Lokasjon2", "Avvik2");
 
-        int arkivert = arkadeModel.getTotal("N5.22", 1);
-        int journalfort = arkadeModel.getTotal("N5.22", 5);
+        int arkivert = arkadeModel.getTotal("N5.22", "Journalstatus: Arkivert - Antall:");
+        int journalfort = arkadeModel.getTotal("N5.22", "Journalstatus: Journalført - Antall:");
 
         if(journalfort <= 0) {
             reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), Collections.singletonList(0));
@@ -108,13 +108,13 @@ public class ArchiveController implements ViewObserver {
         }
 
         //Chapter 3.1.18 - Kryssreferanser
-        if(arkadeModel.getTotal("N5.37", 1) > 0){
+        if(arkadeModel.getTotal("N5.37", "Totalt") > 0){
             reportModel.setNewInput(Arrays.asList(3, 1, 18), Collections.emptyList() , Collections.singletonList(0));
             //Delete 3.3.4, Title = "Kryssreferanser"
         }
 
         //Chapter 3.1.19 - Presedenser
-        if(arkadeModel.getTotal("N5.38", 1) > 0 ) {
+        if(arkadeModel.getTotal("N5.38", "Totalt") > 0 ) {
             reportModel.setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), Collections.singletonList(0));
         }
         else {

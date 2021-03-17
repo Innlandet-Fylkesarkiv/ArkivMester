@@ -17,7 +17,7 @@ import java.util.*;
  */
 public class ArkadeModel {
     // html file at   ../Input/arkaderapportrapport.html
-    String filePath;
+    String filePath = "../Input/arkaderapportrapport.html";
 
     // Holds text from arkade testreport html as string
     StringBuilder htmlRawText = new StringBuilder();
@@ -29,13 +29,18 @@ public class ArkadeModel {
 
     boolean test = false;
 
+    ArkadeModel(){
+
+    }
+
+
     /** 3.1.16. Check for number of registrations with saksparter.
      * @return Comment on number of saksparter
      */
     public List<Integer> saksparter(){
         List<Integer> list = new ArrayList<>();
-        Integer saksparter = getTotal("N5.35", 1);
-        Integer antallReg = getTotal("N5.16", 1);
+        Integer saksparter = getTotal("N5.35", "Totalt");
+        Integer antallReg = getTotal("N5.16", "Totalt");
 
         list.add(saksparter);
         if(saksparter <= 0){
@@ -57,23 +62,61 @@ public class ArkadeModel {
      * @return if merknader "", else comment
      */
     public boolean ingenMerknader(){
-        int merknader = getTotal("N5.36", 1);
+        int merknader = getTotal("N5.36", "Totalt");
         //Ingen merknader er registrert.
         return merknader <= 0;
     }
+    public Integer ingenDokumentfiler (){
+        List<String> Systemidentifikasjoner = getDataFromHtml("N5.47");
+        int docRefObj = getTotal("N5.34","Totalt");
+        if(Systemidentifikasjoner.isEmpty()){
+            //Ingen avvik på systemidentifikasjoner er funnet.
+            return  0;
+        }
+        else return -1;
+    }
 
-    /** Get Totalt from deviation table.
-     * @param index for test class.
-     * @return Totalt or -1 if no deviation table.
-     */
+    /*
     public Integer getTotal(String index, int element){
         List<String> total = getDataFromHtml(index);
 
-        if(total.size() < (element + 1)){
-            System.out.println(index + " has less than " + element + " elements"); //NOSONAR
+        if(total.size() < element){
+            System.out.println(index + " has less than 2 elements"); //NOSONAR
             return -1;
         }
-        return Integer.parseInt(total.get(element).replaceAll("\\D+", ""));
+        return Integer.parseInt(total.get(element).replaceAll("\\D", ""));
+    }
+    */
+
+    /** Get Totalt from deviation table with SpecificValue.
+     * @param index for test class.
+     * @return one number or -1 if no deviation table.
+     */
+    public Integer getTotal(String index, String element){
+
+        List<String> total = getSpecificValue(index, element);
+
+        if(total.isEmpty()){
+            System.out.println(index + " has no value with text " + element); //NOSONAR
+            return -1;
+        }
+        if(total.size() > 1){
+            System.out.println(index + " has more than one value with text " + element); //NOSONAR
+            return -1;
+        }
+
+        if(!total.get(0).contains(":")){
+            System.out.println(index + " value with " + element + " has no \":\" "); //NOSONAR
+            return -1;
+        }
+        String tmp = total.get(0).substring(total.get(0).lastIndexOf(":") + 1);
+
+        if(!total.get(0).matches(".*\\d.*")){
+            System.out.println(index + " value with " + element + " has no number after last \":\" "); //NOSONAR
+            return -1;
+        }
+
+        return Integer.parseInt(tmp.replaceAll("\\D+", ""));
     }
 
     /**
@@ -81,7 +124,7 @@ public class ArkadeModel {
      * Run all function. Remove after all function are used in ArchiveController.
      */
     public void parseReportHtml(){
-
+        ingenDokumentfiler();
         if (test){
             // Get deviation for every id
             for(String i: getAll()){
@@ -174,25 +217,19 @@ public class ArkadeModel {
      * Get specific value from deviation table.
      * @param index for test class.
      * @param containsValue value to get.
-     * @return one element with containsValue or error message.
+     * @return all rows with containsValue or empty list.
      */
-    public String getSpecificValue(String index, String containsValue){
-        String htmlValue = "";
-        int nrOfElements = 0;
+    public List<String> getSpecificValue(String index, String containsValue){
+        List<String> htmlTable = new ArrayList<>();
         for(String i : getDataFromHtml(index)){
             if(i.contains(containsValue)){
-                htmlValue = i;
-                nrOfElements++;
+                htmlTable.add(i);
             }
         }
-        if (nrOfElements>1){
-            htmlValue = "";
-            System.out.println("More than 1 element with " + containsValue); //NOSONAR
-        }
-        else if (nrOfElements == 0) {
+        if (htmlTable.isEmpty()) {
             System.out.println("Can't find deviation with: " + containsValue); //NOSONAR
         }
-        return  htmlValue;
+        return  htmlTable;
     }
 
     /**
