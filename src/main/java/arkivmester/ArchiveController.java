@@ -89,7 +89,6 @@ public class ArchiveController implements ViewObserver {
                 reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.singletonList("" + journalfort), Collections.singletonList(1));
             }
         }
-
         //Chapter 3.1.16 - Saksparter
         List<Integer> saksparter = arkadeModel.saksparter();
         if(saksparter.get(0) > 0){
@@ -107,15 +106,14 @@ public class ArchiveController implements ViewObserver {
             reportModel.setNewParagraph(Arrays.asList(3, 1, 17), Collections.singletonList("Rename tittel from 3.1.17 to merknader "));
             reportModel.setNewParagraph(Arrays.asList(3, 3, 3), Collections.singletonList("DELETE ME: 3.3.3"));
         }
-
         //Chapter 3.1.18 - Kryssreferanser
-        if(arkadeModel.getTotal("N5.37", "Totalt") > 0){
+        if(arkadeModel.getTotal("N5.37", "Totalt") <= 0){
             reportModel.setNewInput(Arrays.asList(3, 1, 18), Collections.emptyList() , Collections.singletonList(0));
             //Delete 3.3.4, Title = "Kryssreferanser"
         }
 
         //Chapter 3.1.19 - Presedenser
-        if(arkadeModel.getTotal("N5.38", "Totalt") > 0 ) {
+        if(arkadeModel.getTotal("N5.38", "Totalt") <= 0 ) {
             reportModel.setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), Collections.singletonList(0));
         }
         else {

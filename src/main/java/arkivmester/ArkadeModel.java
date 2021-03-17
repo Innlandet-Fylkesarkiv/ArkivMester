@@ -28,6 +28,7 @@ public class ArkadeModel {
     /* Remove StringBuilder and test bool when all functions are used */
 
     boolean test = false;
+    static final String TOTALT = "Totalt";
 
     ArkadeModel(){
 
@@ -39,8 +40,8 @@ public class ArkadeModel {
      */
     public List<Integer> saksparter(){
         List<Integer> list = new ArrayList<>();
-        Integer saksparter = getTotal("N5.35", "Totalt");
-        Integer antallReg = getTotal("N5.16", "Totalt");
+        Integer saksparter = getTotal("N5.35", TOTALT); //NOSONAR
+        Integer antallReg = getTotal("N5.16", TOTALT);  //NOSONAR
 
         list.add(saksparter);
         if(saksparter <= 0){
@@ -59,34 +60,13 @@ public class ArkadeModel {
     }
 
     /** 3.1.17. Get Merkader
-     * @return if merknader "", else comment
+     * @return true if no merknader
      */
     public boolean ingenMerknader(){
-        int merknader = getTotal("N5.36", "Totalt");
+        int merknader = getTotal("N5.36", TOTALT);
         //Ingen merknader er registrert.
         return merknader <= 0;
     }
-    public Integer ingenDokumentfiler (){
-        List<String> Systemidentifikasjoner = getDataFromHtml("N5.47");
-        int docRefObj = getTotal("N5.34","Totalt");
-        if(Systemidentifikasjoner.isEmpty()){
-            //Ingen avvik på systemidentifikasjoner er funnet.
-            return  0;
-        }
-        else return -1;
-    }
-
-    /*
-    public Integer getTotal(String index, int element){
-        List<String> total = getDataFromHtml(index);
-
-        if(total.size() < element){
-            System.out.println(index + " has less than 2 elements"); //NOSONAR
-            return -1;
-        }
-        return Integer.parseInt(total.get(element).replaceAll("\\D", ""));
-    }
-    */
 
     /** Get Totalt from deviation table with SpecificValue.
      * @param index for test class.
@@ -124,7 +104,6 @@ public class ArkadeModel {
      * Run all function. Remove after all function are used in ArchiveController.
      */
     public void parseReportHtml(){
-        ingenDokumentfiler();
         if (test){
             // Get deviation for every id
             for(String i: getAll()){
