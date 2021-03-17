@@ -58,6 +58,50 @@ public class SettingsModel {
     }
 
     /**
+     * If output folders do not exist they will be created.
+     *
+     * Output folders are KostVal, VeraPDF, DROID and Arkade.
+     * @throws IOException Folder in user.home could not be created.
+     */
+    public void handleOutputFolders() throws IOException {
+        //KostVal
+        File kostValFolder = new File(userFolder.getPath() + "\\temp\\KostVal");
+        if(!kostValFolder.exists()) {
+            Files.createDirectory(kostValFolder.toPath());
+        }
+
+        //VeraPDF
+        File veraPdfFolder = new File(userFolder.getPath() + "\\temp\\VeraPDF");
+        if(!veraPdfFolder.exists()) {
+            Files.createDirectory(veraPdfFolder.toPath());
+        }
+
+        //DROID
+        File droidFolder = new File(userFolder.getPath() + "\\temp\\DROID");
+        if(!droidFolder.exists()) {
+            Files.createDirectory(droidFolder.toPath());
+        }
+
+        //Arkade
+        File arkadeFolder = new File(userFolder.getPath() + "\\temp\\Arkade");
+        if(!arkadeFolder.exists()) {
+            Files.createDirectory(arkadeFolder.toPath());
+        }
+
+        //Arkade Output
+        File arkadeOutputFolder = new File(userFolder.getPath() + "\\temp\\Arkade\\Report");
+        if(!arkadeOutputFolder.exists()) {
+            Files.createDirectory(arkadeOutputFolder.toPath());
+        }
+
+        //TestReport
+        File testReportFolder = new File(userFolder.getPath() + "\\temp\\TestReport");
+        if(!testReportFolder.exists()) {
+            Files.createDirectory(testReportFolder.toPath());
+        }
+    }
+
+    /**
      * If a config.priorities file does not exist in user.home it will be created by
      * using the default file in resources.
      * @throws IOException Config file in user.home could not be created.

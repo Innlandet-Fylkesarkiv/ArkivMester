@@ -6,15 +6,18 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 
-
+/**
+ * Class for handling and parsing the Arkade testreport html file.
+ *
+ * @since 1.0
+ * @version 1.0
+ * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen
+ */
 public class ArkadeModel {
     // html file at   ../Input/arkaderapportrapport.html
-    String filePath = "../Input/arkaderapportrapport.html";
+    String filePath;
 
     // Holds text from arkade testreport html as string
     StringBuilder htmlRawText = new StringBuilder();
@@ -26,39 +29,13 @@ public class ArkadeModel {
 
     boolean test = false;
 
-    /** Get Html as String, Runs all functions, Prints deviation to docx.
-     * GetFileToString to get the html content.
-     * Remove everything except for getFileToString when all functions are used.
-     */
-    ArkadeModel(){
-        testFunction();
-    }
-
-    /**
-     * For testing
-     */
-    public void testFunction(){
-        try (FileReader fr = new FileReader(filePath);
-             BufferedReader br = new BufferedReader(fr)) {
-
-            String val;
-            while ((val = br.readLine()) != null) {
-                htmlRawText.append(val);
-            }
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage()); //NOSONAR
-        }
-        parseReportHtml();
-
-    }
-
     /** 3.1.16. Check for number of registrations with saksparter.
      * @return Comment on number of saksparter
      */
-        public List<Integer> saksparter(){
+    public List<Integer> saksparter(){
         List<Integer> list = new ArrayList<>();
-        Integer saksparter = getTotal("N5.35");
-        Integer antallReg = getTotal("N5.16");
+        Integer saksparter = getTotal("N5.35", 1);
+        Integer antallReg = getTotal("N5.16", 1);
 
         list.add(saksparter);
         if(saksparter <= 0){
@@ -75,37 +52,25 @@ public class ArkadeModel {
         }
         return list;
     }
+
     /** 3.1.17. Get Merkader
-     * @return empty string if no merknader else comment
+     * @return if merknader "", else comment
      */
-    public String merknader(){
-        int merknader = getTotal("N5.36");
-        if(merknader <= 0){
-            return "Ingen merknader er registrert. ";
-        }
-        return "";
+    public boolean ingenMerknader(){
+        int merknader = getTotal("N5.36", 1);
+        //Ingen merknader er registrert.
+        return merknader <= 0;
     }
 
     /** Get Totalt from deviation table.
      * @param index for test class.
      * @return Totalt or -1 if no deviation table.
      */
-    public Integer getTotal(String index){
-        List<String> total = getDataFromHtml(index);
-
-        if(total.size() < 2){
-            System.out.println(index + " has less than 2 elements"); //NOSONAR
-            return -1;
-        }
-        return Integer.parseInt(total.get(1).replaceAll("\\D+", ""));
-    }
-
-
     public Integer getTotal(String index, int element){
         List<String> total = getDataFromHtml(index);
 
-        if(total.size() < element){
-            System.out.println(index + " has less than 2 elements"); //NOSONAR
+        if(total.size() < (element + 1)){
+            System.out.println(index + " has less than " + element + " elements"); //NOSONAR
             return -1;
         }
         return Integer.parseInt(total.get(element).replaceAll("\\D+", ""));
@@ -135,8 +100,9 @@ public class ArkadeModel {
      * @param prop filePath to arkade testreport html.
      */
     public boolean getFileToString(Properties prop){
+        htmlRawText = new StringBuilder();
         // Folder path: Arkade/output
-        filePath = prop.getProperty("arkadeOutput");
+        filePath = prop.getProperty("tempFolder") + "\\Arkade\\Report";
 
         try {
             // Dir: "arkadeOutput" folder

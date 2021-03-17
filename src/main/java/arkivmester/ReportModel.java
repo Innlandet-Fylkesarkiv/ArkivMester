@@ -3,10 +3,10 @@ package arkivmester;
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.xmlbeans.XmlCursor;
 
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import java.io.InputStream;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,6 +14,10 @@ import java.util.stream.Collectors;
 
 /**
  * Class for handling report document configurations.
+ *
+ * @since 1.0
+ * @version 1.0
+ * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen
  */
 public class ReportModel {
 
@@ -27,9 +31,8 @@ public class ReportModel {
     }
 
     XWPFDocument document;
-    String chapterFolder = "../Input/kapitler/";
-    String templateFile = "src/main/resources/Dokumentmal_fylkesarkivet_Noark5_testrapport.docx";
-    String outputFile = "../Output/createdocument.docx";
+    String chapterFolder = "/chapters/";
+    String templateFile = "/Dokumentmal_fylkesarkivet_Noark5_testrapport.docx";
 
     static String notFoundField = "<Fant ikke verdi>";
 
@@ -53,6 +56,10 @@ public class ReportModel {
 
         /**
          * Initialize a default list of missing input.
+         * @param input - the input text that are going to be put from either file or code
+         * @param ts    - the type of text as an enum(PARAGRAPH, INPUT, TABLE)
+         * @param col   - amount of coloums if it is a table
+         * @param c     - if the program are going to write this part to document
          */
         ChapterList(List<String> input, TextStyle ts, int col, boolean c) {
             result = input;
@@ -190,7 +197,6 @@ public class ReportModel {
         public List<Integer> getNumbering() {
             return headerMap.values().stream().filter(i -> i > 0).collect(Collectors.toList());
         }
-
     }
 
     /**
@@ -205,9 +211,9 @@ public class ReportModel {
     /**
      * Writes and prints document to file.
      */
-    public void makeReport() {
+    public void makeReport(Properties prop) {
         writeReportDocument();     // editing
-        printReportToFile();
+        printReportToFile(prop);
     }
 
     /**
@@ -215,15 +221,14 @@ public class ReportModel {
      * @param filepath - filepath to try to get Document from
      * @return XWPFDocument if file is found, or null if no matching filepath was found
      */
-    public static XWPFDocument getDocumentFile(String filepath) {
+    public XWPFDocument getDocumentFile(String filepath) {
         try (
-                FileInputStream fis = new FileInputStream(filepath)
+                InputStream fis = getClass().getResourceAsStream(filepath)
         ) {
             return new XWPFDocument(fis);
         } catch (IOException | NullPointerException e) {
             return null;
         }
-
     }
 
     /**
@@ -344,7 +349,6 @@ public class ReportModel {
             }
         }
     }
-
     //region Description
 
     /**
@@ -411,7 +415,6 @@ public class ReportModel {
         setRun(para.createRun() , FONT , 11, false, "", false);
 
     }
-
     //region end
 
     /**
@@ -434,15 +437,15 @@ public class ReportModel {
     /**
      * Print the newly edited document to a new file.
      */
-    public void printReportToFile() {
+    public void printReportToFile(Properties prop) {
         try {
-            FileOutputStream os = new FileOutputStream(outputFile);
+            FileOutputStream os = new FileOutputStream(prop.get("tempFolder") + "\\TestReport\\Testrapport.docx");
             document.write(os);
             document.close();
             os.close();
             System.out.println("\nfile created successfully!");     // NOSONAR
-        } catch (IOException | NullPointerException e) {
-            System.out.println(e.getMessage());                     // NOSONAR
+            } catch (IOException e) {
+            System.out.println(e.getMessage());                    // NOSONAR
         }
     }
 

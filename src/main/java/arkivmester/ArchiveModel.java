@@ -3,11 +3,14 @@ package arkivmester;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 
 /**
  * Holds all data about the archive and its relevant utility functions.
@@ -101,6 +104,11 @@ public class ArchiveModel {
         }
     }
 
+    /**
+     * Converts the computer date format to norwegian date format.
+     * @param list Administrative data list where the date is at index 4.
+     * @return The same data list, but with the updated date.
+     */
     public List<String> formatDate(List<String> list) {
         //Formats date to norwegian format.
         DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
@@ -109,5 +117,30 @@ public class ArchiveModel {
         String formattedDate = outputFormatter.format(date);
         list.set(4, formattedDate);
         return list;
+    }
+
+    /**
+     * Temp function
+     */
+    public void deleteUnZippedArchive(Properties prop, String name) throws IOException {
+        File zipped = new File(prop.get("tempFolder") + "\\"+ name); // #NOSONAR
+
+        if(zipped.exists()) {
+            Path directory = zipped.toPath();
+            Files.walkFileTree(directory, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) throws IOException {
+                    Files.delete(file); // this will work because it's always a File
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir); //this will work because Files in the directory are already deleted
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
+
     }
 }

@@ -12,4 +12,4 @@ let $r := //registrering [
   not (journalstatus = 'Utgår') and
   not(exists(dokumentbeskrivelse))]/systemID/text()
 
-return count($r)
+return $r
