@@ -102,7 +102,7 @@ public class ArkadeModel {
     public boolean getFileToString(Properties prop){
         htmlRawText = new StringBuilder();
         // Folder path: Arkade/output
-        filePath = prop.getProperty("tempFolder") + "\\Arkade\\Report";
+        filePath = prop.getProperty("tempFolder") + "\\" + prop.getProperty("currentArchive") + "\\Arkade\\Report"; //#NOSONAR
 
         try {
             // Dir: "arkadeOutput" folder

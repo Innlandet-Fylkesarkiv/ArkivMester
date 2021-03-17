@@ -146,11 +146,11 @@ public class ArchiveController implements ViewObserver {
     private void runTests() {
         List<Boolean> selectedTests = thirdPartiesModel.getSelectedTests();
         thirdPartiesModel.initializePath(settingsModel.prop);
-        //String fileName = archiveModel.tar.getName();                                   // NOSONAR
-        //fileName = fileName.substring(0,fileName.lastIndexOf('.'));                   // NOSONAR
+        String fileName = archiveModel.tar.getName();                                   // NOSONAR
+        fileName = fileName.substring(0,fileName.lastIndexOf('.'));                   // NOSONAR
         String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument"; // NOSONAR
         //Should use the one below, but takes too long
-        //String docPath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\content\\dokument"; // NOSONAR
+        //String docPath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokument"; // NOSONAR
 
         //Unzips .tar folder with the archive.
         try {
@@ -243,7 +243,9 @@ public class ArchiveController implements ViewObserver {
             mainView.toggleSettingsBtn();
 
             try {
-                settingsModel.handleOutputFolders();
+                String fileName = archiveModel.tar.getName();
+                fileName = fileName.substring(0,fileName.lastIndexOf('.'));
+                settingsModel.handleOutputFolders(fileName);
             } catch (IOException e) {
                 mainView.exceptionPopup("Kunne ikke skrive til user.home mappen.");
             }

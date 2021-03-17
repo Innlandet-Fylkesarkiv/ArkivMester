@@ -1,13 +1,13 @@
-declare namespace xh="http://arkivverket.no/standarder/METS";
+declare namespace xh="http://www.loc.gov/METS/";
 
 let $kunde := xh:mets/xh:metsHdr/xh:agent[@ROLE="OTHER" and @OTHERROLE="SUBMITTER" and @TYPE="ORGANIZATION"]/xh:name/text()
-
 let $kontaktperson := xh:mets/xh:metsHdr/xh:agent[@ROLE="OTHER" and @OTHERROLE="SUBMITTER" and @TYPE="INDIVIDUAL"]/xh:name
 
-let $uttrekksformat := xh:mets/xh:metsHdr/xh:agent[@ROLE="CREATOR" and @TYPE="OTHER" and @OTHERTYPE="SOFTWARE"]/xh:name
-let $format := if (fn:exists($uttrekksformat)) then $uttrekksformat/text() else ""
+let $uttrekksformat1 := xh:mets/xh:metsHdr/xh:agent[@ROLE="OTHER" and @OTHERROLE="PRODUCER" and @TYPE="OTHER" and @OTHERTYPE="SOFTWARE"]/xh:note[2]
+let $uttrekksformat2 := xh:mets/xh:metsHdr/xh:agent[@ROLE="OTHER" and @OTHERROLE="PRODUCER" and @TYPE="OTHER" and @OTHERTYPE="SOFTWARE"]/xh:note[3]
+let $format1 := if (fn:exists($uttrekksformat1)) then $uttrekksformat1/text() else ""
+let $format2 := if (fn:exists($uttrekksformat2)) then $uttrekksformat2/text() else ""
 
 let $produksjonsdato := string(xh:mets/xh:metsHdr/@CREATEDATE)
 
-return ("", $kunde, string-join(($kontaktperson/text()),", "), $format, $produksjonsdato, "", "", "")
-
+return ("", $kunde, string-join(($kontaktperson/text()),", "), $format1 || " v" || $format2, $produksjonsdato, "", "", "")
