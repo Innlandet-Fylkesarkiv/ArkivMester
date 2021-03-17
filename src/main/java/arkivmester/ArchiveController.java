@@ -123,7 +123,7 @@ public class ArchiveController implements ViewObserver {
         }
 
         //Chapter 3.1.22 - Dokumentflyter
-        if(arkadeModel.getTotal("N.41",1) <= 0) {
+        if(arkadeModel.getTotal("N5.41",1) <= 0) {
             reportModel.setNewInput(Arrays.asList(3, 1, 22), Collections.emptyList(), Collections.singletonList(0));
             //Delete 3.3.5, Title = Dokumentflyter
         }
@@ -496,6 +496,43 @@ public class ArchiveController implements ViewObserver {
             } else {
                 reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.singletonList(temp.size() + ""), Collections.singletonList(1));
             }
+
+            //Chapter 3.1.21
+            temp = thirdPartiesModel.runBaseX(
+                    testArkivstruktur,
+                    "3.1.21.xq",
+                    settingsModel.prop);
+
+            System.out.println("\n21" + temp);
+            if(temp.isEmpty()) {
+                reportModel.setNewInput(Arrays.asList(3, 1, 21), Collections.emptyList(), Collections.singletonList(0));
+            }
+            else {
+                reportModel.setNewInput(Arrays.asList(3, 1, 21), Collections.emptyList(),Collections.singletonList(1));
+            }
+
+            //Chapter 3.1.26
+            List<String> convertedTo = thirdPartiesModel.runBaseX(
+                    testArkivstruktur,
+                    "3.1.26_1.xq",
+                    settingsModel.prop);
+            System.out.println("\n26" + convertedTo);
+            System.out.println(convertedTo.size());
+
+            List<String> convertedFrom = thirdPartiesModel.runBaseX(
+                    testArkivstruktur,
+                    "3.1.26_2.xq",
+                    settingsModel.prop);
+            System.out.println("\n26_2 " + convertedFrom);
+            System.out.println(convertedFrom.size());
+
+            if(convertedFrom.size() == 1 && convertedFrom.contains("doc")) {
+                System.out.println("bare doc");
+            }
+            else {
+                System.out.println("Flere format");
+            }
+
         } catch (IOException e) {
             mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
         }
