@@ -531,11 +531,14 @@ public class ArchiveController implements ViewObserver {
             System.out.println("\n26_2 " + convertedFrom);
             System.out.println(convertedFrom.size());
 
+            //Find how
             if(convertedFrom.size() == 1 && convertedFrom.contains("doc")) {
                 System.out.println("bare doc");
+                reportModel.setNewInput(Arrays.asList(3, 1, 26), Collections.emptyList(), Collections.singletonList(3));
             }
             else {
                 System.out.println("Flere format");
+                reportModel.setNewInput(Arrays.asList(3, 1, 26), Collections.emptyList(), Collections.singletonList(2));
             }
 
         } catch (IOException e) {
