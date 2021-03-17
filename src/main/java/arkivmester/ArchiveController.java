@@ -402,9 +402,14 @@ public class ArchiveController implements ViewObserver {
 
         para = "" + temp.size();
 
-
+        List<String> newTemp = new ArrayList<>();
+        for(String s : temp) {
+            newTemp.addAll(Arrays.asList(s.split("; ")));
+        }
 
         reportModel.setNewInput(Arrays.asList(3, 1, 13), Arrays.asList(para, "placeholder"), 1);
+
+        reportModel.insertTable(Arrays.asList(3, 1, 13), newTemp);
 
         reportModel.setNewInput(Arrays.asList(3, 1, 15), Collections.emptyList(), 0);
 
@@ -439,8 +444,7 @@ public class ArchiveController implements ViewObserver {
 
          */
 
-        reportModel.writeReportDocument();     // editing
-        reportModel.printReportToFile();
+        reportModel.makeReport();
 
         testView.activatePackToAipBtn();
     }
