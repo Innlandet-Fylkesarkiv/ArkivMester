@@ -60,71 +60,65 @@ public class ArchiveController implements ViewObserver {
         // 3 og 3.1 arkade version
         String version = arkadeModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
 
-        reportModel.setNewInput(Arrays.asList(3, 1), Collections.singletonList(version), Collections.singletonList(0));
+        reportModel.setNewInput(Arrays.asList(3, 1), Collections.singletonList(version), 0);
         // 3.1.1
-        writeDeviation(Arrays.asList(3, 1, 1),"N5.01", "Lokasjon", "Avvik");
-        writeDeviation(Arrays.asList(3, 1, 1),"N5.02", "Lokasjon2", "Avvik2");
+        writeDeviation(Arrays.asList(3, 1, 1),"N5.01");
+        writeDeviation(Arrays.asList(3, 1, 1),"N5.02");
 
         int arkivert = arkadeModel.getTotal("N5.22", 1);
         int journalfort = arkadeModel.getTotal("N5.22", 5);
 
         if(journalfort <= 0) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), Collections.singletonList(0));
+            reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 0);
         } else {
             if(arkivert <= 0) {
-                reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), Collections.singletonList(2));
+                reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 2);
             } else {
-                reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.singletonList("" + journalfort), Collections.singletonList(1));
+                reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.singletonList("" + journalfort), 1);
             }
         }
-
-
 
         //Chapter 3.1.16 - Saksparter
         List<Integer> saksparter = arkadeModel.saksparter();
         if(saksparter.get(0) > 0){
             reportModel.setNewInput(Arrays.asList(3, 1, 16), Collections.singletonList(
-                    saksparter.get(0).toString()), Collections.singletonList(saksparter.get(1)));
+                    saksparter.get(0).toString()), 1);
         } else {
-            reportModel.setNewInput(Arrays.asList(3, 1, 16), Collections.emptyList(),
-                        Collections.singletonList(saksparter.get(1)));
+            reportModel.setNewInput(Arrays.asList(3, 1, 16), Collections.emptyList(), 1);
         }
         //Chapter 3.1.17 - Merknader
-        if (arkadeModel.merknader().isEmpty()){
-            reportModel.setNewInput(Arrays.asList(3, 1, 17), Collections.emptyList(),
-                    Collections.singletonList(0));
+        if (arkadeModel.merknader().isEmpty()) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 17), Collections.emptyList(), 0);
             reportModel.setNewParagraph(Arrays.asList(3, 1, 17), Collections.singletonList("Rename tittel from 3.1.17 to merknader "));
             reportModel.setNewParagraph(Arrays.asList(3, 3, 3), Collections.singletonList("DELETE ME: 3.3.3"));
         }
 
         //Chapter 3.1.18 - Kryssreferanser
 
-        if(arkadeModel.getTotal("N5.37") > 0){
-            reportModel.setNewInput(Arrays.asList(3, 1, 18), Collections.emptyList() , Collections.singletonList(0));
+        if(arkadeModel.getTotal("N5.37", 1) > 0) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 18), Collections.emptyList() , 0);
         }
         //Delete 3.3.4, Title = "Kryssreferanser"
 
         //Chapter 3.1.19 - Presedenser
-        if(arkadeModel.getTotal("N5.38") > 0 ) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), Collections.singletonList(0));
+        if(arkadeModel.getTotal("N5.38", 1) > 0) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), 0);
         }
         else {
-            reportModel.setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), Collections.singletonList(1));
+            reportModel.setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), 1);
         }
     }
 
     /**
      * @param kap docx kap
      * @param index test ID
-     * @param header1 table header 1
-     * @param header2 table header 2
      */
-    private void writeDeviation(List<Integer> kap, String index, String header1, String header2) {
+    private void writeDeviation(List<Integer> kap, String index) {
         List<String> avvik = arkadeModel.getDataFromHtml(index);
         if (!avvik.isEmpty()) {
-            reportModel.setNewTable(kap, Arrays.asList(header1, header2), avvik);
+            reportModel.insertTable(kap, avvik);
         } else {
-            reportModel.setNewInput(kap, Collections.emptyList(), Collections.singletonList(0));
+            reportModel.setNewInput(kap, Collections.emptyList(), 0);
         }
     }
 
@@ -256,6 +250,11 @@ public class ArchiveController implements ViewObserver {
         archiveModel.resetAdminInfo();
         thirdPartiesModel.resetSelectedTests();
         mainView.toggleSettingsBtn();
+
+        reportModel = new ReportModel();
+        arkadeModel = new ArkadeModel();
+
+        attachments.clear();
     }
 
     //When "Innstillinger" is clicked.
@@ -392,9 +391,9 @@ public class ArchiveController implements ViewObserver {
                 "3.1.11.xq",
                 settingsModel.prop).get(0);
 
-        reportModel.setNewInput(Arrays.asList(3, 1, 10), Collections.emptyList(), Collections.singletonList(0));
+        reportModel.setNewInput(Arrays.asList(3, 1, 10), Collections.emptyList(), 0);
 
-        reportModel.setNewInput(Arrays.asList(3, 1, 11), Collections.singletonList(para), Collections.singletonList(1));
+        reportModel.setNewInput(Arrays.asList(3, 1, 11), Collections.singletonList(para), 1);
 
         List<String> temp = thirdPartiesModel.runBaseX(
                 testArkivstruktur,
@@ -405,9 +404,9 @@ public class ArchiveController implements ViewObserver {
 
 
 
-        reportModel.setNewInput(Arrays.asList(3, 1, 13), Arrays.asList(para, "placeholder"), Collections.singletonList(1));
+        reportModel.setNewInput(Arrays.asList(3, 1, 13), Arrays.asList(para, "placeholder"), 1);
 
-        reportModel.setNewInput(Arrays.asList(3, 1, 15), Collections.emptyList(), Collections.singletonList(0));
+        reportModel.setNewInput(Arrays.asList(3, 1, 15), Collections.emptyList(), 0);
 
         temp = thirdPartiesModel.runBaseX(
                 testArkivstruktur,
@@ -415,9 +414,9 @@ public class ArchiveController implements ViewObserver {
                 settingsModel.prop);
 
         if(temp.isEmpty()) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.emptyList(), Collections.singletonList(0));
+            reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.emptyList(), 0);
         } else {
-            reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.singletonList(temp.size() + ""), Collections.singletonList(1));
+            reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.singletonList(temp.size() + ""), 1);
         }
 
         //arkadeModel.parseReportHtml(); // remove when all function used in testModel
@@ -429,6 +428,16 @@ public class ArchiveController implements ViewObserver {
         else {
             System.out.println("Can't get testreport html "); //NOSONAR
         }
+
+        /*
+        how to insert input to table
+
+        1. step
+        2. step
+
+
+
+         */
 
         reportModel.writeReportDocument();     // editing
         reportModel.printReportToFile();
