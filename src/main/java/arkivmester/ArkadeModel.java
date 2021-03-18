@@ -33,19 +33,7 @@ public class ArkadeModel {
     ArkadeModel(){
 
     }
-    /** todo remove
-     * 3.1.14 and 3.1.31
-     */
-    public String firstLastRegistrering(){
-        getDataFromHtml("N5.27"); // 3.1.31 output
-        getDataFromHtml("N5.60"); // 3.1.31 ?
-
-        getDataFromHtml("N5.11"); // 3.1.14 ?
-        getDataFromHtml("N5.18"); // 3.1.14 ?
-
-
-        return "";
-    }
+    
 
     /** 3.1.16. Check for number of registrations with saksparter.
      * @return Comment on number of saksparter
