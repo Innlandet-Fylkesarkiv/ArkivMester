@@ -77,7 +77,7 @@ public class TestSettingsView extends Views {
         testBoxes.get(3).setText("VeraPdf");
 
         //Buttons
-        JButton saveTestsBtn = new JButton("Lagre tests");
+        JButton saveTestsBtn = new JButton("Lagre tester");
         saveTestsBtn.addActionListener(this);
         saveTestsBtn.setBackground(primaryColor);
         saveTestsBtn.setForeground(Color.WHITE);
@@ -116,9 +116,11 @@ public class TestSettingsView extends Views {
      * @return Updated selected tests as Boolean list.
      */
     public List<Boolean> getSelectedTests() {
+        List<Boolean> currentList = new ArrayList<>();
+        currentList.add(true); currentList.add(true); currentList.add(true); currentList.add(true);
         for(int i = 0; i<amountOfTests; i++) {
-            selectedTests.set(i, testBoxes.get(i).isSelected());
+            currentList.set(i, testBoxes.get(i).isSelected());
         }
-        return selectedTests;
+        return currentList;
     }
 }

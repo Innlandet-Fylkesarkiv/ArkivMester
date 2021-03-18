@@ -34,7 +34,7 @@ public class ThirdPartiesModel {
      * @param selectedList Updated selectedTests from the UI.
      */
     public void updateSelectedTests(List<Boolean> selectedList) {
-        selectedTests = selectedList;
+        this.selectedTests = selectedList;
     }
 
     /**
@@ -42,7 +42,7 @@ public class ThirdPartiesModel {
      * @return selectedTests boolean list.
      */
     public List<Boolean> getSelectedTests() {
-        return selectedTests;
+        return this.selectedTests;
     }
 
     /**

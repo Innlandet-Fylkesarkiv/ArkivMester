@@ -246,13 +246,13 @@ public class ArchiveController implements ViewObserver {
                 String fileName = archiveModel.tar.getName();
                 fileName = fileName.substring(0,fileName.lastIndexOf('.'));
                 settingsModel.handleOutputFolders(fileName);
+
+                //Schedule the runTests function to give the UI time to update before tests are run.
+                scheduler = Executors.newScheduledThreadPool(1);
+                scheduler.submit(this::runTests);
             } catch (IOException e) {
                 mainView.exceptionPopup("Kunne ikke skrive til user.home mappen.");
             }
-
-            //Schedule the runTests function to give the UI time to update before tests are run.
-            scheduler = Executors.newScheduledThreadPool(1);
-            scheduler.submit(this::runTests);
         }
         else
             mainView.exceptionPopup("Det mangler en eller flere verktøy på maskinen");
@@ -488,7 +488,8 @@ public class ArchiveController implements ViewObserver {
 
         reportModel.writeReportDocument();     // editing
         reportModel.printReportToFile(settingsModel.prop);
-        testView.updateTestStatus("<html>Rapporten er generert og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\TestReport\\</html>");
+        testView.updateTestStatus("<html>Rapporten er generert og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\" +
+                                        settingsModel.prop.getProperty("currentArchive") + "</html>");
         testView.activatePackToAipBtn();
 
 
@@ -503,16 +504,15 @@ public class ArchiveController implements ViewObserver {
     //When "Lagre tests" is clicked.
     @Override
     public void saveTestSettings() {
-        //Get settings Save settings
-        if(Boolean.TRUE.equals(thirdPartiesModel.noEmptyTests(testSettingsView.getSelectedTests()))) {
-            thirdPartiesModel.updateSelectedTests(testSettingsView.getSelectedTests());
+        List<Boolean> currentList = testSettingsView.getSelectedTests();
+
+        if(Boolean.TRUE.equals(thirdPartiesModel.noEmptyTests(currentList))) {
+            thirdPartiesModel.updateSelectedTests(currentList);
             testSettingsView.clearContainer();
             testSettingsView = null;
             mainView.showGUI();
         }
         else
             mainView.exceptionPopup("Det må være minst 1 inkludert deltest");
-
-
     }
 }
