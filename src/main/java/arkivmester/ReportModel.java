@@ -109,6 +109,10 @@ public class ReportModel {
          * @return current iterated value from input in class
          */
         public String currentItem() {
+            if(result.size() == 0) {
+                return "";
+            }
+
             int size = result.size();
 
             String temp = result.get(cindex);
