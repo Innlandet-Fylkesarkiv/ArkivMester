@@ -73,9 +73,9 @@ public class ThirdPartiesModel {
         //String with path to arkadeCli
         String cd = cdString + prop.getProperty("arkadePath") + "\"";
         //Path to output folder where test report gets saved.
-        String outputPath = tempFolder + "\\Arkade\\Report";
+        String outputPath = "\"" + tempFolder + "\\Arkade\\Report\"";
         //Path to temp folder where temporary data about the tests gets stored.
-        String tempPath = tempFolder + "\\Arkade";
+        String tempPath = "\"" + tempFolder + "\\Arkade\"";
 
         //Run ArkadeCli through command line.
         runCMD(cd + " && arkade test -a " + path + " -o " + outputPath + " -p " + tempPath + " -t noark5");
@@ -95,7 +95,7 @@ public class ThirdPartiesModel {
         //String with path to KostVal
         String cd = cdString + prop.getProperty("kostvalPath") + "\"";
         //Path to folder where test report gets moved to.
-        String reportPath = tempFolder + "\\KostVal";
+        String reportPath = "\"" + tempFolder + "\\KostVal\"";
 
         //Run kost-val from command line
         runCMD(cd + " &&  java -jar cmd_KOST-Val.jar --sip " + path + " --en");
@@ -116,7 +116,7 @@ public class ThirdPartiesModel {
         //String with path to VeraPDF
         String cd = cdString + prop.getProperty("veraPDFPath") + "\"";
         //Path to folder where test report gets moved to.
-        String reportPath = tempFolder + "\\VeraPDF" + "\\verapdf.xml";
+        String reportPath = "\"" + tempFolder + "\\VeraPDF" + "\\verapdf.xml\"";
 
         //Run verapdf through command line.
         runCMD(cd + " && verapdf --recurse " + path + " > " + reportPath);
@@ -138,9 +138,9 @@ public class ThirdPartiesModel {
         //String with command to run .jar file
         String jar = " && java -jar droid-command-line-6.5.jar";
         //Path to droid profile needed to run droid.
-        String profilePath = tempFolder + "\\DROID" + "\\profile.droid";
+        String profilePath = "\"" + tempFolder + "\\DROID" + "\\profile.droid\"";
         //Path to folder where test output ends up.
-        String outputPath = tempFolder + "\\DROID";
+        String outputPath = "\"" + tempFolder + "\\DROID\"";
 
         //Run first DROID function - making the droid profile.
         System.out.println("\nDroid 1"); //NOSONAR
@@ -174,7 +174,7 @@ public class ThirdPartiesModel {
         String cd = cdString + prop.getProperty("7ZipPath") + "\"";
 
         //Run VeraPDF from command line
-        runCMD(cd + " && 7z x " + path + " -o" +tempFolder+" -r");
+        runCMD(cd + " && 7z x " + path + " -o\"" + tempFolder + "\" -r");
     }
 
     /**
@@ -190,7 +190,7 @@ public class ThirdPartiesModel {
         String pwd = cdString + prop.getProperty("basexPath") + "\"";
         List<String> result = new ArrayList<>();
 
-        ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o " + temp + " -i " + xml + " " + xq);
+        ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o \"" + temp + "\" -i " + xml + " " + xq);
 
         try {
             Process p = baseXBuilder.start();
