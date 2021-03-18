@@ -438,7 +438,7 @@ public class ArchiveController implements ViewObserver {
 
     //When "Lag rapport" is clicked.
     @Override
-    public void makeReport() {
+    public void makeReport() { // NOSONAR
         String format = testView.getSelectedFormat(); //#NOSONAR
         String fileName = archiveModel.tar.getName();
         fileName = fileName.substring(0,fileName.lastIndexOf('.'));
@@ -518,7 +518,6 @@ public class ArchiveController implements ViewObserver {
                     "3.1.21.xq",
                     settingsModel.prop);
 
-            System.out.println("\n21" + temp);
             if(temp.isEmpty()) {
                 reportModel.setNewInput(Arrays.asList(3, 1, 21), Collections.emptyList(), 0);
             }
@@ -531,25 +530,36 @@ public class ArchiveController implements ViewObserver {
                     testArkivstruktur,
                     "3.1.26_1.xq",
                     settingsModel.prop);
-            System.out.println("\n26" + convertedTo);
-            System.out.println(convertedTo.size());
 
-            List<String> convertedFrom = thirdPartiesModel.runBaseX(
-                    testArkivstruktur,
-                    "3.1.26_2.xq",
-                    settingsModel.prop);
-            System.out.println("\n26_2 " + convertedFrom);
-            System.out.println(convertedFrom.size());
+            if(!convertedTo.isEmpty()) {
 
-            //Find how
-            if(convertedFrom.size() == 1 && convertedFrom.contains("doc")) {
-                System.out.println("bare doc");
-                reportModel.setNewInput(Arrays.asList(3, 1, 26), Collections.emptyList(), 3);
+                List<String> convertedFrom = thirdPartiesModel.runBaseX(
+                        testArkivstruktur,
+                        "3.1.26_2.xq",
+                        settingsModel.prop);
+
+                //Find amount of files - conversions for case 1.
+                if (convertedFrom.size() == 1 && convertedFrom.contains("doc")) {
+                    reportModel.setNewInput(Arrays.asList(3, 1, 26), Collections.emptyList(), 2);
+                } else {
+                    reportModel.setNewInput(Arrays.asList(3, 1, 26), Collections.emptyList(), 1);
+                }
             }
             else {
-                System.out.println("Flere format");
-                reportModel.setNewInput(Arrays.asList(3, 1, 26), Collections.emptyList(), 2);
+                reportModel.setNewInput(Arrays.asList(3, 1, 26), Collections.emptyList(), 3);
             }
+
+            //Chapter 3.1.30
+            if(arkadeModel.getDataFromHtml("N5.59").isEmpty()) {
+                reportModel.setNewInput(Arrays.asList(3, 1, 30), Collections.emptyList(), 0);
+            }
+            else {
+                //Get total offentlig journal og arkivstrktur.
+                // oj - as = antall
+                reportModel.setNewInput(Arrays.asList(3, 1, 33), Collections.emptyList(), 1);
+            }
+
+
 
         } catch (IOException e) {
             mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
