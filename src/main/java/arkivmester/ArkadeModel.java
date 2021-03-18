@@ -33,7 +33,19 @@ public class ArkadeModel {
     ArkadeModel(){
 
     }
+    /** todo remove
+     * 3.1.14 and 3.1.31
+     */
+    public String firstLastRegistrering(){
+        getDataFromHtml("N5.27"); // 3.1.31 output
+        getDataFromHtml("N5.60"); // 3.1.31 ?
 
+        getDataFromHtml("N5.11"); // 3.1.14 ?
+        getDataFromHtml("N5.18"); // 3.1.14 ?
+
+
+        return "";
+    }
 
     /** 3.1.16. Check for number of registrations with saksparter.
      * @return Comment on number of saksparter
@@ -70,29 +82,30 @@ public class ArkadeModel {
 
     /** Get Totalt from deviation table with SpecificValue.
      * @param index for test class.
+     * @param containsValue text in cell.
      * @return one number or -1 if no deviation table.
      */
-    public Integer getTotal(String index, String element){
+    public Integer getTotal(String index, String containsValue){
 
-        List<String> total = getSpecificValue(index, element);
+        List<String> total = getSpecificValue(index, containsValue);
 
         if(total.isEmpty()){
-            System.out.println(index + " has no value with text " + element); //NOSONAR
+            System.out.println(index + " has no value with text " + containsValue); //NOSONAR
             return -1;
         }
         if(total.size() > 1){
-            System.out.println(index + " has more than one value with text " + element); //NOSONAR
+            System.out.println(index + " has more than one value with text " + containsValue); //NOSONAR
             return -1;
         }
 
         if(!total.get(0).contains(":")){
-            System.out.println(index + " value with " + element + " has no \":\" "); //NOSONAR
+            System.out.println(index + " value with " + containsValue + " has no \":\" "); //NOSONAR
             return -1;
         }
         String tmp = total.get(0).substring(total.get(0).lastIndexOf(":") + 1);
 
         if(!total.get(0).matches(".*\\d.*")){
-            System.out.println(index + " value with " + element + " has no number after last \":\" "); //NOSONAR
+            System.out.println(index + " value with " + containsValue + " has no number after last \":\" "); //NOSONAR
             return -1;
         }
 
