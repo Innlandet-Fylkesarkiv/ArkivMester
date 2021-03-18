@@ -92,11 +92,11 @@ public class ArchiveController implements ViewObserver {
         }
         //Chapter 3.1.16 - Saksparter
         List<Integer> saksparter = arkadeModel.saksparter();
-        if(saksparter.get(0) > 0){
+        if(saksparter.get(0) == 0){
+            reportModel.setNewInput(Arrays.asList(3, 1, 16), Collections.emptyList(), 0);
+        } else {
             reportModel.setNewInput(Arrays.asList(3, 1, 16), Collections.singletonList(
                     saksparter.get(0).toString()), 1);
-        } else {
-            reportModel.setNewInput(Arrays.asList(3, 1, 16), Collections.emptyList(), 1);
         }
 
         //Chapter 3.1.17 - Merknader
@@ -442,9 +442,10 @@ public class ArchiveController implements ViewObserver {
         String format = testView.getSelectedFormat(); //#NOSONAR
         String fileName = archiveModel.tar.getName();
         fileName = fileName.substring(0,fileName.lastIndexOf('.'));
-        String archivePath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName; // #NOSONAR
 
-        String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml";
+        String archivePath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName; // #NOSONAR
+
+        String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml\"";
 
         reportModel.generateReport(); // big question: (1 == 2) ? 3 : 2
 
@@ -454,10 +455,10 @@ public class ArchiveController implements ViewObserver {
         //testModel.parseReportHtml(); // remove when all function used in testModel
         Map<String, String> map = new LinkedHashMap<>();
 
-        map.put("1.2_1.xq",archivePath + "\\dias-mets.xml");
-        map.put("1.2_2.xq",archivePath + "\\content\\arkivuttrekk.xml");
-        map.put("1.2_3.xq",archivePath + "\\content\\loependeJournal.xml");
-        map.put("1.2_4.xq",archivePath + "\\content\\offentligJournal.xml");
+        map.put("1.2_1.xq",archivePath + "\\dias-mets.xml\"");
+        map.put("1.2_2.xq",archivePath + "\\content\\arkivuttrekk.xml\"");
+        map.put("1.2_3.xq",archivePath + "\\content\\loependeJournal.xml\"");
+        map.put("1.2_4.xq",archivePath + "\\content\\offentligJournal.xml\"");
         map.put("1.2_5.xq",testArkivstruktur);
 
         try {
@@ -489,16 +490,21 @@ public class ArchiveController implements ViewObserver {
                     "3.1.13.xq",
                     settingsModel.prop);
 
-            List<String> newTemp = new ArrayList<>();
-            for(String s : temp) {
-                newTemp.addAll(Arrays.asList(s.split("; ")));
+            if(temp.get(1).equals("0")) {
+                reportModel.setNewInput(Arrays.asList(3, 1, 13), Collections.emptyList(), 0);
             }
+            else if(!temp.get(0).equals("utgår")) {
+                List<String> newTemp = new ArrayList<>();
+                for(String s : temp) {
+                    newTemp.addAll(Arrays.asList(s.split("; ")));
+                }
+                reportModel.setNewInput(Arrays.asList(3, 1, 13),
+                        Arrays.asList(temp.size() + "", "under redigering"), 1);
 
-            reportModel.setNewInput(Arrays.asList(3, 1, 13), Arrays.asList(temp.size() + "", "placeholder"), 1);
-
-            reportModel.insertTable(Arrays.asList(3, 1, 13), newTemp);
-
-            reportModel.setNewInput(Arrays.asList(3, 1, 15), Collections.emptyList(), 0);
+                reportModel.insertTable(Arrays.asList(3, 1, 13), newTemp);
+            } else {
+                reportModel.setNewInput(Arrays.asList(3, 1, 13), Arrays.asList(temp.get(1), temp.get(2)), 2);
+            }
 
             //Chapter 3.1.20
             temp = thirdPartiesModel.runBaseX(
@@ -510,6 +516,7 @@ public class ArchiveController implements ViewObserver {
                 reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.emptyList(), 0);
             } else {
                 reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.singletonList(temp.size() + ""), 1);
+                reportModel.insertTable(Arrays.asList(3, 1, 20), temp);
             }
         } catch (IOException e) {
             mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");

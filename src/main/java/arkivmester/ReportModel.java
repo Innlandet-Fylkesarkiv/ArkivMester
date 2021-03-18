@@ -109,7 +109,7 @@ public class ReportModel {
          * @return current iterated value from input in class
          */
         public String currentItem() {
-            if(result.size() == 0) {
+            if(result.isEmpty()) {
                 return "";
             }
 
@@ -143,10 +143,11 @@ public class ReportModel {
          * Prints header number and text from data stored.
          */
         public void getText() {
-            for (String strings : result) {
-                System.out.print(strings + " ");      // NOSONAR
+            if(cases) {
+                for (String strings : result) {
+                    System.out.print(strings + " ");      // NOSONAR
+                }
             }
-            System.out.print("\n");                 // NOSONAR
         }
     }
 
@@ -313,6 +314,7 @@ public class ReportModel {
                 for(ChapterList chap : chapters) {
                     chap.getText();
                 }
+                System.out.print("\n");                                                 // NOSONAR
             }
         }
     }
