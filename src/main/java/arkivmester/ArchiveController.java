@@ -629,14 +629,6 @@ public class ArchiveController implements ViewObserver {
                                         settingsModel.prop.getProperty("currentArchive") + "</html>");
 
         testView.activatePackToAipBtn();
-
-/*
-        //Temp funksjon for å slette. Fiks pakk til AIP, så slett denne
-        try {
-            archiveModel.deleteUnZippedArchive(settingsModel.prop, fileName);
-        } catch (IOException e) {
-            mainView.exceptionPopup("Kunne ikke slette unzipped uttrekk");
-        }*/
     }
 
     //When "Lagre tests" is clicked.

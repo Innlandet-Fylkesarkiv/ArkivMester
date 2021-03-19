@@ -274,8 +274,7 @@ public class ThirdPartiesModel {
         }
         if(Boolean.TRUE.equals(selectedTests.get(3))) {
             file = new File(prop.getProperty("veraPDFPath") + "\\verapdf.bat");
-            if(!file.isFile())
-                return false;
+            return file.isFile();
         }
 
 
