@@ -74,4 +74,9 @@ public interface ViewObserver {
      * Opens the about view for information about the application.
      */
     void openAbout();
+
+    /**
+     * Resets the contents of the settings file to the default.
+     */
+    void resetCfg();
 }

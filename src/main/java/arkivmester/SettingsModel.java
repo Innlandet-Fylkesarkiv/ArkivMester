@@ -131,7 +131,7 @@ public class SettingsModel {
      * Loads the default config.priorities file from resources into Properties prop.
      * @throws IOException Properties object could not load input stream.
      */
-    private void loadDefaultConfig() throws IOException {
+    public void loadDefaultConfig() throws IOException {
         InputStream is = getClass().getResourceAsStream("/config.properties");
         prop.load(is);
         is.close();
@@ -184,6 +184,21 @@ public class SettingsModel {
                     return FileVisitResult.CONTINUE;
                 }
             });
+        }
+    }
+
+    /**
+     * Deletes and recreates config.properties with temporary values.
+     * @throws IOException No permissions in tempFolder path.
+     */
+    public void resetCfg() throws IOException {
+        String archive;
+        if(alteredCfg.exists()) {
+            archive = prop.getProperty("currentArchive");
+            Files.delete(alteredCfg.toPath());
+            createConfig();
+            handleTempFolder();
+            updateConfig("currentArchive", archive);
         }
     }
 }

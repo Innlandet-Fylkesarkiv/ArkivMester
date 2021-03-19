@@ -1,5 +1,6 @@
 package arkivmester;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -362,13 +363,12 @@ public class ArchiveController implements ViewObserver {
 
         try {
             settingsModel.updateConfig(newProp.get(0), newProp.get(1));
+            settingsView.clearContainer();
+            settingsView = null;
+            mainView.showGUI();
         } catch (IOException e) {
             mainView.exceptionPopup("Kan ikke skrive til config fil.");
         }
-
-        settingsView.clearContainer();
-        settingsView = null;
-        mainView.showGUI();
     }
 
     //When "Om" is clicked
@@ -382,6 +382,20 @@ public class ArchiveController implements ViewObserver {
             aboutView.createAndShowGUI(mainView.getContainer());
         } catch (IOException e) {
             mainView.exceptionPopup("Kunne ikke finne applikasjons logo");
+        }
+    }
+
+    @Override
+    public void resetCfg() {
+        int n = JOptionPane.showConfirmDialog(null, "Er du sikker på at du vil resette innstillingene til standarden?",
+                "Resette innstillinger", JOptionPane.YES_NO_OPTION);
+        if(n == JOptionPane.YES_OPTION) {
+            try {
+                settingsModel.resetCfg();
+                openSettings();
+            } catch (IOException e) {
+                mainView.exceptionPopup("Kan ikke skrive til config fil.");
+            }
         }
     }
 

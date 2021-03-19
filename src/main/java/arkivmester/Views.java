@@ -112,6 +112,10 @@ public class Views implements ActionListener {
                 for (ViewObserver obs : observers)
                     obs.openAbout();
                 break;
+            case "Reset":
+                for (ViewObserver obs : observers)
+                    obs.resetCfg();
+                break;
             default:
                 break;
         }

@@ -100,6 +100,11 @@ public class SettingsView extends Views {
         saveSettingsBtn.setBackground(primaryColor);
         saveSettingsBtn.setForeground(Color.WHITE);
 
+        JButton resetCfg = new JButton("Reset");
+        resetCfg.addActionListener(this);
+        resetCfg.setBackground(primaryColor);
+        resetCfg.setForeground(Color.WHITE);
+
         JButton cancelCfg = new JButton("Tilbake");
         cancelCfg.setActionCommand("Avbryt");
         cancelCfg.addActionListener(this);
@@ -149,6 +154,9 @@ public class SettingsView extends Views {
         gridPanel.add(saveSettingsBtn, gbc);
         gbc.gridx++;
         gridPanel.add(cancelCfg, gbc);
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gridPanel.add(resetCfg, gbc);
 
         JScrollPane gridPane = new JScrollPane(gridPanel);
         cfgPanel.add(gridPane);
