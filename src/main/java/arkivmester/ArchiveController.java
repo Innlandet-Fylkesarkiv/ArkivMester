@@ -78,7 +78,6 @@ public class ArchiveController implements ViewObserver {
         writeDeviation(Arrays.asList(3, 1, 1),"N5.02");
 
         // 3.1.8
-
         List<String> dokumentstatus = arkadeModel.getTableDataFromHtml("N5.15");
 
         reportModel.setNewInput(Arrays.asList(3, 1, 8), Collections.emptyList(), 0);
