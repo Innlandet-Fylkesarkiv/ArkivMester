@@ -1,7 +1,11 @@
 package arkivmester;
 
 import java.io.*;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Properties;
 
 /**
@@ -64,12 +68,19 @@ public class SettingsModel {
      * @throws IOException Folder in user.home could not be created.
      */
     public void handleOutputFolders(String fileName) throws IOException {
+        updateConfig("currentArchive", fileName);
+
         //Archive folder
         File archiveFolder = new File(userFolder.getPath() + "\\temp\\" + fileName);
         if(!archiveFolder.exists()) {
             Files.createDirectory(archiveFolder.toPath());
         }
-        updateConfig("currentArchive", fileName);
+        else {
+            File unzipped = new File(archiveFolder.getPath() + "\\" + fileName); // #NOSONAR
+            if(unzipped.exists()) {
+                deleteUnZippedArchive();
+            }
+        }
 
         //KostVal
         File kostValFolder = new File(archiveFolder.getPath() + "\\KostVal");
@@ -96,7 +107,7 @@ public class SettingsModel {
         }
 
         //Arkade Output
-        File arkadeOutputFolder = new File(arkadeFolder.getPath() + "\\Report");
+        File arkadeOutputFolder = new File(arkadeFolder.getPath() + "\\report");
         if(!arkadeOutputFolder.exists()) {
             Files.createDirectory(arkadeOutputFolder.toPath());
         }
@@ -147,6 +158,32 @@ public class SettingsModel {
 
         try (FileOutputStream fos = new FileOutputStream(alteredCfg)){
             prop.store(fos, null);
+        }
+    }
+
+    /**
+     * Deletes the unzipped archive in preperation to test the archive again.
+     * @throws IOException No permissions in tempFolder path.
+     */
+    public void deleteUnZippedArchive() throws IOException {
+        String archive = (String)prop.get("currentArchive");
+        File zipped = new File(prop.get("tempFolder") + "\\"+ archive + "\\" + archive); // #NOSONAR
+
+        if(zipped.exists()) {
+            Path directory = zipped.toPath();
+            Files.walkFileTree(directory, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
         }
     }
 }

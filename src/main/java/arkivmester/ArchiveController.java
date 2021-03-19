@@ -342,15 +342,6 @@ public class ArchiveController implements ViewObserver {
         arkadeModel = new ArkadeModel();
 
         attachments.clear();
-
-        /*
-        String fileName = archiveModel.tar.getName();
-        fileName = fileName.substring(0,fileName.lastIndexOf('.'));
-        try {
-            archiveModel.deleteUnZippedArchive(settingsModel.prop, fileName);
-        } catch (IOException e) {
-            mainView.exceptionPopup("Kunne ikke slette unzipped uttrekk");
-        }*/
     }
 
     //When "Innstillinger" is clicked.
@@ -634,7 +625,7 @@ public class ArchiveController implements ViewObserver {
         }
 
         reportModel.makeReport(settingsModel.prop);
-        testView.updateTestStatus("<html>Rapporten er generert og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\" +
+        testView.updateTestStatus("<html>Rapporten er generert og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\<br>" +
                                         settingsModel.prop.getProperty("currentArchive") + "</html>");
 
         testView.activatePackToAipBtn();
