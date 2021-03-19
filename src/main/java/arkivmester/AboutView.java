@@ -2,15 +2,9 @@ package arkivmester;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * Handles the about view.
@@ -35,43 +29,51 @@ public class AboutView extends Views {
         container.remove(0); //Info panel
         container.revalidate();
 
-        //About container
-        JPanel aboutContainer = new JPanel(new GridBagLayout());
-        //aboutContainer.setBorder(new EmptyBorder(0, 0, 300, 600));
-        aboutContainer.setBackground(Color.WHITE);
-
         //Logo panel
-        JPanel logoPanel = new JPanel();
-        logoPanel.setLayout(new BoxLayout(logoPanel, BoxLayout.LINE_AXIS));
-        logoPanel.setBackground(Color.WHITE);
-        setUpLogoPanel(logoPanel);
+        JPanel aboutPanel = new JPanel();
+        aboutPanel.setLayout(null);
+        aboutPanel.setBackground(Color.WHITE);
+        setUpAboutPanel(aboutPanel);
 
-        //Information
-       JTextArea info = new JTextArea("Versjon: 1.0" + System.getProperty("line.separator") +
-               "Utviklere: Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen");
-        info.setEditable(false);
+
 
         //Adding components
-        aboutContainer.add(logoPanel);
-        aboutContainer.add(info);
-
-        container.add(aboutContainer);
+        container.add(aboutPanel);
     }
 
     /**
-     * Sets up the logo panel.
+     * Sets up the about panel.
      */
-    private void setUpLogoPanel(JPanel logoPanel) throws IOException {
-
+    private void setUpAboutPanel(JPanel aboutPanel) throws IOException {
+        //Logo
         BufferedImage img = ImageIO.read(getClass().getResourceAsStream("/appicon.png"));
         ImageIcon icon = new ImageIcon(img);
         JLabel logoLbl = new JLabel();
         logoLbl.setIcon(icon);
+        logoLbl.setBounds(100, 50, 200, 50);
 
-        JLabel appLbl = new JLabel("             ArkivMester");
+        JLabel appLbl = new JLabel("ArkivMester");
+        appLbl.setBounds(175, 50, 200, 50);
+        appLbl.setFont(primaryFont);
 
-        logoPanel.add(logoLbl);
-        logoPanel.add(appLbl);
+        //Information
+        JTextArea info = new JTextArea("Versjon: 1.0" + System.getProperty("line.separator") +
+                "Utviklere: Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen");
+        info.setEditable(false);
+        info.setBounds(100, 150, 1000, 50);
+
+        //Button
+        JButton backBtn = new JButton("Tilbake");
+        backBtn.setActionCommand("Avbryt");
+        backBtn.addActionListener(this);
+        backBtn.setBackground(primaryColor);
+        backBtn.setForeground(Color.WHITE);
+        backBtn.setBounds(100, 200, 85, 25);
+
+        aboutPanel.add(logoLbl);
+        aboutPanel.add(appLbl);
+        aboutPanel.add(info);
+        aboutPanel.add(backBtn);
     }
 
     /**

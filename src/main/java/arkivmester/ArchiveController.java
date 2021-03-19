@@ -316,6 +316,7 @@ public class ArchiveController implements ViewObserver {
             testView.updateStatus(thirdPartiesModel.getSelectedTests());
             mainView.toggleEditInfoBtn();
             mainView.toggleSettingsBtn();
+            mainView.toggleAboutBtn();
 
             //Schedule the runTests function to give the UI time to update before tests are run.
             scheduler = Executors.newScheduledThreadPool(1);
@@ -337,6 +338,7 @@ public class ArchiveController implements ViewObserver {
         archiveModel.resetAdminInfo();
         thirdPartiesModel.resetSelectedTests();
         mainView.toggleSettingsBtn();
+        mainView.toggleAboutBtn();
 
         reportModel = new ReportModel();
         arkadeModel = new ArkadeModel();
@@ -418,6 +420,10 @@ public class ArchiveController implements ViewObserver {
         else if (settingsView != null){
             settingsView.clearContainer();
             settingsView = null;
+        }
+        else if (aboutView != null){
+            aboutView.clearContainer();
+            aboutView = null;
         }
 
         mainView.showGUI();

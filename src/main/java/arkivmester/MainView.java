@@ -27,6 +27,7 @@ public class MainView extends Views{
     private JButton startTestingBtn;
     private JButton writeReportBtn;
     private JButton settingsBtn;
+    private JButton aboutBtn;
 
     //Info field list
     List<JTextArea> valueList = new ArrayList<>();
@@ -104,10 +105,9 @@ public class MainView extends Views{
         settingsBtn.addActionListener(this);
         settingsBtn.setBackground(Color.WHITE);
 
-        JButton aboutBtn = new JButton("Om");
+        aboutBtn = new JButton("Om");
         aboutBtn.addActionListener(this);
         aboutBtn.setBackground(Color.WHITE);
-        aboutBtn.setEnabled(false);
 
         topPanel.add(settingsBtn);
         topPanel.add(aboutBtn);
@@ -346,5 +346,12 @@ public class MainView extends Views{
      */
     public void toggleSettingsBtn() {
         settingsBtn.setEnabled(!settingsBtn.isEnabled());
+    }
+
+    /**
+     * Deactivates the about button if activated and vice versa.
+     */
+    public void toggleAboutBtn() {
+        aboutBtn.setEnabled(!aboutBtn.isEnabled());
     }
 }
