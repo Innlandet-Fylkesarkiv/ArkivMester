@@ -19,4 +19,16 @@ let $r := //dokumentbeskrivelse[not (dokumentstatus = "Dokumentet er ferdigstilt
       dokumentnummer, ' (', 
       tilknyttetRegistreringSom,'); ', 
       tittel)
-return $r
+      
+let $u := //dokumentbeskrivelse[not (dokumentstatus = "Dokumentet er ferdigstilt") 
+  and not (../../kassasjon/kassasjonsdato < current-date()) 
+  and (../journalstatus = "Utgår")  
+  and (../../saksstatus = "Utgår") ]/concat(
+      ../registreringsID, '; ', 
+      ../journalposttype, ../moeteregistreringstype, '; ' , 
+      dokumentstatus ,'; -Dokumentnr. ' , 
+      dokumentnummer, ' (', 
+      tilknyttetRegistreringSom,'); ', 
+      tittel)
+    
+return if(count($r) > 0) then $r else ("utgår", count($u), $u[3])
