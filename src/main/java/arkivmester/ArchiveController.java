@@ -457,17 +457,8 @@ public class ArchiveController implements ViewObserver {
                 mainView.resetManualInfo();
                 thirdPartiesModel.resetSelectedTests();
 
-                //Get admin info
-                List<String> list;
-                try {
-                    list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "1.1.xq", settingsModel.prop);
-                    list = archiveModel.formatDate(list);
-                    archiveModel.updateAdminInfo(list);
-                } catch (IOException e) {
-                    mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
-                } catch (DateTimeParseException e) {
-                    mainView.exceptionPopup("CREATEDATE formatet i metadata.xml er feil.");
-                }
+                //Get info
+                getAdminInfo();
 
                 //Update view
                 mainView.activateButtons();
@@ -479,6 +470,25 @@ public class ArchiveController implements ViewObserver {
         //Faulty folder
         else if(success == 0) {
             mainView.exceptionPopup("Mappen inneholder ikke .tar og .xml");
+        }
+    }
+
+    public void getAdminInfo() {
+        List<String> list;
+        String xqName;
+        try {
+            if(thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "1.1b.xq", settingsModel.prop).get(0).contains("mets:mets"))
+                xqName = "1.1.xq";
+            else
+                xqName = "1.1a.xq";
+
+            list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), xqName, settingsModel.prop);
+            list = archiveModel.formatDate(list);
+            archiveModel.updateAdminInfo(list);
+        } catch (IOException e) {
+            mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
+        } catch (DateTimeParseException e) {
+            mainView.exceptionPopup("CREATEDATE formatet i metadata.xml er feil.");
         }
     }
 
