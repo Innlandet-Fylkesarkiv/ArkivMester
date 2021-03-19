@@ -242,17 +242,9 @@ public class ArchiveController implements ViewObserver {
             mainView.toggleEditInfoBtn();
             mainView.toggleSettingsBtn();
 
-            try {
-                String fileName = archiveModel.tar.getName();
-                fileName = fileName.substring(0,fileName.lastIndexOf('.'));
-                settingsModel.handleOutputFolders(fileName);
-
-                //Schedule the runTests function to give the UI time to update before tests are run.
-                scheduler = Executors.newScheduledThreadPool(1);
-                scheduler.submit(this::runTests);
-            } catch (IOException e) {
-                mainView.exceptionPopup("Kunne ikke skrive til user.home mappen.");
-            }
+            //Schedule the runTests function to give the UI time to update before tests are run.
+            scheduler = Executors.newScheduledThreadPool(1);
+            scheduler.submit(this::runTests);
         }
         else
             mainView.exceptionPopup("Det mangler en eller flere verktøy på maskinen");
@@ -270,14 +262,14 @@ public class ArchiveController implements ViewObserver {
         archiveModel.resetAdminInfo();
         thirdPartiesModel.resetSelectedTests();
         mainView.toggleSettingsBtn();
-
+/*
         String fileName = archiveModel.tar.getName();
         fileName = fileName.substring(0,fileName.lastIndexOf('.'));
         try {
             archiveModel.deleteUnZippedArchive(settingsModel.prop, fileName);
         } catch (IOException e) {
             mainView.exceptionPopup("Kunne ikke slette unzipped uttrekk");
-        }
+        }*/
     }
 
     //When "Innstillinger" is clicked.
@@ -374,26 +366,34 @@ public class ArchiveController implements ViewObserver {
 
         //Folder uploaded
         if(success == 1) {
-            //Reset data
-            archiveModel.resetAdminInfo();
-            mainView.resetManualInfo();
-            thirdPartiesModel.resetSelectedTests();
-
-            //Get admin info
-            List<String> list;
             try {
-                list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "1.1.xq", settingsModel.prop);
-                list = archiveModel.formatDate(list);
-                archiveModel.updateAdminInfo(list);
-            } catch (IOException e) {
-                mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
-            } catch (DateTimeParseException e) {
-                mainView.exceptionPopup("CREATEDATE formatet i metadata.xml er feil.");
-            }
+                String fileName = archiveModel.tar.getName();
+                fileName = fileName.substring(0,fileName.lastIndexOf('.'));
+                settingsModel.handleOutputFolders(fileName);
 
-            //Update view
-            mainView.activateButtons();
-            mainView.updateAdminInfo(archiveModel.getAdminInfo());
+                //Reset data
+                archiveModel.resetAdminInfo();
+                mainView.resetManualInfo();
+                thirdPartiesModel.resetSelectedTests();
+
+                //Get admin info
+                List<String> list;
+                try {
+                    list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "1.1.xq", settingsModel.prop);
+                    list = archiveModel.formatDate(list);
+                    archiveModel.updateAdminInfo(list);
+                } catch (IOException e) {
+                    mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
+                } catch (DateTimeParseException e) {
+                    mainView.exceptionPopup("CREATEDATE formatet i metadata.xml er feil.");
+                }
+
+                //Update view
+                mainView.activateButtons();
+                mainView.updateAdminInfo(archiveModel.getAdminInfo());
+            } catch (IOException e) {
+                mainView.exceptionPopup("Kunne ikke skrive til user.home mappen.");
+            }
         }
         //Faulty folder
         else if(success == 0) {
@@ -492,13 +492,13 @@ public class ArchiveController implements ViewObserver {
                                         settingsModel.prop.getProperty("currentArchive") + "</html>");
         testView.activatePackToAipBtn();
 
-
+/*
         //Temp funksjon for å slette. Fiks pakk til AIP, så slett denne
         try {
             archiveModel.deleteUnZippedArchive(settingsModel.prop, fileName);
         } catch (IOException e) {
             mainView.exceptionPopup("Kunne ikke slette unzipped uttrekk");
-        }
+        }*/
     }
 
     //When "Lagre tests" is clicked.
