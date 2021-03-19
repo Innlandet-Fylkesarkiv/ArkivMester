@@ -212,6 +212,21 @@ public class ArkadeModel {
         return  htmlTable;
     }
 
+    public List<String> getTableDataFromHtml(String index) {
+
+        List<String> htmlTable = new ArrayList<>();
+
+        for(String t : getDataFromHtml(index)) {
+            List<String> seperator = Arrays.asList(t.split("[ ]"));
+
+            if(seperator.size() >= 4) {
+                htmlTable.add(seperator.get(seperator.size()-4));
+                htmlTable.add(seperator.get(seperator.size()-1));
+            }
+        }
+        return (!htmlTable.isEmpty()) ? htmlTable : Collections.emptyList();
+    }
+
     /**
      * Get deviation table by ID.
      * @param index ID for test class.

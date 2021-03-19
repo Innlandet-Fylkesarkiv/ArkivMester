@@ -411,6 +411,8 @@ public class ReportModel {
                         cChapter.currentItem(),
                         false
                 );
+
+                tableOneRowVersion.getCell(j).setWidth("5000");
             }
         }
 
