@@ -68,6 +68,8 @@ public class ArchiveController implements ViewObserver {
      *
      */
     private void arkadeTestReport(){ // NOSONAR
+        String total = "Totalt";
+
         arkadeModel.parseReportHtml(); // remove when all function used in testModel
         // 3 og 3.1 arkade version
         String version = arkadeModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
@@ -81,13 +83,15 @@ public class ArchiveController implements ViewObserver {
         int arkivert = arkadeModel.getTotal("N5.22", "Journalstatus: Arkivert - Antall:");
         int journalfort = arkadeModel.getTotal("N5.22", "Journalstatus: Journalført - Antall:");
 
-        if(journalfort <= 0) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 0);
-        } else {
-            if(arkivert <= 0) {
-                reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 2);
+        if(journalfort != -1 && arkivert != -1) {
+            if (journalfort == 0) {
+                reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 0);
             } else {
-                reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.singletonList("" + journalfort), 1);
+                if (arkivert == 0) {
+                    reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 2);
+                } else {
+                    reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.singletonList("" + journalfort), 1);
+                }
             }
         }
         //Chapter 3.1.16 - Saksparter
@@ -105,14 +109,15 @@ public class ArchiveController implements ViewObserver {
             reportModel.setNewParagraph(Arrays.asList(3, 1, 17), Collections.singletonList("Rename tittel from 3.1.17 to merknader "));
             reportModel.setNewParagraph(Arrays.asList(3, 3, 3), Collections.singletonList("DELETE ME: 3.3.3"));
         }
+
         //Chapter 3.1.18 - Kryssreferanser
-        if(arkadeModel.getTotal("N5.37", "Totalt") <= 0){
+        if(arkadeModel.getTotal("N5.37", total) == 0){
             reportModel.setNewInput(Arrays.asList(3, 1, 18), Collections.emptyList() , 0);
             //Delete 3.3.4, Title = "Kryssreferanser"
         }
 
         //Chapter 3.1.19 - Presedenser
-        if(arkadeModel.getTotal("N5.38", "Totalt") <= 0 ) {
+        if(arkadeModel.getTotal("N5.38", total) == 0 ) {
             reportModel.setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), 0);
         }
         else {
@@ -120,13 +125,13 @@ public class ArchiveController implements ViewObserver {
         }
 
         //Chapter 3.1.22 - Dokumentflyter
-        if(arkadeModel.getTotal("N5.41","Totalt") <= 0) {
+        if(arkadeModel.getTotal("N5.41",total) == 0) {
             reportModel.setNewInput(Arrays.asList(3, 1, 22), Collections.emptyList(), 0);
             //Delete 3.3.5, Title = Dokumentflyter
         }
 
         //Chapter 3.1.24 - Gradering
-        if(arkadeModel.getTotal("N5.43", "Totalt") <= 0) {
+        if(arkadeModel.getTotal("N5.43", total) == 0) {
             reportModel.setNewInput(Arrays.asList(3, 1, 24), Collections.emptyList(), 0);
         }
         else  {
@@ -134,8 +139,8 @@ public class ArchiveController implements ViewObserver {
         }
 
         //Chapter 3.1.25 - Kassasjoner
-        if(arkadeModel.getTotal("N5.44", "Totalt") <= 0 &&
-                arkadeModel.getTotal("N5.45", "Totalt") <=0) {
+        if(arkadeModel.getTotal("N5.44", total) == 0 &&
+                arkadeModel.getTotal("N5.45", total) ==0) {
             reportModel.setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), 0);
         }
         else {
@@ -150,6 +155,20 @@ public class ArchiveController implements ViewObserver {
             reportModel.setNewInput(Arrays.asList(3, 1, 28), Collections.emptyList(), 1);
         }
 
+        //Chapter 3.1.30
+        String chapter = "N5.59";
+        if(arkadeModel.getDataFromHtml(chapter).isEmpty()) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 30), Collections.emptyList(), 0);
+        }
+        else {
+            int oj = arkadeModel.getTotal(chapter, "dokumentert i offentlig journal");
+            int as = arkadeModel.getTotal(chapter, "funnet i arkivstrukturen:");
+            if(oj != -1 && as != -1) {
+                oj -= as;
+                reportModel.setNewInput(Arrays.asList(3, 1, 30), Collections.singletonList("" + oj), 1);
+            }
+        }
+
         //Chapter 3.1.32 - Endringslogg
         // Endre tittel til: Endringslogg testes i kapittel 3.3.8
 
@@ -160,6 +179,8 @@ public class ArchiveController implements ViewObserver {
         else {
             reportModel.setNewInput(Arrays.asList(3, 1, 33), Collections.emptyList(), 1);
         }
+
+
 
         //Chapter 3.1.4
         //Endre tittel til: Se eget klassifikasjonskapittel 3.3.1.
@@ -548,18 +569,6 @@ public class ArchiveController implements ViewObserver {
             else {
                 reportModel.setNewInput(Arrays.asList(3, 1, 26), Collections.emptyList(), 3);
             }
-
-            //Chapter 3.1.30
-            if(arkadeModel.getDataFromHtml("N5.59").isEmpty()) {
-                reportModel.setNewInput(Arrays.asList(3, 1, 30), Collections.emptyList(), 0);
-            }
-            else {
-                //Get total offentlig journal og arkivstrktur.
-                // oj - as = antall
-                reportModel.setNewInput(Arrays.asList(3, 1, 33), Collections.emptyList(), 1);
-            }
-
-
 
         } catch (IOException e) {
             mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
