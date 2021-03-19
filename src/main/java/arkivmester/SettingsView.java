@@ -62,15 +62,22 @@ public class SettingsView extends Views {
         JLabel configTitle = new JLabel("Alle program lokasjoner:");
         configTitle.setFont(primaryFont);
 
-        int rows = prop.size();
-
         //Col1, Col2
         for(Map.Entry<Object, Object> entry : prop.entrySet()) {
+            String key = (String)entry.getKey();
+            if(key.equals("tempFolder") || key.equals("currentArchive")) {
+                continue;
+            }
             keys.add(new JLabel((String)entry.getKey()));
             values.add(new JLabel((String)entry.getValue()));
         }
 
+        //Hiding temp folder path and current archive name from UI
+
+
+
         //Col3
+        int rows = prop.size()-2;
         for(int i = 0; i<rows; i++) {
             JButton tempBtn = new JButton("Endre fil lokasjon");
             tempBtn.setActionCommand(String.valueOf(i));

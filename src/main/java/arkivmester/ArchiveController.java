@@ -24,6 +24,7 @@ public class ArchiveController implements ViewObserver {
     AdminInfoView adminInfoView;
     TestSettingsView testSettingsView;
     SettingsView settingsView;
+    AboutView aboutView;
     ArchiveModel archiveModel;
     ReportModel reportModel;
     ArkadeModel arkadeModel;
@@ -79,6 +80,12 @@ public class ArchiveController implements ViewObserver {
         writeDeviation(Arrays.asList(3, 1, 1),"N5.01");
         writeDeviation(Arrays.asList(3, 1, 1),"N5.02");
 
+        // 3.1.8
+        List<String> dokumentstatus = arkadeModel.getTableDataFromHtml("N5.15");
+
+        reportModel.setNewInput(Arrays.asList(3, 1, 8), Collections.emptyList(), 0);
+        reportModel.insertTable(Arrays.asList(3, 1, 8), dokumentstatus);
+
         //Chapter 3.1.12
         int arkivert = arkadeModel.getTotal("N5.22", "Journalstatus: Arkivert - Antall:");
         int journalfort = arkadeModel.getTotal("N5.22", "Journalstatus: Journalført - Antall:");
@@ -96,11 +103,11 @@ public class ArchiveController implements ViewObserver {
         }
         //Chapter 3.1.16 - Saksparter
         List<Integer> saksparter = arkadeModel.saksparter();
-        if(saksparter.get(0) > 0){
+        if(saksparter.get(0) == 0){
+            reportModel.setNewInput(Arrays.asList(3, 1, 16), Collections.emptyList(), 0);
+        } else {
             reportModel.setNewInput(Arrays.asList(3, 1, 16), Collections.singletonList(
                     saksparter.get(0).toString()), 1);
-        } else {
-            reportModel.setNewInput(Arrays.asList(3, 1, 16), Collections.emptyList(), 1);
         }
 
         //Chapter 3.1.17 - Merknader
@@ -216,9 +223,9 @@ public class ArchiveController implements ViewObserver {
         thirdPartiesModel.initializePath(settingsModel.prop);
         String fileName = archiveModel.tar.getName();                                   // NOSONAR
         fileName = fileName.substring(0,fileName.lastIndexOf('.'));                   // NOSONAR
-        //String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument"; // NOSONAR
+        String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument"; // NOSONAR ONLY TESTING
         //Should use the one below, but takes too long
-        String docPath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\content\\dokument"; // NOSONAR
+        //String docPath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokument"; // NOSONAR
 
         //Unzips .tar folder with the archive.
         try {
@@ -297,28 +304,25 @@ public class ArchiveController implements ViewObserver {
 
         testView.updateTestStatus(TestView.TESTDONE);
         testView.activateCreateReportBtn();
-
     }
 
     //When "Start testing" is clicked.
     @Override
     public void testStarted() {
-        testView = new TestView();
-        testView.addObserver(this);
-        testView.createAndShowGUI(mainView.getContainer());
-        testView.updateStatus(thirdPartiesModel.getSelectedTests());
-        mainView.toggleEditInfoBtn();
-        mainView.toggleSettingsBtn();
+        if(Boolean.TRUE.equals(thirdPartiesModel.checkIfToolsArePresent(settingsModel.prop))) {
+            testView = new TestView();
+            testView.addObserver(this);
+            testView.createAndShowGUI(mainView.getContainer());
+            testView.updateStatus(thirdPartiesModel.getSelectedTests());
+            mainView.toggleEditInfoBtn();
+            mainView.toggleSettingsBtn();
 
-        try {
-            settingsModel.handleOutputFolders();
-        } catch (IOException e) {
-            mainView.exceptionPopup("Kunne ikke skrive til user.home mappen.");
+            //Schedule the runTests function to give the UI time to update before tests are run.
+            scheduler = Executors.newScheduledThreadPool(1);
+            scheduler.submit(this::runTests);
         }
-
-        //Schedule the runTests function to give the UI time to update before tests are run.
-        scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.submit(this::runTests);
+        else
+            mainView.exceptionPopup("Det mangler en eller flere verktøy på maskinen");
     }
 
 
@@ -339,13 +343,14 @@ public class ArchiveController implements ViewObserver {
 
         attachments.clear();
 
+        /*
         String fileName = archiveModel.tar.getName();
         fileName = fileName.substring(0,fileName.lastIndexOf('.'));
         try {
             archiveModel.deleteUnZippedArchive(settingsModel.prop, fileName);
         } catch (IOException e) {
             mainView.exceptionPopup("Kunne ikke slette unzipped uttrekk");
-        }
+        }*/
     }
 
     //When "Innstillinger" is clicked.
@@ -371,6 +376,20 @@ public class ArchiveController implements ViewObserver {
         settingsView.clearContainer();
         settingsView = null;
         mainView.showGUI();
+    }
+
+    //When "Om" is clicked
+    @Override
+    public void openAbout() {
+        cancelButton();
+        aboutView = new AboutView();
+        aboutView.addObserver(this);
+
+        try {
+            aboutView.createAndShowGUI(mainView.getContainer());
+        } catch (IOException e) {
+            mainView.exceptionPopup("Kunne ikke finne applikasjons logo");
+        }
     }
 
     //When "Rediger informasjon" is clicked.
@@ -428,28 +447,34 @@ public class ArchiveController implements ViewObserver {
 
         //Folder uploaded
         if(success == 1) {
-            //Reset data
-            archiveModel.resetAdminInfo();
-            mainView.resetManualInfo();
-            thirdPartiesModel.resetSelectedTests();
-
-            //Get admin info
-            List<String> list;
             try {
-                list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "1.1.xq", settingsModel.prop);
+                String fileName = archiveModel.tar.getName();
+                fileName = fileName.substring(0,fileName.lastIndexOf('.'));
+                settingsModel.handleOutputFolders(fileName);
+
+                //Reset data
+                archiveModel.resetAdminInfo();
+                mainView.resetManualInfo();
+                thirdPartiesModel.resetSelectedTests();
+
+                //Get admin info
+                List<String> list;
                 try {
+                    list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "1.1.xq", settingsModel.prop);
                     list = archiveModel.formatDate(list);
                     archiveModel.updateAdminInfo(list);
+                } catch (IOException e) {
+                    mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
                 } catch (DateTimeParseException e) {
                     mainView.exceptionPopup("CREATEDATE formatet i metadata.xml er feil.");
                 }
-            } catch (IOException e) {
-                mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
-            }
 
-            //Update view
-            mainView.activateButtons();
-            mainView.updateAdminInfo(archiveModel.getAdminInfo());
+                //Update view
+                mainView.activateButtons();
+                mainView.updateAdminInfo(archiveModel.getAdminInfo());
+            } catch (IOException e) {
+                mainView.exceptionPopup("Kunne ikke skrive til user.home mappen.");
+            }
         }
         //Faulty folder
         else if(success == 0) {
@@ -463,9 +488,10 @@ public class ArchiveController implements ViewObserver {
         String format = testView.getSelectedFormat(); //#NOSONAR
         String fileName = archiveModel.tar.getName();
         fileName = fileName.substring(0,fileName.lastIndexOf('.'));
-        String archivePath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName; // #NOSONAR
 
-        String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml";
+        String archivePath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName; // #NOSONAR
+
+        String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml\"";
 
         reportModel.generateReport(); // big question: (1 == 2) ? 3 : 2
 
@@ -475,10 +501,10 @@ public class ArchiveController implements ViewObserver {
         //testModel.parseReportHtml(); // remove when all function used in testModel
         Map<String, String> map = new LinkedHashMap<>();
 
-        map.put("1.2_1.xq",archivePath + "\\dias-mets.xml");
-        map.put("1.2_2.xq",archivePath + "\\content\\arkivuttrekk.xml");
-        map.put("1.2_3.xq",archivePath + "\\content\\loependeJournal.xml");
-        map.put("1.2_4.xq",archivePath + "\\content\\offentligJournal.xml");
+        map.put("1.2_1.xq",archivePath + "\\dias-mets.xml\"");
+        map.put("1.2_2.xq",archivePath + "\\content\\arkivuttrekk.xml\"");
+        map.put("1.2_3.xq",archivePath + "\\content\\loependeJournal.xml\"");
+        map.put("1.2_4.xq",archivePath + "\\content\\offentligJournal.xml\"");
         map.put("1.2_5.xq",testArkivstruktur);
 
         try {
@@ -488,6 +514,8 @@ public class ArchiveController implements ViewObserver {
             }
 
             reportModel.setNewInput(Arrays.asList(1, 2), list);
+
+
 
             reportModel.setNewInput(Arrays.asList(3, 1, 10), Collections.emptyList(), 0);
 
@@ -510,16 +538,21 @@ public class ArchiveController implements ViewObserver {
                     "3.1.13.xq",
                     settingsModel.prop);
 
-            List<String> newTemp = new ArrayList<>();
-            for(String s : temp) {
-                newTemp.addAll(Arrays.asList(s.split("; ")));
+            if(temp.get(1).equals("0")) {
+                reportModel.setNewInput(Arrays.asList(3, 1, 13), Collections.emptyList(), 0);
             }
+            else if(!temp.get(0).equals("utgår")) {
+                List<String> newTemp = new ArrayList<>();
+                for(String s : temp) {
+                    newTemp.addAll(Arrays.asList(s.split("; ")));
+                }
+                reportModel.setNewInput(Arrays.asList(3, 1, 13),
+                        Arrays.asList(temp.size() + "", "under redigering"), 1);
 
-            reportModel.setNewInput(Arrays.asList(3, 1, 13), Arrays.asList(temp.size() + "", "placeholder"), 1);
-
-            reportModel.insertTable(Arrays.asList(3, 1, 13), newTemp);
-
-            reportModel.setNewInput(Arrays.asList(3, 1, 15), Collections.emptyList(), 0);
+                reportModel.insertTable(Arrays.asList(3, 1, 13), newTemp);
+            } else {
+                reportModel.setNewInput(Arrays.asList(3, 1, 13), Arrays.asList(temp.get(1), temp.get(2)), 2);
+            }
 
             //Chapter 3.1.20
             temp = thirdPartiesModel.runBaseX(
@@ -531,6 +564,7 @@ public class ArchiveController implements ViewObserver {
                 reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.emptyList(), 0);
             } else {
                 reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.singletonList(temp.size() + ""), 1);
+                reportModel.insertTable(Arrays.asList(3, 1, 20), temp);
             }
 
             //Chapter 3.1.21
@@ -590,29 +624,32 @@ public class ArchiveController implements ViewObserver {
         }
 
         reportModel.makeReport(settingsModel.prop);
-
-        testView.updateTestStatus("<html>Rapporten er generert og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\TestReport\\</html>");
+        testView.updateTestStatus("<html>Rapporten er generert og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\" +
+                                        settingsModel.prop.getProperty("currentArchive") + "</html>");
 
         testView.activatePackToAipBtn();
 
-
+/*
         //Temp funksjon for å slette. Fiks pakk til AIP, så slett denne
         try {
             archiveModel.deleteUnZippedArchive(settingsModel.prop, fileName);
         } catch (IOException e) {
             mainView.exceptionPopup("Kunne ikke slette unzipped uttrekk");
-        }
+        }*/
     }
-
 
     //When "Lagre tests" is clicked.
     @Override
     public void saveTestSettings() {
-        //Get settings Save settings
-        thirdPartiesModel.updateSelectedTests(testSettingsView.getSelectedTests());
-        testSettingsView.clearContainer();
-        testSettingsView = null;
+        List<Boolean> currentList = testSettingsView.getSelectedTests();
 
-        mainView.showGUI();
+        if(Boolean.TRUE.equals(thirdPartiesModel.noEmptyTests(currentList))) {
+            thirdPartiesModel.updateSelectedTests(currentList);
+            testSettingsView.clearContainer();
+            testSettingsView = null;
+            mainView.showGUI();
+        }
+        else
+            mainView.exceptionPopup("Det må være minst 1 inkludert deltest");
     }
 }

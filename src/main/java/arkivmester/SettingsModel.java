@@ -63,41 +63,42 @@ public class SettingsModel {
      * Output folders are KostVal, VeraPDF, DROID and Arkade.
      * @throws IOException Folder in user.home could not be created.
      */
-    public void handleOutputFolders() throws IOException {
+    public void handleOutputFolders(String fileName) throws IOException {
+        //Archive folder
+        File archiveFolder = new File(userFolder.getPath() + "\\temp\\" + fileName);
+        if(!archiveFolder.exists()) {
+            Files.createDirectory(archiveFolder.toPath());
+        }
+        updateConfig("currentArchive", fileName);
+
         //KostVal
-        File kostValFolder = new File(userFolder.getPath() + "\\temp\\KostVal");
+        File kostValFolder = new File(archiveFolder.getPath() + "\\KostVal");
         if(!kostValFolder.exists()) {
             Files.createDirectory(kostValFolder.toPath());
         }
 
         //VeraPDF
-        File veraPdfFolder = new File(userFolder.getPath() + "\\temp\\VeraPDF");
+        File veraPdfFolder = new File(archiveFolder.getPath() + "\\VeraPDF");
         if(!veraPdfFolder.exists()) {
             Files.createDirectory(veraPdfFolder.toPath());
         }
 
         //DROID
-        File droidFolder = new File(userFolder.getPath() + "\\temp\\DROID");
+        File droidFolder = new File(archiveFolder.getPath() + "\\DROID");
         if(!droidFolder.exists()) {
             Files.createDirectory(droidFolder.toPath());
         }
 
         //Arkade
-        File arkadeFolder = new File(userFolder.getPath() + "\\temp\\Arkade");
+        File arkadeFolder = new File(archiveFolder.getPath() + "\\Arkade");
         if(!arkadeFolder.exists()) {
             Files.createDirectory(arkadeFolder.toPath());
         }
 
         //Arkade Output
-        File arkadeOutputFolder = new File(userFolder.getPath() + "\\temp\\Arkade\\Report");
+        File arkadeOutputFolder = new File(arkadeFolder.getPath() + "\\Report");
         if(!arkadeOutputFolder.exists()) {
             Files.createDirectory(arkadeOutputFolder.toPath());
-        }
-
-        //TestReport
-        File testReportFolder = new File(userFolder.getPath() + "\\temp\\TestReport");
-        if(!testReportFolder.exists()) {
-            Files.createDirectory(testReportFolder.toPath());
         }
     }
 

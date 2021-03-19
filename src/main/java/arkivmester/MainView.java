@@ -107,6 +107,7 @@ public class MainView extends Views{
         JButton aboutBtn = new JButton("Om");
         aboutBtn.addActionListener(this);
         aboutBtn.setBackground(Color.WHITE);
+        aboutBtn.setEnabled(false);
 
         topPanel.add(settingsBtn);
         topPanel.add(aboutBtn);

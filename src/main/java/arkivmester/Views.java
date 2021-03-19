@@ -96,7 +96,7 @@ public class Views implements ActionListener {
                 for (ViewObserver obs : observers)
                     obs.makeReport();
                 break;
-            case "Lagre tests":
+            case "Lagre tester":
                 for (ViewObserver obs : observers)
                     obs.saveTestSettings();
                 break;
@@ -107,6 +107,10 @@ public class Views implements ActionListener {
             case "Lagre innstillinger":
                 for (ViewObserver obs : observers)
                     obs.saveSettings();
+                break;
+            case "Om":
+                for (ViewObserver obs : observers)
+                    obs.openAbout();
                 break;
             default:
                 break;

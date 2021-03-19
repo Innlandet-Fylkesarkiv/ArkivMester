@@ -125,7 +125,7 @@ public class ArkadeModel {
     public boolean getFileToString(Properties prop){
         htmlRawText = new StringBuilder();
         // Folder path: Arkade/output
-        filePath = prop.getProperty("tempFolder") + "\\Arkade\\Report";
+        filePath = prop.getProperty("tempFolder") + "\\" + prop.getProperty("currentArchive") + "\\Arkade\\Report"; //#NOSONAR
 
         try {
             // Dir: "arkadeOutput" folder
@@ -210,6 +210,21 @@ public class ArkadeModel {
             System.out.println("Can't find deviation with: " + containsValue); //NOSONAR
         }
         return  htmlTable;
+    }
+
+    public List<String> getTableDataFromHtml(String index) {
+
+        List<String> htmlTable = new ArrayList<>();
+
+        for(String t : getDataFromHtml(index)) {
+            List<String> seperator = Arrays.asList(t.split("[ ]"));
+
+            if(seperator.size() >= 4) {
+                htmlTable.add(seperator.get(seperator.size()-4));
+                htmlTable.add(seperator.get(seperator.size()-1));
+            }
+        }
+        return (!htmlTable.isEmpty()) ? htmlTable : Collections.emptyList();
     }
 
     /**
