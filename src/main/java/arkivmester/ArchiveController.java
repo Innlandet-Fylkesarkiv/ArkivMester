@@ -1,6 +1,7 @@
 package arkivmester;
 
 import javax.swing.*;
+import java.io.File;
 import java.io.IOException;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -236,6 +237,11 @@ public class ArchiveController implements ViewObserver {
             mainView.exceptionPopup("Kunne ikke unzippe arkivet, prøv igjen.");
         }
         System.out.println("\n\tArchive unzipped\n"); //NOSONAR
+
+        File f = new File(docPath);
+        if(!f.isDirectory()) {
+            docPath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokumenter"; // NOSONAR
+        }
 
         //Run tests depending on if they are selected or not.
         //Arkade
