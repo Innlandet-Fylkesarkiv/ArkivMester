@@ -31,10 +31,7 @@ public class ArkadeModel {
     static final String TOTALT = "Totalt";
 
     ArkadeModel(){
-        String tmp = "&%(*^3";
-        if(tmp.matches("\\D+")){
-            System.out.println(tmp);
-        }
+        
     }
     
 
