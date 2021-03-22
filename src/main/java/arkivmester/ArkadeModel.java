@@ -74,7 +74,7 @@ public class ArkadeModel {
      * @return one number or -1 if no deviation table.
      */
     public Integer getTotal(String index, String containsValue){
-
+        String hasNumber = "\\D+";
         List<String> total = getSpecificValue(index, containsValue);
 
         if(total.isEmpty()){
@@ -92,12 +92,12 @@ public class ArkadeModel {
         }
         String tmp = total.get(0).substring(total.get(0).lastIndexOf(":") + 1);
 
-        if(!total.get(0).matches(".*\\d.*")){
+        if(!total.get(0).matches(hasNumber)){
             System.out.println(index + " value with " + containsValue + " has no number after last \":\" "); //NOSONAR
             return -1;
         }
 
-        return Integer.parseInt(tmp.replaceAll("\\D+", ""));
+        return Integer.parseInt(tmp.replaceAll(hasNumber, ""));
     }
 
     /**
