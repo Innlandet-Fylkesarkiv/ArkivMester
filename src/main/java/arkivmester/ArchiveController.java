@@ -393,8 +393,8 @@ public class ArchiveController implements ViewObserver {
 
     @Override
     public void resetCfg() {
-        int n = JOptionPane.showConfirmDialog(null, "Er du sikker på at du vil resette innstillingene til standarden?",
-                "Resette innstillinger", JOptionPane.YES_NO_OPTION);
+        int n = JOptionPane.showConfirmDialog(null, "Er du sikker på at du vil nullstille innstillingene til standarden?",
+                "Nullstille innstillinger", JOptionPane.YES_NO_OPTION);
         if(n == JOptionPane.YES_OPTION) {
             try {
                 settingsModel.resetCfg();
