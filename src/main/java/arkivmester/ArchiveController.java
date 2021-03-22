@@ -526,6 +526,57 @@ public class ArchiveController implements ViewObserver {
                 reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.singletonList(temp.size() + ""), 1);
                 reportModel.insertTable(Arrays.asList(3, 1, 20), temp);
             }
+
+            //Chapter 3.1.23
+            temp = thirdPartiesModel.runBaseX(
+                    testArkivstruktur,
+                    "3.1.23_1.xq",
+                    settingsModel.prop);
+
+            if(temp.isEmpty()) {
+                reportModel.setNewInput(Arrays.asList(3, 1, 23), Collections.emptyList(), 0);
+            }
+            else {
+                int total = 0, distinct = 0;
+                List<String> ls = new ArrayList<>();
+                for(int i = 0; i < temp.size(); i++) {
+                    ls.addAll(Arrays.asList(temp.get(i).split("[;][ ]")));
+                    total += Integer.parseInt(ls.get(ls.size()-1));
+                    distinct++;
+                }
+                reportModel.setNewInput(Arrays.asList(3, 1, 23), Arrays.asList("" + total, "" + distinct), 1);
+                reportModel.insertTable(Arrays.asList(3, 1, 23), ls);
+
+                temp = thirdPartiesModel.runBaseX(
+                        testArkivstruktur,
+                        "3.1.23_2.xq",
+                        settingsModel.prop);
+                List<String> temp2 = thirdPartiesModel.runBaseX(
+                        testArkivstruktur,
+                        "3.1.23_3.xq",
+                        settingsModel.prop);
+
+                if(temp2.isEmpty()) {
+                    reportModel.setNewInput(Arrays.asList(3, 1, 23), Collections.emptyList(), 3);
+                } else {
+                    ls = new ArrayList<>();
+                    List<String> input = new ArrayList<>();
+                    total = 0;
+                    for(int i = 0; i < temp2.size(); i++) {
+                        ls.addAll(Arrays.asList(temp2.get(i).split("[;][ ]")));
+                        total += Integer.parseInt(ls.get(ls.size()-1));
+                    }
+                    input.add("" + total);
+                    input.add(ls.get(0));
+                    input.add(ls.get(ls.size()-2));
+                    reportModel.setNewInput(Arrays.asList(3, 1, 23), input, 2);
+                }
+
+                if(temp.isEmpty()) {
+                    reportModel.setNewInput(Arrays.asList(3, 1, 23), Collections.emptyList(), 4);
+                }
+            }
+
         } catch (IOException e) {
             mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
         }

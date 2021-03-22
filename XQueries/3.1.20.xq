@@ -6,6 +6,7 @@ declare namespace n5mdk="http://www.arkivverket.no/standarder/noark5/metadatakat
 declare namespace el="http://www.arkivverket.no/standarder/noark5/endringslogg" ;
 
 (:Journalposter uten korrespondansepart:)
+
 let $r := //registrering[not (boolean(korrespondansepart)) and (data(@xsi:type = "journalpost"))]/concat(registreringsID, ';', systemID, ';', ../saksaar, ';', ../sakssekvensnummer, ';', ../systemID)
 
 return $r
