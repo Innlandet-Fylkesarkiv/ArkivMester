@@ -71,7 +71,7 @@ public class ArchiveController implements ViewObserver {
      *
      */
     private void arkadeTestReport(){ // NOSONAR
-        String total = "Totalt";
+        final String total = "Totalt";
 
         arkadeModel.parseReportHtml(); // remove when all function used in testModel
         // 3 og 3.1 arkade version
@@ -189,6 +189,31 @@ public class ArchiveController implements ViewObserver {
             reportModel.setNewInput(Arrays.asList(3, 1, 33), Collections.emptyList(), 1);
         }
 
+        //Chapter 3.1.3
+        int arkiv = arkadeModel.getTotal("N5.04", total);
+        int arkivdeler = arkadeModel.getTotal("N5.05", total);
+        List<String> status = arkadeModel.getDataFromHtml("N5.06");
+        if(arkiv == 1 && arkivdeler == 1 && status.get(1).contains("Avsluttet periode")) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 3), Collections.emptyList(),0);
+        }
+        if(!status.get(1).contains("Avsluttet periode")){
+            String s = status.get(1);
+            s = s.substring(s.lastIndexOf(":"));
+            reportModel.setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList(s), 2);
+        }
+        if(arkiv > 1) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 3), Collections.emptyList(), 3);
+        }
+        if(arkivdeler > 1) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList("" + arkivdeler), 1);
+            //TODO Tabell
+        }
+        System.out.println(arkiv);
+        System.out.println(arkivdeler);
+        System.out.println(status);
+
+
+
 
 
         //Chapter 3.1.4
@@ -225,9 +250,9 @@ public class ArchiveController implements ViewObserver {
         thirdPartiesModel.initializePath(settingsModel.prop);
         String fileName = archiveModel.tar.getName();                                   // NOSONAR
         fileName = fileName.substring(0,fileName.lastIndexOf('.'));                   // NOSONAR
-        //String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument"; // NOSONAR ONLY TESTING
+        String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument"; // NOSONAR ONLY TESTING
         //Should use the one below, but takes too long
-        String docPath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokument \""; // NOSONAR
+        //String docPath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokument \""; // NOSONAR
 
         //Unzips .tar folder with the archive.
         try {
