@@ -227,7 +227,7 @@ public class ArchiveController implements ViewObserver {
         fileName = fileName.substring(0,fileName.lastIndexOf('.'));                   // NOSONAR
         //String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument"; // NOSONAR ONLY TESTING
         //Should use the one below, but takes too long
-        String docPath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokument"; // NOSONAR
+        String docPath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokument \""; // NOSONAR
 
         //Unzips .tar folder with the archive.
         try {
@@ -240,7 +240,7 @@ public class ArchiveController implements ViewObserver {
 
         File f = new File(docPath);
         if(!f.isDirectory()) {
-            docPath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokumenter"; // NOSONAR
+            docPath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokumenter \""; // NOSONAR
         }
 
         //Run tests depending on if they are selected or not.
