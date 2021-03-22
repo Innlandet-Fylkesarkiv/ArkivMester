@@ -115,8 +115,8 @@ public class ArchiveController implements ViewObserver {
         //Chapter 3.1.17 - Merknader
         if (arkadeModel.ingenMerknader()) {
             reportModel.setNewInput(Arrays.asList(3, 1, 17), Collections.emptyList(), 0);
-            reportModel.setNewParagraph(Arrays.asList(3, 1, 17), Collections.singletonList("Rename tittel from 3.1.17 to merknader "));
-            reportModel.setNewParagraph(Arrays.asList(3, 3, 3), Collections.singletonList("DELETE ME: 3.3.3"));
+            //reportModel.setNewParagraph(Arrays.asList(3, 1, 17), Collections.singletonList("Rename tittel from 3.1.17 to merknader ")); //#NOSONAR
+            //reportModel.setNewParagraph(Arrays.asList(3, 3, 3), Collections.singletonList("DELETE ME: 3.3.3")); //#NOSONAR
         }
 
         //Chapter 3.1.18 - Kryssreferanser
