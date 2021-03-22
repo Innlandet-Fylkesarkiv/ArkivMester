@@ -259,17 +259,20 @@ public class ThirdPartiesModel {
 
         for(int i = 0; i<selectedTests.size(); i++) {
             if(Boolean.TRUE.equals(selectedTests.get(i))) {
-                if(i == 0) {
-                    file = new File(prop.getProperty("arkadePath") + "\\Bundled\\Siegfried\\siegfried.exe");
-                }
-                if(i == 1) {
-                    file = new File(prop.getProperty("droidPath") + "\\droid-command-line-6.5.jar");
-                }
-                if(i == 2) {
-                    file = new File(prop.getProperty("kostvalPath") + "\\cmd_KOST-Val.jar");
-                }
-                if(i == 3) {
-                    file = new File(prop.getProperty("veraPDFPath") + "\\verapdf.bat");
+                switch (i) {
+                    case 0:
+                        file = new File(prop.getProperty("arkadePath") + "\\Bundled\\Siegfried\\siegfried.exe");
+                        break;
+                    case 1:
+                        file = new File(prop.getProperty("droidPath") + "\\droid-command-line-6.5.jar");
+                        break;
+                    case 2:
+                        file = new File(prop.getProperty("kostvalPath") + "\\cmd_KOST-Val.jar");
+                        break;
+                    case 3:
+                        file = new File(prop.getProperty("veraPDFPath") + "\\verapdf.bat");
+                        break;
+                    default:
                 }
                 if(!file.isFile())
                     return false;
