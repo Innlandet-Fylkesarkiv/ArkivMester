@@ -31,7 +31,10 @@ public class ArkadeModel {
     static final String TOTALT = "Totalt";
 
     ArkadeModel(){
-
+        String tmp = "&%(*^3";
+        if(tmp.matches("\\D+")){
+            System.out.println(tmp);
+        }
     }
     
 
@@ -92,7 +95,7 @@ public class ArkadeModel {
         }
         String tmp = total.get(0).substring(total.get(0).lastIndexOf(":") + 1);
 
-        if(!total.get(0).matches(hasNumber)){
+        if(tmp.matches(hasNumber)){
             System.out.println(index + " value with " + containsValue + " has no number after last \":\" "); //NOSONAR
             return -1;
         }
