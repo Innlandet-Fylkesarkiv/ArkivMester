@@ -100,7 +100,7 @@ public class SettingsView extends Views {
         saveSettingsBtn.setBackground(primaryColor);
         saveSettingsBtn.setForeground(Color.WHITE);
 
-        JButton resetCfg = new JButton("Reset");
+        JButton resetCfg = new JButton("Nullstill");
         resetCfg.addActionListener(this);
         resetCfg.setBackground(primaryColor);
         resetCfg.setForeground(Color.WHITE);

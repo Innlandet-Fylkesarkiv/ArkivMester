@@ -19,6 +19,7 @@ import java.util.Properties;
 public class SettingsModel {
     private File userFolder;
     private File alteredCfg;
+    private static final String CURRENTARCHIVE = "currentArchive";
 
     /**
      * Public properties object containing the application's configurations.
@@ -68,7 +69,7 @@ public class SettingsModel {
      * @throws IOException Folder in user.home could not be created.
      */
     public void handleOutputFolders(String fileName) throws IOException {
-        updateConfig("currentArchive", fileName);
+        updateConfig(CURRENTARCHIVE, fileName);
 
         //Archive folder
         File archiveFolder = new File(userFolder.getPath() + "\\temp\\" + fileName);
@@ -166,7 +167,7 @@ public class SettingsModel {
      * @throws IOException No permissions in tempFolder path.
      */
     public void deleteUnZippedArchive() throws IOException {
-        String archive = (String)prop.get("currentArchive");
+        String archive = (String)prop.get(CURRENTARCHIVE);
         File zipped = new File(prop.get("tempFolder") + "\\"+ archive + "\\" + archive); // #NOSONAR
 
         if(zipped.exists()) {
@@ -194,11 +195,11 @@ public class SettingsModel {
     public void resetCfg() throws IOException {
         String archive;
         if(alteredCfg.exists()) {
-            archive = prop.getProperty("currentArchive");
+            archive = prop.getProperty(CURRENTARCHIVE);
             Files.delete(alteredCfg.toPath());
             createConfig();
             handleTempFolder();
-            updateConfig("currentArchive", archive);
+            updateConfig(CURRENTARCHIVE, archive);
         }
     }
 }
