@@ -257,26 +257,24 @@ public class ThirdPartiesModel {
         if(!file.exists())
             return false;
 
-        if(Boolean.TRUE.equals(selectedTests.get(0))) {
-            file = new File(prop.getProperty("arkadePath") + "\\Bundled\\Siegfried\\siegfried.exe");
-            if(!file.isFile())
-                return false;
+        for(int i = 0; i<selectedTests.size(); i++) {
+            if(Boolean.TRUE.equals(selectedTests.get(i))) {
+                if(i == 0) {
+                    file = new File(prop.getProperty("arkadePath") + "\\Bundled\\Siegfried\\siegfried.exe");
+                }
+                if(i == 1) {
+                    file = new File(prop.getProperty("droidPath") + "\\droid-command-line-6.5.jar");
+                }
+                if(i == 2) {
+                    file = new File(prop.getProperty("kostvalPath") + "\\cmd_KOST-Val.jar");
+                }
+                if(i == 3) {
+                    file = new File(prop.getProperty("veraPDFPath") + "\\verapdf.bat");
+                }
+                if(!file.isFile())
+                    return false;
+            }
         }
-        if(Boolean.TRUE.equals(selectedTests.get(1))) {
-            file = new File(prop.getProperty("droidPath") + "\\droid-command-line-6.5.jar");
-            if(!file.isFile())
-                return false;
-        }
-        if(Boolean.TRUE.equals(selectedTests.get(2))) {
-            file = new File(prop.getProperty("kostvalPath") + "\\cmd_KOST-Val.jar");
-            if(!file.isFile())
-                return false;
-        }
-        if(Boolean.TRUE.equals(selectedTests.get(3))) {
-            file = new File(prop.getProperty("veraPDFPath") + "\\verapdf.bat");
-            return file.isFile();
-        }
-
 
         return true;
     }

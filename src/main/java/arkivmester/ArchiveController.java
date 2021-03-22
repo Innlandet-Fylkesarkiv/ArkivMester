@@ -224,9 +224,9 @@ public class ArchiveController implements ViewObserver {
         thirdPartiesModel.initializePath(settingsModel.prop);
         String fileName = archiveModel.tar.getName();                                   // NOSONAR
         fileName = fileName.substring(0,fileName.lastIndexOf('.'));                   // NOSONAR
-        String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument"; // NOSONAR ONLY TESTING
+        //String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument"; // NOSONAR ONLY TESTING
         //Should use the one below, but takes too long
-        //String docPath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokument"; // NOSONAR
+        String docPath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokument"; // NOSONAR
 
         //Unzips .tar folder with the archive.
         try {
