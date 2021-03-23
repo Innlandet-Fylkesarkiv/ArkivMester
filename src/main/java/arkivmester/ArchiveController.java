@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Serves as the link between the views and the models.
@@ -36,6 +38,7 @@ public class ArchiveController implements ViewObserver {
      * List of the attachments which will be printed in chapter 5.
      */
     ArrayList<String> attachments = new ArrayList<>();
+    static final String EMPTY = "empty";
 
     /**
      * Initializes models and views.
@@ -421,15 +424,16 @@ public class ArchiveController implements ViewObserver {
             //Get admin info
             List<String> list;
             try {
-                list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "1.1.xq", settingsModel.prop);
-                try {
-                    list = archiveModel.formatDate(list);
-                    archiveModel.updateAdminInfo(list);
-                } catch (DateTimeParseException e) {
-                    mainView.exceptionPopup("CREATEDATE formatet i metadata.xml er feil.");
-                }
+                list = thirdPartiesModel.runBaseX(
+                        archiveModel.xmlMeta.getAbsolutePath(),
+                        "1.1.xq", settingsModel.prop);
+
+                list = archiveModel.formatDate(list);
+                archiveModel.updateAdminInfo(list);
             } catch (IOException e) {
                 mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
+            } catch (DateTimeParseException e) {
+                mainView.exceptionPopup("CREATEDATE formatet i metadata.xml er feil.");
             }
 
             //Update view
@@ -467,119 +471,53 @@ public class ArchiveController implements ViewObserver {
         map.put("1.2_4.xq",archivePath + "\\content\\offentligJournal.xml\"");
         map.put("1.2_5.xq",testArkivstruktur);
 
-        try {
-            List<String> list = new ArrayList<>();
-            for(Map.Entry<String, String> entry : map.entrySet()) {
-                list.addAll(thirdPartiesModel.runBaseX(entry.getValue(), entry.getKey(), settingsModel.prop));
-            }
-
-            reportModel.setNewInput(Arrays.asList(1, 2), list);
-
-
-
-            reportModel.setNewInput(Arrays.asList(3, 1, 10), Collections.emptyList(), 0);
-
-
-            reportModel.setNewInput(Arrays.asList(3, 1, 10), Collections.emptyList(), 0);
-
-            List<String> para = thirdPartiesModel.runBaseX(
-                    testArkivstruktur,
-                    "3.1.11.xq",
-                    settingsModel.prop);
-
-            if(para.isEmpty()) {
-                reportModel.setNewInput(Arrays.asList(3, 1, 11), Collections.emptyList(), 0);
-            } else {
-                reportModel.setNewInput(Arrays.asList(3, 1, 11), Collections.singletonList("" + para.size()), 1);
-            }
-
-            List<String> temp = thirdPartiesModel.runBaseX(
-                    testArkivstruktur,
-                    "3.1.13.xq",
-                    settingsModel.prop);
-
-            if(temp.get(1).equals("0")) {
-                reportModel.setNewInput(Arrays.asList(3, 1, 13), Collections.emptyList(), 0);
-            }
-            else if(!temp.get(0).equals("utgår")) {
-                List<String> newTemp = new ArrayList<>();
-                for(String s : temp) {
-                    newTemp.addAll(Arrays.asList(s.split("; ")));
-                }
-                reportModel.setNewInput(Arrays.asList(3, 1, 13),
-                        Arrays.asList(temp.size() + "", "under redigering"), 1);
-
-                reportModel.insertTable(Arrays.asList(3, 1, 13), newTemp);
-            } else {
-                reportModel.setNewInput(Arrays.asList(3, 1, 13), Arrays.asList(temp.get(1), temp.get(2)), 2);
-            }
-
-            //Chapter 3.1.20
-            temp = thirdPartiesModel.runBaseX(
-                    testArkivstruktur,
-                    "3.1.20.xq",
-                    settingsModel.prop);
-
-            if(temp.isEmpty()) {
-                reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.emptyList(), 0);
-            } else {
-                reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.singletonList(temp.size() + ""), 1);
-                reportModel.insertTable(Arrays.asList(3, 1, 20), temp);
-            }
-
-            //Chapter 3.1.23
-            temp = thirdPartiesModel.runBaseX(
-                    testArkivstruktur,
-                    "3.1.23_1.xq",
-                    settingsModel.prop);
-
-            if(temp.isEmpty()) {
-                reportModel.setNewInput(Arrays.asList(3, 1, 23), Collections.emptyList(), 0);
-            }
-            else {
-                int total = 0, distinct = 0;
-                List<String> ls = new ArrayList<>();
-                for(int i = 0; i < temp.size(); i++) {
-                    ls.addAll(Arrays.asList(temp.get(i).split("[;][ ]")));
-                    total += Integer.parseInt(ls.get(ls.size()-1));
-                    distinct++;
-                }
-                reportModel.setNewInput(Arrays.asList(3, 1, 23), Arrays.asList("" + total, "" + distinct), 1);
-                reportModel.insertTable(Arrays.asList(3, 1, 23), ls);
-
-                temp = thirdPartiesModel.runBaseX(
-                        testArkivstruktur,
-                        "3.1.23_2.xq",
-                        settingsModel.prop);
-                List<String> temp2 = thirdPartiesModel.runBaseX(
-                        testArkivstruktur,
-                        "3.1.23_3.xq",
-                        settingsModel.prop);
-
-                if(temp2.isEmpty()) {
-                    reportModel.setNewInput(Arrays.asList(3, 1, 23), Collections.emptyList(), 3);
-                } else {
-                    ls = new ArrayList<>();
-                    List<String> input = new ArrayList<>();
-                    total = 0;
-                    for(int i = 0; i < temp2.size(); i++) {
-                        ls.addAll(Arrays.asList(temp2.get(i).split("[;][ ]")));
-                        total += Integer.parseInt(ls.get(ls.size()-1));
-                    }
-                    input.add("" + total);
-                    input.add(ls.get(0));
-                    input.add(ls.get(ls.size()-2));
-                    reportModel.setNewInput(Arrays.asList(3, 1, 23), input, 2);
-                }
-
-                if(temp.isEmpty()) {
-                    reportModel.setNewInput(Arrays.asList(3, 1, 23), Collections.emptyList(), 4);
-                }
-            }
-
-        } catch (IOException e) {
-            mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
+        List<String> list = new ArrayList<>();
+        for(Map.Entry<String, String> entry : map.entrySet()) {
+            list.addAll(getEmptyOrContent(entry.getValue(), entry.getKey()));
         }
+
+        reportModel.setNewInput(Arrays.asList(1, 2), list);
+
+        reportModel.setNewInput(Arrays.asList(3, 1, 10), Collections.emptyList(), 0);
+
+        List<String> para = getEmptyOrContent(testArkivstruktur, "3.1.11");
+        if(para.get(0).equals(EMPTY)) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 11), Collections.emptyList(), 0);
+        } else {
+            reportModel.setNewInput(Arrays.asList(3, 1, 11), Collections.singletonList("" + para.size()), 1);
+        }
+
+        para = getEmptyOrContent(testArkivstruktur, "3.1.13");
+
+        if(para.get(0).equals(EMPTY)) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 13), Collections.emptyList(), 0);
+        } else if (!para.get(0).equals("utgår")) {
+
+            reportModel.setNewInput(Arrays.asList(3, 1, 13),
+                    Arrays.asList(para.size() + "", "under redigering"), 1);
+
+            List<String> newTemp = new ArrayList<>();
+            for(String s : para) {
+                newTemp.addAll(Arrays.asList(s.split("; ")));
+            }
+            reportModel.insertTable(Arrays.asList(3, 1, 13), newTemp);
+
+        } else {
+            reportModel.setNewInput(Arrays.asList(3, 1, 13), Arrays.asList(para.size() + "", "under redigering"), 2);
+        }
+
+
+        //Chapter 3.1.20
+        para = getEmptyOrContent(testArkivstruktur, "3.1.20");
+        if(para.get(0).equals(EMPTY)) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.emptyList(), 0);
+        } else {
+            reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.singletonList("" + para.size()), 1);
+            reportModel.insertTable(Arrays.asList(3, 1, 20), para);
+        }
+
+        //Chapter 3.1.23
+        chapter3_1_23(testArkivstruktur);
 
         //arkadeModel.parseReportHtml(); // remove when all function used in testModel
 
@@ -609,6 +547,131 @@ public class ArchiveController implements ViewObserver {
         } catch (IOException e) {
             mainView.exceptionPopup("Kunne ikke slette unzipped uttrekk");
         }
+    }
+
+    private void chapter3_1_23(String xml) {
+        List<String> para = getEmptyOrContent(xml, "3.1.23_1");
+        if(para.get(0).equals(EMPTY)) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 23), Collections.emptyList(), 0);
+        } else {
+
+            int distinct = para.size();
+            List<String> ls = splitIntoTable(para);
+            List<String> skjermingtyper = getSkjerminger(ls);
+
+            int total = ls.stream().filter(t -> t.matches("[0-9]{0,4}"))
+                    .mapToInt(Integer::parseInt)
+                    .sum();
+
+            reportModel.setNewInput(Arrays.asList(3, 1, 23), Arrays.asList("" + total, "" + distinct), 1);
+            reportModel.insertTable(Arrays.asList(3, 1, 23), skjermingtyper);
+
+            para = getEmptyOrContent(xml, "3.1.23_2");
+
+            List<String> para2 = getEmptyOrContent(xml, "3.1.23_3");
+            if (para2.get(0).equals(EMPTY)) {
+                reportModel.setNewInput(Arrays.asList(3, 1, 23), Collections.emptyList(), 3);
+            } else {
+                ls = new ArrayList<>();
+                List<String> input = new ArrayList<>();
+                total = 0;
+                for (String s : para2) {
+                    ls.addAll(Arrays.asList(s.split("[;][ ]")));
+                    total += Integer.parseInt(ls.get(ls.size() - 1));
+                }
+                input.add("" + total);
+                input.add(ls.get(0));
+                input.add(ls.get(ls.size() - 2));
+                reportModel.setNewInput(Arrays.asList(3, 1, 23), input, 2);
+            }
+
+            if (para.get(0).equals(EMPTY)) {
+                reportModel.setNewInput(Arrays.asList(3, 1, 23), Collections.emptyList(), 4);
+            }
+
+            if (!para.get(0).equals(EMPTY) && !para2.get(0).equals(EMPTY)) {
+                reportModel.setNewInput(Arrays.asList(3, 1, 23), Collections.emptyList(), 5);
+            }
+        }
+    }
+
+    private List<String> getSkjerminger(List<String> ls) {
+        Map<String, Integer> map = new LinkedHashMap<>();
+
+        map.put("Unntatt offentlighet", 0);
+        map.put("OFFL§13 Taushetsplikt", 0);
+        map.put("OFFL§23 Forhandlingsposisjon, Økonomi-Lønn-Personalforv., Rammeavtaler, Anbudssaker, Eierinteresser", 0);
+        map.put("OFFL§24 Kontroll- og reguleringstiltak, Lovbrudd, Anmeldelser, Straffbare handlinger, Miljøkriminalitet", 0);
+        map.put("OFFL§25 Tilsettingssaker", 0);
+        map.put("OFFL§26 Eksamensbesvarelser, Personbilder i personregister, Personovervåking", 0);
+
+        for(int i = 0; i < ls.size(); i+=2) {
+            Matcher m = Pattern.compile("[0-9]{1,3}").matcher(ls.get(i));
+            if(m.find()) {
+                int num = Integer.parseInt(ls.get(i+1));
+                switch(m.group()) {
+                    case "13":
+                        map.computeIfPresent("OFFL§13 Taushetsplikt",
+                                (k, v) -> v += num);
+                        break;
+                    case "23":
+                        map.computeIfPresent("OFFL§23 Forhandlingsposisjon, Økonomi-Lønn-Personalforv., Rammeavtaler, Anbudssaker, Eierinteresser",
+                                (k, v) -> v += num);
+                        break;
+                    case "24":
+                        map.computeIfPresent("OFFL§24 Kontroll- og reguleringstiltak, Lovbrudd, Anmeldelser, Straffbare handlinger, Miljøkriminalitet",
+                                (k, v) -> v += num);
+                        break;
+                    case "25":
+                        map.computeIfPresent("OFFL§25 Tilsettingssaker",
+                                (k, v) -> v += num);
+                        break;
+                    case "26":
+                        map.computeIfPresent("OFFL§26 Eksamensbesvarelser, Personbilder i personregister, Personovervåking",
+                                (k, v) -> v += num);
+                        break;
+                    default:
+                        map.computeIfPresent("Unntatt offentlighet",
+                                (k, v) -> v += num);
+                }
+            }
+        }
+
+        List<String> newList = new ArrayList<>();
+        map.entrySet().stream().filter(entry -> entry.getValue() > 0)
+                .forEach(entry -> {
+            newList.add(entry.getKey());
+            newList.add(entry.getValue().toString());
+        });
+
+        return newList;
+    }
+
+    private List<String> splitIntoTable(List<String> temp) {
+        List<String> ls = new ArrayList<>();
+        for(int i = 0; i < temp.size(); i++) {
+            ls.addAll(Arrays.asList(temp.get(i).split("[;][ ]")));
+        }
+        return ls;
+    }
+
+    private List<String> getEmptyOrContent(String xml, String header) {
+        try {
+            List<String> para = thirdPartiesModel.runBaseX(
+                    xml,
+                    header + ".xq",
+                    settingsModel.prop);
+
+            if(para.isEmpty()) {
+                return Collections.singletonList(EMPTY);
+            }
+
+            return para;
+        } catch (IOException e) {
+            mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
+            return Collections.singletonList(EMPTY);
+        }
+
     }
 
 
