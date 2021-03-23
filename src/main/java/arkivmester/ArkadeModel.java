@@ -26,7 +26,7 @@ public class ArkadeModel {
     static final String TOTALT = "Totalt";
 
     ArkadeModel(){
-        
+
     }
 
     /** Not done, waiting for update. 3.1.14 and 3.1.31
@@ -160,19 +160,20 @@ public class ArkadeModel {
         return tmp;
     }
     /**
+     *
      * Check if date1 is bigger or equals date2
      * @param dateBig   Date 1: String with size 8. all numbers
      * @param dateSmall Date 2
      * @return true if date is same or bigger. false if smaller or date format incorrect
      */
     public boolean dateBiggerOrSame(String dateBig, String dateSmall) { // NOSONAR
-
-        if(!dateBig.matches(".*\\d.*") || !dateSmall.matches(".*\\d.*")){
+        String onlyNumbers = "\\D+";
+        if(dateBig.matches(onlyNumbers) || dateSmall.matches(onlyNumbers)){
             System.out.println("No numbers in date variable's ") ; //NOSONAR
             return false;
         }
-        String dateB = dateBig.replaceAll("\\D+", "");
-        String dateS = dateSmall.replaceAll("\\D+", "");
+        String dateB = dateBig.replaceAll(onlyNumbers, "");
+        String dateS = dateSmall.replaceAll(onlyNumbers, "");
 
         if(dateB.length() != 8 || dateS.length() != 8 ){
             System.out.println("date variable is not length 8: yyyy,mm,dd") ; //NOSONAR
@@ -182,7 +183,7 @@ public class ArkadeModel {
         return Integer.parseInt(dateB) >= Integer.parseInt(dateS) ;
     }
 
-    /** Get Totalt from deviation table with SpecificValue.
+    /** Get number after last ":" from deviation table with SpecificValue/substring.
      * @param index for test class.
      * @param containsValue text in cell.
      * @return one number or -1 if no deviation table.
@@ -190,12 +191,12 @@ public class ArkadeModel {
     public Integer getTotal(String index, String containsValue){
 
         List<String> tmp = getNumberInTextAsString(index,containsValue, ":");
-        if(tmp.size() == 1){
+        if(tmp.size() == 1 || (!tmp.isEmpty() && containsValue.equals(TOTALT))){
             return Integer.parseInt(tmp.get(0));
         }
         else{
             // error
-            System.out.println(index + " Get " + tmp.size() + " elements ") ; //NOSONAR
+            System.out.println(index + " Has " + tmp.size() + " elements. Only TOTALT will get first element if several elements") ; //NOSONAR
         }
         return -1;
     }
@@ -318,7 +319,7 @@ public class ArkadeModel {
             }
         }
         if (htmlTable.isEmpty()) {
-            System.out.println("Can't find deviation with: " + containsValue); //NOSONAR
+            System.out.println(index + " Can't find deviation with: " + containsValue); //NOSONAR
         }
         return  htmlTable;
     }
