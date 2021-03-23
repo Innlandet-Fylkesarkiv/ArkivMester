@@ -79,11 +79,13 @@ public class AdminInfoView extends Views {
         saveInfoBtn.addActionListener(this);
         saveInfoBtn.setBackground(primaryColor);
         saveInfoBtn.setForeground(Color.WHITE);
+        saveInfoBtn.setToolTipText("Lagrer forandringer og går tilbake til forsiden.");
 
         JButton cancelAdminInfo = new JButton("Avbryt");
         cancelAdminInfo.addActionListener(this);
         cancelAdminInfo.setBackground(primaryColor);
         cancelAdminInfo.setForeground(Color.WHITE);
+        cancelAdminInfo.setToolTipText("Avbryter forandringer og går tilbake til forsiden.");
 
         //Adding components together
         gbc.anchor = GridBagConstraints.EAST;

@@ -84,6 +84,7 @@ public class SettingsView extends Views {
             tempBtn.setActionCommand(String.valueOf(i));
             tempBtn.addActionListener(e-> updatePath(e.getActionCommand()));
 
+            tempBtn.setToolTipText("Forandre fil lokasjonen for denne raden.");
             tempBtn.setBackground(primaryColor);
             tempBtn.setForeground(Color.WHITE);
 
@@ -100,17 +101,20 @@ public class SettingsView extends Views {
         saveSettingsBtn.setEnabled(false);
         saveSettingsBtn.setBackground(primaryColor);
         saveSettingsBtn.setForeground(Color.WHITE);
+        saveSettingsBtn.setToolTipText("Lagrer forandringer og går tilbake til forsiden.");
 
         JButton resetCfg = new JButton("Nullstill");
         resetCfg.addActionListener(this);
         resetCfg.setBackground(primaryColor);
         resetCfg.setForeground(Color.WHITE);
+        resetCfg.setToolTipText("Nullstiller innstillingene til standarden.");
 
         JButton cancelCfg = new JButton("Tilbake");
         cancelCfg.setActionCommand("Avbryt");
         cancelCfg.addActionListener(this);
         cancelCfg.setBackground(primaryColor);
         cancelCfg.setForeground(Color.WHITE);
+        cancelCfg.setToolTipText("Avbryter forandringer og går tilbake til forsiden.");
 
         //Adding components together
         gbc.anchor = GridBagConstraints.EAST;
