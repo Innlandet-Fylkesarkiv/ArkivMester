@@ -73,7 +73,6 @@ public class ArchiveController implements ViewObserver {
     private void arkadeTestReport(){ // NOSONAR
         String total = "Totalt";
 
-        arkadeModel.parseReportHtml(); // remove when all function used in testModel
         // 3 og 3.1 arkade version
         String version = arkadeModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
 
