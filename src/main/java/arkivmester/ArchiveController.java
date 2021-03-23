@@ -365,10 +365,8 @@ public class ArchiveController implements ViewObserver {
     //When "Lagre instillinger" is clicked.
     @Override
     public void saveSettings() {
-        List<String> newProp = settingsView.getNewProp();
-
         try {
-            settingsModel.updateConfig(newProp.get(0), newProp.get(1));
+            settingsModel.updateConfig(settingsView.getUpdatedKeyList(), settingsView.getUpdatedValueList());
             settingsView.clearContainer();
             settingsView = null;
             mainView.showGUI();
