@@ -390,8 +390,8 @@ public class ArchiveController implements ViewObserver {
 
     @Override
     public void resetCfg() {
-        int n = JOptionPane.showConfirmDialog(null, "Er du sikker på at du vil resette innstillingene til standarden?",
-                "Resette innstillinger", JOptionPane.YES_NO_OPTION);
+        int n = JOptionPane.showConfirmDialog(null, "Er du sikker på at du vil tilbakestille innstillingene til standarden?",
+                "Tilbakestill innstillinger", JOptionPane.YES_NO_OPTION);
         if(n == JOptionPane.YES_OPTION) {
             try {
                 settingsModel.resetCfg();
@@ -513,7 +513,7 @@ public class ArchiveController implements ViewObserver {
         String fileName = archiveModel.tar.getName();
         fileName = fileName.substring(0,fileName.lastIndexOf('.'));
 
-        String archivePath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName; // #NOSONAR
+        String archivePath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName; // #NOSONAR
 
         String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml\"";
 

@@ -103,11 +103,11 @@ public class SettingsView extends Views {
         saveSettingsBtn.setForeground(Color.WHITE);
         saveSettingsBtn.setToolTipText("Lagrer forandringer og går tilbake til forsiden.");
 
-        JButton resetCfg = new JButton("Nullstill");
+        JButton resetCfg = new JButton("Tilbakestill");
         resetCfg.addActionListener(this);
         resetCfg.setBackground(primaryColor);
         resetCfg.setForeground(Color.WHITE);
-        resetCfg.setToolTipText("Nullstiller innstillingene til standarden.");
+        resetCfg.setToolTipText("Tilbakestiller innstillingene til standarden.");
 
         JButton cancelCfg = new JButton("Tilbake");
         cancelCfg.setActionCommand("Avbryt");
