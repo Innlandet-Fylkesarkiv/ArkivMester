@@ -5,12 +5,12 @@ declare default element namespace "http://www.arkivverket.no/standarder/noark5/a
 declare namespace n5mdk="http://www.arkivverket.no/standarder/noark5/metadatakatalog";
 
 
-let $arkivtittel := arkiv/arkivdel/tittel/text()
+let $r := arkiv/arkivdel/concat(
+    tittel/text(), '; ',
+    systemID/text(), '; ',
+    arkivdelstatus/text())
 
-let $arkivID := arkiv/arkivdel/systemID/text()
+return $r
 
-let $arkivStatus := arkiv/arkivdel/arkivdelstatus/text()
-
-return ($arkivtittel, $arkivID, $arkivStatus)
 
 

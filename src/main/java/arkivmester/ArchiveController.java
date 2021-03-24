@@ -197,23 +197,12 @@ public class ArchiveController implements ViewObserver {
         }
         if(!status.get(1).contains("Avsluttet periode")){
             String s = status.get(1);
-            s = s.substring(s.lastIndexOf(":"));
-            reportModel.setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList(s), 2);
+            s = s.substring(s.lastIndexOf(":")+2);
+            reportModel.setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList("\"" + s + "\""), 2);
         }
         if(arkiv > 1) {
             reportModel.setNewInput(Arrays.asList(3, 1, 3), Collections.emptyList(), 3);
         }
-        if(arkivdeler > 1) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList("" + arkivdeler), 1);
-            //TODO Tabell
-        }
-        System.out.println(arkiv);
-        System.out.println(arkivdeler);
-        System.out.println(status);
-
-
-
-
 
         //Chapter 3.1.4
         //Endre tittel til: Se eget klassifikasjonskapittel 3.3.1.
@@ -538,7 +527,7 @@ public class ArchiveController implements ViewObserver {
         String fileName = archiveModel.tar.getName();
         fileName = fileName.substring(0,fileName.lastIndexOf('.'));
 
-        String archivePath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName; // #NOSONAR
+        String archivePath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName; // #NOSONAR
 
         String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml\"";
 
@@ -546,6 +535,12 @@ public class ArchiveController implements ViewObserver {
 
         reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
 
+        if(arkadeModel.getFileToString(settingsModel.prop)){
+            arkadeTestReport();
+        }
+        else {
+            System.out.println("Can't get testreport html "); //NOSONAR
+        }
 
         //testModel.parseReportHtml(); // remove when all function used in testModel
         Map<String, String> map = new LinkedHashMap<>();
@@ -654,12 +649,20 @@ public class ArchiveController implements ViewObserver {
             }
 
             //Chapter 3.1.3
-            List<String> test = thirdPartiesModel.runBaseX(
+            List<String> parts = thirdPartiesModel.runBaseX(
                     testArkivstruktur,
                     "3.1.3.xq",
                     settingsModel.prop);
 
-            System.out.println("3.1.3:" + test);
+            List<String> newParts = new ArrayList<>();
+            for(String s : parts) {
+                newParts.addAll(Arrays.asList(s.split("; ")));
+            }
+            int arkivdeler = arkadeModel.getTotal("N5.05", "Totalt");
+            if(arkivdeler > 1) {
+                reportModel.setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList("" + arkivdeler), 1);
+                reportModel.insertTable(Arrays.asList(3, 1, 3), newParts);
+            }
 
         } catch (IOException e) {
             mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
@@ -672,13 +675,14 @@ public class ArchiveController implements ViewObserver {
             reportModel.setNewParagraph(Collections.singletonList(5), attachments);
         }
 
-
+        /*
         if(arkadeModel.getFileToString(settingsModel.prop)){
             arkadeTestReport();
         }
         else {
             System.out.println("Can't get testreport html "); //NOSONAR
         }
+        */
 
         reportModel.makeReport(settingsModel.prop);
         testView.updateTestStatus("<html>Rapporten er generert og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\<br>" +
