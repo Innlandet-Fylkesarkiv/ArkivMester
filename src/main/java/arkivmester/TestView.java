@@ -168,23 +168,27 @@ public class TestView extends Views{
         fileFormatCb.setBackground(primaryColor);
         fileFormatCb.setForeground(Color.WHITE);
         fileFormatCb.setPreferredSize(new Dimension(100, 20));
+        fileFormatCb.setToolTipText("Velg filformaten som rapporten skal lagres i.");
 
         createReportBtn = new JButton("Lag rapport");
         createReportBtn.addActionListener(this);
         createReportBtn.setBackground(primaryColor);
         createReportBtn.setForeground(Color.WHITE);
         createReportBtn.setEnabled(false);
+        createReportBtn.setToolTipText("Genererer og skriver rapporten.");
 
         packToAipBtn = new JButton("Pakk til AIP");
         packToAipBtn.addActionListener(this);
         packToAipBtn.setBackground(primaryColor);
         packToAipBtn.setForeground(Color.WHITE);
         packToAipBtn.setEnabled(false);
+        packToAipBtn.setToolTipText("Pakker uttrekket med rapporter og resultater til AIP.");
 
         JButton testNewBtn = new JButton("Test nytt uttrekk");
         testNewBtn.addActionListener(this);
         testNewBtn.setBackground(primaryColor);
         testNewBtn.setForeground(Color.WHITE);
+        testNewBtn.setToolTipText("Avbryter testingen og går tilbake til forsiden.");
 
         //Adding components
         buttonPanel.add(fileFormatCb);

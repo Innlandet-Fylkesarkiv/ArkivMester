@@ -69,6 +69,7 @@ public class AboutView extends Views {
         backBtn.setBackground(primaryColor);
         backBtn.setForeground(Color.WHITE);
         backBtn.setBounds(100, 200, 85, 25);
+        backBtn.setToolTipText("Går tilbake til forsiden.");
 
         aboutPanel.add(logoLbl);
         aboutPanel.add(appLbl);

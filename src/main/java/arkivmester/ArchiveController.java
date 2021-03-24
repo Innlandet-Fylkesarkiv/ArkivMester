@@ -88,18 +88,18 @@ public class ArchiveController implements ViewObserver {
         reportModel.insertTable(Arrays.asList(3, 1, 8), dokumentstatus);
 
         //Chapter 3.1.12
-        int arkivert = arkadeModel.getTotal("N5.22", "Journalstatus: Arkivert - Antall:");
-        int journalfort = arkadeModel.getTotal("N5.22", "Journalstatus: Journalført - Antall:");
-
-        if(journalfort != -1 && arkivert != -1) {
-            if (journalfort == 0) {
-                reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 0);
+        int arkivert = arkadeModel.sumStringListWithOnlyNumbers(
+                arkadeModel.getNumberInTextAsString("N5.22", "Journalstatus: Arkivert - Antall:", ":"));
+        int journalfort =  arkadeModel.sumStringListWithOnlyNumbers(
+                arkadeModel.getNumberInTextAsString("N5.22", "Journalstatus: Journalført - Antall:", ":"));
+        
+        if (journalfort == -1) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 0);
+        } else  {
+            if (arkivert == -1) {
+                reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 2);
             } else {
-                if (arkivert == 0) {
-                    reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 2);
-                } else {
-                    reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.singletonList("" + journalfort), 1);
-                }
+                reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.singletonList("" + journalfort), 1);
             }
         }
         //Chapter 3.1.16 - Saksparter
@@ -128,7 +128,7 @@ public class ArchiveController implements ViewObserver {
         if(arkadeModel.getTotal("N5.38", total) == 0 ) {
             reportModel.setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), 0);
         }
-        else {
+        else if (arkadeModel.getTotal("N5.38", total) > 0 ) {
             reportModel.setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), 1);
         }
 
@@ -142,7 +142,7 @@ public class ArchiveController implements ViewObserver {
         if(arkadeModel.getTotal("N5.43", total) == 0) {
             reportModel.setNewInput(Arrays.asList(3, 1, 24), Collections.emptyList(), 0);
         }
-        else  {
+        else if (arkadeModel.getTotal("N5.43", total) > 0) {
             reportModel.setNewInput(Arrays.asList(3, 1, 24), Collections.emptyList(), 1);
         }
 
@@ -151,7 +151,8 @@ public class ArchiveController implements ViewObserver {
                 arkadeModel.getTotal("N5.45", total) ==0) {
             reportModel.setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), 0);
         }
-        else {
+        else if (arkadeModel.getTotal("N5.44", total) > 0 &&
+                arkadeModel.getTotal("N5.45", total) > 0) {
             reportModel.setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), 1);
         }
 
@@ -404,8 +405,8 @@ public class ArchiveController implements ViewObserver {
 
     @Override
     public void resetCfg() {
-        int n = JOptionPane.showConfirmDialog(null, "Er du sikker på at du vil resette innstillingene til standarden?",
-                "Resette innstillinger", JOptionPane.YES_NO_OPTION);
+        int n = JOptionPane.showConfirmDialog(null, "Er du sikker på at du vil tilbakestille innstillingene til standarden?",
+                "Tilbakestill innstillinger", JOptionPane.YES_NO_OPTION);
         if(n == JOptionPane.YES_OPTION) {
             try {
                 settingsModel.resetCfg();

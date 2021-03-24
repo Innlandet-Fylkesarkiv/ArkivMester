@@ -115,26 +115,53 @@ public class ArkadeModel {
 
         String onlyNumbers = "\\D+";
 
-        List<String> allNubers = getSpecificValue(index, containsValue);
+        List<String> allNumbers = getSpecificValue(index, containsValue);
         List<String> total = new ArrayList<>();
 
-        for (String allNuber : allNubers) {
-            // has :
-            if (!allNuber.contains(":")) {
-                System.out.println(index + " value with " + containsValue + " has no \":\" "); //NOSONAR
+        for (String allNumber : allNumbers) {
+            // has not :
+            if (!allNumber.contains(":")) {
+                System.out.println("LOOP: " + index + " value with " + containsValue + " has no \":\" "); //NOSONAR
             }
-            String tmp = getTextAt(allNuber, indexSysbol);
+            else{
+                String tmp = getTextAt(allNumber, indexSysbol);
 
-            // no numbers -
-            if (allNuber.matches(onlyNumbers)) {
-                System.out.println(index + " value with " + containsValue + " has no number after last \":\" "); //NOSONAR
+                // no numbers -
+                if (allNumber.matches(onlyNumbers)) {
+                    System.out.println("LOOP: " + index + " value with " + containsValue + " has no number after last \":\" "); //NOSONAR
+                }
+                else{
+                    tmp = tmp.replaceAll(onlyNumbers, "");
+                    total.add(tmp);
+                }
             }
 
-            tmp = tmp.replaceAll(onlyNumbers, "");
-            total.add(tmp);
         }
 
         return total;
+    }
+
+    /**
+     * @param numberList String List with number.
+     * @return -1 if no number in list.
+     */
+    public Integer sumStringListWithOnlyNumbers(List<String> numberList){
+
+        int number = 0;
+        boolean numberInList = false;
+        for (String numberStr: numberList){
+            if (numberStr.matches("\\D+")) {
+                System.out.println("List has element without number in it"); //NOSONAR
+                return -1;
+            }
+            number += Integer.parseInt(numberStr);
+            numberInList = true;
+        }
+        if(numberInList){
+            return number;
+        }
+
+        return -1;
     }
     /**
      * @param text Gets substring form text
