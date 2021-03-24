@@ -73,7 +73,6 @@ public class ArchiveController implements ViewObserver {
     private void arkadeTestReport(){ // NOSONAR
         final String total = "Totalt";
 
-        arkadeModel.parseReportHtml(); // remove when all function used in testModel
         // 3 og 3.1 arkade version
         String version = arkadeModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
 
@@ -390,10 +389,8 @@ public class ArchiveController implements ViewObserver {
     //When "Lagre instillinger" is clicked.
     @Override
     public void saveSettings() {
-        List<String> newProp = settingsView.getNewProp();
-
         try {
-            settingsModel.updateConfig(newProp.get(0), newProp.get(1));
+            settingsModel.updateConfig(settingsView.getUpdatedKeyList(), settingsView.getUpdatedValueList());
             settingsView.clearContainer();
             settingsView = null;
             mainView.showGUI();
