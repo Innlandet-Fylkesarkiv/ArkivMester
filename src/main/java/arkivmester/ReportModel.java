@@ -74,9 +74,11 @@ public class ReportModel {
          * @param input - input to replace the default one
          */
         public void insertInput(List<String> input) {
-            result.remove(result.size()-1);
-            result.addAll(input);
-            cases = true;
+            if(result.get(result.size()-1).equals("X")) {
+                result.remove(result.size()-1);
+                result.addAll(input);
+                cases = true;
+            }
         }
 
         /**

@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Serves as the link between the views and the models.
@@ -179,6 +180,34 @@ public class ArchiveController implements ViewObserver {
         //Chapter 3.1.29
         //Endre tittel til: Se eget klassifikasjonskapittel 3.3.1.
 
+        //Chapter 3.2.1
+        if(!arkadeModel.getDataFromHtml("N5.48").isEmpty()) {
+            reportModel.setNewInput(Arrays.asList(3, 2, 1), Collections.emptyList(), 3);
+        }
+
+        //Chapter 3.3.1
+        int total = arkadeModel.getTotal("N5.20", "Klasser uten registreringer");
+        if(total > 0) {
+            reportModel.setNewInput(Arrays.asList(3, 3, 1), Arrays.asList(total + ""), 2);
+        }
+        total = arkadeModel.getTotal("N5.12", "Totalt");
+        if(total > 0) {
+            reportModel.setNewInput(Arrays.asList(3, 3, 1), Arrays.asList(total + ""), 3);
+        }
+        if(!arkadeModel.getDataFromHtml("N5.47").isEmpty()) {
+            reportModel.setNewInput(Arrays.asList(3, 3, 1), Collections.emptyList(), 4);
+        }
+        total = arkadeModel.getTotal("N5.51", "Totalt");
+        if(total > 0) {
+            reportModel.setNewInput(Arrays.asList(3, 3, 1), Arrays.asList(total + ""), 5);
+        }
+
+        //Chapter 3.3.2
+        total = arkadeModel.getTotal("N5.20", "Totalt");
+        if(total > 0) {
+            reportModel.setNewInput(Arrays.asList(3, 3, 2), Arrays.asList(total + ""), 0);
+        }
+
     }
 
 
@@ -219,6 +248,7 @@ public class ArchiveController implements ViewObserver {
 
         //Run tests depending on if they are selected or not.
         //Arkade
+
         if(Boolean.TRUE.equals(selectedTests.get(0))) {
             System.out.print("\nRunning arkade\n"); //NOSONAR
             testView.updateArkadeStatus(TestView.RUNNING);
@@ -237,6 +267,7 @@ public class ArchiveController implements ViewObserver {
 
         }
 
+/*
         //VeraPDF
         if(Boolean.TRUE.equals(selectedTests.get(3))) {
             System.out.print("\nRunning VeraPDF\n"); //NOSONAR
@@ -281,6 +312,8 @@ public class ArchiveController implements ViewObserver {
             testView.updateDroidStatus(TestView.DONE);
             attachments.add("\u2022 DROID rapporter");
         }
+
+         */
         System.out.println("\nTesting Ferdig\n"); //NOSONAR
 
         testView.updateTestStatus(TestView.TESTDONE);
@@ -519,6 +552,43 @@ public class ArchiveController implements ViewObserver {
         //Chapter 3.1.23
         chapter3_1_23(testArkivstruktur);
 
+        //Chapter 3.2.1
+        para = getEmptyOrContent(testArkivstruktur, "3.2.1");
+        if(!para.get(0).equals(EMPTY)) {
+            int total = para.stream().filter(t -> t.contains("Arkivert") || t.contains("Avsluttet")).collect(Collectors.toList()).size();
+            reportModel.setNewInput(Arrays.asList(3, 2, 1), Arrays.asList(para.size() + "", total + ""), 0);
+
+            List<String> ls = new ArrayList<>();
+            for (String s : para) {
+                ls.addAll(Arrays.asList(s.split("[;][ ]")));
+            }
+            reportModel.insertTable(Arrays.asList(3, 2, 1), ls);
+        }
+
+        //Chapter 3.3.1
+        para = getEmptyOrContent(testArkivstruktur, "3.3.1");
+        if(!para.get(0).equals(EMPTY)) {
+            reportModel.setNewInput(Arrays.asList(3, 3, 1), Collections.emptyList(), 0);
+            reportModel.insertTable(Arrays.asList(3, 3, 1), splitIntoTable(para));
+        }
+
+        //Chapter 3.3.2
+        para = getEmptyOrContent(testArkivstruktur, "3.3.2_1");
+        if(!para.get(0).equals(EMPTY)) {
+            reportModel.setNewInput(Arrays.asList(3, 3, 2), Collections.emptyList(), 1);
+            reportModel.insertTable(Arrays.asList(3, 3, 2), splitIntoTable(para));
+        }
+        para = getEmptyOrContent(testArkivstruktur, "3.3.2_2");
+        if(!para.get(0).equals(EMPTY)) {
+            reportModel.setNewInput(Arrays.asList(3, 3, 2), Collections.emptyList(), 3);
+            reportModel.insertTable(Arrays.asList(3, 3, 2), splitIntoTable(para));
+        }
+        para = getEmptyOrContent(testArkivstruktur, "3.3.2_3");
+        if(!para.get(0).equals(EMPTY)) {
+            reportModel.setNewInput(Arrays.asList(3, 3, 2), Collections.emptyList(), 4);
+            reportModel.insertTable(Arrays.asList(3, 3, 2), splitIntoTable(para));
+        }
+
         //arkadeModel.parseReportHtml(); // remove when all function used in testModel
 
         //Chapter 5 - Attachments
@@ -555,11 +625,11 @@ public class ArchiveController implements ViewObserver {
             reportModel.setNewInput(Arrays.asList(3, 1, 23), Collections.emptyList(), 0);
         } else {
 
-            int distinct = para.size();
-            List<String> ls = splitIntoTable(para);
-            List<String> skjermingtyper = getSkjerminger(ls);
+            List<String> skjermingtyper = getSkjerminger(para);
+            int distinct = skjermingtyper.size();
+            skjermingtyper = splitIntoTable(skjermingtyper);
 
-            int total = ls.stream().filter(t -> t.matches("[0-9]{0,4}"))
+            int total = skjermingtyper.stream().filter(t -> t.matches("[0-9]{0,4}"))
                     .mapToInt(Integer::parseInt)
                     .sum();
 
@@ -572,7 +642,7 @@ public class ArchiveController implements ViewObserver {
             if (para2.get(0).equals(EMPTY)) {
                 reportModel.setNewInput(Arrays.asList(3, 1, 23), Collections.emptyList(), 3);
             } else {
-                ls = new ArrayList<>();
+                List<String> ls = new ArrayList<>();
                 List<String> input = new ArrayList<>();
                 total = 0;
                 for (String s : para2) {
@@ -605,11 +675,12 @@ public class ArchiveController implements ViewObserver {
         map.put("OFFL§25 Tilsettingssaker", 0);
         map.put("OFFL§26 Eksamensbesvarelser, Personbilder i personregister, Personovervåking", 0);
 
-        for(int i = 0; i < ls.size(); i+=2) {
-            Matcher m = Pattern.compile("[0-9]{1,3}").matcher(ls.get(i));
+        for(int i = 0; i < ls.size(); i++) {
+            Matcher m = Pattern.compile("[§][ ][0-9]{1,3}|[§][0-9]{1,3}").matcher(ls.get(i));
             if(m.find()) {
-                int num = Integer.parseInt(ls.get(i+1));
-                switch(m.group()) {
+                String text = Arrays.asList(m.group().split("[§][ ]?")).get(1);
+                int num = Integer.parseInt(Arrays.asList(ls.get(i).split("[;][ ]")).get(1));
+                switch(text) {
                     case "13":
                         map.computeIfPresent("OFFL§13 Taushetsplikt",
                                 (k, v) -> v += num);
@@ -640,8 +711,7 @@ public class ArchiveController implements ViewObserver {
         List<String> newList = new ArrayList<>();
         map.entrySet().stream().filter(entry -> entry.getValue() > 0)
                 .forEach(entry -> {
-            newList.add(entry.getKey());
-            newList.add(entry.getValue().toString());
+            newList.add(entry.getKey() + "; " + entry.getValue().toString());
         });
 
         return newList;
