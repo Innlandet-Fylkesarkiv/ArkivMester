@@ -81,11 +81,13 @@ public class TestSettingsView extends Views {
         saveTestsBtn.addActionListener(this);
         saveTestsBtn.setBackground(primaryColor);
         saveTestsBtn.setForeground(Color.WHITE);
+        saveTestsBtn.setToolTipText("Lagrer forandringer og går tilbake til forsiden.");
 
         JButton cancelTestSettings = new JButton("Avbryt");
         cancelTestSettings.addActionListener(this);
         cancelTestSettings.setBackground(primaryColor);
         cancelTestSettings.setForeground(Color.WHITE);
+        cancelTestSettings.setToolTipText("Avbryter forandringer og går tilbake til forsiden.");
 
         //Adding components together
         testsPanel.add(testsTitle);
