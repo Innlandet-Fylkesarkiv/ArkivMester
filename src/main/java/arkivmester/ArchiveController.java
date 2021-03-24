@@ -307,6 +307,21 @@ public class ArchiveController implements ViewObserver {
             testView.updateDroidStatus(TestView.DONE);
             attachments.add("\u2022 DROID rapporter");
         }
+
+        //XQuery
+        if(Boolean.TRUE.equals(thirdPartiesModel.runXqueries)) {
+            System.out.println("\nRunning XQueries\n"); //NOSONAR
+            testView.updateXqueryStatus(TestView.RUNNING);
+            try {
+                thirdPartiesModel.runXquery();
+            } catch (IOException e) {
+                System.out.println(e.getMessage()); //NOSONAR
+                mainView.exceptionPopup("XQuery test feilet, prøv igjen.");
+            }
+            System.out.println("\n\tXQuery finished\n"); //NOSONAR
+            testView.updateXqueryStatus(TestView.DONE);
+        }
+
         System.out.println("\nTesting Ferdig\n"); //NOSONAR
 
         testView.updateTestStatus(TestView.TESTDONE);
@@ -320,7 +335,7 @@ public class ArchiveController implements ViewObserver {
             testView = new TestView();
             testView.addObserver(this);
             testView.createAndShowGUI(mainView.getContainer());
-            testView.updateStatus(thirdPartiesModel.getSelectedTests());
+            testView.updateStatus(thirdPartiesModel.getSelectedTests(), thirdPartiesModel.runXqueries);
             mainView.toggleEditInfoBtn();
             mainView.toggleSettingsBtn();
             mainView.toggleAboutBtn();

@@ -131,7 +131,7 @@ public class TestView extends Views{
         xqueryTitle.setBounds(300, 180, 200, 30);
         xqueryTitle.setFont(primaryFont);
 
-        xqueryStatus = new JLabel(NONE);
+        xqueryStatus = new JLabel(WAITING);
         xqueryStatus.setBounds(300, 220, 200, 30);
 
         JLabel xqueryErrors = new JLabel("");
@@ -272,6 +272,18 @@ public class TestView extends Views{
     }
 
     /**
+     * Updates the status of XQuery tests in the view.
+     * @param status A static final String variable from {@link TestView}.
+     */
+    public void updateXqueryStatus(String status) {
+        xqueryStatus.setText(status);
+        if(status.equals(DONE))
+            xqueryStatus.setForeground(Color.GREEN);
+        else if(status.equals(NONE))
+            xqueryStatus.setForeground(Color.RED);
+    }
+
+    /**
      * Activates the create report button after the tests are done.
      */
     public void activateCreateReportBtn() {
@@ -288,7 +300,7 @@ public class TestView extends Views{
     /**
      * Updates the test statuses to "None" if it is excluded from the main test.
      */
-    public void updateStatus(List<Boolean> selectedTests) {
+    public void updateStatus(List<Boolean> selectedTests, Boolean Xquery) {
 
         //Arkade
         if(Boolean.FALSE.equals(selectedTests.get(0)))
@@ -305,5 +317,9 @@ public class TestView extends Views{
         //VeraPDF
         if(Boolean.FALSE.equals(selectedTests.get(3)))
             updateVeraStatus(NONE);
+
+        //XQuery
+        if(Boolean.FALSE.equals(Xquery))
+            updateXqueryStatus(NONE);
     }
 }
