@@ -656,6 +656,14 @@ public class ArchiveController implements ViewObserver {
                 reportModel.setNewInput(Arrays.asList(3, 1, 26), Collections.emptyList(), 3);
             }
 
+            //Chapter 3.1.3
+            List<String> test = thirdPartiesModel.runBaseX(
+                    testArkivstruktur,
+                    "3.1.3.xq",
+                    settingsModel.prop);
+
+            System.out.println("3.1.3:" + test);
+
         } catch (IOException e) {
             mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
         }
