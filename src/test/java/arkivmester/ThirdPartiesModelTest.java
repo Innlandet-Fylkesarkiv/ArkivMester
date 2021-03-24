@@ -16,7 +16,7 @@ class ThirdPartiesModelTest {
     void updateSelectedTests() {
         List<Boolean> selectedTests;
         List<Boolean> updatedTests = Arrays.asList(Boolean.TRUE,Boolean.FALSE,Boolean.TRUE, Boolean.TRUE);
-        thirdPartiesModel.updateSelectedTests(updatedTests);
+        //thirdPartiesModel.updateSelectedTests(updatedTests);
         selectedTests = thirdPartiesModel.getSelectedTests();
         assertEquals(updatedTests,selectedTests, "One boolean should be false." );
 
@@ -28,7 +28,7 @@ class ThirdPartiesModelTest {
     void resetSelectedTests() {
         List<Boolean> selectedTests;
         List<Boolean> updatedTests = Arrays.asList(Boolean.TRUE,Boolean.FALSE,Boolean.TRUE, Boolean.TRUE);
-        thirdPartiesModel.updateSelectedTests(updatedTests);
+        //thirdPartiesModel.updateSelectedTests(updatedTests);
         thirdPartiesModel.resetSelectedTests();
         selectedTests = thirdPartiesModel.getSelectedTests();
         assertEquals(Arrays.asList(Boolean.TRUE,Boolean.TRUE,Boolean.TRUE, Boolean.TRUE), selectedTests, "All should be true" );

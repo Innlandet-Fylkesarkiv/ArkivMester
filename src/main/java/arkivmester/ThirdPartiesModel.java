@@ -17,6 +17,7 @@ public class ThirdPartiesModel {
     String cmd = "cmd.exe";
     String cdString = "cd \"";
     private List<Boolean> selectedTests = new ArrayList<>();
+    private List<Boolean> selectedXqueries = new ArrayList<>();
     int amountOfTests = 4;
     String tempFolder;
     String archiveName;
@@ -25,16 +26,19 @@ public class ThirdPartiesModel {
      * Initializes the selectedTests list to true.
      */
     ThirdPartiesModel() {
-        for(int i = 0; i < amountOfTests; i++)
+        for(int i = 0; i < amountOfTests; i++) {
             selectedTests.add(true);
+            selectedXqueries.add(false);
+        }
     }
 
     /**
      * Updates selectedTests with updated data.
      * @param selectedList Updated selectedTests from the UI.
      */
-    public void updateSelectedTests(List<Boolean> selectedList) {
+    public void updateTests(List<Boolean> selectedList, List<Boolean> selectedXqueries) {
         this.selectedTests = selectedList;
+        this.selectedXqueries = selectedXqueries;
     }
 
     /**
@@ -43,6 +47,14 @@ public class ThirdPartiesModel {
      */
     public List<Boolean> getSelectedTests() {
         return this.selectedTests;
+    }
+
+    /**
+     * Regular getter for selectedXqueries list.
+     * @return selectedXqueries boolean list.
+     */
+    public List<Boolean> getSelectedXqueries() {
+        return this.selectedXqueries;
     }
 
     /**
@@ -297,4 +309,5 @@ public class ThirdPartiesModel {
 
         return count != list.size();
     }
+
 }

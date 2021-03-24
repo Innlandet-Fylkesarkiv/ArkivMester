@@ -449,9 +449,13 @@ public class ArchiveController implements ViewObserver {
     //When "Velg tester" is clicked.
     @Override
     public void chooseTests() {
-        testSettingsView = new TestSettingsView(thirdPartiesModel.getSelectedTests());
+        List<String> customXqueryList = new ArrayList<>();
+        customXqueryList.add("yo.xq");
+        customXqueryList.add("bdr.xq");
+        customXqueryList.add("asd.xq");
+        testSettingsView = new TestSettingsView(thirdPartiesModel.getSelectedTests(), thirdPartiesModel.getSelectedXqueries());
         testSettingsView.addObserver(this);
-        testSettingsView.createAndShowGUI(mainView.getContainer());
+        testSettingsView.createAndShowGUI(mainView.getContainer(), customXqueryList);
     }
 
     //When "Last inn pakket uttrekk" is clicked.
@@ -660,7 +664,7 @@ public class ArchiveController implements ViewObserver {
         List<Boolean> currentList = testSettingsView.getSelectedTests();
 
         if(Boolean.TRUE.equals(thirdPartiesModel.noEmptyTests(currentList))) {
-            thirdPartiesModel.updateSelectedTests(currentList);
+            thirdPartiesModel.updateTests(currentList, testSettingsView.getSelectedXqueries());
             testSettingsView.clearContainer();
             testSettingsView = null;
             mainView.showGUI();
