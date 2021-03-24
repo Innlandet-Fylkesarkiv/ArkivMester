@@ -28,7 +28,6 @@ public class ThirdPartiesModel {
     ThirdPartiesModel() {
         for(int i = 0; i < amountOfTests; i++) {
             selectedTests.add(true);
-            selectedXqueries.add(false);
         }
     }
 
@@ -310,4 +309,23 @@ public class ThirdPartiesModel {
         return count != list.size();
     }
 
+    /**
+     * Gets the names of the custom XQueries in the custom folder. Also initiates "selectedXqueries" with false for all
+     * files.
+     * @param prop Config property object to get the custom folder's path.
+     * @return String array with the name of the custom XQuery files.
+     */
+    public String[] getCustomXqueries(Properties prop) {
+        File f = new File((String)prop.get("xqueryCustomFolder"));
+        String[] list = f.list();
+
+        if(list != null) {
+            for (int i = 0; i<list.length; i++) {
+                selectedXqueries.add(false);
+            }
+        }
+
+        return list;
+
+    }
 }

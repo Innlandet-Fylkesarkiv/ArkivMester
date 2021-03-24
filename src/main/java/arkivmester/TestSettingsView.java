@@ -35,7 +35,7 @@ public class TestSettingsView extends Views {
     /**
      * Creates and shows the GUI
      */
-    public void createAndShowGUI(Container cnt, List<String> customXqueryList) {
+    public void createAndShowGUI(Container cnt, String[] customXqueryList) {
         container = cnt;
 
         //Clears container
@@ -53,13 +53,16 @@ public class TestSettingsView extends Views {
         //XQuery panel
         JPanel xqueryPanel = new JPanel();
         xqueryPanel.setLayout(new BoxLayout(xqueryPanel, BoxLayout.PAGE_AXIS));
-        xqueryPanel.setBorder(new EmptyBorder(100, 0, 0, 400));
+        xqueryPanel.setBorder(new EmptyBorder(100, 0, 0, 250));
         xqueryPanel.setBackground(Color.WHITE);
         setUpXqueryPanel(xqueryPanel, customXqueryList);
+        JScrollPane sp = new JScrollPane(xqueryPanel);
+        sp.setBorder(BorderFactory.createEmptyBorder());
 
         //Adding components
-        container.add(testsPanel);
-        container.add(xqueryPanel, BorderLayout.EAST);
+        container.add(testsPanel, BorderLayout.WEST);
+        container.add(sp);
+        container.repaint();
     }
 
     /**
@@ -113,7 +116,7 @@ public class TestSettingsView extends Views {
     /**
      * Sets up the XQuery panel.
      */
-    private void setUpXqueryPanel(JPanel xqueryPanel, List<String> customXqueryList) {
+    private void setUpXqueryPanel(JPanel xqueryPanel, String[] customXqueryList) {
         //Title
         JLabel xqueryTitle = new JLabel("Egendefinerte XQueries:");
         xqueryTitle.setFont(primaryFont);
@@ -129,7 +132,7 @@ public class TestSettingsView extends Views {
         //Adding components together
         xqueryPanel.add(xqueryTitle);
 
-        for(int i = 0; i<customXqueryList.size(); i++) {
+        for(int i = 0; i<xqueryBoxes.size(); i++) {
             xqueryPanel.add(Box.createRigidArea(new Dimension(5, 0)));
             xqueryBoxes.get(i).setSelected(selectedXqueries.get(i));
             xqueryPanel.add(xqueryBoxes.get(i));
@@ -150,9 +153,9 @@ public class TestSettingsView extends Views {
      */
     public List<Boolean> getSelectedTests() {
         List<Boolean> currentList = new ArrayList<>();
-        currentList.add(true); currentList.add(true); currentList.add(true); currentList.add(true);
-        for(int i = 0; i<amountOfTests; i++) {
-            currentList.set(i, testBoxes.get(i).isSelected());
+
+        for (JCheckBox testBox : testBoxes) {
+            currentList.add(testBox.isSelected());
         }
         return currentList;
     }
@@ -163,9 +166,9 @@ public class TestSettingsView extends Views {
      */
     public List<Boolean> getSelectedXqueries() {
         List<Boolean> currentList = new ArrayList<>();
-        currentList.add(true); currentList.add(true); currentList.add(true); currentList.add(true);
-        for(int i = 0; i<xqueryBoxes.size(); i++) {
-            currentList.set(i, xqueryBoxes.get(i).isSelected());
+
+        for (JCheckBox xqueryBox : xqueryBoxes) {
+            currentList.add(xqueryBox.isSelected());
         }
         return currentList;
     }

@@ -388,6 +388,7 @@ public class ArchiveController implements ViewObserver {
         }
     }
 
+    //When "Tilbakestill" is clicked.
     @Override
     public void resetCfg() {
         int n = JOptionPane.showConfirmDialog(null, "Er du sikker på at du vil tilbakestille innstillingene til standarden?",
@@ -449,13 +450,9 @@ public class ArchiveController implements ViewObserver {
     //When "Velg tester" is clicked.
     @Override
     public void chooseTests() {
-        List<String> customXqueryList = new ArrayList<>();
-        customXqueryList.add("yo.xq");
-        customXqueryList.add("bdr.xq");
-        customXqueryList.add("asd.xq");
         testSettingsView = new TestSettingsView(thirdPartiesModel.getSelectedTests(), thirdPartiesModel.getSelectedXqueries());
         testSettingsView.addObserver(this);
-        testSettingsView.createAndShowGUI(mainView.getContainer(), customXqueryList);
+        testSettingsView.createAndShowGUI(mainView.getContainer(), thirdPartiesModel.getCustomXqueries(settingsModel.prop));
     }
 
     //When "Last inn pakket uttrekk" is clicked.

@@ -188,7 +188,7 @@ public class TestView extends Views{
         testNewBtn.addActionListener(this);
         testNewBtn.setBackground(primaryColor);
         testNewBtn.setForeground(Color.WHITE);
-        testNewBtn.setToolTipText("Avbryter testingen og går tilbake til forsiden.");
+        testNewBtn.setToolTipText("Går tilbake til forsiden og gjør det klart for nytt uttrekk.");
 
         //Adding components
         buttonPanel.add(fileFormatCb);
