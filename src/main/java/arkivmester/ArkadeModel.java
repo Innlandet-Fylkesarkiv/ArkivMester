@@ -142,10 +142,9 @@ public class ArkadeModel {
     }
 
     /**
-     *
-     * @return
+     * @param numberList String List with number.
+     * @return -1 if no number in list.
      */
-    // -1 == 0
     public Integer sumStringListWithOnlyNumbers(List<String> numberList){
 
         int number = 0;
