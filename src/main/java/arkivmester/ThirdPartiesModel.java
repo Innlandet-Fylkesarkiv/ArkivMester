@@ -361,9 +361,8 @@ public class ThirdPartiesModel {
             for (int i = 0; i<list.length; i++) {
                 selectedXqueries.add(false);
             }
+            return list;
         }
-
-        return list;
-
+        return new String[]{""};
     }
 }
