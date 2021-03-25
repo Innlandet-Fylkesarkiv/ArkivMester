@@ -293,7 +293,7 @@ public class ArchiveController implements ViewObserver {
 
         File f = new File(docPath);
         if(!f.isDirectory()) {
-            docPath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokumenter \""; // NOSONAR
+            docPath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokumenter\""; // NOSONAR
         }
 
         //Run tests depending on if they are selected or not.
@@ -361,6 +361,20 @@ public class ArchiveController implements ViewObserver {
             attachments.add("\u2022 DROID rapporter");
         }
 
+        //XQuery
+        if(Boolean.TRUE.equals(thirdPartiesModel.runXqueries)) {
+            System.out.println("\nRunning XQueries\n"); //NOSONAR
+            testView.updateXqueryStatus(TestView.RUNNING);
+            try {
+                thirdPartiesModel.runXquery();
+            } catch (IOException e) {
+                System.out.println(e.getMessage()); //NOSONAR
+                mainView.exceptionPopup("XQuery test feilet, prøv igjen.");
+            }
+            System.out.println("\n\tXQuery finished\n"); //NOSONAR
+            testView.updateXqueryStatus(TestView.DONE);
+        }
+        
         System.out.println("\nTesting Ferdig\n"); //NOSONAR
 
         testView.updateTestStatus(TestView.TESTDONE);
@@ -374,7 +388,7 @@ public class ArchiveController implements ViewObserver {
             testView = new TestView();
             testView.addObserver(this);
             testView.createAndShowGUI(mainView.getContainer());
-            testView.updateStatus(thirdPartiesModel.getSelectedTests());
+            testView.updateStatus(thirdPartiesModel.getSelectedTests(), thirdPartiesModel.runXqueries);
             mainView.toggleEditInfoBtn();
             mainView.toggleSettingsBtn();
             mainView.toggleAboutBtn();
@@ -443,6 +457,7 @@ public class ArchiveController implements ViewObserver {
         }
     }
 
+    //When "Tilbakestill" is clicked.
     @Override
     public void resetCfg() {
         int n = JOptionPane.showConfirmDialog(null, "Er du sikker på at du vil tilbakestille innstillingene til standarden?",
@@ -504,9 +519,9 @@ public class ArchiveController implements ViewObserver {
     //When "Velg tester" is clicked.
     @Override
     public void chooseTests() {
-        testSettingsView = new TestSettingsView(thirdPartiesModel.getSelectedTests());
+        testSettingsView = new TestSettingsView(thirdPartiesModel.getSelectedTests(), thirdPartiesModel.getSelectedXqueries());
         testSettingsView.addObserver(this);
-        testSettingsView.createAndShowGUI(mainView.getContainer());
+        testSettingsView.createAndShowGUI(mainView.getContainer(), thirdPartiesModel.getCustomXqueries(settingsModel.prop));
     }
 
     //When "Last inn pakket uttrekk" is clicked.
@@ -557,7 +572,9 @@ public class ArchiveController implements ViewObserver {
         } catch (IOException e) {
             mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
         } catch (DateTimeParseException e) {
-            mainView.exceptionPopup("CREATEDATE formatet i metadata.xml er feil.");
+            mainView.exceptionPopup("CREATEDATE formatet i metadata.xml er feil");
+        } catch (IndexOutOfBoundsException e) {
+            mainView.exceptionPopup("Fant ikke XQueries eller de er feil, prøv igjen");
         }
     }
 
@@ -850,7 +867,7 @@ public class ArchiveController implements ViewObserver {
         List<Boolean> currentList = testSettingsView.getSelectedTests();
 
         if(Boolean.TRUE.equals(thirdPartiesModel.noEmptyTests(currentList))) {
-            thirdPartiesModel.updateSelectedTests(currentList);
+            thirdPartiesModel.updateTests(currentList, testSettingsView.getSelectedXqueries());
             testSettingsView.clearContainer();
             testSettingsView = null;
             mainView.showGUI();
