@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -151,11 +152,28 @@ public class SettingsModel {
     /**
      * Updates a property already existing in the config.properties file in user.home.
      * @param key Property key that will be updated.
-     * @param value Value to update property with.
-     * @throws IOException Properties object could write to output stream.
+     * @param value Property value to update the key with.
+     * @throws IOException Properties object could not write to output stream.
      */
     public void updateConfig(String key, String value) throws IOException {
         prop.setProperty(key, value);
+
+        try (FileOutputStream fos = new FileOutputStream(alteredCfg)){
+            prop.store(fos, null);
+        }
+    }
+
+    /**
+     * Updates multiple properties already existing in the config.properties file in user.home.
+     * @param keyList Property list keys that will be updated.
+     * @param valueList Property list values to update the keys with.
+     * @throws IOException Properties object could not write to output stream.
+     */
+    public void updateConfig(List<String> keyList, List<String> valueList) throws IOException {
+
+        for(int i = 0; i<keyList.size(); i++) {
+            prop.setProperty(keyList.get(i), valueList.get(i));
+        }
 
         try (FileOutputStream fos = new FileOutputStream(alteredCfg)){
             prop.store(fos, null);

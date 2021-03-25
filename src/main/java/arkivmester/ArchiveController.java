@@ -1,6 +1,7 @@
 package arkivmester;
 
 import javax.swing.*;
+import java.io.File;
 import java.io.IOException;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -72,7 +73,6 @@ public class ArchiveController implements ViewObserver {
     private void arkadeTestReport(){ // NOSONAR
         String total = "Totalt";
 
-        arkadeModel.parseReportHtml(); // remove when all function used in testModel
         // 3 og 3.1 arkade version
         String version = arkadeModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
 
@@ -88,18 +88,18 @@ public class ArchiveController implements ViewObserver {
         reportModel.insertTable(Arrays.asList(3, 1, 8), dokumentstatus);
 
         //Chapter 3.1.12
-        int arkivert = arkadeModel.getTotal("N5.22", "Journalstatus: Arkivert - Antall:");
-        int journalfort = arkadeModel.getTotal("N5.22", "Journalstatus: Journalført - Antall:");
-
-        if(journalfort != -1 && arkivert != -1) {
-            if (journalfort == 0) {
-                reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 0);
+        int arkivert = arkadeModel.sumStringListWithOnlyNumbers(
+                arkadeModel.getNumberInTextAsString("N5.22", "Journalstatus: Arkivert - Antall:", ":"));
+        int journalfort =  arkadeModel.sumStringListWithOnlyNumbers(
+                arkadeModel.getNumberInTextAsString("N5.22", "Journalstatus: Journalført - Antall:", ":"));
+        
+        if (journalfort == -1) {
+            reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 0);
+        } else  {
+            if (arkivert == -1) {
+                reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 2);
             } else {
-                if (arkivert == 0) {
-                    reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 2);
-                } else {
-                    reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.singletonList("" + journalfort), 1);
-                }
+                reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.singletonList("" + journalfort), 1);
             }
         }
         //Chapter 3.1.16 - Saksparter
@@ -128,7 +128,7 @@ public class ArchiveController implements ViewObserver {
         if(arkadeModel.getTotal("N5.38", total) == 0 ) {
             reportModel.setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), 0);
         }
-        else {
+        else if (arkadeModel.getTotal("N5.38", total) > 0 ) {
             reportModel.setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), 1);
         }
 
@@ -142,7 +142,7 @@ public class ArchiveController implements ViewObserver {
         if(arkadeModel.getTotal("N5.43", total) == 0) {
             reportModel.setNewInput(Arrays.asList(3, 1, 24), Collections.emptyList(), 0);
         }
-        else  {
+        else if (arkadeModel.getTotal("N5.43", total) > 0) {
             reportModel.setNewInput(Arrays.asList(3, 1, 24), Collections.emptyList(), 1);
         }
 
@@ -151,7 +151,8 @@ public class ArchiveController implements ViewObserver {
                 arkadeModel.getTotal("N5.45", total) ==0) {
             reportModel.setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), 0);
         }
-        else {
+        else if (arkadeModel.getTotal("N5.44", total) > 0 &&
+                arkadeModel.getTotal("N5.45", total) > 0) {
             reportModel.setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), 1);
         }
 
@@ -226,7 +227,7 @@ public class ArchiveController implements ViewObserver {
         fileName = fileName.substring(0,fileName.lastIndexOf('.'));                   // NOSONAR
         //String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument"; // NOSONAR ONLY TESTING
         //Should use the one below, but takes too long
-        String docPath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokument"; // NOSONAR
+        String docPath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokument \""; // NOSONAR
 
         //Unzips .tar folder with the archive.
         try {
@@ -236,6 +237,11 @@ public class ArchiveController implements ViewObserver {
             mainView.exceptionPopup("Kunne ikke unzippe arkivet, prøv igjen.");
         }
         System.out.println("\n\tArchive unzipped\n"); //NOSONAR
+
+        File f = new File(docPath);
+        if(!f.isDirectory()) {
+            docPath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokumenter \""; // NOSONAR
+        }
 
         //Run tests depending on if they are selected or not.
         //Arkade
@@ -359,10 +365,8 @@ public class ArchiveController implements ViewObserver {
     //When "Lagre instillinger" is clicked.
     @Override
     public void saveSettings() {
-        List<String> newProp = settingsView.getNewProp();
-
         try {
-            settingsModel.updateConfig(newProp.get(0), newProp.get(1));
+            settingsModel.updateConfig(settingsView.getUpdatedKeyList(), settingsView.getUpdatedValueList());
             settingsView.clearContainer();
             settingsView = null;
             mainView.showGUI();
@@ -387,8 +391,8 @@ public class ArchiveController implements ViewObserver {
 
     @Override
     public void resetCfg() {
-        int n = JOptionPane.showConfirmDialog(null, "Er du sikker på at du vil resette innstillingene til standarden?",
-                "Resette innstillinger", JOptionPane.YES_NO_OPTION);
+        int n = JOptionPane.showConfirmDialog(null, "Er du sikker på at du vil tilbakestille innstillingene til standarden?",
+                "Tilbakestill innstillinger", JOptionPane.YES_NO_OPTION);
         if(n == JOptionPane.YES_OPTION) {
             try {
                 settingsModel.resetCfg();
@@ -510,7 +514,7 @@ public class ArchiveController implements ViewObserver {
         String fileName = archiveModel.tar.getName();
         fileName = fileName.substring(0,fileName.lastIndexOf('.'));
 
-        String archivePath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName; // #NOSONAR
+        String archivePath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName; // #NOSONAR
 
         String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml\"";
 
