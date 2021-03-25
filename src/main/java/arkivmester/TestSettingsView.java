@@ -17,22 +17,25 @@ import java.util.List;
 public class TestSettingsView extends Views {
     Container container;
     private final List<Boolean> selectedTests;
+    private final List<Boolean> selectedXqueries;
     private final List<JCheckBox> testBoxes = new ArrayList<>(); //Final for now
+    private final List<JCheckBox> xqueryBoxes = new ArrayList<>(); //Final for now
     private final int amountOfTests;
 
     /**
      * Constructor - Initiates this.selectedTests with current data.
      * @param selectedTests The current selected tests stored in {@link ThirdPartiesModel}.
      */
-    TestSettingsView(List<Boolean> selectedTests) {
+    TestSettingsView(List<Boolean> selectedTests, List<Boolean> selectedXqueries) {
         this.selectedTests = selectedTests;
         amountOfTests = selectedTests.size();
+        this.selectedXqueries = selectedXqueries;
     }
 
     /**
      * Creates and shows the GUI
      */
-    public void createAndShowGUI(Container cnt) {
+    public void createAndShowGUI(Container cnt, String[] customXqueryList) {
         container = cnt;
 
         //Clears container
@@ -49,12 +52,17 @@ public class TestSettingsView extends Views {
 
         //XQuery panel
         JPanel xqueryPanel = new JPanel();
+        xqueryPanel.setLayout(new BoxLayout(xqueryPanel, BoxLayout.PAGE_AXIS));
+        xqueryPanel.setBorder(new EmptyBorder(100, 0, 0, 250));
         xqueryPanel.setBackground(Color.WHITE);
-
+        setUpXqueryPanel(xqueryPanel, customXqueryList);
+        JScrollPane sp = new JScrollPane(xqueryPanel);
+        sp.setBorder(BorderFactory.createEmptyBorder());
 
         //Adding components
-        container.add(testsPanel);
-        container.add(xqueryPanel, BorderLayout.EAST);
+        container.add(testsPanel, BorderLayout.WEST);
+        container.add(sp);
+        container.repaint();
     }
 
     /**
@@ -62,7 +70,7 @@ public class TestSettingsView extends Views {
      */
     private void setUpTestsPanel(JPanel testsPanel) {
         //Title
-        JLabel testsTitle = new JLabel("Tester som skal kjøres:");
+        JLabel testsTitle = new JLabel("Tester som skal kjøres:             ");
         testsTitle.setFont(primaryFont);
 
         //Checkboxes
@@ -106,6 +114,32 @@ public class TestSettingsView extends Views {
     }
 
     /**
+     * Sets up the XQuery panel.
+     */
+    private void setUpXqueryPanel(JPanel xqueryPanel, String[] customXqueryList) {
+        //Title
+        JLabel xqueryTitle = new JLabel("Egendefinerte XQueries:");
+        xqueryTitle.setFont(primaryFont);
+
+        //Checkboxes
+        for(String s : customXqueryList) {
+            JCheckBox box = new JCheckBox();
+            box.setText(s);
+            box.setBackground(Color.WHITE);
+            xqueryBoxes.add(box);
+        }
+
+        //Adding components together
+        xqueryPanel.add(xqueryTitle);
+
+        for(int i = 0; i<xqueryBoxes.size(); i++) {
+            xqueryPanel.add(Box.createRigidArea(new Dimension(5, 0)));
+            xqueryBoxes.get(i).setSelected(selectedXqueries.get(i));
+            xqueryPanel.add(xqueryBoxes.get(i));
+        }
+    }
+
+    /**
      * Clears the entire container.
      */
     public void clearContainer(){
@@ -119,9 +153,22 @@ public class TestSettingsView extends Views {
      */
     public List<Boolean> getSelectedTests() {
         List<Boolean> currentList = new ArrayList<>();
-        currentList.add(true); currentList.add(true); currentList.add(true); currentList.add(true);
-        for(int i = 0; i<amountOfTests; i++) {
-            currentList.set(i, testBoxes.get(i).isSelected());
+
+        for (JCheckBox testBox : testBoxes) {
+            currentList.add(testBox.isSelected());
+        }
+        return currentList;
+    }
+
+    /**
+     * Regular getter for newly chosen XQuery boxes.
+     * @return Updated selected XQueries as Boolean list.
+     */
+    public List<Boolean> getSelectedXqueries() {
+        List<Boolean> currentList = new ArrayList<>();
+
+        for (JCheckBox xqueryBox : xqueryBoxes) {
+            currentList.add(xqueryBox.isSelected());
         }
         return currentList;
     }

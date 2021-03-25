@@ -5,8 +5,16 @@ declare default element namespace "http://www.arkivverket.no/standarder/noark5/a
 declare namespace n5mdk="http://www.arkivverket.no/standarder/noark5/metadatakatalog"; 
 declare namespace el="http://www.arkivverket.no/standarder/noark5/endringslogg" ;
 
-(:Journalposter uten korrespondansepart:)
 
-let $r := //registrering[not (boolean(korrespondansepart)) and (data(@xsi:type = "journalpost"))]/concat(registreringsID, ';', systemID, ';', ../saksaar, ';', ../sakssekvensnummer, ';', ../systemID)
+(: Ser etter unike klassifikasjonssystemer - basert p�tittel og beskrivelse :)
+
+let $r := distinct-values(arkiv/arkivdel/klassifikasjonssystem/concat(
+  //arkivdel/systemID, '; ', 
+  tittel, '; ', 
+  if(count(.//mappe) > 0) then "JA" else "NEI", '; ',
+  count(klasse), '; ',
+  count(klasse/./klasse), '; ',
+  count(klasse/./klasse/./klasse)
+))
 
 return $r

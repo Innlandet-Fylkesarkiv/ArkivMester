@@ -46,7 +46,7 @@ public class ReportModel {
      */
     public static class ChapterList {
 
-        String regex = "[^a-zA-Z ][A-Z]{3,}([ ][A-Z]{3,}){0,5}[^a-zA-Z ]|[A-Z]{4,}";
+        String regex = "[^a-zæøåA-ZÆØÅ ][A-ZÆØÅ]{3,}([ ][A-ZÆØÅ]{3,}){0,5}[^a-zæøåA-ZÆØÅ ]|[A-ZÆØÅ]{4,}";
 
         private final List<String> result;
         private final int tableCol;
@@ -492,8 +492,9 @@ public class ReportModel {
         for(List<ChapterList> chapters : chapterList.get(h)) {
             if(chapters.get(0).cases) {
                 for(ChapterList chap : chapters) {
-                    if(chap.getType() == TextStyle.TABLE) {
+                    if(chap.getType() == TextStyle.TABLE && chap.result.get(chap.result.size()-1).equals("X")) {
                         chap.insertInput(t);
+                        break;
                     }
                 }
             }
