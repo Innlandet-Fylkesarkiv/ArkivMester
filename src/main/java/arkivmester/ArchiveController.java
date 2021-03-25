@@ -3,6 +3,7 @@ package arkivmester;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -748,7 +749,7 @@ public class ArchiveController implements ViewObserver {
             reportModel.insertTable(Arrays.asList(3, 1, 3), newParts);
         }
 
-        //Chapter 3.3.6.xq
+        //Chapter 3.3.6
         List<String> journals = getEmptyOrContent(testArkivstruktur, "3.3.6");
         if(!journals.get(0).equals(EMPTY)) {
             List<String> journal = new ArrayList<>();
@@ -767,6 +768,29 @@ public class ArchiveController implements ViewObserver {
             }
         }else {
             reportModel.setNewInput(Arrays.asList(3, 3, 6),Collections.emptyList(), 2);
+        }
+
+        //Chapter 3.3.7
+        List<String> adminUnits = getEmptyOrContent(testArkivstruktur,"3.3.7");
+        if(!adminUnits.get(0).equals(EMPTY)) {
+            System.out.println(adminUnits);
+            List<String> unit = new ArrayList<>();
+            for(String s : adminUnits) {
+                unit.addAll(Arrays.asList(s.split("; ")));
+            }
+            System.out.println(unit);
+            reportModel.setNewInput(Arrays.asList(3, 3, 7), Collections.emptyList(),0);
+            reportModel.insertTable(Arrays.asList(3, 3, 7), unit);
+            int total = 0;
+            for(int i = 1; i <= unit.size(); i+=2 ) {
+                total += Integer.parseInt(unit.get(i));
+                int amount = Integer.parseInt(unit.get(i));
+                if(amount > (total / 100.0f * 90.0f)) {
+                    reportModel.setNewInput(Arrays.asList(3, 3, 7), Collections.emptyList(), 1);
+                }
+            }
+        }else {
+            reportModel.setNewInput(Arrays.asList(3, 3, 6), Collections.emptyList(), 2);
         }
 
         //Chapter 5 - Attachments
