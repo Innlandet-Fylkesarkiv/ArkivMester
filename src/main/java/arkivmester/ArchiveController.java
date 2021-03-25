@@ -240,7 +240,7 @@ public class ArchiveController implements ViewObserver {
 
         File f = new File(docPath);
         if(!f.isDirectory()) {
-            docPath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokumenter \""; // NOSONAR
+            docPath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokumenter\""; // NOSONAR
         }
 
         //Run tests depending on if they are selected or not.
@@ -519,7 +519,9 @@ public class ArchiveController implements ViewObserver {
         } catch (IOException e) {
             mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
         } catch (DateTimeParseException e) {
-            mainView.exceptionPopup("CREATEDATE formatet i metadata.xml er feil.");
+            mainView.exceptionPopup("CREATEDATE formatet i metadata.xml er feil");
+        } catch (IndexOutOfBoundsException e) {
+            mainView.exceptionPopup("Fant ikke XQueries eller de er feil, prøv igjen");
         }
     }
 
