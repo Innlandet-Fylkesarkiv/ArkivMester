@@ -21,6 +21,7 @@ public class TestSettingsView extends Views {
     private final List<JCheckBox> testBoxes = new ArrayList<>(); //Final for now
     private final List<JCheckBox> xqueryBoxes = new ArrayList<>(); //Final for now
     private final int amountOfTests;
+    List<JTextField> xmlList = new ArrayList<>();
 
     /**
      * Constructor - Initiates this.selectedTests with current data.
@@ -51,9 +52,8 @@ public class TestSettingsView extends Views {
         setUpTestsPanel(testsPanel);
 
         //XQuery panel
-        JPanel xqueryPanel = new JPanel();
-        xqueryPanel.setLayout(new BoxLayout(xqueryPanel, BoxLayout.PAGE_AXIS));
-        xqueryPanel.setBorder(new EmptyBorder(100, 0, 0, 250));
+        JPanel xqueryPanel = new JPanel(new GridBagLayout());
+        xqueryPanel.setBorder(new EmptyBorder(0, 0, 310, 0));
         xqueryPanel.setBackground(Color.WHITE);
         setUpXqueryPanel(xqueryPanel, customXqueryList);
         JScrollPane sp = new JScrollPane(xqueryPanel);
@@ -70,7 +70,7 @@ public class TestSettingsView extends Views {
      */
     private void setUpTestsPanel(JPanel testsPanel) {
         //Title
-        JLabel testsTitle = new JLabel("Tester som skal kjøres:             ");
+        JLabel testsTitle = new JLabel("Tester som skal kjøres:");
         testsTitle.setFont(primaryFont);
 
         //Checkboxes
@@ -117,11 +117,17 @@ public class TestSettingsView extends Views {
      * Sets up the XQuery panel.
      */
     private void setUpXqueryPanel(JPanel xqueryPanel, String[] customXqueryList) {
+        int rows = customXqueryList.length;
+
         //Title
         JLabel xqueryTitle = new JLabel("Egendefinerte XQueries:");
         xqueryTitle.setFont(primaryFont);
 
-        //Checkboxes
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+
+        //Col 1 Checkboxes
         for(String s : customXqueryList) {
             JCheckBox box = new JCheckBox();
             box.setText(s);
@@ -129,14 +135,38 @@ public class TestSettingsView extends Views {
             xqueryBoxes.add(box);
         }
 
-        //Adding components together
-        xqueryPanel.add(xqueryTitle);
-
-        for(int i = 0; i<xqueryBoxes.size(); i++) {
-            xqueryPanel.add(Box.createRigidArea(new Dimension(5, 0)));
-            xqueryBoxes.get(i).setSelected(selectedXqueries.get(i));
-            xqueryPanel.add(xqueryBoxes.get(i));
+        //Col 2 Textboxes
+        for(int i = 0; i<rows; i++) {
+            xmlList.add(new JTextField(15));
         }
+
+        //Adding components together
+        gbc.anchor = GridBagConstraints.FIRST_LINE_START;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(10,0,0,10);
+
+        gbc.gridwidth = 2;
+        xqueryPanel.add(xqueryTitle, gbc);
+
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+
+        //Col 1
+        for(int i = 0; i<rows; i++) {
+            xqueryBoxes.get(i).setSelected(selectedXqueries.get(i));
+            xqueryPanel.add(xqueryBoxes.get(i), gbc);
+            gbc.gridy++;
+        }
+
+        //Col 2
+        gbc.gridy = 1;
+        gbc.gridx++;
+
+        for(int i = 0; i<rows; i++) {
+            xqueryPanel.add(xmlList.get(i), gbc);
+            gbc.gridy++;
+        }
+
     }
 
     /**
