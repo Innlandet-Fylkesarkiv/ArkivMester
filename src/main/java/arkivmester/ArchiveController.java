@@ -225,7 +225,7 @@ public class ArchiveController implements ViewObserver {
             para = getEmptyOrContent(testArkivstruktur, "3.3.3_1");
             reportModel.insertTable(Arrays.asList(3, 3, 3), splitIntoTable(para));
             para = arkadeModel.getTableDataFromHtml("N5.36", 2);
-            reportModel.insertTable(Arrays.asList(3, 3, 3), splitIntoTable(para));
+            reportModel.insertTable(Arrays.asList(3, 3, 3), para);
             para = getEmptyOrContent(testArkivstruktur, "3.3.3_2");
             reportModel.insertTable(Arrays.asList(3, 3, 3), splitIntoTable(para));
         }
@@ -287,8 +287,6 @@ public class ArchiveController implements ViewObserver {
             attachments.add("\u2022 Arkade5 testrapport");
 
         }
-
-/*
         //VeraPDF
         if(Boolean.TRUE.equals(selectedTests.get(3))) {
             System.out.print("\nRunning VeraPDF\n"); //NOSONAR
@@ -334,7 +332,6 @@ public class ArchiveController implements ViewObserver {
             attachments.add("\u2022 DROID rapporter");
         }
 
-         */
         System.out.println("\nTesting Ferdig\n"); //NOSONAR
 
         testView.updateTestStatus(TestView.TESTDONE);
@@ -731,9 +728,9 @@ public class ArchiveController implements ViewObserver {
 
         List<String> newList = new ArrayList<>();
         map.entrySet().stream().filter(entry -> entry.getValue() > 0)
-                .forEach(entry -> {
-            newList.add(entry.getKey() + "; " + entry.getValue().toString());
-        });
+                .forEach(entry ->
+            newList.add(entry.getKey() + "; " + entry.getValue().toString())
+        );
 
         return newList;
     }
