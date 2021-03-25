@@ -357,10 +357,17 @@ public class ThirdPartiesModel {
         File f = new File((String)prop.get("xqueryCustomFolder"));
         String[] list = f.list();
 
-        if(list != null) {
-            for (int i = 0; i<list.length; i++) {
-                selectedXqueries.add(false);
+        if(selectedXqueries.isEmpty()) {
+            if(list != null) {
+                for (int i = 0; i<list.length; i++) {
+                    selectedXqueries.add(false);
+                }
+                return list;
             }
+            return new String[]{""};
+        }
+
+        if(list != null) {
             return list;
         }
         return new String[]{""};

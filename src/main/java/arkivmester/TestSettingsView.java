@@ -132,7 +132,7 @@ public class TestSettingsView extends Views {
         //Adding components together
         xqueryPanel.add(xqueryTitle);
 
-        for(int i = 0; i<selectedXqueries.size(); i++) {
+        for(int i = 0; i<xqueryBoxes.size(); i++) {
             xqueryPanel.add(Box.createRigidArea(new Dimension(5, 0)));
             xqueryBoxes.get(i).setSelected(selectedXqueries.get(i));
             xqueryPanel.add(xqueryBoxes.get(i));

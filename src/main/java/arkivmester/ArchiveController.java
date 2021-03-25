@@ -374,7 +374,7 @@ public class ArchiveController implements ViewObserver {
             System.out.println("\n\tXQuery finished\n"); //NOSONAR
             testView.updateXqueryStatus(TestView.DONE);
         }
-        
+
         System.out.println("\nTesting Ferdig\n"); //NOSONAR
 
         testView.updateTestStatus(TestView.TESTDONE);
