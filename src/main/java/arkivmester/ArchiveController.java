@@ -665,6 +665,30 @@ public class ArchiveController implements ViewObserver {
                 reportModel.insertTable(Arrays.asList(3, 1, 3), newParts);
             }
 
+            //Chapter 3.3.6.xq
+            List<String> journals = thirdPartiesModel.runBaseX(
+                    testArkivstruktur,
+                    "3.3.6.xq",
+                    settingsModel.prop);
+            if(!journals.isEmpty()) {
+                List<String> journal = new ArrayList<>();
+                for (String s : journals) {
+                    journal.addAll(Arrays.asList(s.split(": ")));
+                }
+                reportModel.setNewInput(Arrays.asList(3, 3, 6), Collections.emptyList(), 0);
+                reportModel.insertTable(Arrays.asList(3, 3, 6), journal);
+                int total = 0;
+                for (int i = 1; i <= journal.size(); i += 2) {
+                    total += Integer.parseInt(journal.get(i));
+                    int amount = Integer.parseInt(journal.get(i));
+                    if (amount > (total / 100.0f * 90.0f)) {
+                        reportModel.setNewInput(Arrays.asList(3, 3, 6), Collections.emptyList(), 1);
+                    }
+                }
+            }else {
+                reportModel.setNewInput(Arrays.asList(3, 3, 6),Collections.emptyList(), 2);
+            }
+
         } catch (IOException e) {
             mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
         }
