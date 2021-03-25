@@ -447,7 +447,7 @@ public class ReportModel {
      */
     public void printReportToFile(Properties prop) {
         try {
-            FileOutputStream os = new FileOutputStream(prop.get("tempFolder") + "\\TestReport\\Testrapport.docx");
+            FileOutputStream os = new FileOutputStream(prop.get("tempFolder") + "\\" + prop.get("currentArchive") + "\\Testrapport.docx"); // #NOSONAR
             document.write(os);
             document.close();
             os.close();

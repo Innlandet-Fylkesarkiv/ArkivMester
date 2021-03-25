@@ -1,4 +1,4 @@
-declare namespace xh="http://www.loc.gov/METS/";
+declare namespace xh="http://arkivverket.no/standarder/METS";
 
 let $kunde := xh:mets/xh:metsHdr/xh:agent[@ROLE="OTHER" and @OTHERROLE="SUBMITTER" and @TYPE="ORGANIZATION"]/xh:name/text()
 let $kontaktperson := xh:mets/xh:metsHdr/xh:agent[@ROLE="OTHER" and @OTHERROLE="SUBMITTER" and @TYPE="INDIVIDUAL"]/xh:name

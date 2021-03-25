@@ -1,7 +1,12 @@
 package arkivmester;
 
 import java.io.*;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -15,6 +20,7 @@ import java.util.Properties;
 public class SettingsModel {
     private File userFolder;
     private File alteredCfg;
+    private static final String CURRENTARCHIVE = "currentArchive";
 
     /**
      * Public properties object containing the application's configurations.
@@ -63,41 +69,49 @@ public class SettingsModel {
      * Output folders are KostVal, VeraPDF, DROID and Arkade.
      * @throws IOException Folder in user.home could not be created.
      */
-    public void handleOutputFolders() throws IOException {
+    public void handleOutputFolders(String fileName) throws IOException {
+        updateConfig(CURRENTARCHIVE, fileName);
+
+        //Archive folder
+        File archiveFolder = new File(userFolder.getPath() + "\\temp\\" + fileName);
+        if(!archiveFolder.exists()) {
+            Files.createDirectory(archiveFolder.toPath());
+        }
+        else {
+            File unzipped = new File(archiveFolder.getPath() + "\\" + fileName); // #NOSONAR
+            if(unzipped.exists()) {
+                deleteUnZippedArchive();
+            }
+        }
+
         //KostVal
-        File kostValFolder = new File(userFolder.getPath() + "\\temp\\KostVal");
+        File kostValFolder = new File(archiveFolder.getPath() + "\\KostVal");
         if(!kostValFolder.exists()) {
             Files.createDirectory(kostValFolder.toPath());
         }
 
         //VeraPDF
-        File veraPdfFolder = new File(userFolder.getPath() + "\\temp\\VeraPDF");
+        File veraPdfFolder = new File(archiveFolder.getPath() + "\\VeraPDF");
         if(!veraPdfFolder.exists()) {
             Files.createDirectory(veraPdfFolder.toPath());
         }
 
         //DROID
-        File droidFolder = new File(userFolder.getPath() + "\\temp\\DROID");
+        File droidFolder = new File(archiveFolder.getPath() + "\\DROID");
         if(!droidFolder.exists()) {
             Files.createDirectory(droidFolder.toPath());
         }
 
         //Arkade
-        File arkadeFolder = new File(userFolder.getPath() + "\\temp\\Arkade");
+        File arkadeFolder = new File(archiveFolder.getPath() + "\\Arkade");
         if(!arkadeFolder.exists()) {
             Files.createDirectory(arkadeFolder.toPath());
         }
 
         //Arkade Output
-        File arkadeOutputFolder = new File(userFolder.getPath() + "\\temp\\Arkade\\Report");
+        File arkadeOutputFolder = new File(arkadeFolder.getPath() + "\\report");
         if(!arkadeOutputFolder.exists()) {
             Files.createDirectory(arkadeOutputFolder.toPath());
-        }
-
-        //TestReport
-        File testReportFolder = new File(userFolder.getPath() + "\\temp\\TestReport");
-        if(!testReportFolder.exists()) {
-            Files.createDirectory(testReportFolder.toPath());
         }
     }
 
@@ -119,7 +133,7 @@ public class SettingsModel {
      * Loads the default config.priorities file from resources into Properties prop.
      * @throws IOException Properties object could not load input stream.
      */
-    private void loadDefaultConfig() throws IOException {
+    public void loadDefaultConfig() throws IOException {
         InputStream is = getClass().getResourceAsStream("/config.properties");
         prop.load(is);
         is.close();
@@ -138,14 +152,72 @@ public class SettingsModel {
     /**
      * Updates a property already existing in the config.properties file in user.home.
      * @param key Property key that will be updated.
-     * @param value Value to update property with.
-     * @throws IOException Properties object could write to output stream.
+     * @param value Property value to update the key with.
+     * @throws IOException Properties object could not write to output stream.
      */
     public void updateConfig(String key, String value) throws IOException {
         prop.setProperty(key, value);
 
         try (FileOutputStream fos = new FileOutputStream(alteredCfg)){
             prop.store(fos, null);
+        }
+    }
+
+    /**
+     * Updates multiple properties already existing in the config.properties file in user.home.
+     * @param keyList Property list keys that will be updated.
+     * @param valueList Property list values to update the keys with.
+     * @throws IOException Properties object could not write to output stream.
+     */
+    public void updateConfig(List<String> keyList, List<String> valueList) throws IOException {
+
+        for(int i = 0; i<keyList.size(); i++) {
+            prop.setProperty(keyList.get(i), valueList.get(i));
+        }
+
+        try (FileOutputStream fos = new FileOutputStream(alteredCfg)){
+            prop.store(fos, null);
+        }
+    }
+
+    /**
+     * Deletes the unzipped archive in preperation to test the archive again.
+     * @throws IOException No permissions in tempFolder path.
+     */
+    public void deleteUnZippedArchive() throws IOException {
+        String archive = (String)prop.get(CURRENTARCHIVE);
+        File zipped = new File(prop.get("tempFolder") + "\\"+ archive + "\\" + archive); // #NOSONAR
+
+        if(zipped.exists()) {
+            Path directory = zipped.toPath();
+            Files.walkFileTree(directory, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
+    }
+
+    /**
+     * Deletes and recreates config.properties with temporary values.
+     * @throws IOException No permissions in tempFolder path.
+     */
+    public void resetCfg() throws IOException {
+        String archive;
+        if(alteredCfg.exists()) {
+            archive = prop.getProperty(CURRENTARCHIVE);
+            Files.delete(alteredCfg.toPath());
+            createConfig();
+            handleTempFolder();
+            updateConfig(CURRENTARCHIVE, archive);
         }
     }
 }

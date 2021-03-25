@@ -27,6 +27,7 @@ public class MainView extends Views{
     private JButton startTestingBtn;
     private JButton writeReportBtn;
     private JButton settingsBtn;
+    private JButton aboutBtn;
 
     //Info field list
     List<JTextArea> valueList = new ArrayList<>();
@@ -103,10 +104,12 @@ public class MainView extends Views{
         settingsBtn = new JButton("Innstillinger");
         settingsBtn.addActionListener(this);
         settingsBtn.setBackground(Color.WHITE);
+        settingsBtn.setToolTipText("Viser innstillinger.");
 
-        JButton aboutBtn = new JButton("Om");
+        aboutBtn = new JButton("Om");
         aboutBtn.addActionListener(this);
         aboutBtn.setBackground(Color.WHITE);
+        aboutBtn.setToolTipText("Viser informasjon om applikasjonen.");
 
         topPanel.add(settingsBtn);
         topPanel.add(aboutBtn);
@@ -128,12 +131,14 @@ public class MainView extends Views{
         uploadTarBtn.addActionListener(this);
         uploadTarBtn.setBackground(primaryColor);
         uploadTarBtn.setForeground(Color.WHITE);
+        uploadTarBtn.setToolTipText("Åpner filutforsker for å velge riktig pakket uttrekk.");
 
         JButton uploadTestedFolderBtn = new JButton("Last inn ferdig testet uttrekk");
         uploadTestedFolderBtn.setBounds(350, 100, 200, 30);
         uploadTestedFolderBtn.addActionListener(this);
         uploadTestedFolderBtn.setBackground(primaryColor);
         uploadTestedFolderBtn.setForeground(Color.WHITE);
+        uploadTestedFolderBtn.setToolTipText("Åpner filutforsker for å velge riktig ferdig testet uttrekk.");
 
         //Section 2
         JLabel testsLabel = new JLabel("Test arkivuttrekk:");
@@ -146,6 +151,7 @@ public class MainView extends Views{
         chooseTestsBtn.setBackground(primaryColor);
         chooseTestsBtn.setForeground(Color.WHITE);
         chooseTestsBtn.setEnabled(false);
+        chooseTestsBtn.setToolTipText("Viser deltest siden for å velge hvilke deltester å inkludere.");
 
         startTestingBtn = new JButton("Start testing");
         startTestingBtn.setBounds(275, 220, 125, 30);
@@ -153,6 +159,7 @@ public class MainView extends Views{
         startTestingBtn.setBackground(primaryColor);
         startTestingBtn.setForeground(Color.WHITE);
         startTestingBtn.setEnabled(false);
+        startTestingBtn.setToolTipText("Starter testingen av uttrekket.");
 
         //Section 3
         JLabel doneTestedLabel = new JLabel("Ferdig testet arkivuttrekk:");
@@ -165,6 +172,7 @@ public class MainView extends Views{
         writeReportBtn.setBackground(primaryColor);
         writeReportBtn.setForeground(Color.WHITE);
         writeReportBtn.setEnabled(false);
+        writeReportBtn.setToolTipText("Genererer og skriver rapporten for ferdig testet uttrekk.");
 
         //Adding components
         mainPanel.add(archiveLabel);
@@ -193,6 +201,7 @@ public class MainView extends Views{
         editInfoBtn.setBackground(primaryColor);
         editInfoBtn.setForeground(Color.WHITE);
         editInfoBtn.setEnabled(false);
+        editInfoBtn.setToolTipText("Viser redigerings siden for administrative informasjon.");
 
         //Grid
         JPanel infoGrid = new JPanel(new GridBagLayout());
@@ -345,5 +354,12 @@ public class MainView extends Views{
      */
     public void toggleSettingsBtn() {
         settingsBtn.setEnabled(!settingsBtn.isEnabled());
+    }
+
+    /**
+     * Deactivates the about button if activated and vice versa.
+     */
+    public void toggleAboutBtn() {
+        aboutBtn.setEnabled(!aboutBtn.isEnabled());
     }
 }

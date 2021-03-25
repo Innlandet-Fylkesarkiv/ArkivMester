@@ -69,4 +69,14 @@ public interface ViewObserver {
      * Saves the current information and updates the configuration file.
      */
     void saveSettings();
+
+    /**
+     * Opens the about view for information about the application.
+     */
+    void openAbout();
+
+    /**
+     * Resets the contents of the settings file to the default.
+     */
+    void resetCfg();
 }

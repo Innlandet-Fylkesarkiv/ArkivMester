@@ -19,6 +19,7 @@ public class ThirdPartiesModel {
     private List<Boolean> selectedTests = new ArrayList<>();
     int amountOfTests = 4;
     String tempFolder;
+    String archiveName;
 
     /**
      * Initializes the selectedTests list to true.
@@ -33,7 +34,7 @@ public class ThirdPartiesModel {
      * @param selectedList Updated selectedTests from the UI.
      */
     public void updateSelectedTests(List<Boolean> selectedList) {
-        selectedTests = selectedList;
+        this.selectedTests = selectedList;
     }
 
     /**
@@ -41,7 +42,7 @@ public class ThirdPartiesModel {
      * @return selectedTests boolean list.
      */
     public List<Boolean> getSelectedTests() {
-        return selectedTests;
+        return this.selectedTests;
     }
 
     /**
@@ -58,6 +59,7 @@ public class ThirdPartiesModel {
      */
     public void initializePath(Properties prop) {
         tempFolder = prop.getProperty("tempFolder");
+        archiveName = "\\" + prop.getProperty("currentArchive"); // #NOSONAR
     }
 
     /**
@@ -73,9 +75,10 @@ public class ThirdPartiesModel {
         //String with path to arkadeCli
         String cd = cdString + prop.getProperty("arkadePath") + "\"";
         //Path to output folder where test report gets saved.
-        String outputPath = "\"" + tempFolder + "\\Arkade\\Report\"";
+        String outputPath = "\"" + tempFolder + archiveName + "\\Arkade\\Report\"";
         //Path to temp folder where temporary data about the tests gets stored.
-        String tempPath = "\"" + tempFolder + "\\Arkade\"";
+        String tempPath = "\"" + tempFolder + archiveName + "\\Arkade\"";
+
 
         //Run ArkadeCli through command line.
         runCMD(cd + " && arkade test -a " + path + " -o " + outputPath + " -p " + tempPath + " -t noark5");
@@ -95,8 +98,7 @@ public class ThirdPartiesModel {
         //String with path to KostVal
         String cd = cdString + prop.getProperty("kostvalPath") + "\"";
         //Path to folder where test report gets moved to.
-        String reportPath = "\"" + tempFolder + "\\KostVal\"";
-
+        String reportPath = "\"" + tempFolder + archiveName + "\\KostVal\"";
         //Run kost-val from command line
         runCMD(cd + " &&  java -jar cmd_KOST-Val.jar --sip " + path + " --en");
         //Move testreport to an output folder.
@@ -116,7 +118,8 @@ public class ThirdPartiesModel {
         //String with path to VeraPDF
         String cd = cdString + prop.getProperty("veraPDFPath") + "\"";
         //Path to folder where test report gets moved to.
-        String reportPath = "\"" + tempFolder + "\\VeraPDF" + "\\verapdf.xml\"";
+
+        String reportPath = "\"" + tempFolder + archiveName + "\\VeraPDF" + "\\verapdf.xml\"";
 
         //Run verapdf through command line.
         runCMD(cd + " && verapdf --recurse " + path + " > " + reportPath);
@@ -137,10 +140,11 @@ public class ThirdPartiesModel {
         String cd = cdString + prop.getProperty("droidPath") + "\"";
         //String with command to run .jar file
         String jar = " && java -jar droid-command-line-6.5.jar";
+
         //Path to droid profile needed to run droid.
-        String profilePath = "\"" + tempFolder + "\\DROID" + "\\profile.droid\"";
+        String profilePath = "\"" + tempFolder + archiveName + "\\DROID" + "\\profile.droid\"";
         //Path to folder where test output ends up.
-        String outputPath = "\"" + tempFolder + "\\DROID\"";
+        String outputPath = "\"" + tempFolder + archiveName + "\\DROID\"";
 
         //Run first DROID function - making the droid profile.
         System.out.println("\nDroid 1"); //NOSONAR
@@ -172,9 +176,8 @@ public class ThirdPartiesModel {
 
         //String with path to 7zip location.
         String cd = cdString + prop.getProperty("7ZipPath") + "\"";
-
         //Run VeraPDF from command line
-        runCMD(cd + " && 7z x " + path + " -o\"" + tempFolder + "\" -r");
+        runCMD(cd + " && 7z x " + path + " -o\"" + tempFolder + archiveName + "\" -r");
     }
 
     /**
@@ -236,5 +239,62 @@ public class ThirdPartiesModel {
 
         }
         r.close();
+    }
+
+    /**
+     * Checks if the third party tools are present where the config defines.
+     * @param prop Properties object containing the config.
+     * @return True if all tools are present, false if there is one or more tools missing.
+     */
+    public Boolean checkIfToolsArePresent(Properties prop) {
+        File file;
+
+        file = new File(prop.getProperty("basexPath") + "\\basex.bat");
+        if(!file.exists())
+            return false;
+
+        file = new File(prop.getProperty("7ZipPath") + "\\7zG.exe");
+        if(!file.exists())
+            return false;
+
+        for(int i = 0; i<selectedTests.size(); i++) {
+            if(Boolean.TRUE.equals(selectedTests.get(i))) {
+                switch (i) {
+                    case 0:
+                        file = new File(prop.getProperty("arkadePath") + "\\Bundled\\Siegfried\\siegfried.exe");
+                        break;
+                    case 1:
+                        file = new File(prop.getProperty("droidPath") + "\\droid-command-line-6.5.jar");
+                        break;
+                    case 2:
+                        file = new File(prop.getProperty("kostvalPath") + "\\cmd_KOST-Val.jar");
+                        break;
+                    case 3:
+                        file = new File(prop.getProperty("veraPDFPath") + "\\verapdf.bat");
+                        break;
+                    default:
+                }
+                if(!file.isFile())
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks if there is at least 1 included test before saving.
+     * @param list Boolean list from the UI which is not yet saved.
+     * @return True if there is at least 1 included test, false if there are none included tests.
+     */
+    public Boolean noEmptyTests(List<Boolean> list) {
+        int count = 0;
+
+        for(Boolean val: list) {
+            if(Boolean.FALSE.equals(val))
+                count++;
+        }
+
+        return count != list.size();
     }
 }

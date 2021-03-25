@@ -22,7 +22,8 @@ public class SettingsView extends Views {
     List<JLabel> keys = new ArrayList<>();
     List<JLabel> values = new ArrayList<>();
     List<JButton> buttons = new ArrayList<>();
-    List<String> newPropKV = new ArrayList<>();
+    List<String> newPropKey = new ArrayList<>();
+    List<String> newPropValue = new ArrayList<>();
 
     /**
      * Creates and shows the GUI
@@ -62,20 +63,28 @@ public class SettingsView extends Views {
         JLabel configTitle = new JLabel("Alle program lokasjoner:");
         configTitle.setFont(primaryFont);
 
-        int rows = prop.size();
-
         //Col1, Col2
         for(Map.Entry<Object, Object> entry : prop.entrySet()) {
+            String key = (String)entry.getKey();
+            if(key.equals("tempFolder") || key.equals("currentArchive")) {
+                continue;
+            }
             keys.add(new JLabel((String)entry.getKey()));
             values.add(new JLabel((String)entry.getValue()));
         }
 
+        //Hiding temp folder path and current archive name from UI
+
+
+
         //Col3
+        int rows = prop.size()-2;
         for(int i = 0; i<rows; i++) {
             JButton tempBtn = new JButton("Endre fil lokasjon");
             tempBtn.setActionCommand(String.valueOf(i));
             tempBtn.addActionListener(e-> updatePath(e.getActionCommand()));
 
+            tempBtn.setToolTipText("Forandre fil lokasjonen for denne raden.");
             tempBtn.setBackground(primaryColor);
             tempBtn.setForeground(Color.WHITE);
 
@@ -92,12 +101,20 @@ public class SettingsView extends Views {
         saveSettingsBtn.setEnabled(false);
         saveSettingsBtn.setBackground(primaryColor);
         saveSettingsBtn.setForeground(Color.WHITE);
+        saveSettingsBtn.setToolTipText("Lagrer forandringer og går tilbake til forsiden.");
+
+        JButton resetCfg = new JButton("Tilbakestill");
+        resetCfg.addActionListener(this);
+        resetCfg.setBackground(primaryColor);
+        resetCfg.setForeground(Color.WHITE);
+        resetCfg.setToolTipText("Tilbakestiller innstillingene til standarden.");
 
         JButton cancelCfg = new JButton("Tilbake");
         cancelCfg.setActionCommand("Avbryt");
         cancelCfg.addActionListener(this);
         cancelCfg.setBackground(primaryColor);
         cancelCfg.setForeground(Color.WHITE);
+        cancelCfg.setToolTipText("Avbryter forandringer og går tilbake til forsiden.");
 
         //Adding components together
         gbc.anchor = GridBagConstraints.EAST;
@@ -142,6 +159,9 @@ public class SettingsView extends Views {
         gridPanel.add(saveSettingsBtn, gbc);
         gbc.gridx++;
         gridPanel.add(cancelCfg, gbc);
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gridPanel.add(resetCfg, gbc);
 
         JScrollPane gridPane = new JScrollPane(gridPanel);
         cfgPanel.add(gridPane);
@@ -168,8 +188,8 @@ public class SettingsView extends Views {
             String key = keys.get(Integer.parseInt(row)).getText();
             String value = fc.getSelectedFile().getAbsolutePath();
 
-            newPropKV.add(key);
-            newPropKV.add(value);
+            newPropKey.add(key);
+            newPropValue.add(value);
             values.get(Integer.parseInt(row)).setText(value);
 
             saveSettingsBtn.setEnabled(true);
@@ -179,10 +199,18 @@ public class SettingsView extends Views {
     }
 
     /**
-     * Regular getter for newly edited configuration property.
-     * @return List of key and value strings of the new property.
+     * Regular getter for newly edited configuration properties.
+     * @return List of key strings of the new properties.
      */
-    public List<String> getNewProp() {
-        return newPropKV;
+    public List<String> getUpdatedKeyList() {
+        return newPropKey;
+    }
+
+    /**
+     * Regular getter for newly edited configuration properties.
+     * @return List of value strings of the new properties.
+     */
+    public List<String> getUpdatedValueList() {
+        return newPropValue;
     }
 }
