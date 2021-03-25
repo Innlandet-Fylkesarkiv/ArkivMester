@@ -72,6 +72,14 @@ public class ArchiveController implements ViewObserver {
      *
      */
     private void arkadeTestReport(){ // NOSONAR
+
+        String fileName = archiveModel.tar.getName();
+        fileName = fileName.substring(0,fileName.lastIndexOf('.'));
+
+        String archivePath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName; // #NOSONAR
+
+        String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml\"";
+
         arkadeModel.parseReportHtml(); // remove when all function used in testModel
         // 3 og 3.1 arkade version
         String version = arkadeModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
@@ -82,7 +90,7 @@ public class ArchiveController implements ViewObserver {
         writeDeviation(Arrays.asList(3, 1, 1),"N5.02");
 
         // 3.1.8
-        List<String> dokumentstatus = arkadeModel.getTableDataFromHtml("N5.15");
+        List<String> dokumentstatus = arkadeModel.getTableDataFromHtml("N5.15", 4);
 
         reportModel.setNewInput(Arrays.asList(3, 1, 8), Collections.emptyList(), 0);
         reportModel.insertTable(Arrays.asList(3, 1, 8), dokumentstatus);
@@ -208,6 +216,19 @@ public class ArchiveController implements ViewObserver {
             reportModel.setNewInput(Arrays.asList(3, 3, 2), Arrays.asList(total + ""), 0);
         }
 
+        //Chapter 3.3.3
+        total = arkadeModel.getTotal("N5.36", "Totalt");
+        if(total > 0) {
+            reportModel.setNewInput(Arrays.asList(3, 3, 3), Arrays.asList(total + ""), 0);
+
+            List<String> para;
+            para = getEmptyOrContent(testArkivstruktur, "3.3.3_1");
+            reportModel.insertTable(Arrays.asList(3, 3, 3), splitIntoTable(para));
+            para = arkadeModel.getTableDataFromHtml("N5.36", 2);
+            reportModel.insertTable(Arrays.asList(3, 3, 3), splitIntoTable(para));
+            para = getEmptyOrContent(testArkivstruktur, "3.3.3_2");
+            reportModel.insertTable(Arrays.asList(3, 3, 3), splitIntoTable(para));
+        }
     }
 
 
@@ -720,7 +741,7 @@ public class ArchiveController implements ViewObserver {
     private List<String> splitIntoTable(List<String> temp) {
         List<String> ls = new ArrayList<>();
         for(int i = 0; i < temp.size(); i++) {
-            ls.addAll(Arrays.asList(temp.get(i).split("[;][ ]")));
+            ls.addAll(Arrays.asList(temp.get(i).split("[;:][ ]")));
         }
         return ls;
     }

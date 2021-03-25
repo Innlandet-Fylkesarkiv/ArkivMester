@@ -212,7 +212,7 @@ public class ArkadeModel {
         return  htmlTable;
     }
 
-    public List<String> getTableDataFromHtml(String index) {
+    public List<String> getTableDataFromHtml(String index, int wordPosition) {
 
         List<String> htmlTable = new ArrayList<>();
 
@@ -220,7 +220,7 @@ public class ArkadeModel {
             List<String> seperator = Arrays.asList(t.split("[ ]"));
 
             if(seperator.size() >= 4) {
-                htmlTable.add(seperator.get(seperator.size()-4));
+                htmlTable.add(seperator.get(seperator.size()-wordPosition));
                 htmlTable.add(seperator.get(seperator.size()-1));
             }
         }

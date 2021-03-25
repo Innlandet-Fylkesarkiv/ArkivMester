@@ -74,11 +74,9 @@ public class ReportModel {
          * @param input - input to replace the default one
          */
         public void insertInput(List<String> input) {
-            if(result.get(result.size()-1).equals("X")) {
-                result.remove(result.size()-1);
-                result.addAll(input);
-                cases = true;
-            }
+            result.remove(result.size()-1);
+            result.addAll(input);
+            cases = true;
         }
 
         /**
@@ -494,8 +492,9 @@ public class ReportModel {
         for(List<ChapterList> chapters : chapterList.get(h)) {
             if(chapters.get(0).cases) {
                 for(ChapterList chap : chapters) {
-                    if(chap.getType() == TextStyle.TABLE) {
+                    if(chap.getType() == TextStyle.TABLE && chap.result.get(chap.result.size()-1).equals("X")) {
                         chap.insertInput(t);
+                        break;
                     }
                 }
             }
