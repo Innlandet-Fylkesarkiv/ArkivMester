@@ -72,6 +72,34 @@ public class ArkadeModel {
 
         return tmp;
     }
+    /** 3.1.27: N5.47, N5.34
+     *
+     */
+    // valg. 0-*verider
+    public Integer systemidentifikasjonerForklaring(List<String> docxInput){
+        // N5.47 - Systemidentifikasjoner
+        // N5.34 - Dokumentfiler med referanse
+        int total = getTotal("N5.34",TOTALT);
+        Integer totalSystemID = getSpecificValue("N5.47", "Ikke-unik ID").size();
+
+
+
+        if(total == 0 && totalSystemID == 0){
+            return 0;
+        }
+        else if(total == totalSystemID){
+            // antall beskrivelser       3?
+            docxInput.add(totalSystemID.toString());
+            return 1;
+        }
+        else {
+            // antall manglende ID       3?
+            docxInput.add(totalSystemID.toString());
+            // antall spesial arkivdeler ???
+            return 2;
+        }
+
+    }
     /** 3.1.16. Check for number of registrations with saksparter.
      * @return Comment on number of saksparter
      */
@@ -182,6 +210,25 @@ public class ArkadeModel {
                 System.out.println("NO <:> or <(> or no text between <( :>"); //NOSONAR
                 System.out.println(e.getMessage()); //NOSONAR
             }
+        }
+
+        return tmp;
+    }
+
+    /** Get text between two substring
+     * @param text search in text
+     * @param indexSymbol1 substring before text you want to find
+     * @param indexSymbol2 substring after text you want to find
+     * @return "" if failed or text
+     */
+    public String getTextBeforeAndAfterWord(String text, String indexSymbol1, String indexSymbol2){
+        String tmp = "";
+
+        try {
+            tmp =  text.substring(text.lastIndexOf(indexSymbol1) + 1, text.lastIndexOf(indexSymbol2));
+        } catch (Exception e) {
+            System.out.println("NO: " + indexSymbol1 + " or " +  indexSymbol2 + " int text "); //NOSONAR
+            System.out.println(e.getMessage()); //NOSONAR
         }
 
         return tmp;
