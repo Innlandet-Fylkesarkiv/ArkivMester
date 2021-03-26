@@ -18,10 +18,9 @@ import java.util.*;
 public class ArkadeModel {
     // test html file at   ../Input/arkaderapportrapport.html, Arkaderapport-67a47ea4-68bc-4276-a599-22561e0c31df.html, Arkaderapport-0439ba78-2381-430b-8f99-740f71846f1e.html"
     String filePath = "../Input/arkaderapportrapport.html";
-    //
+
     // Holds text from arkade testreport html as string
     StringBuilder htmlRawText = new StringBuilder();
-
 
     static final String TOTALT = "Totalt";
 
@@ -75,26 +74,22 @@ public class ArkadeModel {
     /** 3.1.27: N5.47, N5.34
      *
      */
-    // valg. 0-*verider
     public Integer systemidentifikasjonerForklaring(List<String> docxInput){
         // N5.47 - Systemidentifikasjoner
         // N5.34 - Dokumentfiler med referanse
-        int total = getTotal("N5.34",TOTALT);
-        Integer totalSystemID = getSpecificValue("N5.47", "Ikke-unik ID").size();
-
-
+        Integer total = getTotal("N5.34",TOTALT);
+        int totalSystemID = getSpecificValue("N5.47", "Ikke-unik ID").size();
 
         if(total == 0 && totalSystemID == 0){
             return 0;
         }
-        else if(total == totalSystemID){
-            // antall beskrivelser       3?
-            docxInput.add(totalSystemID.toString());
+        else if(total.equals(totalSystemID)){
+
+            docxInput.add(Integer.toString(totalSystemID));
             return 1;
         }
         else {
-            // antall manglende ID       3?
-            docxInput.add(totalSystemID.toString());
+            docxInput.add(Integer.toString(totalSystemID));
             // antall spesial arkivdeler ???
             return 2;
         }
@@ -234,7 +229,6 @@ public class ArkadeModel {
         return tmp;
     }
     /**
-     *
      * Check if date1 is bigger or equals date2
      * @param dateBig   Date 1: String with size 8. all numbers
      * @param dateSmall Date 2
