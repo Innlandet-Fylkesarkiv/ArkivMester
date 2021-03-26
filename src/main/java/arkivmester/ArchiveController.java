@@ -790,7 +790,7 @@ public class ArchiveController implements ViewObserver {
                 }
             }
         }else {
-            reportModel.setNewInput(Arrays.asList(3, 3, 6), Collections.emptyList(), 2);
+            reportModel.setNewInput(Arrays.asList(3, 3, 7), Collections.emptyList(), 2);
         }
 
         //Chapter 5 - Attachments
