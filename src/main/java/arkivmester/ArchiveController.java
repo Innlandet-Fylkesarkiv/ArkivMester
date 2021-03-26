@@ -167,6 +167,10 @@ public class ArchiveController implements ViewObserver {
                 arkadeModel.getTotal("N5.45", TOTAL) > 0) {
             reportModel.setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), 1);
         }
+        //Chapter 3.1.27
+        List<String> input = new ArrayList<>();
+        int valg = arkadeModel.systemidentifikasjonerForklaring(input);
+        reportModel.setNewInput(Arrays.asList(3, 1, 27), input, valg);
 
         //Chapter 3.1.28 - Arkivdelreferanser
         if(arkadeModel.getDataFromHtml("N5.48").isEmpty()) {
