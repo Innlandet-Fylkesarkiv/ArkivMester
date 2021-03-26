@@ -18,10 +18,9 @@ import java.util.*;
 public class ArkadeModel {
     // test html file at   ../Input/arkaderapportrapport.html, Arkaderapport-67a47ea4-68bc-4276-a599-22561e0c31df.html, Arkaderapport-0439ba78-2381-430b-8f99-740f71846f1e.html"
     String filePath = "../Input/arkaderapportrapport.html";
-    //
+
     // Holds text from arkade testreport html as string
     StringBuilder htmlRawText = new StringBuilder();
-
 
     static final String TOTALT = "Totalt";
 
@@ -71,6 +70,30 @@ public class ArkadeModel {
         }
 
         return tmp;
+    }
+    /** 3.1.27: N5.47, N5.34
+     *
+     */
+    public Integer systemidentifikasjonerForklaring(List<String> docxInput){
+        // N5.47 - Systemidentifikasjoner
+        // N5.34 - Dokumentfiler med referanse
+        Integer total = getTotal("N5.34",TOTALT);
+        int totalSystemID = getSpecificValue("N5.47", "Ikke-unik ID").size();
+
+        if(total == 0 && totalSystemID == 0){
+            return 0;
+        }
+        else if(total.equals(totalSystemID)){
+
+            docxInput.add(Integer.toString(totalSystemID));
+            return 1;
+        }
+        else {
+            docxInput.add(Integer.toString(totalSystemID));
+            // antall spesial arkivdeler ???
+            return 2;
+        }
+
     }
     /** 3.1.16. Check for number of registrations with saksparter.
      * @return Comment on number of saksparter
@@ -186,8 +209,26 @@ public class ArkadeModel {
 
         return tmp;
     }
+
+    /** Get text between two substring
+     * @param text search in text
+     * @param indexSymbol1 substring before text you want to find
+     * @param indexSymbol2 substring after text you want to find
+     * @return "" if failed or text
+     */
+    public String getTextBeforeAndAfterWord(String text, String indexSymbol1, String indexSymbol2){
+        String tmp = "";
+
+        try {
+            tmp =  text.substring(text.lastIndexOf(indexSymbol1) + 1, text.lastIndexOf(indexSymbol2));
+        } catch (Exception e) {
+            System.out.println("NO: " + indexSymbol1 + " or " +  indexSymbol2 + " int text "); //NOSONAR
+            System.out.println(e.getMessage()); //NOSONAR
+        }
+
+        return tmp;
+    }
     /**
-     *
      * Check if date1 is bigger or equals date2
      * @param dateBig   Date 1: String with size 8. all numbers
      * @param dateSmall Date 2
