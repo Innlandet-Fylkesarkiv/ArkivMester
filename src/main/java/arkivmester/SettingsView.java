@@ -164,6 +164,7 @@ public class SettingsView extends Views {
         gridPanel.add(resetCfg, gbc);
 
         JScrollPane gridPane = new JScrollPane(gridPanel);
+        gridPane.setBorder(BorderFactory.createEmptyBorder());
         cfgPanel.add(gridPane);
     }
 

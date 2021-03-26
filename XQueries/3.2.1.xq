@@ -5,12 +5,15 @@ declare default element namespace "http://www.arkivverket.no/standarder/noark5/a
 declare namespace n5mdk="http://www.arkivverket.no/standarder/noark5/metadatakatalog"; 
 declare namespace el="http://www.arkivverket.no/standarder/noark5/endringslogg" ;
 
+(:
+Dokumentbeskrivelser uten dokumentobjekter. 
+Vi utelater fysisk medium, kassert materiale og registreringer med status utgår
 
-(:Dokumenter som ikke er ferdigstilt. Avgrenser slik at dokumenter som er vedtatt kassert eller som utgår ikke blir med i listen:)
-(:Ephorte trenger ../../mappeID + ../journalpostnummer istedenfor ../registreringsID:)
+:)
 
-let $r := //dokumentbeskrivelse[not (dokumentstatus = "Dokumentet er ferdigstilt") 
+let $r := //dokumentbeskrivelse[not (boolean(dokumentobjekt)) 
   and not (../journalstatus = "Utgår")  
+  and not (../dokumentmedium = 'Fysisk medium')
   and not (../../kassasjon/kassasjonsdato < current-date()) 
   and not (../../saksstatus = "Utgår") ]/concat(
       ../registreringsID, '; ', 
@@ -19,4 +22,5 @@ let $r := //dokumentbeskrivelse[not (dokumentstatus = "Dokumentet er ferdigstilt
       dokumentnummer, ' (', 
       tilknyttetRegistreringSom,'); ', 
       tittel)
+      
 return $r

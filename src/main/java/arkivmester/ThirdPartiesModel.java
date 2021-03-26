@@ -17,6 +17,8 @@ public class ThirdPartiesModel {
     String cmd = "cmd.exe";
     String cdString = "cd \"";
     private List<Boolean> selectedTests = new ArrayList<>();
+    private List<Boolean> selectedXqueries = new ArrayList<>();
+    Boolean runXqueries = false;
     int amountOfTests = 4;
     String tempFolder;
     String archiveName;
@@ -25,16 +27,28 @@ public class ThirdPartiesModel {
      * Initializes the selectedTests list to true.
      */
     ThirdPartiesModel() {
-        for(int i = 0; i < amountOfTests; i++)
+        for(int i = 0; i < amountOfTests; i++) {
             selectedTests.add(true);
+        }
     }
 
     /**
      * Updates selectedTests with updated data.
      * @param selectedList Updated selectedTests from the UI.
      */
-    public void updateSelectedTests(List<Boolean> selectedList) {
+    public void updateTests(List<Boolean> selectedList, List<Boolean> selectedXqueries) {
         this.selectedTests = selectedList;
+        this.selectedXqueries = selectedXqueries;
+
+        int count = 0;
+        for(Boolean value : selectedXqueries) {
+            if(value)
+                runXqueries = true;
+            else
+                count++;
+        }
+        if(count==selectedXqueries.size())
+            runXqueries = false;
     }
 
     /**
@@ -43,6 +57,14 @@ public class ThirdPartiesModel {
      */
     public List<Boolean> getSelectedTests() {
         return this.selectedTests;
+    }
+
+    /**
+     * Regular getter for selectedXqueries list.
+     * @return selectedXqueries boolean list.
+     */
+    public List<Boolean> getSelectedXqueries() {
+        return this.selectedXqueries;
     }
 
     /**
@@ -180,6 +202,10 @@ public class ThirdPartiesModel {
         runCMD(cd + " && 7z x " + path + " -o\"" + tempFolder + archiveName + "\" -r");
     }
 
+    public void runXquery() throws IOException {
+        System.out.println("Running XQueries tests");
+    }
+
     /**
      * Queries an .xml file via an .xq XQuery/XPath file.
      * @param xml Path to .xml file.
@@ -217,6 +243,29 @@ public class ThirdPartiesModel {
         }
 
         return result;
+    }
+
+
+    public void runCustomBaseX(String xml, String xqName, Properties prop) throws IOException {
+        //XQuery
+        String xq = prop.getProperty("xqueryCustomFolder") + "\\" + xqName + "\"";
+
+        //Result name
+        String outFileName = xqName;
+        outFileName = outFileName.substring(0,outFileName.lastIndexOf('.'));
+
+        String outFile = prop.getProperty("tempFolder") + archiveName + "\\" + outFileName + ".txt";
+        String pwd = cdString + prop.getProperty("basexPath") + "\"";
+
+        ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o \"" + outFile + "\" -i " + xml + " " + xq);
+
+        try {
+            Process p = baseXBuilder.start();
+            p.waitFor();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
     }
 
     /**
@@ -296,5 +345,31 @@ public class ThirdPartiesModel {
         }
 
         return count != list.size();
+    }
+
+    /**
+     * Gets the names of the custom XQueries in the custom folder. Also initiates "selectedXqueries" with false for all
+     * files.
+     * @param prop Config property object to get the custom folder's path.
+     * @return String array with the name of the custom XQuery files.
+     */
+    public String[] getCustomXqueries(Properties prop) {
+        File f = new File((String)prop.get("xqueryCustomFolder"));
+        String[] list = f.list();
+
+        if(selectedXqueries.isEmpty()) {
+            if(list != null) {
+                for (int i = 0; i<list.length; i++) {
+                    selectedXqueries.add(false);
+                }
+                return list;
+            }
+            return new String[]{""};
+        }
+
+        if(list != null) {
+            return list;
+        }
+        return new String[]{""};
     }
 }
