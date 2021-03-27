@@ -28,7 +28,57 @@ public class ArkadeModel {
 
     }
 
-    /** Not done, waiting for update. 3.1.14 and 3.1.31
+    /**
+     * Get first file in folder(testreport html) in Arkade/Output folder as a string.
+     * @param prop filePath to arkade testreport html.
+     */
+    public boolean getFileToString(Properties prop){
+        htmlRawText = new StringBuilder();
+        // Folder path: Arkade/output
+        filePath = prop.getProperty("tempFolder") + "\\" + prop.getProperty("currentArchive") + "\\Arkade\\Report"; //#NOSONAR
+
+        try {
+            // Dir: "arkadeOutput" folder
+            File dir = new File(filePath);
+            // Get first file in dir
+            filePath = filePath + '\\' + Objects.requireNonNull(dir.list())[0];
+        } catch (Exception ex) {
+            System.out.println("Get first file in Arkade/output. Error: " + ex.getMessage()); //NOSONAR
+            return false;
+        }
+
+        try (FileReader fr = new FileReader(filePath);
+             BufferedReader br = new BufferedReader(fr)) {
+
+            String val;
+            while ((val = br.readLine()) != null) {
+                htmlRawText.append(val);
+            }
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage()); //NOSONAR
+            return false;
+        }
+        return true;
+    }
+
+    // Chapters
+
+    /**
+     * Get arkade version. Chapter 3.1
+     * @return arkade version.
+     */
+    public String getArkadeVersion(){
+        Document doc = Jsoup.parse(htmlRawText.toString());
+        if(doc.getElementsByClass("text-right") == null) {
+            System.out.println("Can't find ArkadeVersion"); //NOSONAR
+            return "";
+        }
+        Elements elements = doc.getElementsByClass("text-right");
+        return elements.last().text();
+    }
+
+    /**
+     * Not done, waiting for update. 3.1.14 and 3.1.31
      * Get id from N5.27 than get arkvidel start and end date in N5.27
      * Not done: Loop through all id in N5.11 and N5.18. and compare start and end dat
      * N5.11 and N5.18 dates needs too be between star and end date from N5.27
@@ -71,12 +121,14 @@ public class ArkadeModel {
 
         return tmp;
     }
-    /** 3.1.27: N5.47, N5.34
-     *
+
+    /**
+     * 3.1.27: N5.47 Systemidentifikasjoner, N5.34 Dokumentfiler med referanse.
+     * @param docxInput Values to put in to docx text.
+     * @return Number. What text to use in docx from chapters.
      */
     public Integer systemidentifikasjonerForklaring(List<String> docxInput){
-        // N5.47 - Systemidentifikasjoner
-        // N5.34 - Dokumentfiler med referanse
+
         Integer total = getTotal("N5.34",TOTALT);
         int totalSystemID = getSpecificValue("N5.47", "Ikke-unik ID").size();
 
@@ -95,8 +147,9 @@ public class ArkadeModel {
         }
 
     }
-    /** 3.1.16. Check for number of registrations with saksparter.
-     * @return Comment on number of saksparter
+    /**
+     * 3.1.16. Check for number of registrations with saksparter.
+     * @return Comment on number of saksparter.
      */
     public List<Integer> saksparter(){
         List<Integer> list = new ArrayList<>();
@@ -119,54 +172,22 @@ public class ArkadeModel {
         return list;
     }
 
-    /** 3.1.17. Get Merkader
-     * @return true if no merknader
+    /**
+     * 3.1.17. Get Merkader.
+     * @return true if no merknader.
      */
     public boolean ingenMerknader(){
         int merknader = getTotal("N5.36", TOTALT);
         //Ingen merknader er registrert.
         return merknader <= 0;
     }
-    /**
-     * Gets 2012 from 2012:1 || 1 from :1
-     * @param index N5.**
-     * @param containsValue Find string with substring
-     * @param indexSysbol ":" get number after ":". Other symbols get text between indexSysbol-":"
-     * @return "" or String as a number
-     */
-    public List<String> getNumberInTextAsString(String index, String containsValue,  String indexSysbol){
 
-        String onlyNumbers = "\\D+";
-
-        List<String> allNumbers = getSpecificValue(index, containsValue);
-        List<String> total = new ArrayList<>();
-
-        for (String allNumber : allNumbers) {
-            // has not :
-            if (!allNumber.contains(":")) {
-                System.out.println("LOOP: " + index + " value with " + containsValue + " has no \":\" "); //NOSONAR
-            }
-            else{
-                String tmp = getTextAt(allNumber, indexSysbol);
-
-                // no numbers -
-                if (allNumber.matches(onlyNumbers)) {
-                    System.out.println("LOOP: " + index + " value with " + containsValue + " has no number after last \":\" "); //NOSONAR
-                }
-                else{
-                    tmp = tmp.replaceAll(onlyNumbers, "");
-                    total.add(tmp);
-                }
-            }
-
-        }
-
-        return total;
-    }
+    // Function for all Chapters
 
     /**
+     * Get sum of all numbers in List.
      * @param numberList String List with number.
-     * @return -1 if no number in list.
+     * @return Sum of all number in string OR -1 if no number in list.
      */
     public Integer sumStringListWithOnlyNumbers(List<String> numberList){
 
@@ -186,10 +207,49 @@ public class ArkadeModel {
 
         return -1;
     }
+
     /**
-     * @param text Gets substring form text
-     * @param indexSymbol Input ":" get substring after last ":" OR Input symbol get substring between symbol and last ":"
-     * @return Substring in text or ""
+     * Get every number between or after symbol in deviation table.
+     * @param index N5.**.
+     * @param containsValue Find string with substring.
+     * @param indexSymbol Get text between Symbol and last ":" OR ":" gets text after last ":".
+     * @return "" or String as a number.
+     */
+    public List<String> getNumberInTextAsString(String index, String containsValue,  String indexSymbol){
+
+        String onlyNumbers = "\\D+";
+
+        List<String> allNumbers = getSpecificValue(index, containsValue);
+        List<String> total = new ArrayList<>();
+
+        for (String allNumber : allNumbers) {
+            // has not :
+            if (!allNumber.contains(":")) {
+                System.out.println("LOOP: " + index + " value with " + containsValue + " has no \":\" "); //NOSONAR
+            }
+            else{
+                String tmp = getTextAt(allNumber, indexSymbol);
+
+                // no numbers -
+                if (allNumber.matches(onlyNumbers)) {
+                    System.out.println("LOOP: " + index + " value with " + containsValue + " has no number after last \":\" "); //NOSONAR
+                }
+                else{
+                    tmp = tmp.replaceAll(onlyNumbers, "");
+                    total.add(tmp);
+                }
+            }
+
+        }
+
+        return total;
+    }
+
+    /**
+     * Get text between "indexSymbol" and last ":". OR If ":" gets text after last ":".
+     * @param text Gets substring form text.
+     * @param indexSymbol Input ":" get substring after last ":" OR Input symbol get substring between symbol and last ":".
+     * @return Substring in text or "".
      */
     public String getTextAt(String text, String indexSymbol){
         String tmp = "";
@@ -210,13 +270,13 @@ public class ArkadeModel {
         return tmp;
     }
 
-    /** Get text between two substring
-     * @param text search in text
-     * @param indexSymbol1 substring before text you want to find
-     * @param indexSymbol2 substring after text you want to find
-     * @return "" if failed or text
+    /** Get text between two substring.
+     * @param text search in text.
+     * @param indexSymbol1 substring before text you want to find.
+     * @param indexSymbol2 substring after text you want to find.
+     * @return "" if failed or text.
      */
-    public String getTextBeforeAndAfterWord(String text, String indexSymbol1, String indexSymbol2){
+    public String getTextBetweenWords(String text, String indexSymbol1, String indexSymbol2){
         String tmp = "";
 
         try {
@@ -228,11 +288,12 @@ public class ArkadeModel {
 
         return tmp;
     }
+
     /**
-     * Check if date1 is bigger or equals date2
-     * @param dateBig   Date 1: String with size 8. all numbers
-     * @param dateSmall Date 2
-     * @return true if date is same or bigger. false if smaller or date format incorrect
+     * Check if date1 is bigger or equals date2.
+     * @param dateBig   Date 1: String with size 8. all numbers.
+     * @param dateSmall Date 2.
+     * @return true if date is same or bigger. false if smaller or date format incorrect.
      */
     public boolean dateBiggerOrSame(String dateBig, String dateSmall) { // NOSONAR
         String onlyNumbers = "\\D+";
@@ -251,27 +312,39 @@ public class ArkadeModel {
         return Integer.parseInt(dateB) >= Integer.parseInt(dateS) ;
     }
 
-    /** Get number after last ":" from deviation table with SpecificValue/substring.
-     * @param index for test class.
-     * @param containsValue text in cell.
-     * @return one number or -1 if no deviation table.
+    /**
+     * Get all IDs "getAllIDs()", Get deviation for every ID.
+     * @return all deviation in file testreport.
      */
-    public Integer getTotal(String index, String containsValue){
-
-        List<String> tmp = getNumberInTextAsString(index,containsValue, ":");
-        if(tmp.size() == 1 || (!tmp.isEmpty() && containsValue.equals(TOTALT))){
-            return Integer.parseInt(tmp.get(0));
+    private List<String> getAll () { // NOSONAR
+        List<String> htmlTable = new ArrayList<>();
+        // Get deviation for every id
+        for (String index : getAllIDs()){
+            htmlTable.addAll(getDataFromHtml(index));
         }
-        else{
-            // error
-            System.out.println(index + " Has " + tmp.size() + " elements. Only TOTALT will get first element if several elements") ; //NOSONAR
-        }
-        return -1;
+        return htmlTable;
     }
-    /** Get SystemID from deviation table with SpecificValue.
+
+    /**
+     * Get all IDs from arkade Testreport.
+     * @return List of deviation IDs.
+     */
+    private List<String> getAllIDs () {
+        // All IDs
+        List<String> htmlAllIDs = new ArrayList<>();
+        Document doc = Jsoup.parse(htmlRawText.toString());
+
+        for (org.jsoup.nodes.Element elementx : doc.select("h3")){
+            htmlAllIDs.add( elementx.attr("id"));
+        }
+        return htmlAllIDs;
+    }
+
+    /**
+     * Get all SystemID from deviation table with SpecificValue.
      * @param index for test class.
      * @param containsValue text in cell.
-     * @return All system ID's or empty list
+     * @return All system ID's or empty list.
      */
     public List<String> getSystemID(String index, String containsValue){
         // kun en id = Ingen id
@@ -299,85 +372,29 @@ public class ArkadeModel {
     }
 
     /**
-     * Get first file(testreport html) in Arkade/Output folder as a string.
-     * @param prop filePath to arkade testreport html.
+     * Get number after last ":" from deviation table with SpecificValue/substring.
+     * @param index for test class.
+     * @param containsValue text in cell. If TOTALT will only get first value in deviation table.
+     * @return one number or -1 if no deviation table.
      */
-    public boolean getFileToString(Properties prop){
-        htmlRawText = new StringBuilder();
-        // Folder path: Arkade/output
-        filePath = prop.getProperty("tempFolder") + "\\" + prop.getProperty("currentArchive") + "\\Arkade\\Report"; //#NOSONAR
+    public Integer getTotal(String index, String containsValue){
 
-        try {
-            // Dir: "arkadeOutput" folder
-            File dir = new File(filePath);
-            // Get first file in dir
-            filePath = filePath + '\\' + Objects.requireNonNull(dir.list())[0];
-        } catch (Exception ex) {
-            System.out.println("Get first file in Arkade/output. Error: " + ex.getMessage()); //NOSONAR
-            return false;
+        List<String> tmp = getNumberInTextAsString(index,containsValue, ":");
+        if(tmp.size() == 1 || (!tmp.isEmpty() && containsValue.equals(TOTALT))){
+            return Integer.parseInt(tmp.get(0));
         }
-
-        try (FileReader fr = new FileReader(filePath);
-             BufferedReader br = new BufferedReader(fr)) {
-
-            String val;
-            while ((val = br.readLine()) != null) {
-                htmlRawText.append(val);
-            }
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage()); //NOSONAR
-            return false;
+        else{
+            // error
+            System.out.println(index + " Has " + tmp.size() + " elements. Only TOTALT will get first element if several elements") ; //NOSONAR
         }
-        return true;
-    }
-
-    /**
-     * Get all IDs from arkade Testreport.
-     * @return List of deviation IDs.
-     */
-    private List<String> getAllIDs () {
-        // All IDs
-        List<String> htmlAllIDs = new ArrayList<>();
-        Document doc = Jsoup.parse(htmlRawText.toString());
-
-        for (org.jsoup.nodes.Element elementx : doc.select("h3")){
-            htmlAllIDs.add( elementx.attr("id"));
-        }
-        return htmlAllIDs;
-    }
-
-    /**
-     * Get all IDs, Get deviation for every ID.
-     * @return all deviation in file testreport.
-     */
-    private List<String> getAll () { // NOSONAR
-        List<String> htmlTable = new ArrayList<>();
-        // Get deviation for every id
-        for (String index : getAllIDs()){
-            htmlTable.addAll(getDataFromHtml(index));
-        }
-        return htmlTable;
-    }
-
-    /**
-     * Get arkade version.
-     * @return arkade version.
-     */
-    public String getArkadeVersion(){
-        Document doc = Jsoup.parse(htmlRawText.toString());
-        if(doc.getElementsByClass("text-right") == null) {
-            System.out.println("Can't find ArkadeVersion"); //NOSONAR
-            return "";
-        }
-        Elements elements = doc.getElementsByClass("text-right");
-        return elements.last().text();
+        return -1;
     }
 
     /**
      * Get specific value from deviation table.
      * @param index for test class.
-     * @param containsValue value to get.
-     * @return all rows with containsValue or empty list.
+     * @param containsValue cell contains value.
+     * @return all cells with containsValue or empty list.
      */
     public List<String> getSpecificValue(String index, String containsValue){
         List<String> htmlTable = new ArrayList<>();
@@ -412,6 +429,7 @@ public class ArkadeModel {
      * @param index ID for test class.
      * @return List where every other element contains.
      *      File Location and Arkade deviation or emptyList if no deviation table.
+     *      eg. "Location", "message", "Location", etc.
      */
     public List<String> getDataFromHtml(String index){
 
