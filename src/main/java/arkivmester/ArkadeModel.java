@@ -16,8 +16,8 @@ import java.util.*;
  * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen
  */
 public class ArkadeModel {
-    // test html file at   ../Input/arkaderapportrapport.html, Arkaderapport-67a47ea4-68bc-4276-a599-22561e0c31df.html, Arkaderapport-0439ba78-2381-430b-8f99-740f71846f1e.html"
-    String filePath = "../Input/arkaderapportrapport.html";
+    // Arkade html testreport path
+    String filePath;
 
     // Holds text from arkade testreport html as string
     StringBuilder htmlRawText = new StringBuilder();
@@ -25,7 +25,8 @@ public class ArkadeModel {
     static final String TOTALT = "Totalt";
 
     ArkadeModel(){
-
+        readHtmlFileFromTestFolder();
+        firstLastRegistrering();
     }
 
     /**
@@ -61,6 +62,35 @@ public class ArkadeModel {
         return true;
     }
 
+    /**
+     * Only for testing. ONLY FUNCTION: Get html before testing.
+     * Reads html file at "filePath" defined in this function.
+     * Does not interfere with main program.
+     * This function can be removed at anytime.
+     */
+    public void readHtmlFileFromTestFolder(){
+
+        // test html file at   ../Input/FileName,
+        // Arkaderapport-67a47ea4-68bc-4276-a599-22561e0c31df.html,
+        // Arkaderapport-0439ba78-2381-430b-8f99-740f71846f1e.html,
+        // Arkaderapport-4b24f025-3c3a-4dd6-a371-7dc1b9143452.html
+        // Arkaderapport-899ec389-1dc0-41d0-b6ca-15f27642511b.html
+        // Arkaderapport-7fc1fe22-d89b-42c9-aaec-5651beb0da0a.html
+        // Arkaderapport-ebc3f74b-4eb3-4358-a38f-46479cfb2feb.html
+        filePath = "../Input/Arkaderapport-0439ba78-2381-430b-8f99-740f71846f1e.html";
+
+        try (FileReader fr = new FileReader(filePath);
+             BufferedReader br = new BufferedReader(fr)) {
+
+            String val;
+            while ((val = br.readLine()) != null) {
+                htmlRawText.append(val);
+            }
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage()); //NOSONAR
+        }
+    }
+
     // Chapters
 
     /**
@@ -87,34 +117,66 @@ public class ArkadeModel {
      */
     public String firstLastRegistrering() { // NOSONAR
 
+        // 60 Idw, 27 IDs, 11 18 har id'er p[ orginal arkade html
+        // 11 only year: eg. id ... - 2017:1 OR 2017:1
+
         String tmp = ""; // remove this
         String kap527 = "N5.27";
 
-        // All ID
+        // Get All SystemID
         List<String> id = getSystemID(kap527, "systemID");
 
-        // 60 Idw, 27 IDs, 11 18 har id'er p[ orginal arkade html
+
         for (int i = 0; i < id.size(); i++) {
+
             String tmpID = id.get(i);
             if(id.size() <= 1){
                 tmpID = ":";
             }
-            // One ID
-            List<String> startEndDate = getSpecificValue(kap527, tmpID);
+            // One ID at a time
+            List<String> kap5_27OneID = getSpecificValue(kap527, tmpID);
 
             String start = "";
             String end = "";
             // Start and end date for that one ID
-            for (int j = 0; j < startEndDate.size(); j++) {
-                if(startEndDate.get(i).contains("Første registrering")){
-                    start = getNumberInTextAsString(kap527,startEndDate.get(i),"-").get(0);
+            for (int j = 0; j < kap5_27OneID.size(); j++) {
+                if(kap5_27OneID.get(j).contains("Første registrering")){
+                    start = getNumberInTextAsString(kap527, tmpID,":").get(j);
+                    if (start.length() > 4)
+                    {
+                        start = start.substring(start.length() - 4);
+                    }
                 }
-                if(startEndDate.get(i).contains("Siste registrering")){
-                    end = getNumberInTextAsString(kap527,startEndDate.get(i),"-").get(0);
+                if(kap5_27OneID.get(j).contains("Siste registrering")){
+                    end = getNumberInTextAsString(kap527, tmpID,":").get(j);
+                    if (end.length() > 4)
+                    {
+                        end = end.substring(end.length() - 4);
+                    }
                 }
             }
-            getNumberInTextAsString("N5.11",startEndDate.get(i),"-");
-            // List of
+            List<String> x = new ArrayList<>();
+            // More than 1 ID
+            if(id.size() >= 2){
+                x = getNumberInTextAsString("N5.11", ":","-");
+            }
+            else{
+                // if no ID
+            }
+            for (int j = 0; j < x.size(); j++) {
+                if (onlyKeepNumbers(x.get(j)) < onlyKeepNumbers(start) ||
+                        onlyKeepNumbers(x.get(j)) > onlyKeepNumbers(end)){
+                    // error
+                    System.out.println(x.get(j) +" date not between StartDate: " + start + " and EndDate: " + end);
+                    // this ID or no ID date is wrong -1
+                }
+            }
+
+
+
+            System.out.println("S " + start + " E " + end);
+            System.out.println("x " + x);
+            //System.out.println("id nr " + id.size());
 
             tmp = end + start; // remove this
         }
@@ -209,11 +271,11 @@ public class ArkadeModel {
     }
 
     /**
-     * Get every number between or after symbol in deviation table.
+     * Get Date as String
      * @param index N5.**.
      * @param containsValue Find string with substring.
      * @param indexSymbol Get text between Symbol and last ":" OR ":" gets text after last ":".
-     * @return "" or String as a number.
+     * @return emptyList or String list with numbers.
      */
     public List<String> getNumberInTextAsString(String index, String containsValue,  String indexSymbol){
 
@@ -290,26 +352,20 @@ public class ArkadeModel {
     }
 
     /**
-     * Check if date1 is bigger or equals date2.
-     * @param dateBig   Date 1: String with size 8. all numbers.
-     * @param dateSmall Date 2.
-     * @return true if date is same or bigger. false if smaller or date format incorrect.
+     * Make number in String to Integer.
+     * @param text Text with numbers in it.
+     * @return String as Integer or -1.
      */
-    public boolean dateBiggerOrSame(String dateBig, String dateSmall) { // NOSONAR
+    public Integer onlyKeepNumbers(String text) { // NOSONAR
         String onlyNumbers = "\\D+";
-        if(dateBig.matches(onlyNumbers) || dateSmall.matches(onlyNumbers)){
+        if(text.matches(onlyNumbers)){
             System.out.println("No numbers in date variable's ") ; //NOSONAR
-            return false;
+            return -1;
         }
-        String dateB = dateBig.replaceAll(onlyNumbers, "");
-        String dateS = dateSmall.replaceAll(onlyNumbers, "");
+        String number = text.replaceAll(onlyNumbers, "");
 
-        if(dateB.length() != 8 || dateS.length() != 8 ){
-            System.out.println("date variable is not length 8: yyyy,mm,dd") ; //NOSONAR
-            return false;
-        }
 
-        return Integer.parseInt(dateB) >= Integer.parseInt(dateS) ;
+        return Integer.parseInt(number) ;
     }
 
     /**
