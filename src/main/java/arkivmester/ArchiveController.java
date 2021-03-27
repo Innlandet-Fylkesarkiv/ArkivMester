@@ -635,6 +635,7 @@ public class ArchiveController implements ViewObserver {
 
         reportModel.setNewInput(Arrays.asList(3, 1, 10), Collections.emptyList(), 0);
 
+        //Chapter 3.1.11
         List<String> para = getEmptyOrContent(testArkivstruktur, "3.1.11");
         if(para.get(0).equals(EMPTY)) {
             reportModel.setNewInput(Arrays.asList(3, 1, 11), Collections.emptyList(), 0);
@@ -904,7 +905,7 @@ public class ArchiveController implements ViewObserver {
 
             return para;
         } catch (IOException e) {
-            mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
+            mainView.exceptionPopup("BaseX kunne ikke kjøre " + header + " .xq filen. Sjekk om filen eksisterer");
             return Collections.singletonList(EMPTY);
         }
 
