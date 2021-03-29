@@ -26,6 +26,7 @@ public class ArkadeModel {
 
     ArkadeModel(){
         readHtmlFileFromTestFolder();
+        //firstLastRegistrering();
         firstLastRegistrering();
     }
 
@@ -77,7 +78,8 @@ public class ArkadeModel {
         // Arkaderapport-899ec389-1dc0-41d0-b6ca-15f27642511b.html
         // Arkaderapport-7fc1fe22-d89b-42c9-aaec-5651beb0da0a.html
         // Arkaderapport-ebc3f74b-4eb3-4358-a38f-46479cfb2feb.html
-        filePath = "../Input/Arkaderapport-0439ba78-2381-430b-8f99-740f71846f1e.html";
+        filePath = "../Input/Arkaderapport-67a47ea4-68bc-4276-a599-22561e0c31df.html";
+        //filePath = "../Input/Arkaderapport-0439ba78-2381-430b-8f99-740f71846f1e.html";
 
         try (FileReader fr = new FileReader(filePath);
              BufferedReader br = new BufferedReader(fr)) {
@@ -115,73 +117,87 @@ public class ArkadeModel {
      * 3.1.14 and 3.1.31
      *
      */
-    public String firstLastRegistrering() { // NOSONAR
-
-        // 60 Idw, 27 IDs, 11 18 har id'er p[ orginal arkade html
-        // 11 only year: eg. id ... - 2017:1 OR 2017:1
-
-        String tmp = ""; // remove this
-        String kap527 = "N5.27";
-
-        // Get All SystemID
-        List<String> id = getSystemID(kap527, "systemID");
-
+    public void firstLastRegistrering(){
+        // get all ID. allways one ID in N5.27
+        List<String> id = getSystemID("N5.27", "systemID");
 
         for (int i = 0; i < id.size(); i++) {
+            // One ID
+            List<String> curID = getSpecificValue("N5.27", id.get(i));
 
-            String tmpID = id.get(i);
-            if(id.size() <= 1){
-                tmpID = ":";
-            }
-            // One ID at a time
-            List<String> kap5_27OneID = getSpecificValue(kap527, tmpID);
+            List<String> curN5_11;
+            List<String> curN5_18;
 
-            String start = "";
-            String end = "";
-            // Start and end date for that one ID
-            for (int j = 0; j < kap5_27OneID.size(); j++) {
-                if(kap5_27OneID.get(j).contains("Første registrering")){
-                    start = getNumberInTextAsString(kap527, tmpID,":").get(j);
-                    if (start.length() > 4)
-                    {
-                        start = start.substring(start.length() - 4);
-                    }
-                }
-                if(kap5_27OneID.get(j).contains("Siste registrering")){
-                    end = getNumberInTextAsString(kap527, tmpID,":").get(j);
-                    if (end.length() > 4)
-                    {
-                        end = end.substring(end.length() - 4);
-                    }
-                }
+            // if more than 2 ID = "-". else = ""
+            String servalIDs = "";
+            String withID = "";
+            // If more than 1 ID. Search for ID
+            if (id.size() >= 2){
+                servalIDs = "-";
+                withID = id.get(i);
             }
-            List<String> x = new ArrayList<>();
-            // More than 1 ID
-            if(id.size() >= 2){
-                x = getNumberInTextAsString("N5.11", ":","-");
+            // If 1 ID, don't search for ID in text
+            else {
+                servalIDs = "";
+                withID = ":";
+
+            }
+            curN5_11 = getSpecificValue("N5.11", withID);
+            curN5_18 = getSpecificValue("N5.18", withID);
+            curN5_11 = getTextBetweenWords(curN5_11,servalIDs,":");
+            curN5_18 = getTextBetweenWords(curN5_18, servalIDs,":");
+
+            // Year in N5.11 AND N5.18
+            List<Integer> curN5_11Num = onlyKeepNumbers(curN5_11);
+            List<Integer> curN5_18Num = onlyKeepNumbers(curN5_18);
+
+            // Get Start AND End date N5.27
+            List<String> curN5_27 = getSpecificValue("N5.27", id.get(i));
+            String startDate = "";
+            String endDate = "";
+            if(!getSpecificValueInList(curN5_27, "Første registrering").isEmpty()){
+                startDate = getSpecificValueInList(curN5_27, "Første registrering").get(0);
+                startDate = getTextAt(startDate,":");
+                if (startDate.length() > 4 && !startDate.substring(startDate.length() - 4).matches("\\D+"))  {
+                    // gj;r om til int. check //D p[ begge
+                    // gj;r om til Funksjon. med 2017-01.2018 og -2017?
+                    startDate = startDate.substring(startDate.length() - 4);
+                }
+                else {startDate = ""; }
+            }
+            if(!getSpecificValueInList(curN5_27, "Siste registrering").isEmpty()){
+                endDate = getSpecificValueInList(curN5_27, "Siste registrering").get(0);
+                endDate = getTextAt(endDate,":");
+                if (endDate.length() > 4){
+                    endDate = endDate.substring(endDate.length() - 4);
+                }
+                else {endDate = ""; }
+            }
+
+            // Check if N5.11 AND N5.18 is between N5.27 start AND end Date
+            if(!startDate.isEmpty() && !endDate.isEmpty()){
+                for (int j = 0; j < curN5_11Num.size(); j++) {
+                    //if(curN5_11Num >= startDate && curN5_11Num <= endDate){
+                    // ta imot int (start,slutt)
+                    // Mangler å sjekke med siste variabel?
+                }
             }
             else{
-                // if no ID
-            }
-            for (int j = 0; j < x.size(); j++) {
-                if (onlyKeepNumbers(x.get(j)) < onlyKeepNumbers(start) ||
-                        onlyKeepNumbers(x.get(j)) > onlyKeepNumbers(end)){
-                    // error
-                    System.out.println(x.get(j) +" date not between StartDate: " + start + " and EndDate: " + end);
-                    // this ID or no ID date is wrong -1
-                }
+                System.out.println("N5.27, ID:" + " StarDate/EndDate mangler eller er feil " +
+                        "StartDate: " + startDate + " EndDate: " + endDate + " SystemID: " + id );
             }
 
 
 
-            System.out.println("S " + start + " E " + end);
-            System.out.println("x " + x);
-            //System.out.println("id nr " + id.size());
 
-            tmp = end + start; // remove this
+            System.out.println(curID);
+            System.out.println(startDate);
+            System.out.println(endDate);
+            System.out.println(curN5_11Num);
+            System.out.println(curN5_18Num);
+
         }
 
-        return tmp;
     }
 
     /**
@@ -285,7 +301,7 @@ public class ArkadeModel {
         List<String> total = new ArrayList<>();
 
         for (String allNumber : allNumbers) {
-            // has not :
+            // Check Error:  has not ":"
             if (!allNumber.contains(":")) {
                 System.out.println("LOOP: " + index + " value with " + containsValue + " has no \":\" "); //NOSONAR
             }
@@ -308,6 +324,9 @@ public class ArkadeModel {
     }
 
     /**
+     * indexSymbol ":" = substring after last ":".
+     * NOT ":" = "Other symbol" Substring ":"
+     * "" = everthing before ":"
      * Get text between "indexSymbol" and last ":". OR If ":" gets text after last ":".
      * @param text Gets substring form text.
      * @param indexSymbol Input ":" get substring after last ":" OR Input symbol get substring between symbol and last ":".
@@ -333,39 +352,58 @@ public class ArkadeModel {
     }
 
     /** Get text between two substring.
-     * @param text search in text.
+     * @param listText Search in this list.
      * @param indexSymbol1 substring before text you want to find.
      * @param indexSymbol2 substring after text you want to find.
      * @return "" if failed or text.
      */
-    public String getTextBetweenWords(String text, String indexSymbol1, String indexSymbol2){
-        String tmp = "";
+    public List<String> getTextBetweenWords(List<String> listText, String indexSymbol1, String indexSymbol2){
 
-        try {
-            tmp =  text.substring(text.lastIndexOf(indexSymbol1) + 1, text.lastIndexOf(indexSymbol2));
-        } catch (Exception e) {
-            System.out.println("NO: " + indexSymbol1 + " or " +  indexSymbol2 + " int text "); //NOSONAR
-            System.out.println(e.getMessage()); //NOSONAR
+        List<String> tmp = new ArrayList<>();
+
+        for (int i = 0; i < listText.size(); i++) {
+            if(indexSymbol1.equals("")){
+                try {
+                    tmp.add(listText.get(i).substring(0, listText.get(i).lastIndexOf(indexSymbol2)));
+                } catch (Exception e) {
+                    System.out.println("NO: " + indexSymbol2 + " int text "); //NOSONAR
+                    System.out.println(e.getMessage()); //NOSONAR
+                }
+            }
+            else{
+                try {
+                    tmp.add(listText.get(i).substring(listText.get(i).lastIndexOf(indexSymbol1) + 1,
+                            listText.get(i).lastIndexOf(indexSymbol2)));
+                } catch (Exception e) {
+                    System.out.println("NO: " + indexSymbol1 + " or " +  indexSymbol2 + " int text "); //NOSONAR
+                    System.out.println(e.getMessage()); //NOSONAR
+                }
+            }
+
         }
-
         return tmp;
     }
 
     /**
      * Make number in String to Integer.
-     * @param text Text with numbers in it.
+     * @param listText Text with numbers in it.
      * @return String as Integer or -1.
      */
-    public Integer onlyKeepNumbers(String text) { // NOSONAR
-        String onlyNumbers = "\\D+";
-        if(text.matches(onlyNumbers)){
-            System.out.println("No numbers in date variable's ") ; //NOSONAR
-            return -1;
+    public List<Integer> onlyKeepNumbers(List<String> listText) { // NOSONAR
+
+        List<Integer> tmp = new ArrayList<>();
+
+        for (int i = 0; i < listText.size(); i++) {
+            String onlyNumbers = "\\D+";
+            if(listText.get(i).matches(onlyNumbers)){
+                System.out.println("No numbers in date variable's ") ; //NOSONAR
+            }
+            else {
+                String number = listText.get(i).replaceAll(onlyNumbers, "");
+                tmp.add(Integer.parseInt(number));
+            }
         }
-        String number = text.replaceAll(onlyNumbers, "");
-
-
-        return Integer.parseInt(number) ;
+        return tmp;
     }
 
     /**
@@ -461,6 +499,22 @@ public class ArkadeModel {
         }
         if (htmlTable.isEmpty()) {
             System.out.println(index + " Can't find deviation with: " + containsValue); //NOSONAR
+        }
+        return  htmlTable;
+    }
+
+    /**
+     * Only keep elements in String list with containsValue
+     * @param indexlist List with string elements
+     * @param containsValue Look for value in elements
+     * @return "" if empty list.
+     */
+    public List<String> getSpecificValueInList(List<String> indexlist, String containsValue){
+        List<String> htmlTable = new ArrayList<>();
+        for(String i : indexlist){
+            if(i.contains(containsValue)){
+                htmlTable.add(i);
+            }
         }
         return  htmlTable;
     }
