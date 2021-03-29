@@ -12,7 +12,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Serves as the link between the views and the models.
@@ -237,38 +236,39 @@ public class ArchiveController implements ViewObserver {
         //Chapter 3.3.1
         int total = arkadeModel.getTotal("N5.20", "Klasser uten registreringer");
         if(total > 0) {
-            reportModel.setNewInput(Arrays.asList(3, 3, 1), Arrays.asList(total + ""), 2);
+            reportModel.setNewInput(Arrays.asList(3, 3, 1), Collections.singletonList(total + ""), 2);
         }
         total = arkadeModel.getTotal("N5.12", TOTAL);
         if(total > 0) {
-            reportModel.setNewInput(Arrays.asList(3, 3, 1), Arrays.asList(total + ""), 3);
+            reportModel.setNewInput(Arrays.asList(3, 3, 1), Collections.singletonList(total + ""), 3);
         }
         if(!arkadeModel.getDataFromHtml("N5.47").isEmpty()) {
             reportModel.setNewInput(Arrays.asList(3, 3, 1), Collections.emptyList(), 4);
         }
         total = arkadeModel.getTotal("N5.51", TOTAL);
         if(total > 0) {
-            reportModel.setNewInput(Arrays.asList(3, 3, 1), Arrays.asList(total + ""), 5);
+            reportModel.setNewInput(Arrays.asList(3, 3, 1), Collections.singletonList(total + ""), 5);
         }
 
         //Chapter 3.3.2
         total = arkadeModel.getTotal("N5.20", TOTAL);
         if(total > 0) {
-            reportModel.setNewInput(Arrays.asList(3, 3, 2), Arrays.asList(total + ""), 0);
+            reportModel.setNewInput(Arrays.asList(3, 3, 2), Collections.singletonList(total + ""), 0);
         }
 
         //Chapter 3.3.3
+        List<Integer> three = Arrays.asList(3, 3, 3);
         total = arkadeModel.getTotal("N5.36", TOTAL);
         if(total > 0) {
-            reportModel.setNewInput(Arrays.asList(3, 3, 3), Arrays.asList(total + ""), 0);
+            reportModel.setNewInput(three, Collections.singletonList(total + ""), 0);
 
             List<String> para;
             para = getEmptyOrContent(testArkivstruktur, "3.3.3_1");
-            reportModel.insertTable(Arrays.asList(3, 3, 3), splitIntoTable(para));
+            reportModel.insertTable(three, splitIntoTable(para));
             para = arkadeModel.getTableDataFromHtml("N5.36", 2);
-            reportModel.insertTable(Arrays.asList(3, 3, 3), para);
+            reportModel.insertTable(three, para);
             para = getEmptyOrContent(testArkivstruktur, "3.3.3_2");
-            reportModel.insertTable(Arrays.asList(3, 3, 3), splitIntoTable(para));
+            reportModel.insertTable(three, splitIntoTable(para));
         }
     }
 
@@ -673,12 +673,12 @@ public class ArchiveController implements ViewObserver {
         }
 
         //Chapter 3.1.23
-        chapter3_1_23(testArkivstruktur);
+        skjerminger(testArkivstruktur);
 
         //Chapter 3.2.1
         para = getEmptyOrContent(testArkivstruktur, "3.2.1");
         if(!para.get(0).equals(EMPTY)) {
-            int total = para.stream().filter(t -> t.contains("Arkivert") || t.contains("Avsluttet")).collect(Collectors.toList()).size();
+            int total = (int) para.stream().filter(t -> t.contains("Arkivert") || t.contains("Avsluttet")).count();
             reportModel.setNewInput(Arrays.asList(3, 2, 1), Arrays.asList(para.size() + "", total + ""), 0);
 
             List<String> ls = new ArrayList<>();
@@ -753,7 +753,7 @@ public class ArchiveController implements ViewObserver {
             reportModel.insertTable(Arrays.asList(3, 1, 3), newParts);
         }
 
-        //Chapter 3.3.6.xq
+        //Chapter 3.3.6
         List<String> journals = getEmptyOrContent(testArkivstruktur, "3.3.6");
         if(!journals.get(0).equals(EMPTY)) {
             List<String> journal = new ArrayList<>();
@@ -774,6 +774,27 @@ public class ArchiveController implements ViewObserver {
             reportModel.setNewInput(Arrays.asList(3, 3, 6),Collections.emptyList(), 2);
         }
 
+        //Chapter 3.3.7
+        List<String> adminUnits = getEmptyOrContent(testArkivstruktur,"3.3.7");
+        if(!adminUnits.get(0).equals(EMPTY)) {
+            List<String> unit = new ArrayList<>();
+            for(String s : adminUnits) {
+                unit.addAll(Arrays.asList(s.split("; ")));
+            }
+            reportModel.setNewInput(Arrays.asList(3, 3, 7), Collections.emptyList(),0);
+            reportModel.insertTable(Arrays.asList(3, 3, 7), unit);
+            int total = 0;
+            for(int i = 1; i <= unit.size(); i+=2 ) {
+                total += Integer.parseInt(unit.get(i));
+                int amount = Integer.parseInt(unit.get(i));
+                if(amount > (total / 100.0f * 90.0f)) {
+                    reportModel.setNewInput(Arrays.asList(3, 3, 7), Collections.emptyList(), 1);
+                }
+            }
+        }else {
+            reportModel.setNewInput(Arrays.asList(3, 3, 7), Collections.emptyList(), 2);
+        }
+
         //Chapter 5 - Attachments
         if(!attachments.isEmpty()) {
             reportModel.setNewParagraph(Collections.singletonList(5), attachments);
@@ -786,7 +807,7 @@ public class ArchiveController implements ViewObserver {
         testView.activatePackToAipBtn();
     }
 
-    private void chapter3_1_23(String xml) {
+    private void skjerminger(String xml) {
         List<String> para = getEmptyOrContent(xml, "3.1.23_1");
         if(para.get(0).equals(EMPTY)) {
             reportModel.setNewInput(Arrays.asList(3, 1, 23), Collections.emptyList(), 0);
@@ -842,35 +863,24 @@ public class ArchiveController implements ViewObserver {
         map.put("OFFL§25 Tilsettingssaker", 0);
         map.put("OFFL§26 Eksamensbesvarelser, Personbilder i personregister, Personovervåking", 0);
 
-        for(int i = 0; i < ls.size(); i++) {
-            Matcher m = Pattern.compile("[§][ ][0-9]{1,3}|[§][0-9]{1,3}").matcher(ls.get(i));
-            if(m.find()) {
+        for (String l : ls) {
+            Matcher m = Pattern.compile("[§][ ][0-9]{1,3}|[§][0-9]{1,3}").matcher(l);
+            if (m.find()) {
                 String text = Arrays.asList(m.group().split("[§][ ]?")).get(1);
-                int num = Integer.parseInt(Arrays.asList(ls.get(i).split("[;][ ]")).get(1));
-                switch(text) {
-                    case "13":
-                        map.computeIfPresent("OFFL§13 Taushetsplikt",
-                                (k, v) -> v += num);
-                        break;
-                    case "23":
-                        map.computeIfPresent("OFFL§23 Forhandlingsposisjon, Økonomi-Lønn-Personalforv., Rammeavtaler, Anbudssaker, Eierinteresser",
-                                (k, v) -> v += num);
-                        break;
-                    case "24":
-                        map.computeIfPresent("OFFL§24 Kontroll- og reguleringstiltak, Lovbrudd, Anmeldelser, Straffbare handlinger, Miljøkriminalitet",
-                                (k, v) -> v += num);
-                        break;
-                    case "25":
-                        map.computeIfPresent("OFFL§25 Tilsettingssaker",
-                                (k, v) -> v += num);
-                        break;
-                    case "26":
-                        map.computeIfPresent("OFFL§26 Eksamensbesvarelser, Personbilder i personregister, Personovervåking",
-                                (k, v) -> v += num);
-                        break;
-                    default:
-                        map.computeIfPresent("Unntatt offentlighet",
-                                (k, v) -> v += num);
+                int num = Integer.parseInt(Arrays.asList(l.split("[;][ ]")).get(1));
+                switch (text) {
+                    case "13" -> map.computeIfPresent("OFFL§13 Taushetsplikt",
+                            (k, v) -> v += num);
+                    case "23" -> map.computeIfPresent("OFFL§23 Forhandlingsposisjon, Økonomi-Lønn-Personalforv., Rammeavtaler, Anbudssaker, Eierinteresser",
+                            (k, v) -> v += num);
+                    case "24" -> map.computeIfPresent("OFFL§24 Kontroll- og reguleringstiltak, Lovbrudd, Anmeldelser, Straffbare handlinger, Miljøkriminalitet",
+                            (k, v) -> v += num);
+                    case "25" -> map.computeIfPresent("OFFL§25 Tilsettingssaker",
+                            (k, v) -> v += num);
+                    case "26" -> map.computeIfPresent("OFFL§26 Eksamensbesvarelser, Personbilder i personregister, Personovervåking",
+                            (k, v) -> v += num);
+                    default -> map.computeIfPresent("Unntatt offentlighet",
+                            (k, v) -> v += num);
                 }
             }
         }
@@ -886,8 +896,8 @@ public class ArchiveController implements ViewObserver {
 
     private List<String> splitIntoTable(List<String> temp) {
         List<String> ls = new ArrayList<>();
-        for(int i = 0; i < temp.size(); i++) {
-            ls.addAll(Arrays.asList(temp.get(i).split(TABLESPLIT)));
+        for (String s : temp) {
+            ls.addAll(Arrays.asList(s.split(TABLESPLIT)));
         }
         return ls;
     }
