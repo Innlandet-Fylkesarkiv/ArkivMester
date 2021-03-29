@@ -19,6 +19,7 @@ public class ThirdPartiesModel {
     private List<Boolean> selectedTests = new ArrayList<>();
     private List<Boolean> selectedXqueries = new ArrayList<>();
     private List<String> xmlNames = new ArrayList<>();
+    private String [] xqueryNames;
     Boolean runXqueries = false;
     int amountOfTests = 4;
     String tempFolder;
@@ -38,12 +39,9 @@ public class ThirdPartiesModel {
 
     /**
      * Updates selectedTests with updated data.
-     * @param selectedList Updated selectedTests from the UI.
+     * @param selectedXqueries Updated selectedTests from the UI.
      */
-    public void updateTests(List<Boolean> selectedList, List<Boolean> selectedXqueries) {
-        this.selectedTests = selectedList;
-        this.selectedXqueries = selectedXqueries;
-
+    public void checkIfXquery(List<Boolean> selectedXqueries) {
         int count = 0;
         for(Boolean value : selectedXqueries) {
             if(Boolean.TRUE.equals(value))
@@ -53,6 +51,15 @@ public class ThirdPartiesModel {
         }
         if(count==selectedXqueries.size())
             runXqueries = false;
+    }
+
+    /**
+     * Updates selectedTests with updated data.
+     * @param selectedList Updated selectedTests from the UI.
+     */
+    public void updateTests(List<Boolean> selectedList, List<Boolean> selectedXqueries) {
+        this.selectedTests = selectedList;
+        this.selectedXqueries = selectedXqueries;
     }
 
     /**
@@ -222,8 +229,63 @@ public class ThirdPartiesModel {
         runCMD(cd + " && 7z x " + path + " -o\"" + tempFolder + archiveName + "\" -r");
     }
 
-    public void runXquery() throws IOException {  // #NOSONAR
-        System.out.println("Running XQueries tests"); // #NOSONAR
+    public void runXquery(Properties prop) throws IOException { // #NOSONAR
+        String xmlName;
+        String archivePath = tempFolder + archiveName;
+        for(int i = 0; i<selectedXqueries.size(); i++) {
+            if(Boolean.TRUE.equals(selectedXqueries.get(i))) {
+                xmlName = xmlNames.get(i).toLowerCase();
+
+                //Find full xml path
+                if(xmlName.contains("droid")) {
+                    xmlName = archivePath + "\\DROID\\droid.xml";
+                }
+                else if(xmlName.contains("verapdf")) {
+                    xmlName = archivePath + "\\VeraPDF\\verapdf.xml";
+                }
+                else if(xmlName.contains("kostval")) {
+                    xmlName = archivePath + "\\KostVal\\dokument.kost-val.log.xml";
+                }
+                else if(xmlName.contains("arkade")) {
+                    xmlName = archivePath + "\\Arkade\\report\\Arkaderapprt-" + prop.get("currentArchive") + ".html";
+                }
+                else if(xmlName.contains("dias-mets")) {
+                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\dias-mets.xml"; // #NOSONAR
+                }
+                else if(xmlName.contains("log")) {
+                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\log.xml"; // #NOSONAR
+                }
+                else if(xmlName.contains("dias-premis")) {
+                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\administrative_metadata\\diaspremis.xml"; // #NOSONAR
+                }
+                else if(xmlName.contains("addml")) {
+                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\administrative_metadata\\addml.xml"; // #NOSONAR
+                }
+                else if(xmlName.contains("eac-cpf")) {
+                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\descriptive_metadata\\eac-cpf.xml"; // #NOSONAR
+                }
+                else if(xmlName.contains("ead")) {
+                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\descriptive_metadata\\ead.xml"; // #NOSONAR
+                }
+                else if(xmlName.contains("arkivstruktur")) {
+                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\content\\arkivstruktur.xml"; // #NOSONAR
+                }
+                else if(xmlName.contains("arkivuttrekk")) {
+                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\content\\arkivuttrekk.xml"; // #NOSONAR
+                }
+                else if(xmlName.contains("endringslogg")) {
+                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\content\\endringslogg.xml"; // #NOSONAR
+                }
+                else if(xmlName.contains("loependejournal")) {
+                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\content\\loependeJournal.xml"; // #NOSONAR
+                }
+                else if(xmlName.contains("offentligjournal")) {
+                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\content\\offentligJournal.xml"; // #NOSONAR
+                }
+
+                runCustomBaseX(xmlName, xqueryNames[i], prop);
+            }
+        }
     }
 
     /**
@@ -239,7 +301,7 @@ public class ThirdPartiesModel {
         String pwd = cdString + prop.getProperty(basexPathKey) + "\"";
         List<String> result = new ArrayList<>();
 
-        ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o \"" + temp + "\" -i " + xml + " " + xq);
+        ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o \"" + temp + "\" -i " + xml + " " + xq); // #NOSONAR
 
         try {
             Process p = baseXBuilder.start();
@@ -276,7 +338,7 @@ public class ThirdPartiesModel {
 
         String outFile = prop.getProperty(tempFolderKey) + archiveName + "\\" + outFileName + ".txt";
         String pwd = cdString + prop.getProperty(basexPathKey) + "\"";
-
+        System.out.println(pwd + " && basex -o \"" + outFile + "\" -i " + xml + " " + xq);
         ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o \"" + outFile + "\" -i " + xml + " " + xq);
 
         try {
@@ -382,6 +444,7 @@ public class ThirdPartiesModel {
                 for (int i = 0; i<list.length; i++) {
                     selectedXqueries.add(false);
                 }
+                xqueryNames = list;
                 return list;
             }
             return new String[]{""};

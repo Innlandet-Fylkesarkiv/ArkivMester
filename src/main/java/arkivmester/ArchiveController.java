@@ -383,7 +383,7 @@ public class ArchiveController implements ViewObserver {
             System.out.println("\nRunning XQueries\n"); //NOSONAR
             testView.updateXqueryStatus(TestView.RUNNING);
             try {
-                thirdPartiesModel.runXquery();
+                thirdPartiesModel.runXquery(settingsModel.prop);
             } catch (IOException e) {
                 System.out.println(e.getMessage()); //NOSONAR
                 mainView.exceptionPopup("XQuery test feilet, prøv igjen.");
@@ -927,7 +927,7 @@ public class ArchiveController implements ViewObserver {
         List<Boolean> currentList = testSettingsView.getSelectedTests();
 
         if(Boolean.TRUE.equals(thirdPartiesModel.noEmptyTests(currentList))) {
-            thirdPartiesModel.updateTests(currentList, testSettingsView.getSelectedXqueries());
+            thirdPartiesModel.checkIfXquery(testSettingsView.getSelectedXqueries());
 
             if(Boolean.TRUE.equals(thirdPartiesModel.runXqueries)) {
                 List<String> currentXmlList = testSettingsView.getXmlNames();
@@ -940,6 +940,7 @@ public class ArchiveController implements ViewObserver {
             }
 
             if(Boolean.TRUE.equals(success)) {
+                thirdPartiesModel.updateTests(currentList, testSettingsView.getSelectedXqueries());
                 testSettingsView.clearContainer();
                 testSettingsView = null;
                 mainView.showGUI();
