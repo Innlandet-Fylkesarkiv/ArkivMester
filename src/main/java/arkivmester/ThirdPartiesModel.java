@@ -18,10 +18,13 @@ public class ThirdPartiesModel {
     String cdString = "cd \"";
     private List<Boolean> selectedTests = new ArrayList<>();
     private List<Boolean> selectedXqueries = new ArrayList<>();
+    private List<String> xmlNames = new ArrayList<>();
     Boolean runXqueries = false;
     int amountOfTests = 4;
     String tempFolder;
     String archiveName;
+    String basexPathKey = "basexPath";
+    String tempFolderKey = "tempFolder";
 
     /**
      * Initializes the selectedTests list to true.
@@ -30,6 +33,7 @@ public class ThirdPartiesModel {
         for(int i = 0; i < amountOfTests; i++) {
             selectedTests.add(true);
         }
+
     }
 
     /**
@@ -42,13 +46,21 @@ public class ThirdPartiesModel {
 
         int count = 0;
         for(Boolean value : selectedXqueries) {
-            if(value)
+            if(Boolean.TRUE.equals(value))
                 runXqueries = true;
             else
                 count++;
         }
         if(count==selectedXqueries.size())
             runXqueries = false;
+    }
+
+    /**
+     * Updates xmlNames with updated data.
+     * @param xmlNames Updated xmlNames from the UI.
+     */
+    public void updateXmlNames(List<String> xmlNames) {
+        this.xmlNames = xmlNames;
     }
 
     /**
@@ -68,6 +80,14 @@ public class ThirdPartiesModel {
     }
 
     /**
+     * Regular getter for xmlNames list.
+     * @return xmlNames String list.
+     */
+    public List<String> getXmlNames() {
+        return this.xmlNames;
+    }
+
+    /**
      * Resets the selectedTests to true. Used when the program resets.
      */
     public void resetSelectedTests() {
@@ -80,7 +100,7 @@ public class ThirdPartiesModel {
      * Initializes the tempFolder variable with the current tempFolder path.
      */
     public void initializePath(Properties prop) {
-        tempFolder = prop.getProperty("tempFolder");
+        tempFolder = prop.getProperty(tempFolderKey);
         archiveName = "\\" + prop.getProperty("currentArchive"); // #NOSONAR
     }
 
@@ -202,8 +222,8 @@ public class ThirdPartiesModel {
         runCMD(cd + " && 7z x " + path + " -o\"" + tempFolder + archiveName + "\" -r");
     }
 
-    public void runXquery() throws IOException {
-        System.out.println("Running XQueries tests");
+    public void runXquery() throws IOException {  // #NOSONAR
+        System.out.println("Running XQueries tests"); // #NOSONAR
     }
 
     /**
@@ -215,8 +235,8 @@ public class ThirdPartiesModel {
      */
     public List<String> runBaseX(String xml, String xqName, Properties prop) throws IOException {
         String xq = prop.getProperty("xqueryExtFolder") + "\\" + xqName + "\"";
-        String temp = prop.getProperty("tempFolder") + "\\xqueryResult.txt";
-        String pwd = cdString + prop.getProperty("basexPath") + "\"";
+        String temp = prop.getProperty(tempFolderKey) + "\\xqueryResult.txt";
+        String pwd = cdString + prop.getProperty(basexPathKey) + "\"";
         List<String> result = new ArrayList<>();
 
         ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o \"" + temp + "\" -i " + xml + " " + xq);
@@ -254,8 +274,8 @@ public class ThirdPartiesModel {
         String outFileName = xqName;
         outFileName = outFileName.substring(0,outFileName.lastIndexOf('.'));
 
-        String outFile = prop.getProperty("tempFolder") + archiveName + "\\" + outFileName + ".txt";
-        String pwd = cdString + prop.getProperty("basexPath") + "\"";
+        String outFile = prop.getProperty(tempFolderKey) + archiveName + "\\" + outFileName + ".txt";
+        String pwd = cdString + prop.getProperty(basexPathKey) + "\"";
 
         ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o \"" + outFile + "\" -i " + xml + " " + xq);
 
@@ -298,7 +318,7 @@ public class ThirdPartiesModel {
     public Boolean checkIfToolsArePresent(Properties prop) {
         File file;
 
-        file = new File(prop.getProperty("basexPath") + "\\basex.bat");
+        file = new File(prop.getProperty(basexPathKey) + "\\basex.bat");
         if(!file.exists())
             return false;
 

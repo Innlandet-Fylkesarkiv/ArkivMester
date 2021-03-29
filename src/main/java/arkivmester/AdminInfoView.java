@@ -70,7 +70,7 @@ public class AdminInfoView extends Views {
         JLabel data8 = new JLabel("Dato for rapport:");
 
         //Col 2
-        for(int i = 0; i<8; i++) {
+        for(int i = 0; i<rows; i++) {
             valueList.add(new JTextField(15));
         }
 
