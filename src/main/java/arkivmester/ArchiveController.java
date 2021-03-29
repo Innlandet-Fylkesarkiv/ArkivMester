@@ -519,7 +519,7 @@ public class ArchiveController implements ViewObserver {
     //When "Velg tester" is clicked.
     @Override
     public void chooseTests() {
-        testSettingsView = new TestSettingsView(thirdPartiesModel.getSelectedTests(), thirdPartiesModel.getSelectedXqueries());
+        testSettingsView = new TestSettingsView(thirdPartiesModel.getSelectedTests(), thirdPartiesModel.getSelectedXqueries(), thirdPartiesModel.getXmlNames());
         testSettingsView.addObserver(this);
         testSettingsView.createAndShowGUI(mainView.getContainer(), thirdPartiesModel.getCustomXqueries(settingsModel.prop));
     }
@@ -864,13 +864,27 @@ public class ArchiveController implements ViewObserver {
     //When "Lagre tests" is clicked.
     @Override
     public void saveTestSettings() {
+        boolean success = true;
         List<Boolean> currentList = testSettingsView.getSelectedTests();
 
         if(Boolean.TRUE.equals(thirdPartiesModel.noEmptyTests(currentList))) {
             thirdPartiesModel.updateTests(currentList, testSettingsView.getSelectedXqueries());
-            testSettingsView.clearContainer();
-            testSettingsView = null;
-            mainView.showGUI();
+
+            if(Boolean.TRUE.equals(thirdPartiesModel.runXqueries)) {
+                List<String> currentXmlList = testSettingsView.getXmlNames();
+                if(!currentXmlList.isEmpty())
+                    thirdPartiesModel.updateXmlNames(currentXmlList);
+                else {
+                    mainView.exceptionPopup("En eller flere XQuery tester mangler .xml fil navn.");
+                    success = false;
+                }
+            }
+
+            if(Boolean.TRUE.equals(success)) {
+                testSettingsView.clearContainer();
+                testSettingsView = null;
+                mainView.showGUI();
+            }
         }
         else
             mainView.exceptionPopup("Det må være minst 1 inkludert deltest");
