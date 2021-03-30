@@ -254,10 +254,11 @@ public class ThirdPartiesModel {
     public void runXquery(Properties prop) throws IOException { // #NOSONAR
         String xmlName;
         String archivePath = tempFolder + archiveName;
+        String unzippedArchive = archivePath + "\\" + prop.get("currentArchive"); // #NOSONAR
         for(int i = 0; i<selectedXqueries.size(); i++) {
             if(Boolean.TRUE.equals(selectedXqueries.get(i))) {
                 xmlName = xmlNames.get(i).toLowerCase();
-
+            
                 //Find full xml path
                 if(xmlName.contains("droid")) {
                     xmlName = archivePath + "\\DROID\\droid.xml";
@@ -272,37 +273,37 @@ public class ThirdPartiesModel {
                     xmlName = archivePath + "\\Arkade\\report\\Arkaderapprt-" + prop.get("currentArchive") + ".html";
                 }
                 else if(xmlName.contains("dias-mets")) {
-                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\dias-mets.xml"; // #NOSONAR
+                    xmlName = unzippedArchive + "\\dias-mets.xml"; // #NOSONAR
                 }
                 else if(xmlName.contains("log")) {
-                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\log.xml"; // #NOSONAR
+                    xmlName = unzippedArchive + "\\log.xml"; // #NOSONAR
                 }
                 else if(xmlName.contains("dias-premis")) {
-                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\administrative_metadata\\diaspremis.xml"; // #NOSONAR
+                    xmlName = unzippedArchive + "\\administrative_metadata\\diaspremis.xml";
                 }
                 else if(xmlName.contains("addml")) {
-                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\administrative_metadata\\addml.xml"; // #NOSONAR
+                    xmlName = unzippedArchive + "\\administrative_metadata\\addml.xml"; // #NOSONAR
                 }
                 else if(xmlName.contains("eac-cpf")) {
-                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\descriptive_metadata\\eac-cpf.xml"; // #NOSONAR
+                    xmlName = unzippedArchive + "\\descriptive_metadata\\eac-cpf.xml"; // #NOSONAR
                 }
                 else if(xmlName.contains("ead")) {
-                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\descriptive_metadata\\ead.xml"; // #NOSONAR
+                    xmlName = unzippedArchive + "\\descriptive_metadata\\ead.xml"; // #NOSONAR
                 }
                 else if(xmlName.contains("arkivstruktur")) {
-                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\content\\arkivstruktur.xml"; // #NOSONAR
+                    xmlName = unzippedArchive + "\\content\\arkivstruktur.xml"; // #NOSONAR
                 }
                 else if(xmlName.contains("arkivuttrekk")) {
-                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\content\\arkivuttrekk.xml"; // #NOSONAR
+                    xmlName = unzippedArchive + "\\content\\arkivuttrekk.xml"; // #NOSONAR
                 }
                 else if(xmlName.contains("endringslogg")) {
-                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\content\\endringslogg.xml"; // #NOSONAR
+                    xmlName = unzippedArchive + "\\content\\endringslogg.xml"; // #NOSONAR
                 }
                 else if(xmlName.contains("loependejournal")) {
-                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\content\\loependeJournal.xml"; // #NOSONAR
+                    xmlName = unzippedArchive + "\\content\\loependeJournal.xml"; // #NOSONAR
                 }
                 else if(xmlName.contains("offentligjournal")) {
-                    xmlName = archivePath + "\\" + prop.get("currentArchive") + "\\content\\offentligJournal.xml"; // #NOSONAR
+                    xmlName = unzippedArchive + "\\content\\offentligJournal.xml"; // #NOSONAR
                 }
 
                 runCustomBaseX(xmlName, xqueryNames[i], prop);
