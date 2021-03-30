@@ -253,60 +253,64 @@ public class ThirdPartiesModel {
 
     public void runXquery(Properties prop) throws IOException { // #NOSONAR
         String xmlName;
+        StringBuilder bld = new StringBuilder();
         String archivePath = tempFolder + archiveName;
         String unzippedArchive = archivePath + "\\" + prop.get("currentArchive"); // #NOSONAR
         for(int i = 0; i<selectedXqueries.size(); i++) {
             if(Boolean.TRUE.equals(selectedXqueries.get(i))) {
                 xmlName = xmlNames.get(i).toLowerCase();
-            
+
                 //Find full xml path
                 if(xmlName.contains("droid")) {
-                    xmlName = archivePath + "\\DROID\\droid.xml";
+                    bld.append(archivePath).append("\\DROID\\droid.xml");
                 }
                 else if(xmlName.contains("verapdf")) {
-                    xmlName = archivePath + "\\VeraPDF\\verapdf.xml";
+                    bld.append(archivePath).append("\\VeraPDF\\verapdf.xml");
                 }
                 else if(xmlName.contains("kostval")) {
-                    xmlName = archivePath + "\\KostVal\\dokument.kost-val.log.xml";
+                    bld.append(archivePath).append("\\KostVal\\dokument.kost-val.log.xml");
                 }
                 else if(xmlName.contains("arkade")) {
-                    xmlName = archivePath + "\\Arkade\\report\\Arkaderapprt-" + prop.get("currentArchive") + ".html";
+                    bld.append(archivePath).append("\\Arkade\\report\\Arkaderapprt-").append(prop.get("currentArchive")).append(".html");
                 }
-                else if(xmlName.contains("dias-mets")) {
-                    xmlName = unzippedArchive + "\\dias-mets.xml"; // #NOSONAR
+                else
+                    bld.append(unzippedArchive);
+
+                if(xmlName.contains("dias-mets")) {
+                    bld.append("\\dias-mets.xml");
                 }
                 else if(xmlName.contains("log")) {
-                    xmlName = unzippedArchive + "\\log.xml"; // #NOSONAR
+                    bld.append("\\log.xml"); // #NOSONAR
                 }
                 else if(xmlName.contains("dias-premis")) {
-                    xmlName = unzippedArchive + "\\administrative_metadata\\diaspremis.xml";
+                    bld.append("\\administrative_metadata\\diaspremis.xml");
                 }
                 else if(xmlName.contains("addml")) {
-                    xmlName = unzippedArchive + "\\administrative_metadata\\addml.xml"; // #NOSONAR
+                    bld.append("\\administrative_metadata\\addml.xml"); // #NOSONAR
                 }
                 else if(xmlName.contains("eac-cpf")) {
-                    xmlName = unzippedArchive + "\\descriptive_metadata\\eac-cpf.xml"; // #NOSONAR
+                    bld.append("\\descriptive_metadata\\eac-cpf.xml"); // #NOSONAR
                 }
                 else if(xmlName.contains("ead")) {
-                    xmlName = unzippedArchive + "\\descriptive_metadata\\ead.xml"; // #NOSONAR
+                    bld.append("\\descriptive_metadata\\ead.xml"); // #NOSONAR
                 }
                 else if(xmlName.contains("arkivstruktur")) {
-                    xmlName = unzippedArchive + "\\content\\arkivstruktur.xml"; // #NOSONAR
+                    bld.append("\\content\\arkivstruktur.xml"); // #NOSONAR
                 }
                 else if(xmlName.contains("arkivuttrekk")) {
-                    xmlName = unzippedArchive + "\\content\\arkivuttrekk.xml"; // #NOSONAR
+                    bld.append("\\content\\arkivuttrekk.xml"); // #NOSONAR
                 }
                 else if(xmlName.contains("endringslogg")) {
-                    xmlName = unzippedArchive + "\\content\\endringslogg.xml"; // #NOSONAR
+                    bld.append("\\content\\endringslogg.xml"); // #NOSONAR
                 }
                 else if(xmlName.contains("loependejournal")) {
-                    xmlName = unzippedArchive + "\\content\\loependeJournal.xml"; // #NOSONAR
+                    bld.append("\\content\\loependeJournal.xml"); // #NOSONAR
                 }
                 else if(xmlName.contains("offentligjournal")) {
-                    xmlName = unzippedArchive + "\\content\\offentligJournal.xml"; // #NOSONAR
+                    bld.append("\\content\\offentligJournal.xml"); // #NOSONAR
                 }
 
-                runCustomBaseX(xmlName, xqueryNames[i], prop);
+                runCustomBaseX(bld.toString(), xqueryNames[i], prop);
             }
         }
     }
