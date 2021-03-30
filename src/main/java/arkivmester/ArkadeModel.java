@@ -4,6 +4,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import java.util.Random;
 
 import java.io.*;
 import java.util.*;
@@ -27,7 +28,7 @@ public class ArkadeModel {
     ArkadeModel(){
         readHtmlFileFromTestFolder();
         //firstLastRegistrering();
-        firstLastRegistrering();
+        kryssreferanser();
     }
 
     /**
@@ -72,14 +73,19 @@ public class ArkadeModel {
     public void readHtmlFileFromTestFolder(){
 
         // test html file at   ../Input/FileName,
-        // Arkaderapport-67a47ea4-68bc-4276-a599-22561e0c31df.html,
-        // Arkaderapport-0439ba78-2381-430b-8f99-740f71846f1e.html,
-        // Arkaderapport-4b24f025-3c3a-4dd6-a371-7dc1b9143452.html
-        // Arkaderapport-899ec389-1dc0-41d0-b6ca-15f27642511b.html
-        // Arkaderapport-7fc1fe22-d89b-42c9-aaec-5651beb0da0a.html
-        // Arkaderapport-ebc3f74b-4eb3-4358-a38f-46479cfb2feb.html
-        filePath = "../Input/Arkaderapport-67a47ea4-68bc-4276-a599-22561e0c31df.html";
-        //filePath = "../Input/Arkaderapport-0439ba78-2381-430b-8f99-740f71846f1e.html";
+        List<String> testFilePath = Arrays.asList(
+        "Arkaderapport-67a47ea4-68bc-4276-a599-22561e0c31df.html",
+        "Arkaderapport-0439ba78-2381-430b-8f99-740f71846f1e.html",
+        "Arkaderapport-4b24f025-3c3a-4dd6-a371-7dc1b9143452.html",
+        "Arkaderapport-899ec389-1dc0-41d0-b6ca-15f27642511b.html",
+        "Arkaderapport-7fc1fe22-d89b-42c9-aaec-5651beb0da0a.html",
+        "Arkaderapport-ebc3f74b-4eb3-4358-a38f-46479cfb2feb.html",
+        "arkaderapportrapport.html"
+        );
+
+        // Select random arkade html for testing
+        filePath = "../Input/" + testFilePath.get(new Random().nextInt(testFilePath.size()));
+        System.out.println(filePath); //NOSONAR
 
         try (FileReader fr = new FileReader(filePath);
              BufferedReader br = new BufferedReader(fr)) {
@@ -118,19 +124,22 @@ public class ArkadeModel {
      *
      */
     public void firstLastRegistrering(){
+
+        String indexN527 = "N5.27";
+
         // get all ID. allways one ID in N5.27
-        List<String> id = getSystemID("N5.27", "systemID");
+        List<String> id = getSystemID(indexN527, "systemID");
 
         for (int i = 0; i < id.size(); i++) {
             // One ID
-            List<String> curID = getSpecificValue("N5.27", id.get(i));
+            List<String> curID = getSpecificValue(indexN527, id.get(i));
 
-            List<String> curN5_11;
-            List<String> curN5_18;
+            List<String> curN511;
+            List<String> curN518;
 
             // if more than 2 ID = "-". else = ""
-            String servalIDs = "";
-            String withID = "";
+            String servalIDs;
+            String withID;
             // If more than 1 ID. Search for ID
             if (id.size() >= 2){
                 servalIDs = "-";
@@ -142,21 +151,21 @@ public class ArkadeModel {
                 withID = ":";
 
             }
-            curN5_11 = getSpecificValue("N5.11", withID);
-            curN5_18 = getSpecificValue("N5.18", withID);
-            curN5_11 = getTextBetweenWords(curN5_11,servalIDs,":");
-            curN5_18 = getTextBetweenWords(curN5_18, servalIDs,":");
+            curN511 = getSpecificValue("N5.11", withID);
+            curN518 = getSpecificValue("N5.18", withID);
+            curN511 = getTextBetweenWords(curN511,servalIDs,":");
+            curN518 = getTextBetweenWords(curN518, servalIDs,":");
 
             // Year in N5.11 AND N5.18
-            List<Integer> curN5_11Num = onlyKeepNumbers(curN5_11);
-            List<Integer> curN5_18Num = onlyKeepNumbers(curN5_18);
+            List<Integer> curN511Num = onlyKeepNumbers(curN511);
+            List<Integer> curN518Num = onlyKeepNumbers(curN518);
 
             // Get Start AND End date N5.27
-            List<String> curN5_27 = getSpecificValue("N5.27", id.get(i));
+            List<String> curN527 = getSpecificValue(indexN527, id.get(i));
             String startDate = "";
             String endDate = "";
-            if(!getSpecificValueInList(curN5_27, "Første registrering").isEmpty()){
-                startDate = getSpecificValueInList(curN5_27, "Første registrering").get(0);
+            if(!getSpecificValueInList(curN527, "Første registrering").isEmpty()){
+                startDate = getSpecificValueInList(curN527, "Første registrering").get(0);
                 startDate = getTextAt(startDate,":");
                 if (startDate.length() > 4 && !startDate.substring(startDate.length() - 4).matches("\\D+"))  {
                     // gj;r om til int. check //D p[ begge
@@ -165,8 +174,8 @@ public class ArkadeModel {
                 }
                 else {startDate = ""; }
             }
-            if(!getSpecificValueInList(curN5_27, "Siste registrering").isEmpty()){
-                endDate = getSpecificValueInList(curN5_27, "Siste registrering").get(0);
+            if(!getSpecificValueInList(curN527, "Siste registrering").isEmpty()){
+                endDate = getSpecificValueInList(curN527, "Siste registrering").get(0);
                 endDate = getTextAt(endDate,":");
                 if (endDate.length() > 4){
                     endDate = endDate.substring(endDate.length() - 4);
@@ -176,28 +185,63 @@ public class ArkadeModel {
 
             // Check if N5.11 AND N5.18 is between N5.27 start AND end Date
             if(!startDate.isEmpty() && !endDate.isEmpty()){
-                for (int j = 0; j < curN5_11Num.size(); j++) {
+                for (int j = 0; j < curN511Num.size(); j++) {
                     //if(curN5_11Num >= startDate && curN5_11Num <= endDate){
                     // ta imot int (start,slutt)
                     // Mangler å sjekke med siste variabel?
                 }
             }
             else{
-                System.out.println("N5.27, ID:" + " StarDate/EndDate mangler eller er feil " +
+                System.out.println("N5.27, ID:" + " StarDate/EndDate mangler eller er feil " + // NOSONAR
                         "StartDate: " + startDate + " EndDate: " + endDate + " SystemID: " + id );
             }
 
 
 
+            // return valg og verdier for alle ID'ene
 
-            System.out.println(curID);
-            System.out.println(startDate);
-            System.out.println(endDate);
-            System.out.println(curN5_11Num);
-            System.out.println(curN5_18Num);
+            System.out.println(curID);  // NOSONAR
+            System.out.println(startDate);  // NOSONAR
+            System.out.println(endDate);  // NOSONAR
+            System.out.println(curN511Num);  // NOSONAR
+            System.out.println(curN518Num);  // NOSONAR
 
         }
 
+    }
+
+    /**
+     * 3.1.16. Check for number of registrations with saksparter.
+     * @return Comment on number of saksparter.
+     */
+    public List<Integer> saksparter(){
+        List<Integer> list = new ArrayList<>();
+        Integer saksparter = getTotal("N5.35", TOTALT); //NOSONAR
+        Integer antallReg = getTotal("N5.16", TOTALT);  //NOSONAR
+
+        list.add(saksparter);
+        if(saksparter <= 0){
+            // Ingen saksparter er registrert.
+            list.add(0);
+        }
+        else if(saksparter < (antallReg / 4)){
+            // saksparter + saksparter er registrert, og virker normalt for uttrekket.
+            list.add(1);
+        }
+        else{
+            // saksparter + saksparter er registrert, varsel: over 25% av antall registreringer har saksparter
+            list.add(2);
+        }
+        return list;
+    }
+    /**
+     * 3.1.17. Get Merkader.
+     * @return true if no merknader.
+     */
+    public boolean ingenMerknader(){
+        int merknader = getTotal("N5.36", TOTALT);
+        //Ingen merknader er registrert.
+        return merknader <= 0;
     }
 
     /**
@@ -225,45 +269,75 @@ public class ArkadeModel {
         }
 
     }
-    /**
-     * 3.1.16. Check for number of registrations with saksparter.
-     * @return Comment on number of saksparter.
-     */
-    public List<Integer> saksparter(){
-        List<Integer> list = new ArrayList<>();
-        Integer saksparter = getTotal("N5.35", TOTALT); //NOSONAR
-        Integer antallReg = getTotal("N5.16", TOTALT);  //NOSONAR
 
-        list.add(saksparter);
-        if(saksparter <= 0){
-            // Ingen saksparter er registrert.
-            list.add(0);
-        }
-        else if(saksparter < (antallReg / 4)){
-            // saksparter + saksparter er registrert, og virker normalt for uttrekket.
-            list.add(1);
-        }
-        else{
-            // saksparter + saksparter er registrert, varsel: over 25% av antall registreringer har saksparter
-            list.add(2);
-        }
-        return list;
-    }
-
-    /**
-     * 3.1.17. Get Merkader.
-     * @return true if no merknader.
+    /** 3.3.4, N5.37. Get totalt(klasser, mapper, basisregistreringer)
+     * @return List(0-id.size) of List(klasser, mapper, basisregistreringer)
+     *    eg. for id Nr 22: list.get(22) = {antall klasser, antall mapper, antall basisregistreringer}.
      */
-    public boolean ingenMerknader(){
-        int merknader = getTotal("N5.36", TOTALT);
-        //Ingen merknader er registrert.
-        return merknader <= 0;
+    public List <List<Integer>> kryssreferanser(){
+
+        String index = "N5.37";
+
+        List <List<Integer>> kryssreferanserNumbers = new ArrayList<>();
+
+        List <String> id = getSystemID(index, "systemID");
+
+        // If no ID. Add "NONE" ID
+        if(id.isEmpty()){
+            id.add("Antall");
+        }
+        // Search with ID
+        for (int i = 0; i < id.size(); i++) {
+            List<String> kryssreferanser = getSpecificValue(index, id.get(i));
+
+            kryssreferanserNumbers.add(Arrays.asList(getOneElementInListAsInteger(kryssreferanser, "klasser"),
+                    getOneElementInListAsInteger(kryssreferanser, "mapper"),
+                    getOneElementInListAsInteger(kryssreferanser, "basisregistreringer")
+            ));
+
+            if(kryssreferanserNumbers.get(i).contains(-1)){
+                System.out.println(index + " . -1 = Can't find value: (klasser, mapper, basisregistreringer):  " + //NOSONAR
+                        kryssreferanserNumbers.get(i));
+            }
+        }
+        return kryssreferanserNumbers;
     }
 
     // Function for all Chapters
 
     /**
-     * Get sum of all numbers in List.
+     * Get one integer from list. False if  more elements with containsValue
+     * @param listString string list
+     * @param containsValue get element with value
+     * @return One element with containsValue. else -1
+     */
+    public Integer getOneElementInListAsInteger(List<String> listString, String containsValue){
+        String oneElement = getOneElementInListAsString(listString, containsValue);
+        oneElement = getTextAt(oneElement, ":");
+        if(oneElement.equals("")){
+            return -1;
+        }
+        else{
+            return sumStringListWithOnlyNumbers(Arrays.asList(oneElement));
+        }
+    }
+
+    /**
+     * Get one String from list. False if more elements with containsValue
+     * @param listString string list
+     * @param containsValue get element with value
+     * @return One element with containsValue. else ""
+     */
+    public String getOneElementInListAsString(List<String> listString, String containsValue){
+        List<String> textList = getSpecificValueInList(listString, containsValue);
+        if(textList.size() != 1){
+            System.out.println("   There are: " + textList.size() + " elements in list. Should be 1 element"); //NOSONAR
+            return "";
+        }
+        return textList.get(0);
+    }
+
+    /** Get sum of all numbers in List. List NEEDS to have ONLY NUMBERS you want to sum.
      * @param numberList String List with number.
      * @return Sum of all number in string OR -1 if no number in list.
      */
@@ -271,14 +345,19 @@ public class ArkadeModel {
 
         int number = 0;
         boolean numberInList = false;
+
         for (String numberStr: numberList){
-            if (numberStr.matches("\\D+")) {
-                System.out.println("List has element without number in it"); //NOSONAR
+            // Check no numbers: error
+            if (numberStr.isEmpty() || numberStr.matches("\\D+")) {
+                System.out.println("   List has element without number in it"); //NOSONAR
                 return -1;
             }
+            // Remove everything except numbers in String
+            numberStr = numberStr.replaceAll("\\D+", "");
             number += Integer.parseInt(numberStr);
             numberInList = true;
         }
+        // List has at least one number
         if(numberInList){
             return number;
         }
@@ -361,21 +440,20 @@ public class ArkadeModel {
 
         List<String> tmp = new ArrayList<>();
 
-        for (int i = 0; i < listText.size(); i++) {
-            if(indexSymbol1.equals("")){
+        for (String s : listText) {
+            if (indexSymbol1.equals("")) {
                 try {
-                    tmp.add(listText.get(i).substring(0, listText.get(i).lastIndexOf(indexSymbol2)));
+                    tmp.add(s.substring(0, s.lastIndexOf(indexSymbol2)));
                 } catch (Exception e) {
                     System.out.println("NO: " + indexSymbol2 + " int text "); //NOSONAR
                     System.out.println(e.getMessage()); //NOSONAR
                 }
-            }
-            else{
+            } else {
                 try {
-                    tmp.add(listText.get(i).substring(listText.get(i).lastIndexOf(indexSymbol1) + 1,
-                            listText.get(i).lastIndexOf(indexSymbol2)));
+                    tmp.add(s.substring(s.lastIndexOf(indexSymbol1) + 1,
+                            s.lastIndexOf(indexSymbol2)));
                 } catch (Exception e) {
-                    System.out.println("NO: " + indexSymbol1 + " or " +  indexSymbol2 + " int text "); //NOSONAR
+                    System.out.println("NO: " + indexSymbol1 + " or " + indexSymbol2 + " int text "); //NOSONAR
                     System.out.println(e.getMessage()); //NOSONAR
                 }
             }
@@ -393,13 +471,12 @@ public class ArkadeModel {
 
         List<Integer> tmp = new ArrayList<>();
 
-        for (int i = 0; i < listText.size(); i++) {
+        for (String s : listText) {
             String onlyNumbers = "\\D+";
-            if(listText.get(i).matches(onlyNumbers)){
-                System.out.println("No numbers in date variable's ") ; //NOSONAR
-            }
-            else {
-                String number = listText.get(i).replaceAll(onlyNumbers, "");
+            if (s.matches(onlyNumbers)) {
+                System.out.println("No numbers in date variable's "); //NOSONAR
+            } else {
+                String number = s.replaceAll(onlyNumbers, "");
                 tmp.add(Integer.parseInt(number));
             }
         }
@@ -458,9 +535,6 @@ public class ArkadeModel {
                     total.add(tmp);
                 }
             }
-        }
-        if(total.isEmpty()){
-            System.out.println(index + " has no value with text " + containsValue); //NOSONAR
         }
         return total;
     }
