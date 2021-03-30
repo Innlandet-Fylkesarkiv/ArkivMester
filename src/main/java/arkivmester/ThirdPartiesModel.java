@@ -2,6 +2,11 @@ package arkivmester;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -222,6 +227,23 @@ public class ThirdPartiesModel {
      * @throws IOException Cannot run program.
      */
     public void unzipArchive(File path, Properties prop) throws IOException {
+        File unzipped = new File(tempFolder + archiveName + archiveName); // #NOSONAR
+        if(unzipped.exists()){
+            Path directory = unzipped.toPath();
+            Files.walkFileTree(directory, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
 
         //String with path to 7zip location.
         String cd = cdString + prop.getProperty("7ZipPath") + "\"";
@@ -338,7 +360,7 @@ public class ThirdPartiesModel {
 
         String outFile = prop.getProperty(tempFolderKey) + archiveName + "\\" + outFileName + ".txt";
         String pwd = cdString + prop.getProperty(basexPathKey) + "\"";
-        System.out.println(pwd + " && basex -o \"" + outFile + "\" -i " + xml + " " + xq);
+
         ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o \"" + outFile + "\" -i " + xml + " " + xq);
 
         try {
@@ -411,22 +433,6 @@ public class ThirdPartiesModel {
         }
 
         return true;
-    }
-
-    /**
-     * Checks if there is at least 1 included test before saving.
-     * @param list Boolean list from the UI which is not yet saved.
-     * @return True if there is at least 1 included test, false if there are none included tests.
-     */
-    public Boolean noEmptyTests(List<Boolean> list) {
-        int count = 0;
-
-        for(Boolean val: list) {
-            if(Boolean.FALSE.equals(val))
-                count++;
-        }
-
-        return count != list.size();
     }
 
     /**
