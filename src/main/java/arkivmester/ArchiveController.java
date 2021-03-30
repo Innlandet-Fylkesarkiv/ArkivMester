@@ -401,7 +401,8 @@ public class ArchiveController implements ViewObserver {
     //When "Start testing" is clicked.
     @Override
     public void testStarted() {
-        if(Boolean.TRUE.equals(thirdPartiesModel.checkIfToolsArePresent(settingsModel.prop))) {
+        List<String> missingTools = thirdPartiesModel.checkIfToolsArePresent(settingsModel.prop);
+        if(missingTools.isEmpty()) {
             testView = new TestView();
             testView.addObserver(this);
             testView.createAndShowGUI(mainView.getContainer());
@@ -414,8 +415,15 @@ public class ArchiveController implements ViewObserver {
             scheduler = Executors.newScheduledThreadPool(1);
             scheduler.submit(this::runTests);
         }
-        else
-            mainView.exceptionPopup("Det mangler en eller flere verktøy på maskinen");
+        else {
+            StringBuilder bld = new StringBuilder();
+            bld.append("Det mangler en eller flere verktøy på maskinen:");
+            for(String tool : missingTools) {
+                bld.append(" ").append(tool);
+            }
+            mainView.exceptionPopup(bld.toString());
+        }
+
     }
 
 
@@ -595,11 +603,11 @@ public class ArchiveController implements ViewObserver {
             list = archiveModel.formatDate(list);
             archiveModel.updateAdminInfo(list);
         } catch (IOException e) {
-            mainView.exceptionPopup("BaseX kunne ikke kjøre en eller flere .xq filer");
+            mainView.exceptionPopup("BaseX kunne ikke kjøre 1.1.xq, 1.1a.xq og/eller 1.1b.xq");
         } catch (DateTimeParseException e) {
             mainView.exceptionPopup("CREATEDATE formatet i metadata.xml er feil");
         } catch (IndexOutOfBoundsException e) {
-            mainView.exceptionPopup("Fant ikke XQueries eller de er feil, prøv igjen");
+            mainView.exceptionPopup("Fant ikke XQueries eller de er feil");
         }
     }
 
