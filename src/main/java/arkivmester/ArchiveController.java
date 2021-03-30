@@ -160,10 +160,12 @@ public class ArchiveController implements ViewObserver {
         if(arkadeModel.getTotal("N5.44", TOTAL) == 0 &&
                 arkadeModel.getTotal("N5.45", TOTAL) ==0) {
             reportModel.setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), 0);
+            reportModel.setNewInput(Arrays.asList(4, 2, 1), Collections.emptyList(), 0);
         }
         else if (arkadeModel.getTotal("N5.44", TOTAL) > 0 &&
                 arkadeModel.getTotal("N5.45", TOTAL) > 0) {
             reportModel.setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), 1);
+            reportModel.setNewInput(Arrays.asList(4, 2, 1), Collections.emptyList(), 1);
         }
         //Chapter 3.1.27
         List<String> input = new ArrayList<>();
