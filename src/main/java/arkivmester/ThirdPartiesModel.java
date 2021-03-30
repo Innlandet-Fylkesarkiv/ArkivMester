@@ -256,6 +256,7 @@ public class ThirdPartiesModel {
         StringBuilder bld = new StringBuilder();
         String archivePath = tempFolder + archiveName;
         String unzippedArchive = archivePath + "\\" + prop.get("currentArchive"); // #NOSONAR
+
         for(int i = 0; i<selectedXqueries.size(); i++) {
             if(Boolean.TRUE.equals(selectedXqueries.get(i))) {
                 xmlName = xmlNames.get(i).toLowerCase();
@@ -273,41 +274,42 @@ public class ThirdPartiesModel {
                 else if(xmlName.contains("arkade")) {
                     bld.append(archivePath).append("\\Arkade\\report\\Arkaderapprt-").append(prop.get("currentArchive")).append(".html");
                 }
-                else
+                else {
                     bld.append(unzippedArchive);
 
-                if(xmlName.contains("dias-mets")) {
-                    bld.append("\\dias-mets.xml");
-                }
-                else if(xmlName.contains("log")) {
-                    bld.append("\\log.xml"); // #NOSONAR
-                }
-                else if(xmlName.contains("dias-premis")) {
-                    bld.append("\\administrative_metadata\\diaspremis.xml");
-                }
-                else if(xmlName.contains("addml")) {
-                    bld.append("\\administrative_metadata\\addml.xml"); // #NOSONAR
-                }
-                else if(xmlName.contains("eac-cpf")) {
-                    bld.append("\\descriptive_metadata\\eac-cpf.xml"); // #NOSONAR
-                }
-                else if(xmlName.contains("ead")) {
-                    bld.append("\\descriptive_metadata\\ead.xml"); // #NOSONAR
-                }
-                else if(xmlName.contains("arkivstruktur")) {
-                    bld.append("\\content\\arkivstruktur.xml"); // #NOSONAR
-                }
-                else if(xmlName.contains("arkivuttrekk")) {
-                    bld.append("\\content\\arkivuttrekk.xml"); // #NOSONAR
-                }
-                else if(xmlName.contains("endringslogg")) {
-                    bld.append("\\content\\endringslogg.xml"); // #NOSONAR
-                }
-                else if(xmlName.contains("loependejournal")) {
-                    bld.append("\\content\\loependeJournal.xml"); // #NOSONAR
-                }
-                else if(xmlName.contains("offentligjournal")) {
-                    bld.append("\\content\\offentligJournal.xml"); // #NOSONAR
+                    if(xmlName.contains("dias-mets")) {
+                        bld.append("\\dias-mets.xml");
+                    }
+                    else if(xmlName.contains("log")) {
+                        bld.append("\\log.xml"); // #NOSONAR
+                    }
+                    else if(xmlName.contains("dias-premis")) {
+                        bld.append("\\administrative_metadata\\diaspremis.xml");
+                    }
+                    else if(xmlName.contains("addml")) {
+                        bld.append("\\administrative_metadata\\addml.xml");
+                    }
+                    else if(xmlName.contains("eac-cpf")) {
+                        bld.append("\\descriptive_metadata\\eac-cpf.xml");
+                    }
+                    else if(xmlName.contains("ead")) {
+                        bld.append("\\descriptive_metadata\\ead.xml");
+                    }
+                    else if(xmlName.contains("arkivstruktur")) {
+                        bld.append("\\content\\arkivstruktur.xml");
+                    }
+                    else if(xmlName.contains("arkivuttrekk")) {
+                        bld.append("\\content\\arkivuttrekk.xml");
+                    }
+                    else if(xmlName.contains("endringslogg")) {
+                        bld.append("\\content\\endringslogg.xml");
+                    }
+                    else if(xmlName.contains("loependejournal")) {
+                        bld.append("\\content\\loependeJournal.xml");
+                    }
+                    else if(xmlName.contains("offentligjournal")) {
+                        bld.append("\\content\\offentligJournal.xml");
+                    }
                 }
 
                 runCustomBaseX(bld.toString(), xqueryNames[i], prop);
