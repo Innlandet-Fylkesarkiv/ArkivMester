@@ -1,11 +1,7 @@
 package arkivmester;
 
 import java.io.*;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Properties;
 
@@ -77,12 +73,7 @@ public class SettingsModel {
         if(!archiveFolder.exists()) {
             Files.createDirectory(archiveFolder.toPath());
         }
-        else {
-            File unzipped = new File(archiveFolder.getPath() + "\\" + fileName); // #NOSONAR
-            if(unzipped.exists()) {
-                deleteUnZippedArchive();
-            }
-        }
+
 
         //KostVal
         File kostValFolder = new File(archiveFolder.getPath() + "\\KostVal");
@@ -177,32 +168,6 @@ public class SettingsModel {
 
         try (FileOutputStream fos = new FileOutputStream(alteredCfg)){
             prop.store(fos, null);
-        }
-    }
-
-    /**
-     * Deletes the unzipped archive in preperation to test the archive again.
-     * @throws IOException No permissions in tempFolder path.
-     */
-    public void deleteUnZippedArchive() throws IOException {
-        String archive = (String)prop.get(CURRENTARCHIVE);
-        File zipped = new File(prop.get("tempFolder") + "\\"+ archive + "\\" + archive); // #NOSONAR
-
-        if(zipped.exists()) {
-            Path directory = zipped.toPath();
-            Files.walkFileTree(directory, new SimpleFileVisitor<>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) throws IOException {
-                    Files.delete(file);
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                    Files.delete(dir);
-                    return FileVisitResult.CONTINUE;
-                }
-            });
         }
     }
 
