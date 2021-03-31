@@ -719,7 +719,6 @@ public class ReportModel {
         String archivePath = "\"" + prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName; // #NOSONAR
         String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml\"";
 
-            /*
         if(arkadeModel.getFileToString(prop)){
             arkadeTestReport();
 
@@ -727,8 +726,6 @@ public class ReportModel {
         else {
             System.out.println("Can't get testreport html "); //NOSONAR
         }
-
-             */
 
         Map<String, String> map = new LinkedHashMap<>();
         map.put("1.2_1.xq",archivePath + "\\dias-mets.xml\"");
@@ -798,7 +795,7 @@ public class ReportModel {
         }
 
         //Chapter 3.1.23
-        skjerminger(testArkivstruktur);
+        skjerminger();
 
         //Chapter 3.2.1
         para = xqueriesMap.get("3.2.1_1");
@@ -918,6 +915,20 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 3, 7), Collections.emptyList(), 2);
         }
 
+        //Chapter 3.3.3
+        List<Integer> three = Arrays.asList(3, 3, 3);
+        int total = arkadeModel.getTotal("N5.36", TOTAL);
+        if(total > 0) {
+            setNewInput(three, Collections.singletonList(total + ""), 0);
+
+            para = xqueriesMap.get("3.3.3_1");
+            insertTable(three, splitIntoTable(para));
+            para = arkadeModel.getTableDataFromHtml("N5.36", 2);
+            insertTable(three, para);
+            para = xqueriesMap.get("3.3.3_2");
+            insertTable(three, splitIntoTable(para));
+        }
+
         //Chapter 5 - Attachments
         if(!attachments.isEmpty()) {
             setNewParagraph(Collections.singletonList(5), attachments);
@@ -928,7 +939,7 @@ public class ReportModel {
         // makeReport(majority of code here)
     }
 
-    private void skjerminger(String xml) {
+    private void skjerminger() {
         List<String> para = xqueriesMap.get("3.1.23_1");
         if(para.get(0).equals(EMPTY)) {
             setNewInput(Arrays.asList(3, 1, 23), Collections.emptyList(), 0);
@@ -1037,6 +1048,221 @@ public class ReportModel {
         }
     }
 
+    /**
+     *
+     */
+    private void arkadeTestReport(){ // NOSONAR
+        String fileName = prop.getProperty("currentArchive");
+        String archivePath = "\"" + prop.getProperty("tempFolder") + "\\" + fileName; // #NOSONAR
+        String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml\"";
 
+        // 3 og 3.1 arkade version
+        String version = arkadeModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
+
+        setNewInput(Arrays.asList(3, 1), Collections.singletonList(version), 0);
+        // 3.1.1
+        writeDeviation(Arrays.asList(3, 1, 1),"N5.01");
+        writeDeviation(Arrays.asList(3, 1, 1),"N5.02");
+
+        // 3.1.8
+        List<String> dokumentstatus = arkadeModel.getTableDataFromHtml("N5.15", 4);
+
+        setNewInput(Arrays.asList(3, 1, 8), Collections.emptyList(), 0);
+        insertTable(Arrays.asList(3, 1, 8), dokumentstatus);
+
+        //Chapter 3.1.12
+        int arkivert = arkadeModel.sumStringListWithOnlyNumbers(
+                arkadeModel.getNumberInTextAsString("N5.22", "Journalstatus: Arkivert - Antall:", ":"));
+        int journalfort =  arkadeModel.sumStringListWithOnlyNumbers(
+                arkadeModel.getNumberInTextAsString("N5.22", "Journalstatus: Journalført - Antall:", ":"));
+
+        if (journalfort == -1) {
+            setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 0);
+        } else  {
+            if (arkivert == -1) {
+                setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 2);
+            } else {
+                setNewInput(Arrays.asList(3, 1, 12), Collections.singletonList("" + journalfort), 1);
+            }
+        }
+        //Chapter 3.1.16 - Saksparter
+        List<Integer> saksparter = arkadeModel.saksparter();
+        if(saksparter.get(0) == 0){
+            setNewInput(Arrays.asList(3, 1, 16), Collections.emptyList(), 0);
+        } else {
+            setNewInput(Arrays.asList(3, 1, 16), Collections.singletonList(
+                    saksparter.get(0).toString()), 1);
+        }
+
+        //Chapter 3.1.17 - Merknader
+        if (arkadeModel.ingenMerknader()) {
+            setNewInput(Arrays.asList(3, 1, 17), Collections.emptyList(), 0);
+            setNewParagraph(Arrays.asList(3, 1, 17), Collections.singletonList("Rename tittel from 3.1.17 to merknader "));
+            setNewParagraph(Arrays.asList(3, 3, 3), Collections.singletonList("DELETE ME: 3.3.3"));
+        }
+
+        //Chapter 3.1.18 - Kryssreferanser
+        if(arkadeModel.getTotal("N5.37", TOTAL) == 0){
+            setNewInput(Arrays.asList(3, 1, 18), Collections.emptyList() , 0);
+            //Delete 3.3.4, Title = "Kryssreferanser"
+        }
+
+        //Chapter 3.1.19 - Presedenser
+        if(arkadeModel.getTotal("N5.38", TOTAL) == 0 ) {
+            setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), 0);
+        }
+        else if (arkadeModel.getTotal("N5.38", TOTAL) > 0 ) {
+            setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), 1);
+        }
+
+        //Chapter 3.1.22 - Dokumentflyter
+        if(arkadeModel.getTotal("N5.41",TOTAL) == 0) {
+            setNewInput(Arrays.asList(3, 1, 22), Collections.emptyList(), 0);
+            //Delete 3.3.5, Title = Dokumentflyter
+        }
+
+        //Chapter 3.1.24 - Gradering
+        if(arkadeModel.getTotal("N5.43", TOTAL) == 0) {
+            setNewInput(Arrays.asList(3, 1, 24), Collections.emptyList(), 0);
+        }
+        else if (arkadeModel.getTotal("N5.43", TOTAL) > 0) {
+            setNewInput(Arrays.asList(3, 1, 24), Collections.emptyList(), 1);
+        }
+
+        //Chapter 3.1.25 - Kassasjoner
+        if(arkadeModel.getTotal("N5.44", TOTAL) == 0 &&
+                arkadeModel.getTotal("N5.45", TOTAL) ==0) {
+            setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), 0);
+            setNewInput(Arrays.asList(4, 2, 1), Collections.emptyList(), 0);
+        }
+        else if (arkadeModel.getTotal("N5.44", TOTAL) > 0 &&
+                arkadeModel.getTotal("N5.45", TOTAL) > 0) {
+            setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), 1);
+            setNewInput(Arrays.asList(4, 2, 1), Collections.emptyList(), 1);
+        }
+        //Chapter 3.1.27
+        List<String> input = new ArrayList<>();
+        int valg = arkadeModel.systemidentifikasjonerForklaring(input);
+        setNewInput(Arrays.asList(3, 1, 27), input, valg);
+
+        //Chapter 3.1.28 - Arkivdelreferanser
+        if(arkadeModel.getDataFromHtml("N5.48").isEmpty()) {
+            setNewInput(Arrays.asList(3, 1, 28), Collections.emptyList(), 0);
+        }
+        else {
+            setNewInput(Arrays.asList(3, 1, 28), Collections.emptyList(), 1);
+        }
+
+        //Chapter 3.1.30
+        String chapter = "N5.59";
+        if(arkadeModel.getDataFromHtml(chapter).isEmpty()) {
+            setNewInput(Arrays.asList(3, 1, 30), Collections.emptyList(), 0);
+        }
+        else {
+            int oj = arkadeModel.getTotal(chapter, "dokumentert i offentlig journal");
+            int as = arkadeModel.getTotal(chapter, "funnet i arkivstrukturen:");
+            if(oj != -1 && as != -1) {
+                oj -= as;
+                setNewInput(Arrays.asList(3, 1, 30), Collections.singletonList("" + oj), 1);
+            }
+        }
+
+        //Chapter 3.1.32 - Endringslogg
+        // Endre tittel til: Endringslogg testes i kapittel 3.3.8
+
+        //Chapter 3.1.33
+        if(arkadeModel.getDataFromHtml("N5.63").isEmpty()) {
+            setNewInput(Arrays.asList(3, 1, 33), Collections.emptyList(), 0);
+        }
+        else {
+            setNewInput(Arrays.asList(3, 1, 33), Collections.emptyList(), 1);
+        }
+
+        //Chapter 3.1.3
+        int arkiv = arkadeModel.getTotal("N5.04", TOTAL);
+        int arkivdeler = arkadeModel.getTotal("N5.05", TOTAL);
+        List<String> status = arkadeModel.getDataFromHtml("N5.06");
+        if(arkiv == 1 && arkivdeler == 1 && status.get(1).contains("Avsluttet periode")) {
+            setNewInput(Arrays.asList(3, 1, 3), Collections.emptyList(),0);
+        }
+        if(!status.get(1).contains("Avsluttet periode")){
+            String s = status.get(1);
+            s = s.substring(s.lastIndexOf(":")+2);
+            setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList("\"" + s + "\""), 2);
+        }
+        if(arkiv > 1) {
+            setNewInput(Arrays.asList(3, 1, 3), Collections.emptyList(), 3);
+        }
+
+        //Chapter 3.1.4
+        //Endre tittel til: Se eget klassifikasjonskapittel 3.3.1.
+
+        //Chapter 3.1.6
+        //Endre tittel til: Se eget klassifikasjonskapittel 3.3.1.
+
+        //Chapter 3.1.29
+        //Endre tittel til: Se eget klassifikasjonskapittel 3.3.1.
+
+        //Chapter 3.2.1
+        if(!arkadeModel.getDataFromHtml("N5.48").isEmpty()) {
+            setNewInput(Arrays.asList(3, 2, 1), Collections.emptyList(), 3);
+        }
+
+        //Chapter 3.3.1
+        int total = arkadeModel.getTotal("N5.20", "Klasser uten registreringer");
+        if(total > 0) {
+            setNewInput(Arrays.asList(3, 3, 1), Collections.singletonList(total + ""), 2);
+        }
+        total = arkadeModel.getTotal("N5.12", TOTAL);
+        if(total > 0) {
+            setNewInput(Arrays.asList(3, 3, 1), Collections.singletonList(total + ""), 3);
+        }
+        if(!arkadeModel.getDataFromHtml("N5.47").isEmpty()) {
+            setNewInput(Arrays.asList(3, 3, 1), Collections.emptyList(), 4);
+        }
+        total = arkadeModel.getTotal("N5.51", TOTAL);
+        if(total > 0) {
+            setNewInput(Arrays.asList(3, 3, 1), Collections.singletonList(total + ""), 5);
+        }
+
+        //Chapter 3.3.2
+        total = arkadeModel.getTotal("N5.20", TOTAL);
+        if(total > 0) {
+            setNewInput(Arrays.asList(3, 3, 2), Collections.singletonList(total + ""), 0);
+        }
+
+        /*
+        //Chapter 3.3.3
+        List<Integer> three = Arrays.asList(3, 3, 3);
+        total = arkadeModel.getTotal("N5.36", TOTAL);
+        if(total > 0) {
+            setNewInput(three, Collections.singletonList(total + ""), 0);
+
+            List<String> para;
+            para = xqueriesMap.get("3.3.3_1");
+            insertTable(three, splitIntoTable(para));
+            para = arkadeModel.getTableDataFromHtml("N5.36", 2);
+            insertTable(three, para);
+            para = xqueriesMap.get("3.3.3_2");
+            insertTable(three, splitIntoTable(para));
+        }
+
+         */
+    }
+
+
+    /**
+     *
+     * @param kap docx kap
+     * @param index test ID
+     */
+    private void writeDeviation(List<Integer> kap, String index) {
+        List<String> avvik = arkadeModel.getDataFromHtml(index);
+        if (!avvik.isEmpty()) {
+            insertTable(kap, avvik);
+        } else {
+            setNewInput(kap, Collections.emptyList(), 0);
+        }
+    }
 
 }

@@ -30,7 +30,7 @@ public class ArchiveController implements ViewObserver {
     ReportModel reportModel;
     ThirdPartiesModel thirdPartiesModel;
     SettingsModel settingsModel;
-    ArkadeModel arkadeModel; //slett
+
 
     ScheduledExecutorService scheduler;
 
@@ -43,7 +43,7 @@ public class ArchiveController implements ViewObserver {
         archiveModel = new ArchiveModel();
         thirdPartiesModel = new ThirdPartiesModel();
         settingsModel = new SettingsModel();
-        arkadeModel = new ArkadeModel(); //slett
+
     }
 
     /**
@@ -61,223 +61,7 @@ public class ArchiveController implements ViewObserver {
         }
     }
 
-    /**
-     *
-     */
-    private void arkadeTestReport(){ // NOSONAR
-        String TOTAL = "Totalt"; // tmp todo remove
-        String fileName = archiveModel.tar.getName();
-        fileName = fileName.substring(0,fileName.lastIndexOf('.'));
 
-        String archivePath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName; // #NOSONAR
-
-        String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml\"";
-
-        // 3 og 3.1 arkade version
-        String version = arkadeModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
-
-        reportModel.setNewInput(Arrays.asList(3, 1), Collections.singletonList(version), 0);
-        // 3.1.1
-        writeDeviation(Arrays.asList(3, 1, 1),"N5.01");
-        writeDeviation(Arrays.asList(3, 1, 1),"N5.02");
-
-        // 3.1.8
-        List<String> dokumentstatus = arkadeModel.getTableDataFromHtml("N5.15", 4);
-
-        reportModel.setNewInput(Arrays.asList(3, 1, 8), Collections.emptyList(), 0);
-        reportModel.insertTable(Arrays.asList(3, 1, 8), dokumentstatus);
-
-        //Chapter 3.1.12
-        int arkivert = arkadeModel.sumStringListWithOnlyNumbers(
-                arkadeModel.getNumberInTextAsString("N5.22", "Journalstatus: Arkivert - Antall:", ":"));
-        int journalfort =  arkadeModel.sumStringListWithOnlyNumbers(
-                arkadeModel.getNumberInTextAsString("N5.22", "Journalstatus: Journalført - Antall:", ":"));
-        
-        if (journalfort == -1) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 0);
-        } else  {
-            if (arkivert == -1) {
-                reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 2);
-            } else {
-                reportModel.setNewInput(Arrays.asList(3, 1, 12), Collections.singletonList("" + journalfort), 1);
-            }
-        }
-        //Chapter 3.1.16 - Saksparter
-        List<Integer> saksparter = arkadeModel.saksparter();
-        if(saksparter.get(0) == 0){
-            reportModel.setNewInput(Arrays.asList(3, 1, 16), Collections.emptyList(), 0);
-        } else {
-            reportModel.setNewInput(Arrays.asList(3, 1, 16), Collections.singletonList(
-                    saksparter.get(0).toString()), 1);
-        }
-
-        //Chapter 3.1.17 - Merknader
-        if (arkadeModel.ingenMerknader()) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 17), Collections.emptyList(), 0);
-            reportModel.setNewParagraph(Arrays.asList(3, 1, 17), Collections.singletonList("Rename tittel from 3.1.17 to merknader "));
-            reportModel.setNewParagraph(Arrays.asList(3, 3, 3), Collections.singletonList("DELETE ME: 3.3.3"));
-        }
-
-        //Chapter 3.1.18 - Kryssreferanser
-        if(arkadeModel.getTotal("N5.37", TOTAL) == 0){
-            reportModel.setNewInput(Arrays.asList(3, 1, 18), Collections.emptyList() , 0);
-            //Delete 3.3.4, Title = "Kryssreferanser"
-        }
-
-        //Chapter 3.1.19 - Presedenser
-        if(arkadeModel.getTotal("N5.38", TOTAL) == 0 ) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), 0);
-        }
-        else if (arkadeModel.getTotal("N5.38", TOTAL) > 0 ) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), 1);
-        }
-
-        //Chapter 3.1.22 - Dokumentflyter
-        if(arkadeModel.getTotal("N5.41",TOTAL) == 0) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 22), Collections.emptyList(), 0);
-            //Delete 3.3.5, Title = Dokumentflyter
-        }
-
-        //Chapter 3.1.24 - Gradering
-        if(arkadeModel.getTotal("N5.43", TOTAL) == 0) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 24), Collections.emptyList(), 0);
-        }
-        else if (arkadeModel.getTotal("N5.43", TOTAL) > 0) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 24), Collections.emptyList(), 1);
-        }
-
-        //Chapter 3.1.25 - Kassasjoner
-        if(arkadeModel.getTotal("N5.44", TOTAL) == 0 &&
-                arkadeModel.getTotal("N5.45", TOTAL) ==0) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), 0);
-            reportModel.setNewInput(Arrays.asList(4, 2, 1), Collections.emptyList(), 0);
-        }
-        else if (arkadeModel.getTotal("N5.44", TOTAL) > 0 &&
-                arkadeModel.getTotal("N5.45", TOTAL) > 0) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), 1);
-            reportModel.setNewInput(Arrays.asList(4, 2, 1), Collections.emptyList(), 1);
-        }
-        //Chapter 3.1.27
-        List<String> input = new ArrayList<>();
-        int valg = arkadeModel.systemidentifikasjonerForklaring(input);
-        reportModel.setNewInput(Arrays.asList(3, 1, 27), input, valg);
-
-        //Chapter 3.1.28 - Arkivdelreferanser
-        if(arkadeModel.getDataFromHtml("N5.48").isEmpty()) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 28), Collections.emptyList(), 0);
-        }
-        else {
-            reportModel.setNewInput(Arrays.asList(3, 1, 28), Collections.emptyList(), 1);
-        }
-
-        //Chapter 3.1.30
-        String chapter = "N5.59";
-        if(arkadeModel.getDataFromHtml(chapter).isEmpty()) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 30), Collections.emptyList(), 0);
-        }
-        else {
-            int oj = arkadeModel.getTotal(chapter, "dokumentert i offentlig journal");
-            int as = arkadeModel.getTotal(chapter, "funnet i arkivstrukturen:");
-            if(oj != -1 && as != -1) {
-                oj -= as;
-                reportModel.setNewInput(Arrays.asList(3, 1, 30), Collections.singletonList("" + oj), 1);
-            }
-        }
-
-        //Chapter 3.1.32 - Endringslogg
-        // Endre tittel til: Endringslogg testes i kapittel 3.3.8
-
-        //Chapter 3.1.33
-        if(arkadeModel.getDataFromHtml("N5.63").isEmpty()) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 33), Collections.emptyList(), 0);
-        }
-        else {
-            reportModel.setNewInput(Arrays.asList(3, 1, 33), Collections.emptyList(), 1);
-        }
-
-        //Chapter 3.1.3
-        int arkiv = arkadeModel.getTotal("N5.04", TOTAL);
-        int arkivdeler = arkadeModel.getTotal("N5.05", TOTAL);
-        List<String> status = arkadeModel.getDataFromHtml("N5.06");
-        if(arkiv == 1 && arkivdeler == 1 && status.get(1).contains("Avsluttet periode")) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 3), Collections.emptyList(),0);
-        }
-        if(!status.get(1).contains("Avsluttet periode")){
-            String s = status.get(1);
-            s = s.substring(s.lastIndexOf(":")+2);
-            reportModel.setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList("\"" + s + "\""), 2);
-        }
-        if(arkiv > 1) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 3), Collections.emptyList(), 3);
-        }
-
-        //Chapter 3.1.4
-        //Endre tittel til: Se eget klassifikasjonskapittel 3.3.1.
-
-        //Chapter 3.1.6
-        //Endre tittel til: Se eget klassifikasjonskapittel 3.3.1.
-
-        //Chapter 3.1.29
-        //Endre tittel til: Se eget klassifikasjonskapittel 3.3.1.
-
-        //Chapter 3.2.1
-        if(!arkadeModel.getDataFromHtml("N5.48").isEmpty()) {
-            reportModel.setNewInput(Arrays.asList(3, 2, 1), Collections.emptyList(), 3);
-        }
-
-        //Chapter 3.3.1
-        int total = arkadeModel.getTotal("N5.20", "Klasser uten registreringer");
-        if(total > 0) {
-            reportModel.setNewInput(Arrays.asList(3, 3, 1), Collections.singletonList(total + ""), 2);
-        }
-        total = arkadeModel.getTotal("N5.12", TOTAL);
-        if(total > 0) {
-            reportModel.setNewInput(Arrays.asList(3, 3, 1), Collections.singletonList(total + ""), 3);
-        }
-        if(!arkadeModel.getDataFromHtml("N5.47").isEmpty()) {
-            reportModel.setNewInput(Arrays.asList(3, 3, 1), Collections.emptyList(), 4);
-        }
-        total = arkadeModel.getTotal("N5.51", TOTAL);
-        if(total > 0) {
-            reportModel.setNewInput(Arrays.asList(3, 3, 1), Collections.singletonList(total + ""), 5);
-        }
-
-        //Chapter 3.3.2
-        total = arkadeModel.getTotal("N5.20", TOTAL);
-        if(total > 0) {
-            reportModel.setNewInput(Arrays.asList(3, 3, 2), Collections.singletonList(total + ""), 0);
-        }
-
-        //Chapter 3.3.3
-        List<Integer> three = Arrays.asList(3, 3, 3);
-        total = arkadeModel.getTotal("N5.36", TOTAL);
-        if(total > 0) {
-            reportModel.setNewInput(three, Collections.singletonList(total + ""), 0);
-
-            List<String> para;
-            para = getEmptyOrContent(testArkivstruktur, "3.3.3_1");
-            reportModel.insertTable(three, reportModel.splitIntoTable(para));
-            para = arkadeModel.getTableDataFromHtml("N5.36", 2);
-            reportModel.insertTable(three, para);
-            para = getEmptyOrContent(testArkivstruktur, "3.3.3_2");
-            reportModel.insertTable(three, reportModel.splitIntoTable(para));
-        }
-    }
-
-
-    /**
-     *
-     * @param kap docx kap
-     * @param index test ID
-     */
-    private void writeDeviation(List<Integer> kap, String index) {
-        List<String> avvik = arkadeModel.getDataFromHtml(index);
-        if (!avvik.isEmpty()) {
-            reportModel.insertTable(kap, avvik);
-        } else {
-            reportModel.setNewInput(kap, Collections.emptyList(), 0);
-        }
-    }
 
     /**
      * Unzips the archive and runs the selected tests.
@@ -622,7 +406,7 @@ public class ArchiveController implements ViewObserver {
         // todo read XQuery names from XQuery-Statements mappe
         List<String> headerNumbers = Arrays.asList("3.1.11", "3.1.13", "3.1.20", "3.2.1_1", "3.2.1_2",
                 "3.2.1_3", "3.3.1", "3.3.2_1", "3.3.2_2", "3.3.2_3", "3.1.21", "3.1.26_1", "3.1.26_2",
-                "3.1.3", "3.3.6", "3.3.7", "3.1.23_1", "3.1.23_2", "3.1.23_3");
+                "3.1.3", "3.3.6", "3.3.7", "3.1.23_1", "3.1.23_2", "3.1.23_3", "3.3.3_1", "3.3.3_2");
 
         for(String s :headerNumbers) {
             xqueryResults.put(s, getEmptyOrContent(testArkivstruktur, s));
