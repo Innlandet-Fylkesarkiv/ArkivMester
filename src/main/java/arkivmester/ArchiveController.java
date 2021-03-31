@@ -3,7 +3,6 @@ package arkivmester;
 import javax.swing.*;
 import java.io.*;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.*;
@@ -61,7 +60,26 @@ public class ArchiveController implements ViewObserver {
         }
     }
 
+    public void getAdminInfo() {
+        List<String> list;
+        String xqName;
+        try {
+            if(thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "1.1b.xq", settingsModel.prop).get(0).contains("mets:mets"))
+                xqName = "1.1.xq";
+            else
+                xqName = "1.1a.xq";
 
+            list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), xqName, settingsModel.prop);
+            list = archiveModel.formatDate(list);
+            archiveModel.updateAdminInfo(list);
+        } catch (IOException e) {
+            mainView.exceptionPopup("BaseX kunne ikke kjøre 1.1.xq, 1.1a.xq og/eller 1.1b.xq");
+        } catch (DateTimeParseException e) {
+            mainView.exceptionPopup("CREATEDATE formatet i metadata.xml er feil");
+        } catch (IndexOutOfBoundsException e) {
+            mainView.exceptionPopup("Fant ikke XQueries eller de er feil");
+        }
+    }
 
     /**
      * Unzips the archive and runs the selected tests.
@@ -174,6 +192,25 @@ public class ArchiveController implements ViewObserver {
         testView.activateCreateReportBtn();
     }
 
+    private List<String> getEmptyOrContent(String xml, String header) {
+        String empty = "empty";
+        try {
+            List<String> para = thirdPartiesModel.runBaseX(
+                    xml,
+                    header + ".xq",
+                    settingsModel.prop);
+
+            if(para.isEmpty()) {
+                return Collections.singletonList(empty);
+            }
+
+            return para;
+        } catch (IOException e) {
+            mainView.exceptionPopup("BaseX kunne ikke kjøre " + header + " .xq filen. Sjekk om filen eksisterer");
+            return Collections.singletonList(empty);
+        }
+    }
+
     //When "Start testing" is clicked.
     @Override
     public void testStarted() {
@@ -201,7 +238,6 @@ public class ArchiveController implements ViewObserver {
         }
 
     }
-
 
     //When "Test nytt uttrekk" is clicked.
     @Override
@@ -362,30 +398,9 @@ public class ArchiveController implements ViewObserver {
         }
     }
 
-    public void getAdminInfo() {
-        List<String> list;
-        String xqName;
-        try {
-            if(thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "1.1b.xq", settingsModel.prop).get(0).contains("mets:mets"))
-                xqName = "1.1.xq";
-            else
-                xqName = "1.1a.xq";
-
-            list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), xqName, settingsModel.prop);
-            list = archiveModel.formatDate(list);
-            archiveModel.updateAdminInfo(list);
-        } catch (IOException e) {
-            mainView.exceptionPopup("BaseX kunne ikke kjøre 1.1.xq, 1.1a.xq og/eller 1.1b.xq");
-        } catch (DateTimeParseException e) {
-            mainView.exceptionPopup("CREATEDATE formatet i metadata.xml er feil");
-        } catch (IndexOutOfBoundsException e) {
-            mainView.exceptionPopup("Fant ikke XQueries eller de er feil");
-        }
-    }
-
     //When "Lag rapport" is clicked.
     @Override
-    public void makeReport() { // NOSONAR
+    public void makeReport() {
         Properties prop = settingsModel.prop;
 
         String format = testView.getSelectedFormat(); //#NOSONAR
@@ -402,8 +417,6 @@ public class ArchiveController implements ViewObserver {
 
 
         Map<String, List<String>> xqueryResults = new HashMap<>();
-
-        // todo read XQuery names from XQuery-Statements mappe
         List<String> headerNumbers = Arrays.asList("3.1.11", "3.1.13", "3.1.20", "3.2.1_1", "3.2.1_2",
                 "3.2.1_3", "3.3.1", "3.3.2_1", "3.3.2_2", "3.3.2_3", "3.1.21", "3.1.26_1", "3.1.26_2",
                 "3.1.3", "3.3.6", "3.3.7", "3.1.23_1", "3.1.23_2", "3.1.23_3", "3.3.3_1", "3.3.3_2");
@@ -421,28 +434,6 @@ public class ArchiveController implements ViewObserver {
         testView.updateTestStatus("<html>Rapporten er generert og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\<br>" +
                                         settingsModel.prop.getProperty("currentArchive") + "</html>");
         testView.activatePackToAipBtn();
-    }
-
-
-    // (string, List<String>)
-
-    private List<String> getEmptyOrContent(String xml, String header) {
-        String empty = "empty";
-        try {
-            List<String> para = thirdPartiesModel.runBaseX(
-                    xml,
-                    header + ".xq",
-                    settingsModel.prop);
-
-            if(para.isEmpty()) {
-                return Collections.singletonList(empty);
-            }
-
-            return para;
-        } catch (IOException e) {
-            mainView.exceptionPopup("BaseX kunne ikke kjøre " + header + " .xq filen. Sjekk om filen eksisterer");
-            return Collections.singletonList(empty);
-        }
     }
 
     //When "Lagre tests" is clicked.
@@ -468,6 +459,5 @@ public class ArchiveController implements ViewObserver {
             testSettingsView = null;
             mainView.showGUI();
         }
-
     }
 }

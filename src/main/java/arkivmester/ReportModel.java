@@ -1,6 +1,5 @@
 package arkivmester;
 
-import jdk.javadoc.doclet.Reporter;
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.xmlbeans.XmlCursor;
 
@@ -711,44 +710,23 @@ public class ReportModel {
     /**
      * Fetch all data from report and set up all chapters so that input can be changed.
      */
-    public void generateReport() {
+    public void generateReport() { // NOSONAR
         document = getDocumentFile(templateFile);
         setUpAllInputChapters();
 
-        String fileName = prop.getProperty("currentArchive");
-        String archivePath = "\"" + prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName; // #NOSONAR
-        String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml\"";
-
         if(arkadeModel.getFileToString(prop)){
             arkadeTestReport();
-
         }
         else {
             System.out.println("Can't get testreport html "); //NOSONAR
         }
 
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("1.2_1.xq",archivePath + "\\dias-mets.xml\"");
-        map.put("1.2_2.xq",archivePath + "\\content\\arkivuttrekk.xml\"");
-        map.put("1.2_3.xq",archivePath + "\\content\\loependeJournal.xml\"");
-        map.put("1.2_4.xq",archivePath + "\\content\\offentligJournal.xml\"");
-        map.put("1.2_5.xq",testArkivstruktur);
-
-        /*
-        List<String> list = new ArrayList<>();
-        for(Map.Entry<String, String> entry : map.entrySet()) {
-            list.addAll(getEmptyOrContent(entry.getValue(), entry.getKey()));
-        }
-
-         */
-
-
-        //setNewInput(Arrays.asList(1, 2), list);
+        //Chapter 1.1
         setNewInput(Arrays.asList(3, 1, 10), Collections.emptyList(), 0);
 
         //Chapter 3.1.11
         List<String> para = xqueriesMap.get("3.1.11");
-        //List<String> para = getEmptyOrContent(testArkivstruktur, "3.1.11");
+
         if(para.get(0).equals(EMPTY)) {
             setNewInput(Arrays.asList(3, 1, 11), Collections.emptyList(), 0);
         } else {
@@ -764,22 +742,20 @@ public class ReportModel {
 
             if(para.size() > 25) {
                 setNewInput(Arrays.asList(3, 1, 13),
-                        Arrays.asList(para.size() + "", "under redigering"), 3);
+                        Collections.singletonList(para.size() + ""), 3); // NOSONAR
                 writeAttachments("3.1.13", para);
                 attachments.add("\u2022 3.1.13.txt");
             }else {
                 setNewInput(Arrays.asList(3, 1, 13),
-                        Arrays.asList(para.size() + "", "under redigering"), 1);
+                        Collections.singletonList(para.size() + ""), 1);
                 insertTable(Arrays.asList(3, 1, 13), splitIntoTable(para));
             }
 
         } else {
-            setNewInput(Arrays.asList(3, 1, 13), Arrays.asList(para.size() + "", "under redigering"), 2);
+            setNewInput(Arrays.asList(3, 1, 13), Collections.singletonList(para.size() + ""), 2);
         }
 
-
         //Chapter 3.1.20
-        //para = mapParam("3.1.20");
         para = xqueriesMap.get("3.1.20");
         if(para.get(0).equals(EMPTY)) {
             setNewInput(Arrays.asList(3, 1, 20), Collections.emptyList(), 0);
@@ -814,10 +790,9 @@ public class ReportModel {
         }
         para = splitIntoTable(xqueriesMap.get("3.2.1_3"));
         if(!para.get(0).equals(EMPTY)) {
-            setNewInput(Arrays.asList(3, 2, 1), Arrays.asList(para.size() + ""), 4);
+            setNewInput(Arrays.asList(3, 2, 1), Collections.singletonList(para.size() + ""), 4);
             insertTable(Arrays.asList(3, 2, 1), splitIntoTable(para));
         }
-
 
         //Chapter 3.3.1
         para = splitIntoTable(xqueriesMap.get("3.3.1"));
@@ -933,10 +908,6 @@ public class ReportModel {
         if(!attachments.isEmpty()) {
             setNewParagraph(Collections.singletonList(5), attachments);
         }
-
-        // constructor(reset)
-        // generateReport(overview: arkade/report setup)
-        // makeReport(majority of code here)
     }
 
     private void skjerminger() {
@@ -1052,9 +1023,6 @@ public class ReportModel {
      *
      */
     private void arkadeTestReport(){ // NOSONAR
-        String fileName = prop.getProperty("currentArchive");
-        String archivePath = "\"" + prop.getProperty("tempFolder") + "\\" + fileName; // #NOSONAR
-        String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml\"";
 
         // 3 og 3.1 arkade version
         String version = arkadeModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
@@ -1230,24 +1198,6 @@ public class ReportModel {
         if(total > 0) {
             setNewInput(Arrays.asList(3, 3, 2), Collections.singletonList(total + ""), 0);
         }
-
-        /*
-        //Chapter 3.3.3
-        List<Integer> three = Arrays.asList(3, 3, 3);
-        total = arkadeModel.getTotal("N5.36", TOTAL);
-        if(total > 0) {
-            setNewInput(three, Collections.singletonList(total + ""), 0);
-
-            List<String> para;
-            para = xqueriesMap.get("3.3.3_1");
-            insertTable(three, splitIntoTable(para));
-            para = arkadeModel.getTableDataFromHtml("N5.36", 2);
-            insertTable(three, para);
-            para = xqueriesMap.get("3.3.3_2");
-            insertTable(three, splitIntoTable(para));
-        }
-
-         */
     }
 
 
