@@ -4,7 +4,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import java.util.Random;
 
 import java.io.*;
 import java.util.*;
@@ -122,7 +121,7 @@ public class ArkadeModel {
      * 3.1.14 and 3.1.31
      *
      */
-    public void firstLastRegistrering(){
+    public void firstLastRegistrering(){ //NOSONAR
 
         String indexN527 = "N5.27";
 
