@@ -39,7 +39,7 @@ public class TestSettingsView extends Views {
     /**
      * Creates and shows the GUI
      */
-    public void createAndShowGUI(Container cnt, String[] customXqueryList) {
+    public void createAndShowGUI(Container cnt, String[] customXqueryList) throws IndexOutOfBoundsException {
         container = cnt;
 
         //Clears container
@@ -119,7 +119,7 @@ public class TestSettingsView extends Views {
     /**
      * Sets up the XQuery panel.
      */
-    private void setUpXqueryPanel(JPanel xqueryPanel, String[] customXqueryList) {
+    private void setUpXqueryPanel(JPanel xqueryPanel, String[] customXqueryList) throws IndexOutOfBoundsException{
         int rows = customXqueryList.length;
 
         //Title
