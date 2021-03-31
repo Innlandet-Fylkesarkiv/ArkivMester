@@ -670,11 +670,7 @@ public class ArchiveController implements ViewObserver {
             }else {
                 reportModel.setNewInput(Arrays.asList(3, 1, 13),
                         Arrays.asList(para.size() + "", "under redigering"), 1);
-                List<String> newTemp = new ArrayList<>();
-                for (String s : para) {
-                    newTemp.addAll(Arrays.asList(s.split("; ")));
-                }
-                reportModel.insertTable(Arrays.asList(3, 1, 13), newTemp);
+                reportModel.insertTable(Arrays.asList(3, 1, 13), splitIntoTable(para));
             }
 
         } else {
@@ -693,7 +689,7 @@ public class ArchiveController implements ViewObserver {
                 attachments.add("\u2022 3.1.20.txt");
             }else {
                 reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.singletonList("" + para.size()), 1);
-                reportModel.insertTable(Arrays.asList(3, 1, 20), para);
+                reportModel.insertTable(Arrays.asList(3, 1, 20), splitIntoTable(para));
             }
         }
 
@@ -767,24 +763,16 @@ public class ArchiveController implements ViewObserver {
 
         //Chapter 3.1.3
         List<String> parts = getEmptyOrContent(testArkivstruktur, "3.1.3");
-
-        List<String> newParts = new ArrayList<>();
-        for(String s : parts) {
-            newParts.addAll(Arrays.asList(s.split("; ")));
-        }
         int arkivdeler = arkadeModel.getTotal("N5.05", TOTAL);
         if(arkivdeler > 1) {
             reportModel.setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList("" + arkivdeler), 1);
-            reportModel.insertTable(Arrays.asList(3, 1, 3), newParts);
+            reportModel.insertTable(Arrays.asList(3, 1, 3), splitIntoTable(parts));
         }
 
         //Chapter 3.3.6
         List<String> journals = getEmptyOrContent(testArkivstruktur, "3.3.6");
         if(!journals.get(0).equals(EMPTY)) {
-            List<String> journal = new ArrayList<>();
-            for (String s : journals) {
-                journal.addAll(Arrays.asList(s.split(": ")));
-            }
+            List<String> journal = splitIntoTable(journals);
             reportModel.setNewInput(Arrays.asList(3, 3, 6), Collections.emptyList(), 0);
             reportModel.insertTable(Arrays.asList(3, 3, 6), journal);
             int total = 0;
@@ -802,10 +790,7 @@ public class ArchiveController implements ViewObserver {
         //Chapter 3.3.7
         List<String> adminUnits = getEmptyOrContent(testArkivstruktur,"3.3.7");
         if(!adminUnits.get(0).equals(EMPTY)) {
-            List<String> unit = new ArrayList<>();
-            for(String s : adminUnits) {
-                unit.addAll(Arrays.asList(s.split("; ")));
-            }
+            List<String> unit = splitIntoTable(adminUnits);
             reportModel.setNewInput(Arrays.asList(3, 3, 7), Collections.emptyList(),0);
             reportModel.insertTable(Arrays.asList(3, 3, 7), unit);
             int total = 0;
@@ -948,8 +933,8 @@ public class ArchiveController implements ViewObserver {
 
     
     private void writeAttachments(String filename, List<String> content) {
-        String path = settingsModel.prop.getProperty("tempFolder") + "\\" + settingsModel.prop.getProperty("currentArchive")
-                + "\\" + filename + ".txt";
+        String path = settingsModel.prop.getProperty("tempFolder") + "\\" + settingsModel.prop.getProperty("currentArchive") //NOSONAR
+                + "\\" + filename + ".txt"; // NOSONAR
         File attachment = new File(path);
         try {
             if (attachment.createNewFile()) {
