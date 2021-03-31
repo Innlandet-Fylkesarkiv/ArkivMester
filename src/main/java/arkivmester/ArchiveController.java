@@ -2,9 +2,6 @@ package arkivmester;
 
 import javax.swing.*;
 import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,9 +9,6 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.IntStream;
 
 /**
  * Serves as the link between the views and the models.
@@ -34,19 +28,12 @@ public class ArchiveController implements ViewObserver {
     AboutView aboutView;
     ArchiveModel archiveModel;
     ReportModel reportModel;
-    ArkadeModel arkadeModel;
     ThirdPartiesModel thirdPartiesModel;
     SettingsModel settingsModel;
+    ArkadeModel arkadeModel; //slett
 
     ScheduledExecutorService scheduler;
 
-    /**
-     * List of the attachments which will be printed in chapter 5.
-     */
-    ArrayList<String> attachments = new ArrayList<>();
-    static final String EMPTY = "empty";
-    static final String TOTAL = "Totalt";
-    static final String TABLESPLIT = "[;:][ ]";
 
     /**
      * Initializes models and views.
@@ -54,10 +41,9 @@ public class ArchiveController implements ViewObserver {
     ArchiveController() {
         mainView = new MainView();
         archiveModel = new ArchiveModel();
-        reportModel = new ReportModel();
-        arkadeModel = new ArkadeModel();
         thirdPartiesModel = new ThirdPartiesModel();
         settingsModel = new SettingsModel();
+        arkadeModel = new ArkadeModel(); //slett
     }
 
     /**
@@ -79,6 +65,7 @@ public class ArchiveController implements ViewObserver {
      *
      */
     private void arkadeTestReport(){ // NOSONAR
+        String TOTAL = "Totalt"; // tmp todo remove
         String fileName = archiveModel.tar.getName();
         fileName = fileName.substring(0,fileName.lastIndexOf('.'));
 
@@ -269,11 +256,11 @@ public class ArchiveController implements ViewObserver {
 
             List<String> para;
             para = getEmptyOrContent(testArkivstruktur, "3.3.3_1");
-            reportModel.insertTable(three, splitIntoTable(para));
+            reportModel.insertTable(three, reportModel.splitIntoTable(para));
             para = arkadeModel.getTableDataFromHtml("N5.36", 2);
             reportModel.insertTable(three, para);
             para = getEmptyOrContent(testArkivstruktur, "3.3.3_2");
-            reportModel.insertTable(three, splitIntoTable(para));
+            reportModel.insertTable(three, reportModel.splitIntoTable(para));
         }
     }
 
@@ -335,7 +322,7 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tArkade test finished\n"); //NOSONAR
             testView.updateArkadeStatus(TestView.DONE);
-            attachments.add("\u2022 Arkade5 testrapport");
+            reportModel.attachments.add("\u2022 Arkade5 testrapport");
 
         }
         //VeraPDF
@@ -350,7 +337,7 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tVeraPDF test finished\n"); //NOSONAR
             testView.updateVeraStatus(TestView.DONE);
-            attachments.add("\u2022 VeraPDF testrapport");
+            reportModel.attachments.add("\u2022 VeraPDF testrapport");
         }
 
         //KostVal
@@ -365,7 +352,7 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tKost-Val test finished\n"); //NOSONAR
             testView.updateKostValStatus(TestView.DONE);
-            attachments.add("\u2022 Kost-val testrapport");
+            reportModel.attachments.add("\u2022 Kost-val testrapport");
         }
 
         //DROID
@@ -380,7 +367,7 @@ public class ArchiveController implements ViewObserver {
             }
             System.out.println("\n\tDROID finished\n"); //NOSONAR
             testView.updateDroidStatus(TestView.DONE);
-            attachments.add("\u2022 DROID rapporter");
+            reportModel.attachments.add("\u2022 DROID rapporter");
         }
 
         //XQuery
@@ -444,12 +431,8 @@ public class ArchiveController implements ViewObserver {
         mainView.toggleSettingsBtn();
         mainView.toggleAboutBtn();
 
-        reportModel = new ReportModel();
-        arkadeModel = new ArkadeModel();
         thirdPartiesModel = new ThirdPartiesModel();
         archiveModel = new ArchiveModel();
-
-        attachments.clear();
     }
 
     //When "Innstillinger" is clicked.
@@ -619,318 +602,48 @@ public class ArchiveController implements ViewObserver {
     //When "Lag rapport" is clicked.
     @Override
     public void makeReport() { // NOSONAR
+        Properties prop = settingsModel.prop;
+
         String format = testView.getSelectedFormat(); //#NOSONAR
-        String fileName = archiveModel.tar.getName();
-        fileName = fileName.substring(0,fileName.lastIndexOf('.'));
-
-        String archivePath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName; // #NOSONAR
-
+        String fileName = prop.getProperty("currentArchive");
+        String archivePath = "\"" + prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName; // #NOSONAR
         String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml\"";
 
-        reportModel.generateReport(); // big question: (1 == 2) ? 3 : 2
-
-        reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
-
-        if(arkadeModel.getFileToString(settingsModel.prop)){
-            arkadeTestReport();
-        }
-        else {
-            System.out.println("Can't get testreport html "); //NOSONAR
-        }
-
-        //testModel.parseReportHtml(); // remove when all function used in testModel
         Map<String, String> map = new LinkedHashMap<>();
-
         map.put("1.2_1.xq",archivePath + "\\dias-mets.xml\"");
         map.put("1.2_2.xq",archivePath + "\\content\\arkivuttrekk.xml\"");
         map.put("1.2_3.xq",archivePath + "\\content\\loependeJournal.xml\"");
         map.put("1.2_4.xq",archivePath + "\\content\\offentligJournal.xml\"");
         map.put("1.2_5.xq",testArkivstruktur);
 
-        List<String> list = new ArrayList<>();
-        for(Map.Entry<String, String> entry : map.entrySet()) {
-            list.addAll(getEmptyOrContent(entry.getValue(), entry.getKey()));
+
+        Map<String, List<String>> xqueryResults = new HashMap<>();
+
+        // todo read XQuery names from XQuery-Statements mappe
+        List<String> headerNumbers = Arrays.asList("3.1.11", "3.1.13", "3.1.20", "3.2.1_1", "3.2.1_2",
+                "3.2.1_3", "3.3.1", "3.3.2_1", "3.3.2_2", "3.3.2_3", "3.1.21", "3.1.26_1", "3.1.26_2",
+                "3.1.3", "3.3.6", "3.3.7", "3.1.23_1", "3.1.23_2", "3.1.23_3");
+
+        for(String s :headerNumbers) {
+            xqueryResults.put(s, getEmptyOrContent(testArkivstruktur, s));
         }
 
-        reportModel.setNewInput(Arrays.asList(1, 2), list);
+        reportModel = new ReportModel(prop, xqueryResults);
 
-        reportModel.setNewInput(Arrays.asList(3, 1, 10), Collections.emptyList(), 0);
+        reportModel.generateReport();
+        reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
 
-        //Chapter 3.1.11
-        List<String> para = getEmptyOrContent(testArkivstruktur, "3.1.11");
-        if(para.get(0).equals(EMPTY)) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 11), Collections.emptyList(), 0);
-        } else {
-            reportModel.setNewInput(Arrays.asList(3, 1, 11), Collections.singletonList("" + para.size()), 1);
-        }
-
-        //Chapter 3.1.13
-        para = getEmptyOrContent(testArkivstruktur, "3.1.13");
-
-        if(para.get(0).equals(EMPTY)) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 13), Collections.emptyList(), 0);
-        } else if (!para.get(0).equals("utgår")) {
-
-            if(para.size() > 25) {
-                reportModel.setNewInput(Arrays.asList(3, 1, 13),
-                        Arrays.asList(para.size() + "", "under redigering"), 3);
-                writeAttachments("3.1.13", para);
-                attachments.add("\u2022 3.1.13.txt");
-            }else {
-                reportModel.setNewInput(Arrays.asList(3, 1, 13),
-                        Arrays.asList(para.size() + "", "under redigering"), 1);
-                reportModel.insertTable(Arrays.asList(3, 1, 13), splitIntoTable(para));
-            }
-
-        } else {
-            reportModel.setNewInput(Arrays.asList(3, 1, 13), Arrays.asList(para.size() + "", "under redigering"), 2);
-        }
-
-
-        //Chapter 3.1.20
-        para = getEmptyOrContent(testArkivstruktur, "3.1.20");
-        if(para.get(0).equals(EMPTY)) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.emptyList(), 0);
-        } else {
-            if(para.size() > 25) {
-                reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.singletonList("" + para.size()), 2);
-                writeAttachments("3.1.20", para);
-                attachments.add("\u2022 3.1.20.txt");
-            }else {
-                reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.singletonList("" + para.size()), 1);
-                reportModel.insertTable(Arrays.asList(3, 1, 20), splitIntoTable(para));
-            }
-        }
-
-        //Chapter 3.1.23
-        skjerminger(testArkivstruktur);
-
-        //Chapter 3.2.1
-        para = getEmptyOrContent(testArkivstruktur, "3.2.1_1");
-        if(!para.get(0).equals(EMPTY)) {
-            int total = (int) para.stream().filter(t -> t.contains("Arkivert") || t.contains("Avsluttet")).count();
-            reportModel.setNewInput(Arrays.asList(3, 2, 1), Arrays.asList(para.size() + "", total + ""), 0);
-            reportModel.insertTable(Arrays.asList(3, 2, 1), splitIntoTable(para));
-        }
-        para = splitIntoTable(getEmptyOrContent(testArkivstruktur, "3.2.1_2"));
-        if(!para.get(0).equals(EMPTY)) {
-            int total = IntStream.range(0, para.size()).filter(i -> i % 4 == 2)
-                    .mapToObj(para::get).mapToInt(Integer::parseInt).sum();
-
-            reportModel.setNewInput(Arrays.asList(3, 2, 1), Arrays.asList(total + "", total + ""), 1);
-            reportModel.insertTable(Arrays.asList(3, 2, 1), para, Arrays.asList(0, 1));
-        }
-        para = getEmptyOrContent(testArkivstruktur, "3.2.1_3");
-        if(!para.get(0).equals(EMPTY)) {
-            reportModel.setNewInput(Arrays.asList(3, 2, 1), Arrays.asList(para.size() + ""), 4);
-            reportModel.insertTable(Arrays.asList(3, 2, 1), splitIntoTable(para));
-        }
-
-
-        //Chapter 3.3.1
-        para = getEmptyOrContent(testArkivstruktur, "3.3.1");
-        if(!para.get(0).equals(EMPTY)) {
-            reportModel.setNewInput(Arrays.asList(3, 3, 1), Collections.emptyList(), 0);
-            reportModel.insertTable(Arrays.asList(3, 3, 1), splitIntoTable(para));
-        }
-
-        //Chapter 3.3.2
-        para = getEmptyOrContent(testArkivstruktur, "3.3.2_1");
-        if(!para.get(0).equals(EMPTY)) {
-            reportModel.setNewInput(Arrays.asList(3, 3, 2), Collections.emptyList(), 1);
-            reportModel.insertTable(Arrays.asList(3, 3, 2), splitIntoTable(para));
-        }
-        para = getEmptyOrContent(testArkivstruktur, "3.3.2_2");
-        if(!para.get(0).equals(EMPTY)) {
-            reportModel.setNewInput(Arrays.asList(3, 3, 2), Collections.emptyList(), 3);
-            reportModel.insertTable(Arrays.asList(3, 3, 2), splitIntoTable(para));
-        }
-        para = getEmptyOrContent(testArkivstruktur, "3.3.2_3");
-        if(!para.get(0).equals(EMPTY)) {
-            reportModel.setNewInput(Arrays.asList(3, 3, 2), Collections.emptyList(), 4);
-            reportModel.insertTable(Arrays.asList(3, 3, 2), splitIntoTable(para));
-        }
-
-        //Chapter 3.1.21
-        para = getEmptyOrContent(testArkivstruktur, "3.1.21");
-
-        if(para.get(0).equals(EMPTY)) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 21), Collections.emptyList(), 0);
-        }
-        else {
-            reportModel.setNewInput(Arrays.asList(3, 1, 21), Collections.emptyList(),1);
-        }
-
-        //Chapter 3.1.26
-        List<String> convertedTo = getEmptyOrContent(testArkivstruktur, "3.1.26_1");
-
-        if(!convertedTo.isEmpty()) {
-
-            List<String> convertedFrom = getEmptyOrContent(testArkivstruktur, "3.1.26_2");
-
-            //Find amount of files - conversions for case 1.
-            if (convertedFrom.size() == 1 && convertedFrom.contains("doc")) {
-                reportModel.setNewInput(Arrays.asList(3, 1, 26), Collections.emptyList(), 2);
-            } else {
-                reportModel.setNewInput(Arrays.asList(3, 1, 26), Collections.emptyList(), 1);
-            }
-        }
-        else {
-            reportModel.setNewInput(Arrays.asList(3, 1, 26), Collections.emptyList(), 3);
-        }
-
-        //Chapter 3.1.3
-        List<String> parts = getEmptyOrContent(testArkivstruktur, "3.1.3");
-        int arkivdeler = arkadeModel.getTotal("N5.05", TOTAL);
-        if(arkivdeler > 1) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList("" + arkivdeler), 1);
-            reportModel.insertTable(Arrays.asList(3, 1, 3), splitIntoTable(parts));
-        }
-
-        //Chapter 3.3.6
-        List<String> journals = getEmptyOrContent(testArkivstruktur, "3.3.6");
-        if(!journals.get(0).equals(EMPTY)) {
-            List<String> journal = splitIntoTable(journals);
-            reportModel.setNewInput(Arrays.asList(3, 3, 6), Collections.emptyList(), 0);
-            reportModel.insertTable(Arrays.asList(3, 3, 6), journal);
-            int total = 0;
-            for (int i = 1; i <= journal.size(); i += 2) {
-                total += Integer.parseInt(journal.get(i));
-                int amount = Integer.parseInt(journal.get(i));
-                if (amount > (total / 100.0f * 90.0f)) {
-                    reportModel.setNewInput(Arrays.asList(3, 3, 6), Collections.emptyList(), 1);
-                }
-            }
-        }else {
-            reportModel.setNewInput(Arrays.asList(3, 3, 6),Collections.emptyList(), 2);
-        }
-
-        //Chapter 3.3.7
-        List<String> adminUnits = getEmptyOrContent(testArkivstruktur,"3.3.7");
-        if(!adminUnits.get(0).equals(EMPTY)) {
-            List<String> unit = splitIntoTable(adminUnits);
-            reportModel.setNewInput(Arrays.asList(3, 3, 7), Collections.emptyList(),0);
-            reportModel.insertTable(Arrays.asList(3, 3, 7), unit);
-            int total = 0;
-            for(int i = 1; i <= unit.size(); i+=2 ) {
-                total += Integer.parseInt(unit.get(i));
-                int amount = Integer.parseInt(unit.get(i));
-                if(amount > (total / 100.0f * 90.0f)) {
-                    reportModel.setNewInput(Arrays.asList(3, 3, 7), Collections.emptyList(), 1);
-                }
-            }
-        }else {
-            reportModel.setNewInput(Arrays.asList(3, 3, 7), Collections.emptyList(), 2);
-        }
-
-        //Chapter 5 - Attachments
-        if(!attachments.isEmpty()) {
-            reportModel.setNewParagraph(Collections.singletonList(5), attachments);
-        }
-
-        reportModel.makeReport(settingsModel.prop);
+        reportModel.makeReport();
         testView.updateTestStatus("<html>Rapporten er generert og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\<br>" +
                                         settingsModel.prop.getProperty("currentArchive") + "</html>");
-
         testView.activatePackToAipBtn();
     }
 
-    private void skjerminger(String xml) {
-        List<String> para = getEmptyOrContent(xml, "3.1.23_1");
-        if(para.get(0).equals(EMPTY)) {
-            reportModel.setNewInput(Arrays.asList(3, 1, 23), Collections.emptyList(), 0);
-        } else {
 
-            List<String> skjermingtyper = getSkjerminger(para);
-            int distinct = skjermingtyper.size();
-            skjermingtyper = splitIntoTable(skjermingtyper);
-
-            int total = skjermingtyper.stream().filter(t -> t.matches("[0-9]{0,4}"))
-                    .mapToInt(Integer::parseInt)
-                    .sum();
-
-            reportModel.setNewInput(Arrays.asList(3, 1, 23), Arrays.asList("" + total, "" + distinct), 1);
-            reportModel.insertTable(Arrays.asList(3, 1, 23), skjermingtyper);
-
-            para = getEmptyOrContent(xml, "3.1.23_2");
-
-            List<String> para2 = getEmptyOrContent(xml, "3.1.23_3");
-            if (para2.get(0).equals(EMPTY)) {
-                reportModel.setNewInput(Arrays.asList(3, 1, 23), Collections.emptyList(), 3);
-            } else {
-                List<String> ls = new ArrayList<>();
-                List<String> input = new ArrayList<>();
-                total = 0;
-                for (String s : para2) {
-                    ls.addAll(Arrays.asList(s.split(TABLESPLIT)));
-                    total += Integer.parseInt(ls.get(ls.size() - 1));
-                }
-                input.add("" + total);
-                input.add(ls.get(0));
-                input.add(ls.get(ls.size() - 2));
-                reportModel.setNewInput(Arrays.asList(3, 1, 23), input, 2);
-            }
-
-            if (para.get(0).equals(EMPTY)) {
-                reportModel.setNewInput(Arrays.asList(3, 1, 23), Collections.emptyList(), 4);
-            }
-
-            if (!para.get(0).equals(EMPTY) && !para2.get(0).equals(EMPTY)) {
-                reportModel.setNewInput(Arrays.asList(3, 1, 23), Collections.emptyList(), 5);
-            }
-        }
-    }
-
-    private List<String> getSkjerminger(List<String> ls) {
-        Map<String, Integer> map = new LinkedHashMap<>();
-
-        map.put("Unntatt offentlighet", 0);
-        map.put("OFFL§13 Taushetsplikt", 0);
-        map.put("OFFL§23 Forhandlingsposisjon, Økonomi-Lønn-Personalforv., Rammeavtaler, Anbudssaker, Eierinteresser", 0);
-        map.put("OFFL§24 Kontroll- og reguleringstiltak, Lovbrudd, Anmeldelser, Straffbare handlinger, Miljøkriminalitet", 0);
-        map.put("OFFL§25 Tilsettingssaker", 0);
-        map.put("OFFL§26 Eksamensbesvarelser, Personbilder i personregister, Personovervåking", 0);
-
-        for (String l : ls) {
-            Matcher m = Pattern.compile("[§][ ][0-9]{1,3}|[§][0-9]{1,3}").matcher(l);
-            if (m.find()) {
-                String text = Arrays.asList(m.group().split("[§][ ]?")).get(1);
-                int num = Integer.parseInt(Arrays.asList(l.split("[;][ ]")).get(1));
-                switch (text) {
-                    case "13" -> map.computeIfPresent("OFFL§13 Taushetsplikt",
-                            (k, v) -> v += num);
-                    case "23" -> map.computeIfPresent("OFFL§23 Forhandlingsposisjon, Økonomi-Lønn-Personalforv., Rammeavtaler, Anbudssaker, Eierinteresser",
-                            (k, v) -> v += num);
-                    case "24" -> map.computeIfPresent("OFFL§24 Kontroll- og reguleringstiltak, Lovbrudd, Anmeldelser, Straffbare handlinger, Miljøkriminalitet",
-                            (k, v) -> v += num);
-                    case "25" -> map.computeIfPresent("OFFL§25 Tilsettingssaker",
-                            (k, v) -> v += num);
-                    case "26" -> map.computeIfPresent("OFFL§26 Eksamensbesvarelser, Personbilder i personregister, Personovervåking",
-                            (k, v) -> v += num);
-                    default -> map.computeIfPresent("Unntatt offentlighet",
-                            (k, v) -> v += num);
-                }
-            }
-        }
-
-        List<String> newList = new ArrayList<>();
-        map.entrySet().stream().filter(entry -> entry.getValue() > 0)
-                .forEach(entry ->
-            newList.add(entry.getKey() + "; " + entry.getValue().toString())
-        );
-
-        return newList;
-    }
-
-    private List<String> splitIntoTable(List<String> temp) {
-        List<String> ls = new ArrayList<>();
-        for (String s : temp) {
-            ls.addAll(Arrays.asList(s.split(TABLESPLIT)));
-        }
-        return ls;
-    }
+    // (string, List<String>)
 
     private List<String> getEmptyOrContent(String xml, String header) {
+        String empty = "empty";
         try {
             List<String> para = thirdPartiesModel.runBaseX(
                     xml,
@@ -938,34 +651,16 @@ public class ArchiveController implements ViewObserver {
                     settingsModel.prop);
 
             if(para.isEmpty()) {
-                return Collections.singletonList(EMPTY);
+                return Collections.singletonList(empty);
             }
 
             return para;
         } catch (IOException e) {
             mainView.exceptionPopup("BaseX kunne ikke kjøre " + header + " .xq filen. Sjekk om filen eksisterer");
-            return Collections.singletonList(EMPTY);
+            return Collections.singletonList(empty);
         }
-
     }
 
-    
-    private void writeAttachments(String filename, List<String> content) {
-        String path = settingsModel.prop.getProperty("tempFolder") + "\\" + settingsModel.prop.getProperty("currentArchive") //NOSONAR
-                + "\\" + filename + ".txt"; // NOSONAR
-        File attachment = new File(path);
-        try {
-            if (attachment.createNewFile()) {
-                System.out.println("File created: " + attachment.getName()); // NOSONAR
-                Files.write(Path.of(path), content, Charset.defaultCharset());
-            }
-        } catch (IOException e) {
-            System.out.println(e.getMessage()); // NOSONAR
-        }
-
-
-
-    }
     //When "Lagre tests" is clicked.
     @Override
     public void saveTestSettings() {
