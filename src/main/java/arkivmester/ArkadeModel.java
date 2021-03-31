@@ -83,7 +83,7 @@ public class ArkadeModel {
         );
 
         // Select random arkade html for testing
-        filePath = "../Input/" + testFilePath.get(new Random().nextInt(testFilePath.size()));
+        filePath = "../Input/" + testFilePath.get(0);
         System.out.println(filePath); //NOSONAR
 
         try (FileReader fr = new FileReader(filePath);
