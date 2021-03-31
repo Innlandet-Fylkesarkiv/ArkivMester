@@ -27,7 +27,6 @@ public class ArkadeModel {
 
     ArkadeModel(){
         readHtmlFileFromTestFolder();
-        //firstLastRegistrering();
         kryssreferanser();
     }
 
@@ -186,9 +185,7 @@ public class ArkadeModel {
             // Check if N5.11 AND N5.18 is between N5.27 start AND end Date
             if(!startDate.isEmpty() && !endDate.isEmpty()){
                 for (int j = 0; j < curN511Num.size(); j++) {
-                    //if(curN5_11Num >= startDate && curN5_11Num <= endDate){
-                    // ta imot int (start,slutt)
-                    // Mangler å sjekke med siste variabel?
+                    System.out.println(i ); // NOSONAR
                 }
             }
             else{
@@ -319,7 +316,7 @@ public class ArkadeModel {
             return -1;
         }
         else{
-            return sumStringListWithOnlyNumbers(Arrays.asList(oneElement));
+            return sumStringListWithOnlyNumbers(Collections.singletonList(oneElement));
         }
     }
 
