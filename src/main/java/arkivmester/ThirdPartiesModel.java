@@ -2,6 +2,11 @@ package arkivmester;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -18,10 +23,14 @@ public class ThirdPartiesModel {
     String cdString = "cd \"";
     private List<Boolean> selectedTests = new ArrayList<>();
     private List<Boolean> selectedXqueries = new ArrayList<>();
+    private List<String> xmlNames = new ArrayList<>();
+    private String [] xqueryNames;
     Boolean runXqueries = false;
     int amountOfTests = 4;
     String tempFolder;
     String archiveName;
+    String basexPathKey = "basexPath";
+    String tempFolderKey = "tempFolder";
 
     /**
      * Initializes the selectedTests list to true.
@@ -30,6 +39,23 @@ public class ThirdPartiesModel {
         for(int i = 0; i < amountOfTests; i++) {
             selectedTests.add(true);
         }
+
+    }
+
+    /**
+     * Updates selectedTests with updated data.
+     * @param selectedXqueries Updated selectedTests from the UI.
+     */
+    public void checkIfXquery(List<Boolean> selectedXqueries) {
+        int count = 0;
+        for(Boolean value : selectedXqueries) {
+            if(Boolean.TRUE.equals(value))
+                runXqueries = true;
+            else
+                count++;
+        }
+        if(count==selectedXqueries.size())
+            runXqueries = false;
     }
 
     /**
@@ -39,16 +65,14 @@ public class ThirdPartiesModel {
     public void updateTests(List<Boolean> selectedList, List<Boolean> selectedXqueries) {
         this.selectedTests = selectedList;
         this.selectedXqueries = selectedXqueries;
+    }
 
-        int count = 0;
-        for(Boolean value : selectedXqueries) {
-            if(value)
-                runXqueries = true;
-            else
-                count++;
-        }
-        if(count==selectedXqueries.size())
-            runXqueries = false;
+    /**
+     * Updates xmlNames with updated data.
+     * @param xmlNames Updated xmlNames from the UI.
+     */
+    public void updateXmlNames(List<String> xmlNames) {
+        this.xmlNames = xmlNames;
     }
 
     /**
@@ -68,6 +92,14 @@ public class ThirdPartiesModel {
     }
 
     /**
+     * Regular getter for xmlNames list.
+     * @return xmlNames String list.
+     */
+    public List<String> getXmlNames() {
+        return this.xmlNames;
+    }
+
+    /**
      * Resets the selectedTests to true. Used when the program resets.
      */
     public void resetSelectedTests() {
@@ -80,7 +112,7 @@ public class ThirdPartiesModel {
      * Initializes the tempFolder variable with the current tempFolder path.
      */
     public void initializePath(Properties prop) {
-        tempFolder = prop.getProperty("tempFolder");
+        tempFolder = prop.getProperty(tempFolderKey);
         archiveName = "\\" + prop.getProperty("currentArchive"); // #NOSONAR
     }
 
@@ -195,6 +227,23 @@ public class ThirdPartiesModel {
      * @throws IOException Cannot run program.
      */
     public void unzipArchive(File path, Properties prop) throws IOException {
+        File unzipped = new File(tempFolder + archiveName + archiveName); // #NOSONAR
+        if(unzipped.exists()){
+            Path directory = unzipped.toPath();
+            Files.walkFileTree(directory, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
 
         //String with path to 7zip location.
         String cd = cdString + prop.getProperty("7ZipPath") + "\"";
@@ -202,8 +251,70 @@ public class ThirdPartiesModel {
         runCMD(cd + " && 7z x " + path + " -o\"" + tempFolder + archiveName + "\" -r");
     }
 
-    public void runXquery() throws IOException {
-        System.out.println("Running XQueries tests");
+    public void runXquery(Properties prop) throws IOException { // #NOSONAR
+        String xmlName;
+        StringBuilder bld = new StringBuilder();
+        String archivePath = tempFolder + archiveName;
+        String unzippedArchive = archivePath + "\\" + prop.get("currentArchive"); // #NOSONAR
+
+        for(int i = 0; i<selectedXqueries.size(); i++) {
+            if(Boolean.TRUE.equals(selectedXqueries.get(i))) {
+                xmlName = xmlNames.get(i).toLowerCase();
+
+                //Find full xml path
+                if(xmlName.contains("droid")) {
+                    bld.append(archivePath).append("\\DROID\\droid.xml");
+                }
+                else if(xmlName.contains("verapdf")) {
+                    bld.append(archivePath).append("\\VeraPDF\\verapdf.xml");
+                }
+                else if(xmlName.contains("kostval")) {
+                    bld.append(archivePath).append("\\KostVal\\dokument.kost-val.log.xml");
+                }
+                else if(xmlName.contains("arkade")) {
+                    bld.append(archivePath).append("\\Arkade\\report\\Arkaderapprt-").append(prop.get("currentArchive")).append(".html");
+                }
+                else {
+                    bld.append(unzippedArchive);
+
+                    if(xmlName.contains("dias-mets")) {
+                        bld.append("\\dias-mets.xml");
+                    }
+                    else if(xmlName.contains("log")) {
+                        bld.append("\\log.xml"); // #NOSONAR
+                    }
+                    else if(xmlName.contains("dias-premis")) {
+                        bld.append("\\administrative_metadata\\diaspremis.xml");
+                    }
+                    else if(xmlName.contains("addml")) {
+                        bld.append("\\administrative_metadata\\addml.xml");
+                    }
+                    else if(xmlName.contains("eac-cpf")) {
+                        bld.append("\\descriptive_metadata\\eac-cpf.xml");
+                    }
+                    else if(xmlName.contains("ead")) {
+                        bld.append("\\descriptive_metadata\\ead.xml");
+                    }
+                    else if(xmlName.contains("arkivstruktur")) {
+                        bld.append("\\content\\arkivstruktur.xml");
+                    }
+                    else if(xmlName.contains("arkivuttrekk")) {
+                        bld.append("\\content\\arkivuttrekk.xml");
+                    }
+                    else if(xmlName.contains("endringslogg")) {
+                        bld.append("\\content\\endringslogg.xml");
+                    }
+                    else if(xmlName.contains("loependejournal")) {
+                        bld.append("\\content\\loependeJournal.xml");
+                    }
+                    else if(xmlName.contains("offentligjournal")) {
+                        bld.append("\\content\\offentligJournal.xml");
+                    }
+                }
+
+                runCustomBaseX(bld.toString(), xqueryNames[i], prop);
+            }
+        }
     }
 
     /**
@@ -215,11 +326,11 @@ public class ThirdPartiesModel {
      */
     public List<String> runBaseX(String xml, String xqName, Properties prop) throws IOException {
         String xq = prop.getProperty("xqueryExtFolder") + "\\" + xqName + "\"";
-        String temp = prop.getProperty("tempFolder") + "\\xqueryResult.txt";
-        String pwd = cdString + prop.getProperty("basexPath") + "\"";
+        String temp = prop.getProperty(tempFolderKey) + "\\xqueryResult.txt";
+        String pwd = cdString + prop.getProperty(basexPathKey) + "\"";
         List<String> result = new ArrayList<>();
 
-        ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o \"" + temp + "\" -i " + xml + " " + xq);
+        ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o \"" + temp + "\" -i " + xml + " " + xq); // #NOSONAR
 
         try {
             Process p = baseXBuilder.start();
@@ -254,8 +365,8 @@ public class ThirdPartiesModel {
         String outFileName = xqName;
         outFileName = outFileName.substring(0,outFileName.lastIndexOf('.'));
 
-        String outFile = prop.getProperty("tempFolder") + archiveName + "\\" + outFileName + ".txt";
-        String pwd = cdString + prop.getProperty("basexPath") + "\"";
+        String outFile = prop.getProperty(tempFolderKey) + archiveName + "\\" + outFileName + ".txt";
+        String pwd = cdString + prop.getProperty(basexPathKey) + "\"";
 
         ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o \"" + outFile + "\" -i " + xml + " " + xq);
 
@@ -298,7 +409,7 @@ public class ThirdPartiesModel {
     public Boolean checkIfToolsArePresent(Properties prop) {
         File file;
 
-        file = new File(prop.getProperty("basexPath") + "\\basex.bat");
+        file = new File(prop.getProperty(basexPathKey) + "\\basex.bat");
         if(!file.exists())
             return false;
 
@@ -332,22 +443,6 @@ public class ThirdPartiesModel {
     }
 
     /**
-     * Checks if there is at least 1 included test before saving.
-     * @param list Boolean list from the UI which is not yet saved.
-     * @return True if there is at least 1 included test, false if there are none included tests.
-     */
-    public Boolean noEmptyTests(List<Boolean> list) {
-        int count = 0;
-
-        for(Boolean val: list) {
-            if(Boolean.FALSE.equals(val))
-                count++;
-        }
-
-        return count != list.size();
-    }
-
-    /**
      * Gets the names of the custom XQueries in the custom folder. Also initiates "selectedXqueries" with false for all
      * files.
      * @param prop Config property object to get the custom folder's path.
@@ -362,6 +457,7 @@ public class ThirdPartiesModel {
                 for (int i = 0; i<list.length; i++) {
                     selectedXqueries.add(false);
                 }
+                xqueryNames = list;
                 return list;
             }
             return new String[]{""};

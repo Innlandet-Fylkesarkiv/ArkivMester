@@ -300,7 +300,7 @@ public class TestView extends Views{
     /**
      * Updates the test statuses to "None" if it is excluded from the main test.
      */
-    public void updateStatus(List<Boolean> selectedTests, Boolean Xquery) {
+    public void updateStatus(List<Boolean> selectedTests, Boolean xQuery) {
 
         //Arkade
         if(Boolean.FALSE.equals(selectedTests.get(0)))
@@ -319,7 +319,7 @@ public class TestView extends Views{
             updateVeraStatus(NONE);
 
         //XQuery
-        if(Boolean.FALSE.equals(Xquery))
+        if(Boolean.FALSE.equals(xQuery))
             updateXqueryStatus(NONE);
     }
 }

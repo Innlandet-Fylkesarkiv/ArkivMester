@@ -383,7 +383,7 @@ public class ArchiveController implements ViewObserver {
             System.out.println("\nRunning XQueries\n"); //NOSONAR
             testView.updateXqueryStatus(TestView.RUNNING);
             try {
-                thirdPartiesModel.runXquery();
+                thirdPartiesModel.runXquery(settingsModel.prop);
             } catch (IOException e) {
                 System.out.println(e.getMessage()); //NOSONAR
                 mainView.exceptionPopup("XQuery test feilet, prøv igjen.");
@@ -425,15 +425,16 @@ public class ArchiveController implements ViewObserver {
         scheduler.shutdown();
         testView.clearContainer();
         testView = null;
+
         mainView.showGUI();
         mainView.resetMainView();
-        archiveModel.resetAdminInfo();
-        thirdPartiesModel.resetSelectedTests();
         mainView.toggleSettingsBtn();
         mainView.toggleAboutBtn();
 
         reportModel = new ReportModel();
         arkadeModel = new ArkadeModel();
+        thirdPartiesModel = new ThirdPartiesModel();
+        archiveModel = new ArchiveModel();
 
         attachments.clear();
     }
@@ -536,9 +537,16 @@ public class ArchiveController implements ViewObserver {
     //When "Velg tester" is clicked.
     @Override
     public void chooseTests() {
-        testSettingsView = new TestSettingsView(thirdPartiesModel.getSelectedTests(), thirdPartiesModel.getSelectedXqueries());
+        testSettingsView = new TestSettingsView(thirdPartiesModel.getSelectedTests(), thirdPartiesModel.getSelectedXqueries(), thirdPartiesModel.getXmlNames());
         testSettingsView.addObserver(this);
-        testSettingsView.createAndShowGUI(mainView.getContainer(), thirdPartiesModel.getCustomXqueries(settingsModel.prop));
+        try {
+            testSettingsView.createAndShowGUI(mainView.getContainer(), thirdPartiesModel.getCustomXqueries(settingsModel.prop));
+        }catch (IndexOutOfBoundsException e) {
+            testSettingsView = null;
+            mainView.showGUI();
+            mainView.exceptionPopup("Fant ikke egendefinerte XQueries mappe. Oppdater innstillinger og prøv igjen");
+        }
+
     }
 
     //When "Last inn pakket uttrekk" is clicked.
@@ -923,15 +931,26 @@ public class ArchiveController implements ViewObserver {
     //When "Lagre tests" is clicked.
     @Override
     public void saveTestSettings() {
+        boolean success = true;
         List<Boolean> currentList = testSettingsView.getSelectedTests();
+        thirdPartiesModel.checkIfXquery(testSettingsView.getSelectedXqueries());
 
-        if(Boolean.TRUE.equals(thirdPartiesModel.noEmptyTests(currentList))) {
+        if(Boolean.TRUE.equals(thirdPartiesModel.runXqueries)) {
+            List<String> currentXmlList = testSettingsView.getXmlNames();
+            if(!currentXmlList.isEmpty())
+                thirdPartiesModel.updateXmlNames(currentXmlList);
+            else {
+                mainView.exceptionPopup("En eller flere XQuery tester mangler .xml fil navn.");
+                success = false;
+            }
+        }
+
+        if(Boolean.TRUE.equals(success)) {
             thirdPartiesModel.updateTests(currentList, testSettingsView.getSelectedXqueries());
             testSettingsView.clearContainer();
             testSettingsView = null;
             mainView.showGUI();
         }
-        else
-            mainView.exceptionPopup("Det må være minst 1 inkludert deltest");
+
     }
 }
