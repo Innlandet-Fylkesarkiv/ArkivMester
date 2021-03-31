@@ -12,6 +12,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 /**
  * Serves as the link between the views and the models.
@@ -676,17 +677,26 @@ public class ArchiveController implements ViewObserver {
         skjerminger(testArkivstruktur);
 
         //Chapter 3.2.1
-        para = getEmptyOrContent(testArkivstruktur, "3.2.1");
+        para = getEmptyOrContent(testArkivstruktur, "3.2.1_1");
         if(!para.get(0).equals(EMPTY)) {
             int total = (int) para.stream().filter(t -> t.contains("Arkivert") || t.contains("Avsluttet")).count();
             reportModel.setNewInput(Arrays.asList(3, 2, 1), Arrays.asList(para.size() + "", total + ""), 0);
-
-            List<String> ls = new ArrayList<>();
-            for (String s : para) {
-                ls.addAll(Arrays.asList(s.split(TABLESPLIT)));
-            }
-            reportModel.insertTable(Arrays.asList(3, 2, 1), ls);
+            reportModel.insertTable(Arrays.asList(3, 2, 1), splitIntoTable(para));
         }
+        para = splitIntoTable(getEmptyOrContent(testArkivstruktur, "3.2.1_2"));
+        if(!para.get(0).equals(EMPTY)) {
+            int total = IntStream.range(0, para.size()).filter(i -> i % 4 == 2)
+                    .mapToObj(para::get).mapToInt(Integer::parseInt).sum();
+
+            reportModel.setNewInput(Arrays.asList(3, 2, 1), Arrays.asList(total + "", total + ""), 1);
+            reportModel.insertTable(Arrays.asList(3, 2, 1), para, Arrays.asList(0, 1));
+        }
+        para = getEmptyOrContent(testArkivstruktur, "3.2.1_3");
+        if(!para.get(0).equals(EMPTY)) {
+            reportModel.setNewInput(Arrays.asList(3, 2, 1), Arrays.asList(para.size() + ""), 4);
+            reportModel.insertTable(Arrays.asList(3, 2, 1), splitIntoTable(para));
+        }
+
 
         //Chapter 3.3.1
         para = getEmptyOrContent(testArkivstruktur, "3.3.1");

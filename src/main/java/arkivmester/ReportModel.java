@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Class for handling report document configurations.
@@ -48,7 +49,7 @@ public class ReportModel {
 
         String regex = "[^a-zæøåA-ZÆØÅ ][A-ZÆØÅ]{3,}([ ][A-ZÆØÅ]{3,}){0,5}[^a-zæøåA-ZÆØÅ ]|[A-ZÆØÅ]{4,}";
 
-        private final List<String> result;
+        private List<String> result;
         private final int tableCol;
         private final TextStyle type;
         private int cindex;
@@ -74,9 +75,57 @@ public class ReportModel {
          * @param input - input to replace the default one
          */
         public void insertInput(List<String> input) {
-            result.remove(result.size()-1);
+            result.subList(tableCol, result.size()).clear();
             result.addAll(input);
             cases = true;
+        }
+
+        /**
+         * Insert input into object
+         * @param input - input to replace the default one
+         * @param matchRows -
+         */
+        public void insertInput(List<String> input, List<Integer> matchRows) {
+            List<String> temp = new ArrayList<>(result.subList(0, tableCol));
+
+            for(int row = 0; row*tableCol < input.size(); row++) {
+                for(int resultrow = 1; resultrow*tableCol < result.size(); resultrow++) {
+                    if(findMatchingRows(matchRows, row, resultrow, input, temp)) break;
+                }
+            }
+
+            result = temp;
+            cases = true;
+        }
+
+        /**
+         *
+         * @param matchRows
+         * @param inputR
+         * @param resultR
+         * @param input
+         * @param temp
+         * @return
+         */
+        public boolean findMatchingRows(List<Integer> matchRows, int inputR, int resultR, List<String> input, List<String> temp) {
+            if(
+                    matchRows.stream().allMatch( r ->
+                            IntStream.range(resultR*tableCol, resultR*tableCol+tableCol)
+                                    .filter(i -> i % tableCol == r)
+                                    .mapToObj(result::get)
+                                    .anyMatch(t -> t.contains(input.get(inputR *tableCol+r)))
+                    )
+            ) {
+                for(int cell = 0; cell < tableCol; cell++) {
+                    if ((!input.get(inputR * tableCol + cell).equals(" "))) {
+                        temp.add(input.get(inputR * tableCol + cell));
+                    } else {
+                        temp.add(result.get(resultR * tableCol + cell));
+                    }
+                }
+                return true;
+            }
+            return false;
         }
 
         /**
@@ -468,7 +517,9 @@ public class ReportModel {
      */
     public void setNewInput(List<Integer> h, List<String> i, int c) {
         for(ChapterList chap : chapterList.get(h).get(c) ) {
-            i = chap.updateText(i);
+            if(chap.getType().equals(TextStyle.PARAGRAPH)) {
+                i = chap.updateText(i);
+            }
         }
     }
 
@@ -494,6 +545,24 @@ public class ReportModel {
                 for(ChapterList chap : chapters) {
                     if(chap.getType() == TextStyle.TABLE && chap.result.get(chap.result.size()-1).equals("X")) {
                         chap.insertInput(t);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Look for a table from ChapterList that isn't yet in use.
+     * @param h - The header number for the chapter
+     * @param t - Table content text that the user wants placed in table
+     */
+    public void insertTable(List<Integer> h, List<String> t, List<Integer> matchRows) {
+        for(List<ChapterList> chapters : chapterList.get(h)) {
+            if(chapters.get(0).cases) {
+                for(ChapterList chap : chapters) {
+                    if(chap.getType() == TextStyle.TABLE && chap.result.get(chap.result.size()-1).equals("X")) {
+                        chap.insertInput(t, matchRows);
                         break;
                     }
                 }
@@ -588,18 +657,19 @@ public class ReportModel {
      * @param t - The table that are fetched from file
      */
     private void createChapterTable(List<Integer> h, XWPFTable t) {
-        XWPFTableRow row = t.getRow(0);
 
         List<String> tableHeader = new ArrayList<>();
 
-        for(XWPFTableCell cell : row.getTableCells()) {
-            tableHeader.add(cell.getText());
+        for(XWPFTableRow row : t.getRows()) {
+            for(XWPFTableCell cell : row.getTableCells()) {
+                tableHeader.add(cell.getText());
+            }
         }
 
         tableHeader.add("X");
 
         chapterList.get(h).get(chapterList.get(h).size()-1).add(new ChapterList(
-                tableHeader, TextStyle.TABLE, tableHeader.size()-1, false));
+                tableHeader, TextStyle.TABLE, t.getRow(0).getTableCells().size(), false));
 
     }
 
