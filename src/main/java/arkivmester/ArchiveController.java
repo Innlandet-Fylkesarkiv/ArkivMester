@@ -1,8 +1,10 @@
 package arkivmester;
 
 import javax.swing.*;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -635,6 +637,7 @@ public class ArchiveController implements ViewObserver {
 
         reportModel.setNewInput(Arrays.asList(3, 1, 10), Collections.emptyList(), 0);
 
+        //Chapter 3.1.11
         List<String> para = getEmptyOrContent(testArkivstruktur, "3.1.11");
         if(para.get(0).equals(EMPTY)) {
             reportModel.setNewInput(Arrays.asList(3, 1, 11), Collections.emptyList(), 0);
@@ -642,20 +645,27 @@ public class ArchiveController implements ViewObserver {
             reportModel.setNewInput(Arrays.asList(3, 1, 11), Collections.singletonList("" + para.size()), 1);
         }
 
+        //Chapter 3.1.13
         para = getEmptyOrContent(testArkivstruktur, "3.1.13");
 
         if(para.get(0).equals(EMPTY)) {
             reportModel.setNewInput(Arrays.asList(3, 1, 13), Collections.emptyList(), 0);
         } else if (!para.get(0).equals("utgår")) {
 
-            reportModel.setNewInput(Arrays.asList(3, 1, 13),
-                    Arrays.asList(para.size() + "", "under redigering"), 1);
-
-            List<String> newTemp = new ArrayList<>();
-            for(String s : para) {
-                newTemp.addAll(Arrays.asList(s.split("; ")));
+            if(para.size() > 25) {
+                reportModel.setNewInput(Arrays.asList(3, 1, 13),
+                        Arrays.asList(para.size() + "", "under redigering"), 3);
+                writeAttachments("3.1.13", para);
+                attachments.add("\u2022 3.1.13.txt");
+            }else {
+                reportModel.setNewInput(Arrays.asList(3, 1, 13),
+                        Arrays.asList(para.size() + "", "under redigering"), 1);
+                List<String> newTemp = new ArrayList<>();
+                for (String s : para) {
+                    newTemp.addAll(Arrays.asList(s.split("; ")));
+                }
+                reportModel.insertTable(Arrays.asList(3, 1, 13), newTemp);
             }
-            reportModel.insertTable(Arrays.asList(3, 1, 13), newTemp);
 
         } else {
             reportModel.setNewInput(Arrays.asList(3, 1, 13), Arrays.asList(para.size() + "", "under redigering"), 2);
@@ -667,8 +677,14 @@ public class ArchiveController implements ViewObserver {
         if(para.get(0).equals(EMPTY)) {
             reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.emptyList(), 0);
         } else {
-            reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.singletonList("" + para.size()), 1);
-            reportModel.insertTable(Arrays.asList(3, 1, 20), para);
+            if(para.size() > 25) {
+                reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.singletonList("" + para.size()), 2);
+                writeAttachments("3.1.20", para);
+                attachments.add("\u2022 3.1.20.txt");
+            }else {
+                reportModel.setNewInput(Arrays.asList(3, 1, 20), Collections.singletonList("" + para.size()), 1);
+                reportModel.insertTable(Arrays.asList(3, 1, 20), para);
+            }
         }
 
         //Chapter 3.1.23
@@ -920,6 +936,23 @@ public class ArchiveController implements ViewObserver {
 
     }
 
+    
+    private void writeAttachments(String filename, List<String> content) {
+        String path = settingsModel.prop.getProperty("tempFolder") + "\\" + settingsModel.prop.getProperty("currentArchive")
+                + "\\" + filename + ".txt";
+        File attachment = new File(path);
+        try {
+            if (attachment.createNewFile()) {
+                System.out.println("File created: " + attachment.getName()); // NOSONAR
+                Files.write(Path.of(path), content, Charset.defaultCharset());
+            }
+        } catch (IOException e) {
+            System.out.println(e.getMessage()); // NOSONAR
+        }
+
+
+
+    }
     //When "Lagre tests" is clicked.
     @Override
     public void saveTestSettings() {
