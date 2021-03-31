@@ -3,6 +3,7 @@ package arkivmester;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -25,13 +26,14 @@ public class TestView extends Views{
     JLabel kostvalStatus;
     JLabel droidStatus;
     JLabel xqueryStatus;
+    JLabel spinnerLabel;
 
-    static final String WAITING = "Venter.";
+    static final String WAITING = "Venter";
     static final String RUNNING = "Kjører...";
-    static final String DONE = "Ferdig.";
-    static final String NONE = "Ingen.";
+    static final String DONE = "Ferdig";
+    static final String NONE = "Ingen";
     static final String TESTRUNNING = "Kjører tester...";
-    static final String TESTDONE = "Alle tester er ferdige.";
+    static final String TESTDONE = "Alle tester er ferdige";
 
     /**
      * Creates and shows the GUI
@@ -61,6 +63,19 @@ public class TestView extends Views{
         testStatus = new JLabel(TESTRUNNING);
         testStatus.setFont(primaryFont);
 
+        URL imageURL = ClassLoader.getSystemResource("spinner.gif");
+        ImageIcon imageIcon;
+        spinnerLabel = new JLabel();
+        if (imageURL != null) {
+            imageIcon = new ImageIcon(imageURL);
+            spinnerLabel.setIcon(imageIcon);
+            imageIcon.setImageObserver(spinnerLabel);
+            spinnerLabel.setSize(10,10);
+        }
+
+
+
+
         //Button panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 40, 0));
         buttonPanel.setBorder(new EmptyBorder(0, 60, 0, 0));
@@ -69,6 +84,7 @@ public class TestView extends Views{
 
         //Adding components together
         statusPanel.add(testStatus);
+        statusPanel.add(spinnerLabel);
         testContainer.add(testPanel);
         testContainer.add(statusPanel);
         testContainer.add(buttonPanel);
@@ -218,6 +234,7 @@ public class TestView extends Views{
      * @param status A static final String variable from {@link TestView}.
      */
     public void updateTestStatus(String status) {
+        spinnerLabel.setVisible(false);
         testStatus.setText(status);
         if(status.equals(TESTDONE))
             testStatus.setForeground(Color.GREEN);
@@ -300,7 +317,7 @@ public class TestView extends Views{
     /**
      * Updates the test statuses to "None" if it is excluded from the main test.
      */
-    public void updateStatus(List<Boolean> selectedTests, Boolean Xquery) {
+    public void updateStatus(List<Boolean> selectedTests, Boolean xQuery) {
 
         //Arkade
         if(Boolean.FALSE.equals(selectedTests.get(0)))
@@ -319,7 +336,7 @@ public class TestView extends Views{
             updateVeraStatus(NONE);
 
         //XQuery
-        if(Boolean.FALSE.equals(Xquery))
+        if(Boolean.FALSE.equals(xQuery))
             updateXqueryStatus(NONE);
     }
 }
