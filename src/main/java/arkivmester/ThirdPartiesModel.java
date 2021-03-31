@@ -406,16 +406,17 @@ public class ThirdPartiesModel {
      * @param prop Properties object containing the config.
      * @return True if all tools are present, false if there is one or more tools missing.
      */
-    public Boolean checkIfToolsArePresent(Properties prop) {
+    public List<String> checkIfToolsArePresent(Properties prop) {
         File file;
+        List<String> missingTools = new ArrayList<>();
 
         file = new File(prop.getProperty(basexPathKey) + "\\basex.bat");
         if(!file.exists())
-            return false;
+            missingTools.add("basex.bat");
 
         file = new File(prop.getProperty("7ZipPath") + "\\7zG.exe");
         if(!file.exists())
-            return false;
+            missingTools.add("7Zip");
 
         for(int i = 0; i<selectedTests.size(); i++) {
             if(Boolean.TRUE.equals(selectedTests.get(i))) {
@@ -435,11 +436,11 @@ public class ThirdPartiesModel {
                     default:
                 }
                 if(!file.isFile())
-                    return false;
+                    missingTools.add(file.getName());
             }
         }
 
-        return true;
+        return missingTools;
     }
 
     /**
