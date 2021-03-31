@@ -759,6 +759,8 @@ public class ArchiveController implements ViewObserver {
             reportModel.setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList("" + arkivdeler), 1);
             reportModel.insertTable(Arrays.asList(3, 1, 3), newParts);
         }
+        //Chapter 3.3.4
+        kryssreferanser(testArkivstruktur);
 
         //Chapter 3.3.6
         List<String> journals = getEmptyOrContent(testArkivstruktur, "3.3.6");
@@ -812,6 +814,9 @@ public class ArchiveController implements ViewObserver {
                                         settingsModel.prop.getProperty("currentArchive") + "</html>");
 
         testView.activatePackToAipBtn();
+    }
+    private void kryssreferanser(String xml){
+        List<String> para = getEmptyOrContent(xml, "3.1.23_1");
     }
 
     private void skjerminger(String xml) {

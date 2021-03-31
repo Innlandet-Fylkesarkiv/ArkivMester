@@ -234,6 +234,7 @@ public class ArkadeModel {
         }
         return list;
     }
+
     /**
      * 3.1.17. Get Merkader.
      * @return true if no merknader.
