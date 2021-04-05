@@ -26,7 +26,7 @@ public class ArkadeModel {
 
     ArkadeModel(){
         readHtmlFileFromTestFolder();
-        kryssreferanser();
+        System.out.println(kryssreferanser());
     }
 
     /**
@@ -82,7 +82,7 @@ public class ArkadeModel {
         );
 
         // Select random arkade html for testing
-        filePath = "../Input/" + testFilePath.get(0);
+        filePath = "../Input/" + testFilePath.get(4);
         System.out.println(filePath); //NOSONAR
 
         try (FileReader fr = new FileReader(filePath);

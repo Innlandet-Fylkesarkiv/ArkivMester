@@ -2,6 +2,7 @@ package arkivmester;
 
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.impl.xpath.XQuery;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -853,6 +854,16 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList("" + arkivdeler), 1);
             insertTable(Arrays.asList(3, 1, 3), splitIntoTable(parts));
         }
+
+        //Chapter 3.34
+        // ANTALL KRYSSREFERANSER TIL MAPPER, ANTALL SOM IKKE EKSISTERER
+        // BaseX A_Kr2_Eksisterer_kryssreferansene_i_uttrekket.xq
+        // If > 25 skriv som vedlegg
+        List<String> crossReferences = xqueriesMap.get("3.3.4");
+        System.out.println("aksjdhkj");
+        System.out.println(crossReferences);
+
+
 
         //Chapter 3.3.6
         List<String> journals = xqueriesMap.get("3.3.6");
