@@ -854,7 +854,6 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList("" + arkivdeler), 1);
             insertTable(Arrays.asList(3, 1, 3), splitIntoTable(parts));
         }
-        /*
         //Chapter 3.3.4
         List<String> crossReferences = xqueriesMap.get("3.3.4");
 
@@ -871,8 +870,6 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("Over 25. Skriver til Vedlegg"), 1);
             writeAttachments("3.3.4", crossReferences);
         }
-
-         */
 
 
 
