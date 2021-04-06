@@ -26,7 +26,6 @@ public class ArkadeModel {
 
     ArkadeModel(){
         readHtmlFileFromTestFolder();
-        System.out.println(kryssreferanser());
     }
 
     /**

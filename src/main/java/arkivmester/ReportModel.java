@@ -856,12 +856,21 @@ public class ReportModel {
         }
 
         //Chapter 3.34
-        // ANTALL KRYSSREFERANSER TIL MAPPER, ANTALL SOM IKKE EKSISTERER
-        // BaseX A_Kr2_Eksisterer_kryssreferansene_i_uttrekket.xq
-        // If > 25 skriv som vedlegg
         List<String> crossReferences = xqueriesMap.get("3.3.4");
-        System.out.println("aksjdhkj");
-        System.out.println(crossReferences);
+
+        int n537 = arkadeModel.getTotal("N5.37", TOTAL);
+
+        setNewInput(Arrays.asList(3, 3, 4), Arrays.asList("" + n537, "" +  crossReferences.size()), 0);
+
+        if (crossReferences.size() < 25){
+            for (String crossReference : crossReferences) {
+                setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("\u2022 " + crossReference), 1);
+            }
+        }
+        else{
+            setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("Over 25. Skriver til Vedlegg"), 1);
+            writeAttachments("3.3.4", crossReferences);
+        }
 
 
 
