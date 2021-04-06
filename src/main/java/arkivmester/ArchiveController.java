@@ -306,6 +306,27 @@ public class ArchiveController implements ViewObserver {
         }
     }
 
+    @Override
+    public void packToAIP() {
+        try {
+            System.out.println("Pakker til AIP ...");  // #NOSONAR
+            testView.updateTestStatus("Pakker til AIP, vennligst vent ...");
+
+            settingsModel.prepareToAIP();
+            thirdPartiesModel.packToAIP(settingsModel.prop, archiveModel.xmlMeta.getAbsolutePath());
+
+            System.out.println("Uttrekket ble pakket til AIP");  // #NOSONAR
+            testView.updateTestStatus("<html>Uttrekket ble pakket til AIP og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\<br>" +
+                    settingsModel.prop.getProperty("currentArchive") + "</html>"); // #NOSONAR
+        } catch (IOException e) {
+            mainView.exceptionPopup("Noe gikk galt med pakking til AIP ...");
+        }
+
+
+
+
+    }
+
     //When "Rediger informasjon" is clicked.
     @Override
     public void editAdminInfo() {
@@ -401,6 +422,8 @@ public class ArchiveController implements ViewObserver {
     //When "Lag rapport" is clicked.
     @Override
     public void makeReport() {
+        System.out.println("Lager rapport, vennligst vent ..."); // #NOSONAR
+        testView.updateTestStatus("Lager rapporten, vennligst vent ...");
         Properties prop = settingsModel.prop;
 
         String format = testView.getSelectedFormat(); //#NOSONAR

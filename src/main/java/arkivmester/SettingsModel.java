@@ -2,8 +2,12 @@ package arkivmester;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 /**
  * Contains configuration utility functions and the properties object.
@@ -17,6 +21,8 @@ public class SettingsModel {
     private File userFolder;
     private File alteredCfg;
     private static final String CURRENTARCHIVE = "currentArchive";
+    private File archiveFolder;
+    private final List<File> folders = new ArrayList<>();
 
     /**
      * Public properties object containing the application's configurations.
@@ -69,7 +75,7 @@ public class SettingsModel {
         updateConfig(CURRENTARCHIVE, fileName);
 
         //Archive folder
-        File archiveFolder = new File(userFolder.getPath() + "\\temp\\" + fileName);
+        archiveFolder = new File(userFolder.getPath() + "\\temp\\" + fileName);
         if(!archiveFolder.exists()) {
             Files.createDirectory(archiveFolder.toPath());
         }
@@ -104,6 +110,34 @@ public class SettingsModel {
         if(!arkadeOutputFolder.exists()) {
             Files.createDirectory(arkadeOutputFolder.toPath());
         }
+
+        folders.add(kostValFolder);
+        folders.add(droidFolder);
+        folders.add(veraPdfFolder);
+        folders.add(arkadeOutputFolder);
+    }
+
+    public void prepareToAIP() throws IOException {
+        for (File folder : folders) {
+            String repOpsPath = archiveFolder.getPath() + "\\" + prop.getProperty(CURRENTARCHIVE) + "\\administrative_metadata\\repository_operations\\"; // #NOSONAR
+
+            repOpsPath += folder.getName();
+
+            File repOps = new File(repOpsPath);
+            try (Stream<Path> stream = Files.walk(folder.toPath())) {
+                stream.forEach(source -> {
+                    try {
+                        Files.copy(source, repOps.toPath().resolve(folder.toPath().relativize(source)), StandardCopyOption.REPLACE_EXISTING);
+                    } catch (IOException e) {
+                        System.out.println(e.getMessage()); // #NOSONAR
+                    }
+                });
+            }
+        }
+
+        File report = new File(archiveFolder.toPath() + "\\Testrapport.docx");
+        File repOps = new File(archiveFolder.getPath() + "\\" + prop.getProperty(CURRENTARCHIVE) + "\\administrative_metadata\\repository_operations\\Testrapport.docx"); // #NOSONAR
+        Files.copy(report.toPath(), repOps.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 
     /**
