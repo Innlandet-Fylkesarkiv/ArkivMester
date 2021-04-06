@@ -61,7 +61,7 @@ public class ReportModel {
 
     private static final String FONT = "Roboto (Brødtekst)";
 
-    ReportModel(Properties prop, Map<String, List<String>> map) {
+    public void init(Properties prop, Map<String, List<String>> map) {
         this.prop = prop;
         arkadeModel = new ArkadeModel();
         chapterList = new LinkedHashMap<>();

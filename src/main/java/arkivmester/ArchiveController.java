@@ -42,7 +42,7 @@ public class ArchiveController implements ViewObserver {
         archiveModel = new ArchiveModel();
         thirdPartiesModel = new ThirdPartiesModel();
         settingsModel = new SettingsModel();
-
+        reportModel = new ReportModel();
     }
 
     /**
@@ -425,7 +425,7 @@ public class ArchiveController implements ViewObserver {
             xqueryResults.put(s, getEmptyOrContent(testArkivstruktur, s));
         }
 
-        reportModel = new ReportModel(prop, xqueryResults);
+        reportModel.init(prop, xqueryResults);
 
         reportModel.generateReport();
         reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
