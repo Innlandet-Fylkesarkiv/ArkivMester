@@ -112,6 +112,8 @@ public class ArkadeModel {
         return elements.last().text();
     }
 
+
+
     /**
      * Not done, waiting for update. 3.1.14 and 3.1.31
      * Get id from N5.27 than get arkvidel start and end date in N5.27
@@ -266,7 +268,8 @@ public class ArkadeModel {
 
     }
 
-    /** 3.3.4, N5.37. Get totalt(klasser, mapper, basisregistreringer)
+    /** Remove This. 3.3.4 get all specific values value and for every systemID,
+     * N5.37. Get totalt(klasser, mapper, basisregistreringer)
      * @return List(0-id.size) of List(klasser, mapper, basisregistreringer)
      *    eg. for id Nr 22: list.get(22) = {antall klasser, antall mapper, antall basisregistreringer}.
      */
