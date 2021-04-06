@@ -25,8 +25,8 @@ public class ArkadeModel {
     static final String TOTALT = "Totalt";
 
     ArkadeModel(){
-        readHtmlFileFromTestFolder();
-        kryssreferanser();
+        //readHtmlFileFromTestFolder();
+        //kryssreferanser();
     }
 
     /**
