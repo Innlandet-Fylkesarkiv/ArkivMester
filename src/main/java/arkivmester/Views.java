@@ -116,6 +116,10 @@ public class Views implements ActionListener {
                 for (ViewObserver obs : observers)
                     obs.resetCfg();
                 break;
+            case "Pakk til AIP":
+                for (ViewObserver obs : observers)
+                    obs.packToAIP();
+                break;
             default:
                 break;
         }
