@@ -111,10 +111,17 @@ public class SettingsModel {
             Files.createDirectory(arkadeOutputFolder.toPath());
         }
 
+        //Reports
+        File reportsFolder = new File(archiveFolder.getPath() + "\\Rapporter");
+        if(!reportsFolder.exists()) {
+            Files.createDirectory(reportsFolder.toPath());
+        }
+
         folders.add(kostValFolder);
         folders.add(droidFolder);
         folders.add(veraPdfFolder);
         folders.add(arkadeOutputFolder);
+        folders.add(reportsFolder);
     }
 
     public void prepareToAIP() throws IOException {
