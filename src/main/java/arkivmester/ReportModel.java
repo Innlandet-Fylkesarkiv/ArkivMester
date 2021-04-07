@@ -728,6 +728,9 @@ public class ReportModel {
         //Chapter 3.1.11
         List<String> para = xqueriesMap.get("3.1.11");
 
+        //Chapter 3.1.2
+        valideringAvXML();
+
         if(para.get(0).equals(EMPTY)) {
             setNewInput(Arrays.asList(3, 1, 11), Collections.emptyList(), 0);
         } else {
@@ -927,6 +930,38 @@ public class ReportModel {
         if(!attachments.isEmpty()) {
             setNewParagraph(Collections.singletonList(5), attachments);
         }
+    }
+
+    /** Chapter 3.1.2
+     *
+     */
+    private void valideringAvXML(){
+        //Chapter 3.1.2
+        Integer deviation = arkadeModel.getNumberOfDeviation();
+        if(deviation == -1){
+            System.out.println("Chapter 3.1.2: Can't find number of deviation"); //NOSONAR
+        }
+        if(deviation == 0){
+            System.out.println("Zero deviation"); //NOSONAR
+            setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 0);
+        }
+        else{
+            List<String> invalidDates = arkadeModel.getSpecificValue("N5.03", "Date value.");
+            if(!invalidDates.isEmpty()){
+                // print variables to docx
+                setNewInput(Arrays.asList(3, 1, 2), invalidDates, 1);
+            }
+            List<String> filstoerrelse = arkadeModel.getSpecificValue("N5.03", "The element");
+            List<String> para = xqueriesMap.get("3.1.2_1");
+            System.out.println("111111111111111" +para); // [empty] todo fix
+        }
+        // tilknyttetDato
+        // Filstoerrelse
+        // Journalposttype
+        // Skermingshjemmel
+        // Konverteringer
+        //
+
     }
 
     private void skjerminger() {
