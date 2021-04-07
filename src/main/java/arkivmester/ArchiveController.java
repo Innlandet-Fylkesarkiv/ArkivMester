@@ -188,7 +188,7 @@ public class ArchiveController implements ViewObserver {
 
         System.out.println("\nTesting Ferdig\n"); //NOSONAR
 
-        testView.updateTestStatus(TestView.TESTDONE);
+        testView.updateTestStatus(TestView.TESTDONE, false);
         testView.activateCreateReportBtn();
     }
 
@@ -308,23 +308,25 @@ public class ArchiveController implements ViewObserver {
 
     @Override
     public void packToAIP() {
-        try {
-            System.out.println("Pakker til AIP ...");  // #NOSONAR
-            testView.updateTestStatus("Pakker til AIP, vennligst vent ...");
+        System.out.println("Pakker til AIP ...");  // #NOSONAR
+        testView.updateTestStatus("Pakker til AIP ...", true);
 
+        ScheduledExecutorService aipScheduler;
+        aipScheduler = Executors.newScheduledThreadPool(1);
+        aipScheduler.submit(this::packToAIPThread);
+    }
+
+    public void packToAIPThread() {
+        try {
             settingsModel.prepareToAIP();
             thirdPartiesModel.packToAIP(settingsModel.prop, archiveModel.xmlMeta.getAbsolutePath());
 
             System.out.println("Uttrekket ble pakket til AIP");  // #NOSONAR
             testView.updateTestStatus("<html>Uttrekket ble pakket til AIP og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\<br>" +
-                    settingsModel.prop.getProperty("currentArchive") + "</html>"); // #NOSONAR
+                    settingsModel.prop.getProperty("currentArchive") + "</html>", false); // #NOSONAR
         } catch (IOException e) {
             mainView.exceptionPopup("Noe gikk galt med pakking til AIP ...");
         }
-
-
-
-
     }
 
     //When "Rediger informasjon" is clicked.
@@ -423,9 +425,15 @@ public class ArchiveController implements ViewObserver {
     @Override
     public void makeReport() {
         System.out.println("Lager rapport, vennligst vent ..."); // #NOSONAR
-        testView.updateTestStatus("Lager rapporten, vennligst vent ...");
-        Properties prop = settingsModel.prop;
+        testView.updateTestStatus("Genererer rapporten ...", true);
 
+        ScheduledExecutorService reportScheduler;
+        reportScheduler = Executors.newScheduledThreadPool(1);
+        reportScheduler.submit(this::makeReportThread);
+    }
+
+    public void makeReportThread() {
+        Properties prop = settingsModel.prop;
         String format = testView.getSelectedFormat(); //#NOSONAR
         String fileName = prop.getProperty("currentArchive");
         String archivePath = "\"" + prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName; // #NOSONAR
@@ -455,7 +463,7 @@ public class ArchiveController implements ViewObserver {
 
         reportModel.makeReport();
         testView.updateTestStatus("<html>Rapporten er generert og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\<br>" +
-                                        settingsModel.prop.getProperty("currentArchive") + "</html>");
+                settingsModel.prop.getProperty("currentArchive") + "</html>", false);
         testView.activatePackToAipBtn();
     }
 

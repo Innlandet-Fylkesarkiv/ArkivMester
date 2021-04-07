@@ -142,9 +142,10 @@ public class SettingsModel {
             }
         }
 
-        File report = new File(archiveFolder.toPath() + "\\Testrapport.docx");
+        /*
+        File report = new File(archiveFolder.toPath() + "\\Testrapport.docx"); //NOSONAR
         File repOps = new File(archiveFolder.getPath() + "\\" + prop.getProperty(CURRENTARCHIVE) + "\\administrative_metadata\\repository_operations\\Testrapport.docx"); // #NOSONAR
-        Files.copy(report.toPath(), repOps.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(report.toPath(), repOps.toPath(), StandardCopyOption.REPLACE_EXISTING);*/ //NOSONAR
     }
 
     /**
