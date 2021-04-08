@@ -932,10 +932,11 @@ public class ReportModel {
         }
     }
 
-    /** Chapter 3.1.2
-     *
+    /** Chapter 3.1.2 NOT DONE
+     * Need arkdade report examples.
      */
-    private void valideringAvXML(){
+    private void valideringAvXML(){ //NOSONAR
+        String index ="N5.03";
         //Chapter 3.1.2
         Integer deviation = arkadeModel.getNumberOfDeviation();
         if(deviation == -1){
@@ -946,14 +947,83 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 0);
         }
         else{
-            List<String> invalidDates = arkadeModel.getSpecificValue("N5.03", "Date value.");
+            // Kun Arkade rapporten, elementet tilknyttetDato rapportert som feil format.
+            List<String> invalidDates = arkadeModel.getSpecificValue(index, "Date value.");
             if(!invalidDates.isEmpty()){
-                // print variables to docx
-                setNewInput(Arrays.asList(3, 1, 2), invalidDates, 1);
+                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 1);
+                // Use setNewParagraph on invalidDates
             }
-            List<String> filstoerrelse = arkadeModel.getSpecificValue("N5.03", "The element");
-            List<String> para = xqueriesMap.get("3.1.2_1");
-            System.out.println("111111111111111" +para); // [empty] todo fix
+
+            //Arkade rapporten, elementet filstoerrelse mangler.
+            List<String> filstoerrelse = arkadeModel.getSpecificValue(index, "filstoerrelse");
+            if(!filstoerrelse.isEmpty()){
+                // count(//dokumentobjekt[not (boolean(filstoerrelse))]) alle dokumentobject with out variable filstoerrelse
+                // print out xqueriesMap.get("3.1.2_1")
+                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 2);
+                // Print out fillstoerrelse: & ANTALL
+            }
+
+            //Arkade rapporten, elementet journalposttype angitt med typer som ikke følger Noark5 standarden.
+            // Get example with missing journalposttype
+            List<String> journalposttype = arkadeModel.getSpecificValue(index, "journalposttype");
+            if(!journalposttype.isEmpty()){
+                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 3);
+                // baseX
+                // Print out journalposttype: & ANTALL
+            }
+
+            //Arkade rapporten, elementet skjermingshjemmel mangler.
+            // Get example with missing konvertertFra
+            List<String> konvertertFra = arkadeModel.getSpecificValue(index, "skjerming");
+            if(!konvertertFra.isEmpty()){
+                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 4);
+                // baseX
+            }
+
+            //Arkade rapporten, elementet korrespondansepart mangler.
+            // Get example with missing korrespondansepart
+            List<String> korrespondansepart = arkadeModel.getSpecificValue(index, "korrespondansepart");
+            if(!korrespondansepart.isEmpty()){
+                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 5);
+                // baseX
+            }
+
+            //Arkade rapporten, elementet klasse har mapper og underklasser.
+            // Get example with missing elementHarMapperOgUnderklasser
+            List<String> elementHarMapperOgUnderklasser = arkadeModel.getSpecificValue(index, "kriv inn her4");
+            if(!elementHarMapperOgUnderklasser.isEmpty()){
+                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 6);
+                // baseX
+            }
+
+            //Arkade rapporten, elementet dokumentfil mangler under elementet dokumentobjekt.
+            // Get example with missing manglerUnderElementetDokumentobject
+            List<String> manglerUnderElementetDokumentobject = arkadeModel.getSpecificValue(index, "dokumentfil,");
+            if(!manglerUnderElementetDokumentobject.isEmpty()){
+                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 7);
+                // baseX
+            }
+
+            // Arkade rapporten, elementet tittel mangler under mappe, registering eller dokumentbeskrivelse.
+            // Get example with missing elementetTittelManglerUnderMappeRegisteringEllerDokumentbeskrivelse
+            List<String> elementetMangler = arkadeModel.getSpecificValue(index, "registrering,");
+            if(!elementetMangler.isEmpty()){
+                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 8);
+                // baseX
+            }
+
+            // Arkade rapporten, elementet avskrivingsmaate inneholder ikke godkjente verdier.
+            // Get example with missing avskrivingsmaate
+            List<String> avskrivingsmaate = arkadeModel.getSpecificValue(index, "kriv inn her7");
+            if(!avskrivingsmaate.isEmpty()){
+                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 9);
+                // baseX metadat.xsd
+            }
+
+
+
+
+
         }
         // tilknyttetDato
         // Filstoerrelse
