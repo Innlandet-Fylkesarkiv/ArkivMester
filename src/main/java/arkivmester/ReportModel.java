@@ -946,6 +946,7 @@ public class ReportModel {
             System.out.println("Zero deviation"); //NOSONAR
             setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 0);
         }
+        // NOT DONE: Need examples
         else{
             // Kun Arkade rapporten, elementet tilknyttetDato rapportert som feil format.
             List<String> invalidDates = arkadeModel.getSpecificValue(index, "Date value.");
@@ -1014,24 +1015,12 @@ public class ReportModel {
 
             // Arkade rapporten, elementet avskrivingsmaate inneholder ikke godkjente verdier.
             // Get example with missing avskrivingsmaate
-            List<String> avskrivingsmaate = arkadeModel.getSpecificValue(index, "kriv inn her7");
+            List<String> avskrivingsmaate = arkadeModel.getSpecificValue(index, "kriv inn her");
             if(!avskrivingsmaate.isEmpty()){
                 setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 9);
                 // baseX metadat.xsd
             }
-
-
-
-
-
         }
-        // tilknyttetDato
-        // Filstoerrelse
-        // Journalposttype
-        // Skermingshjemmel
-        // Konverteringer
-        //
-
     }
 
     private void skjerminger() {
