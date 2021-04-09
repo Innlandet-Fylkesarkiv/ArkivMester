@@ -927,6 +927,14 @@ public class ReportModel {
         //Chapter 3.1.7
         List<String> dirs = xqueriesMap.get("3.1.7_1");
         System.out.println(dirs);
+        System.out.println(dirs.get(0));
+        if(dirs.get(0).equals(EMPTY)) {
+            setNewInput(Arrays.asList(3, 1, 7), Collections.emptyList(), 0);
+        }
+        else {
+            setNewInput(Arrays.asList(3, 1, 7), Collections.singletonList("" + dirs.size()), 1);
+            insertTable(Arrays.asList(3, 1, 7), splitIntoTable(dirs));
+        }
 
         //Chapter 5 - Attachments
         if(!attachments.isEmpty()) {
@@ -1031,7 +1039,7 @@ public class ReportModel {
 
     private void writeAttachments(String filename, List<String> content) {
         String path = prop.getProperty("tempFolder") + "\\" + prop.getProperty("currentArchive") //NOSONAR
-                + "\\" + filename + ".txt"; // NOSONAR
+                + "\\Rapporter\\" + filename + ".txt"; // NOSONAR
         File attachment = new File(path);
         try {
             if (attachment.createNewFile()) {
