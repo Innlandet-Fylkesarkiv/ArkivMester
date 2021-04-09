@@ -90,9 +90,9 @@ public class ArchiveController implements ViewObserver {
         thirdPartiesModel.initializePath(settingsModel.prop);
         String fileName = archiveModel.tar.getName();                                   // NOSONAR
         fileName = fileName.substring(0,fileName.lastIndexOf('.'));                   // NOSONAR
-        String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument"; // NOSONAR ONLY TESTING
+        //String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument"; // NOSONAR ONLY TESTING
         //Should use the one below, but takes too long
-        //String docPath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokument \""; // NOSONAR
+        String docPath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokument\""; // NOSONAR
 
         //Unzips .tar folder with the archive.
         try {
@@ -103,8 +103,9 @@ public class ArchiveController implements ViewObserver {
         }
         System.out.println("\n\tArchive unzipped\n"); //NOSONAR
 
+        //TODO: VIRKER IKKE: LAG NYTT FOR DETTE
         File f = new File(docPath);
-        if(!f.isDirectory()) {
+        if(!f.exists()) {
             docPath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokumenter\""; // NOSONAR
         }
 
@@ -189,7 +190,7 @@ public class ArchiveController implements ViewObserver {
 
         System.out.println("\nTesting Ferdig\n"); //NOSONAR
 
-        testView.updateTestStatus(TestView.TESTDONE);
+        testView.updateTestStatus(TestView.TESTDONE, false);
         testView.activateCreateReportBtn();
     }
 
@@ -307,6 +308,29 @@ public class ArchiveController implements ViewObserver {
         }
     }
 
+    @Override
+    public void packToAIP() {
+        System.out.println("Pakker til AIP ...");  // #NOSONAR
+        testView.updateTestStatus("Pakker til AIP ...", true);
+
+        ScheduledExecutorService aipScheduler;
+        aipScheduler = Executors.newScheduledThreadPool(1);
+        aipScheduler.submit(this::packToAIPThread);
+    }
+
+    public void packToAIPThread() {
+        try {
+            settingsModel.prepareToAIP();
+            thirdPartiesModel.packToAIP(settingsModel.prop, archiveModel.xmlMeta.getAbsolutePath());
+
+            System.out.println("Uttrekket ble pakket til AIP");  // #NOSONAR
+            testView.updateTestStatus("<html>Uttrekket ble pakket til AIP og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\<br>" +
+                    settingsModel.prop.getProperty("currentArchive") + "</html>", false); // #NOSONAR
+        } catch (IOException e) {
+            mainView.exceptionPopup("Noe gikk galt med pakking til AIP ...");
+        }
+    }
+
     //When "Rediger informasjon" is clicked.
     @Override
     public void editAdminInfo() {
@@ -402,12 +426,22 @@ public class ArchiveController implements ViewObserver {
     //When "Lag rapport" is clicked.
     @Override
     public void makeReport() {
-        Properties prop = settingsModel.prop;
+        System.out.println("Lager rapport, vennligst vent ..."); // #NOSONAR
+        testView.updateTestStatus("Genererer rapporten ...", true);
 
+        ScheduledExecutorService reportScheduler;
+        reportScheduler = Executors.newScheduledThreadPool(1);
+        reportScheduler.submit(this::makeReportThread);
+    }
+
+    public void makeReportThread() {
+        Properties prop = settingsModel.prop;
         String format = testView.getSelectedFormat(); //#NOSONAR
         String fileName = prop.getProperty("currentArchive");
         String archivePath = "\"" + prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName; // #NOSONAR
         String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml\"";
+        String veraPdfPath = "\"" + prop.getProperty("tempFolder") + "\\" + fileName + "\\VeraPDF\\verapdf.xml\"";
+        String droidPath = "\"" + prop.getProperty("tempFolder") + "\\" + fileName + "\\DROID\\droid.xml\"";
 
         Map<String, String> map = new LinkedHashMap<>();
         map.put("1.2_1.xq",archivePath + "\\dias-mets.xml\"");
@@ -420,11 +454,14 @@ public class ArchiveController implements ViewObserver {
         Map<String, List<String>> xqueryResults = new HashMap<>();
         List<String> headerNumbers = Arrays.asList("3.1.11", "3.1.13", "3.1.2_1", "3.1.20", "3.2.1_1", "3.2.1_2",
                 "3.2.1_3", "3.3.1", "3.3.2_1", "3.3.2_2", "3.3.2_3", "3.1.21", "3.1.26_1", "3.1.26_2",
-                "3.1.3", "3.3.4", "3.3.6", "3.3.7", "3.1.23_1", "3.1.23_2", "3.1.23_3", "3.3.3_1", "3.3.3_2");
+                "3.1.3", "3.3.6", "3.3.7", "3.1.23_1", "3.1.23_2", "3.1.23_3", "3.3.3_1", "3.3.3_2",
+                "3.1.7_1", "3.1.7_2", "3.3.4");
 
         for(String s :headerNumbers) {
             xqueryResults.put(s, getEmptyOrContent(testArkivstruktur, s));
         }
+        xqueryResults.put("3.2_1", getEmptyOrContent(veraPdfPath, "3.2_1"));
+        xqueryResults.put("3.2_2", getEmptyOrContent(droidPath, "3.2_2"));
 
         reportModel.init(prop, xqueryResults);
 
@@ -433,7 +470,7 @@ public class ArchiveController implements ViewObserver {
 
         reportModel.makeReport();
         testView.updateTestStatus("<html>Rapporten er generert og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\<br>" +
-                                        settingsModel.prop.getProperty("currentArchive") + "</html>");
+                settingsModel.prop.getProperty("currentArchive") + "</html>", false);
         testView.activatePackToAipBtn();
     }
 

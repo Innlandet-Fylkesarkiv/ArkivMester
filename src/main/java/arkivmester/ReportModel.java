@@ -515,7 +515,7 @@ public class ReportModel {
      */
     public void printReportToFile(Properties prop) {
         try {
-            FileOutputStream os = new FileOutputStream(prop.get("tempFolder") + "\\" + prop.get("currentArchive") + "\\Testrapport.docx"); // #NOSONAR
+            FileOutputStream os = new FileOutputStream(prop.get("tempFolder") + "\\" + prop.get("currentArchive") + "\\Rapporter\\Testrapport.docx"); // #NOSONAR
             document.write(os);
             document.close();
             os.close();
@@ -926,6 +926,38 @@ public class ReportModel {
             insertTable(three, splitIntoTable(para));
         }
 
+        //Chapter 3.2
+        List<String> veraPDF = xqueriesMap.get("3.2_1");
+        List<String> droid = xqueriesMap.get("3.2_2");
+        int nonCompliant = Integer.parseInt(veraPDF.get(0));
+        int failed = Integer.parseInt(veraPDF.get(1));
+
+        setNewInput(Arrays.asList(3, 2), Collections.emptyList(),0);
+        setNewInput(Arrays.asList(3, 2), droid,1);
+        if(nonCompliant == 0 && failed ==0){
+            setNewInput(Arrays.asList(3, 2), Collections.emptyList(),2);
+        }
+        else if(failed == 0) {
+            setNewInput(Arrays.asList(3, 2), Collections.emptyList(),3);
+            setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant),5);
+        }
+        else if(nonCompliant == 0) {
+            setNewInput(Arrays.asList(3, 2), Collections.emptyList(),3);
+            setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant),4);
+        }
+
+        //Chapter 3.1.7
+        List<String> dirs = xqueriesMap.get("3.1.7_1");
+        System.out.println(dirs); // NOSONAR
+        System.out.println(dirs.get(0)); // NOSONAR
+        if(dirs.get(0).equals(EMPTY)) {
+            setNewInput(Arrays.asList(3, 1, 7), Collections.emptyList(), 0);
+        }
+        else {
+            setNewInput(Arrays.asList(3, 1, 7), Collections.singletonList("" + dirs.size()), 1);
+            insertTable(Arrays.asList(3, 1, 7), splitIntoTable(dirs));
+        }
+
         //Chapter 5 - Attachments
         if(!attachments.isEmpty()) {
             setNewParagraph(Collections.singletonList(5), attachments);
@@ -1120,7 +1152,7 @@ public class ReportModel {
 
     private void writeAttachments(String filename, List<String> content) {
         String path = prop.getProperty("tempFolder") + "\\" + prop.getProperty("currentArchive") //NOSONAR
-                + "\\" + filename + ".txt"; // NOSONAR
+                + "\\Rapporter\\" + filename + ".txt"; // NOSONAR
         File attachment = new File(path);
         try {
             if (attachment.createNewFile()) {
