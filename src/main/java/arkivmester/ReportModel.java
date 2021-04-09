@@ -1,7 +1,24 @@
 package arkivmester;
 
+import org.apache.poi.ooxml.POIXMLDocumentPart;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.util.Units;
+import org.apache.poi.xddf.usermodel.PresetColor;
+import org.apache.poi.xddf.usermodel.XDDFColor;
+import org.apache.poi.xddf.usermodel.XDDFShapeProperties;
+import org.apache.poi.xddf.usermodel.XDDFSolidFillProperties;
+import org.apache.poi.xddf.usermodel.chart.*;
+import org.apache.poi.xssf.usermodel.*;
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.xmlbeans.XmlCursor;
+import org.openxmlformats.schemas.drawingml.x2006.chart.CTBarSer;
+import org.openxmlformats.schemas.drawingml.x2006.chart.CTChart;
+import org.openxmlformats.schemas.drawingml.x2006.chart.CTNumVal;
+import org.openxmlformats.schemas.drawingml.x2006.chart.CTStrVal;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -35,7 +52,8 @@ public class ReportModel {
     enum TextStyle {
         INPUT,
         PARAGRAPH,
-        TABLE
+        TABLE,
+        GRAPH
     }
 
     /**
@@ -80,6 +98,7 @@ public class ReportModel {
         private final int tableCol;
         private final TextStyle type;
         private int cindex;
+        private XSSFChart chart;
         private boolean cases;
 
         /**
@@ -97,6 +116,13 @@ public class ReportModel {
             cases = c;
         }
 
+        ChapterList(XSSFChart chrt) {
+            chart = chrt;
+            type = TextStyle.GRAPH;
+            tableCol = 0;
+            cases = false;
+        }
+
         /**
          * Insert input into object
          * @param input - input to replace the default one
@@ -112,7 +138,7 @@ public class ReportModel {
          * @param input - input to replace the default one
          * @param matchRows -
          */
-        public void insertInput(List<String> input, List<Integer> matchRows) {
+        public void insertTableInput(List<String> input, List<Integer> matchRows) {
             List<String> temp = new ArrayList<>(result.subList(0, tableCol));
 
             for(int row = 0; row*tableCol < input.size(); row++) {
@@ -122,6 +148,11 @@ public class ReportModel {
             }
 
             result = temp;
+            cases = true;
+        }
+
+        public void insertGraphInput(List<String> input) {
+            result = input;
             cases = true;
         }
 
@@ -580,7 +611,7 @@ public class ReportModel {
             if(chapters.get(0).cases) {
                 for(ChapterList chap : chapters) {
                     if(chap.getType() == TextStyle.TABLE && chap.result.get(chap.result.size()-1).equals("X")) {
-                        chap.insertInput(t, matchRows);
+                        chap.insertTableInput(t, matchRows);
                         break;
                     }
                 }
@@ -598,6 +629,22 @@ public class ReportModel {
         chapterList.get(h).add(new ArrayList<>());
         for(String in : p) {
             chapterList.get(h).get(0).add(new ChapterList(Arrays.asList(in), TextStyle.PARAGRAPH, 0, true));
+        }
+    }
+
+    private void insertGraph(List<Integer> h, List<String> g, int c) {
+        int i = 0;
+        for(List<ChapterList> chapters : chapterList.get(h)) {
+            for(ChapterList chap : chapters) {
+                if(chap.getType() == TextStyle.GRAPH) {
+                    if (i == c) {
+                        chap.insertGraphInput(g);
+                        break;
+                    }
+                    else i++;
+                }
+            }
+
         }
     }
 
@@ -637,6 +684,12 @@ public class ReportModel {
 
         }
 
+        List<XSSFChart> charts = getDocumentGraphs(chapterFolder + chapterFile);
+
+        for(XSSFChart chart : charts) {
+            createChapterGraph(h, chart);
+        }
+
     }
 
     /**
@@ -650,6 +703,165 @@ public class ReportModel {
             return doc.getBodyElementsIterator();
         } catch(NullPointerException e) {
             return Collections.emptyIterator();
+        }
+    }
+
+    private List<XSSFChart> getDocumentGraphs(String file) {
+
+        List<CTChart> chartDatas = new ArrayList<>();
+
+        try {
+            XWPFDocument doc = Objects.requireNonNull(getDocumentFile(file));
+
+            for(POIXMLDocumentPart part : doc.getRelations()) {
+                if (part instanceof XWPFChart) {
+                    chartDatas.add(((XWPFChart) part).getCTChart());
+                    System.out.println(file);
+                }
+            }
+
+        } catch(NullPointerException ignored) {
+            return Collections.emptyList();
+        }
+
+        List<XSSFChart> charts = new ArrayList<>();
+        for(CTChart chartData : chartDatas) {
+            if(barColumnChart(chartData) != null) charts.add(barColumnChart(chartData));
+        }
+
+        return charts;
+
+    }
+
+    public XSSFChart barColumnChart(CTChart ctchart) {
+        try (XSSFWorkbook wb = new XSSFWorkbook()) {
+
+            String sheetName = "CountryBarChart";
+
+            XSSFSheet sheet = wb.createSheet(sheetName);
+
+
+            List<String> vals = Collections.emptyList();
+
+            List<String> categories = new ArrayList<>();
+
+            String title = ctchart.getTitle().getTx().getRich().getPArray(0).getRArray(0).getT();
+
+            for(CTBarSer plotArea : ctchart.getPlotArea().getBarChartList().get(0).getSerList()) {
+                categories.add(plotArea.getTx().getStrRef().getStrCache().getPtList().get(0).getV());
+                vals = new ArrayList<>();
+                if(plotArea.getCat().getNumRef() != null) {
+                    for(CTNumVal pt : plotArea.getCat().getNumRef().getNumCache().getPtList()) {
+                        vals.add(pt.getV());
+                    }
+                }
+                else {
+                    for(CTStrVal pt : plotArea.getCat().getStrRef().getStrCache().getPtList()) {
+                        vals.add(pt.getV());
+                    }
+                }
+            }
+
+            // Create row and put some cells in it. Rows and cells are 0 based.
+            Row row = sheet.createRow((short) 0);
+
+            Cell cell;
+
+            for(int i = 0; i < vals.size(); i++) {
+                cell = row.createCell((short) i);
+                cell.setCellValue(vals.get(i));
+            }
+
+            row = sheet.createRow((short) 1);
+
+            cell = row.createCell((short) 1);
+            cell.setCellValue(17098242);
+
+            XSSFDrawing drawing = sheet.createDrawingPatriarch();
+            XSSFClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 0, 4, 7, 20);
+
+            XSSFChart chart = drawing.createChart(anchor);
+            chart.setTitleText(title);
+            chart.getCTChart().getTitle().addNewOverlay().setVal(false);
+
+            // Formats the title font
+            chart.getCTChart().getTitle().getTx().getRich().getPArray(0).getRArray(0).getRPr().setB(false);
+            chart.getCTChart().getTitle().getTx().getRich().getPArray(0).getRArray(0).getRPr().setSz(1400);
+            chart.getCTChart().getTitle().getTx().getRich().getPArray(0).getRArray(0).getRPr().addNewLatin().setTypeface(FONT);
+
+            XDDFChartLegend legend = chart.getOrAddLegend();
+            legend.setPosition(LegendPosition.BOTTOM);
+
+            XDDFCategoryAxis bottomAxis = chart.createCategoryAxis(AxisPosition.BOTTOM);
+
+            XDDFValueAxis leftAxis = chart.createValueAxis(AxisPosition.LEFT);
+            leftAxis.setCrosses(AxisCrosses.AUTO_ZERO);
+            leftAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
+
+            List<XDDFDataSource<String>> categoryFactory = new ArrayList<>();
+            for (int i = 0; i < categories.size(); i++) {
+                categoryFactory.add(XDDFDataSourcesFactory.fromStringCellRange(sheet,
+                        new CellRangeAddress(0, 0, 0, vals.size()-1)));
+            }
+
+            XDDFNumericalDataSource<Double> values = XDDFDataSourcesFactory.fromNumericCellRange(sheet,
+                    new CellRangeAddress(1, 1, 0, vals.size()-1));
+
+
+            XDDFChartData data = chart.createData(ChartTypes.BAR, bottomAxis, leftAxis);
+
+            XDDFChartData.Series series;
+            for (int i = 0; i < categories.size(); i++) {
+                series = data.addSeries(categoryFactory.get(i), values);
+                series.setTitle(categories.get(i), new CellReference(sheet.getSheetName(), 0, 2, true, true));
+            }
+
+            XDDFBarChartData bar = (XDDFBarChartData) data;
+            bar.setBarDirection(BarDirection.COL);
+
+            /* for adding stacked bars
+            // looking for "Stacked Bar Chart"? uncomment the following line
+            bar.setBarGrouping(BarGrouping.STACKED);
+
+            // correcting the overlap so bars really are stacked and not side by side
+            chart.getCTChart().getPlotArea().getBarChartArray(0).addNewOverlap().setVal((byte)100);
+             */
+
+            if(categories.size() > 2) {
+                solidFillSeries(data, 0, PresetColor.LIGHT_GREEN);
+                solidFillSeries(data, 1, PresetColor.BLUE);
+            }
+
+            chart.plot(data);
+
+            return chart;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
+    private void solidFillSeries(XDDFChartData data, int index, PresetColor color) {
+        XDDFSolidFillProperties fill = new XDDFSolidFillProperties(XDDFColor.from(color));
+        XDDFChartData.Series series = data.getSeries().get(index);
+        XDDFShapeProperties properties = series.getShapeProperties();
+        if (properties == null) {
+            properties = new XDDFShapeProperties();
+        }
+        properties.setFillProperties(fill);
+        series.setShapeProperties(properties);
+    }
+
+    private void storeGraphs(List<XSSFChart> charts) throws IOException, InvalidFormatException {
+        for(XSSFChart chart : charts) {
+            int width = 16 * Units.EMU_PER_CENTIMETER;
+            int height = 10 * Units.EMU_PER_CENTIMETER;
+
+            XWPFChart charttemp = document.createChart(width, height);
+            CTChart ctChartTemp = charttemp.getCTChart();
+
+            ctChartTemp.set(chart.getCTChart());
         }
     }
 
@@ -691,6 +903,12 @@ public class ReportModel {
 
     }
 
+    private void createChapterGraph(List<Integer> h, XSSFChart chart) {
+
+        chapterList.get(h).get(chapterList.get(h).size()-1).add(new ChapterList(chart));
+
+    }
+
     /**
      * Formats Chapter number given by converting it from List<Integer> into filename.
      * For example [1, 1] turns into "1.1".
@@ -723,6 +941,9 @@ public class ReportModel {
 
         //Chapter 1.1
         setNewInput(Arrays.asList(3, 1, 10), Collections.emptyList(), 0);
+
+        //Chapter 3.1.5
+        insertGraph(Arrays.asList(3, 1, 5), Collections.emptyList(), 0);
 
         //Chapter 3.1.11
         List<String> para = xqueriesMap.get("3.1.11");
@@ -1023,8 +1244,6 @@ public class ReportModel {
      *
      */
     private void arkadeTestReport(){ // NOSONAR
-
-        // 3 og 3.1 arkade version
         String version = arkadeModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
 
         setNewInput(Arrays.asList(3, 1), Collections.singletonList(version), 0);
@@ -1199,7 +1418,6 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 3, 2), Collections.singletonList(total + ""), 0);
         }
     }
-
 
     /**
      *
