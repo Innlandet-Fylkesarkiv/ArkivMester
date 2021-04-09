@@ -62,6 +62,7 @@ public class TestView extends Views{
         statusPanel.setBackground(Color.WHITE);
         testStatus = new JLabel(TESTRUNNING);
         testStatus.setFont(primaryFont);
+        testStatus.setForeground(Color.BLACK);
 
         URL imageURL = ClassLoader.getSystemResource("spinner.gif");
         ImageIcon imageIcon;
@@ -233,11 +234,17 @@ public class TestView extends Views{
      * Updates the status of all tests in the view.
      * @param status A static final String variable from {@link TestView}.
      */
-    public void updateTestStatus(String status) {
-        spinnerLabel.setVisible(false);
+    public void updateTestStatus(String status, Boolean running) {
+
         testStatus.setText(status);
-        if(status.equals(TESTDONE))
+        if(Boolean.TRUE.equals(running)) {
+            spinnerLabel.setVisible(true);
+            testStatus.setForeground(Color.BLACK);
+        }
+        else {
+            spinnerLabel.setVisible(false);
             testStatus.setForeground(Color.GREEN);
+        }
     }
 
     /**

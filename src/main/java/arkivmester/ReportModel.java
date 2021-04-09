@@ -2,6 +2,7 @@ package arkivmester;
 
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.impl.xpath.XQuery;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -514,7 +515,7 @@ public class ReportModel {
      */
     public void printReportToFile(Properties prop) {
         try {
-            FileOutputStream os = new FileOutputStream(prop.get("tempFolder") + "\\" + prop.get("currentArchive") + "\\Testrapport.docx"); // #NOSONAR
+            FileOutputStream os = new FileOutputStream(prop.get("tempFolder") + "\\" + prop.get("currentArchive") + "\\Rapporter\\Testrapport.docx"); // #NOSONAR
             document.write(os);
             document.close();
             os.close();
@@ -853,6 +854,24 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList("" + arkivdeler), 1);
             insertTable(Arrays.asList(3, 1, 3), splitIntoTable(parts));
         }
+        //Chapter 3.3.4
+        List<String> crossReferences = xqueriesMap.get("3.3.4");
+
+        int n537 = arkadeModel.getTotal("N5.37", TOTAL);
+
+        setNewInput(Arrays.asList(3, 3, 4), Arrays.asList("" + n537, "" +  crossReferences.size()), 0);
+
+        if (crossReferences.size() < 25){
+            for (String crossReference : crossReferences) {
+                setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("\u2022 " + crossReference), 1);
+            }
+        }
+        else{
+            setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("Over 25. Skriver til Vedlegg"), 1);
+            writeAttachments("3.3.4", crossReferences);
+        }
+
+
 
         //Chapter 3.3.6
         List<String> journals = xqueriesMap.get("3.3.6");
@@ -926,8 +945,8 @@ public class ReportModel {
 
         //Chapter 3.1.7
         List<String> dirs = xqueriesMap.get("3.1.7_1");
-        System.out.println(dirs);
-        System.out.println(dirs.get(0));
+        System.out.println(dirs); // NOSONAR
+        System.out.println(dirs.get(0)); // NOSONAR
         if(dirs.get(0).equals(EMPTY)) {
             setNewInput(Arrays.asList(3, 1, 7), Collections.emptyList(), 0);
         }

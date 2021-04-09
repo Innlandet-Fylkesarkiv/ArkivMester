@@ -79,4 +79,9 @@ public interface ViewObserver {
      * Resets the contents of the settings file to the default.
      */
     void resetCfg();
+
+    /**
+     * Packs the unzipped archive with all the tests to an AIP.
+     */
+    void packToAIP();
 }
