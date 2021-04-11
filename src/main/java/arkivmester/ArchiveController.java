@@ -196,21 +196,28 @@ public class ArchiveController implements ViewObserver {
 
     private List<String> getEmptyOrContent(String xml, String header) {
         String empty = "empty";
-        try {
-            List<String> para = thirdPartiesModel.runBaseX(
-                    xml,
-                    header + ".xq",
-                    settingsModel.prop);
+        File xquery = new File(settingsModel.prop.getProperty("xqueryExtFolder") + "\\" + header + ".xq"); //NOSONAR
+        if(xquery.exists()) {
+            try {
+                List<String> para = thirdPartiesModel.runBaseX(
+                        xml,
+                        header + ".xq",
+                        settingsModel.prop);
 
-            if(para.isEmpty()) {
+                if(para.isEmpty()) {
+                    return Collections.singletonList(empty);
+                }
+
+                return para;
+            } catch (IOException e) {
+                mainView.exceptionPopup("BaseX kunne ikke kjøre " + header + " .xq filen. Sjekk om filen eksisterer");
                 return Collections.singletonList(empty);
             }
-
-            return para;
-        } catch (IOException e) {
+        }else {
             mainView.exceptionPopup("BaseX kunne ikke kjøre " + header + " .xq filen. Sjekk om filen eksisterer");
             return Collections.singletonList(empty);
         }
+
     }
 
     //When "Start testing" is clicked.
@@ -463,13 +470,13 @@ public class ArchiveController implements ViewObserver {
         File v = new File(veraPdfPath);
         File d = new File(droidPath);
         if(v.exists()) {
-            xqueryResults.put("3.2_1", getEmptyOrContent("\"" + veraPdfPath + "\"", "3.2_1"));
+            xqueryResults.put("3.2_1", getEmptyOrContent(veraPdfPath, "3.2_1"));
         }
         else {
             xqueryResults.put("3.2_1", Collections.emptyList());
         }
         if(d.exists()) {
-            xqueryResults.put("3.2_2", getEmptyOrContent("\"" + droidPath + "\"", "3.2_2"));
+            xqueryResults.put("3.2_2", getEmptyOrContent(droidPath, "3.2_2"));
         }
         else {
             xqueryResults.put("3.2_2", Collections.emptyList());
