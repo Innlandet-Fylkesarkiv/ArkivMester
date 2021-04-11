@@ -729,7 +729,8 @@ public class ReportModel {
         List<String> para = xqueriesMap.get("3.1.11");
 
         //Chapter 3.1.2
-        valideringAvXML();
+        // valideringAvXML(); NOSONAR
+
 
         if(para.get(0).equals(EMPTY)) {
             setNewInput(Arrays.asList(3, 1, 11), Collections.emptyList(), 0);
@@ -758,6 +759,8 @@ public class ReportModel {
         } else {
             setNewInput(Arrays.asList(3, 1, 13), Collections.singletonList(para.size() + ""), 2);
         }
+
+        //Chapter 3.1.14 N5.27, N5.11, N5.18
 
         //Chapter 3.1.20
         para = xqueriesMap.get("3.1.20");
@@ -1165,7 +1168,7 @@ public class ReportModel {
     }
 
     /**
-     *
+     * All Chapters that only uses ArkadeModel
      */
     private void arkadeTestReport(){ // NOSONAR
 
@@ -1257,6 +1260,7 @@ public class ReportModel {
         List<String> input = new ArrayList<>();
         int valg = arkadeModel.systemidentifikasjonerForklaring(input);
         setNewInput(Arrays.asList(3, 1, 27), input, valg);
+        // AntallSepsialarkivdeler?
 
         //Chapter 3.1.28 - Arkivdelreferanser
         if(arkadeModel.getDataFromHtml("N5.48").isEmpty()) {
@@ -1347,9 +1351,9 @@ public class ReportModel {
 
 
     /**
-     *
+     * Chapter 3.1.1. N5.01, N5.02
      * @param kap docx kap
-     * @param index test ID
+     * @param index deviation ID
      */
     private void writeDeviation(List<Integer> kap, String index) {
         List<String> avvik = arkadeModel.getDataFromHtml(index);

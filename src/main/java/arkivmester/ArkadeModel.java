@@ -250,7 +250,7 @@ public class ArkadeModel {
     /**
      * 3.1.27: N5.47 Systemidentifikasjoner, N5.34 Dokumentfiler med referanse.
      * @param docxInput Values to put in to docx text.
-     * @return Number. What text to use in docx from chapters.
+     * @return Number. What text form docx to output in report
      */
     public Integer systemidentifikasjonerForklaring(List<String> docxInput){
 
