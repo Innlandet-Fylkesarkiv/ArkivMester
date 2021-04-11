@@ -436,10 +436,9 @@ public class ArchiveController implements ViewObserver {
         System.out.println("Lager rapport, vennligst vent ..."); // #NOSONAR
         testView.updateTestStatus("Genererer rapporten ...", true);
 
-        //ScheduledExecutorService reportScheduler;
-        //reportScheduler = Executors.newScheduledThreadPool(1);
-        //reportScheduler.submit(this::makeReportThread);
-        makeReportThread();
+        ScheduledExecutorService reportScheduler;
+        reportScheduler = Executors.newScheduledThreadPool(1);
+        reportScheduler.submit(this::makeReportThread);
     }
 
     public void makeReportThread() {
