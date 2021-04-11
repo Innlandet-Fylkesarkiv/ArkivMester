@@ -440,8 +440,8 @@ public class ArchiveController implements ViewObserver {
         String fileName = prop.getProperty("currentArchive");
         String archivePath = "\"" + prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName; // #NOSONAR
         String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml\"";
-        String veraPdfPath = "\"" + prop.getProperty("tempFolder") + "\\" + fileName + "\\VeraPDF\\verapdf.xml\"";
-        String droidPath = "\"" + prop.getProperty("tempFolder") + "\\" + fileName + "\\DROID\\droid.xml\"";
+        String veraPdfPath = prop.getProperty("tempFolder") + "\\" + fileName + "\\VeraPDF\\verapdf.xml";
+        String droidPath =  prop.getProperty("tempFolder") + "\\" + fileName + "\\DROID\\droid.xml";
 
         Map<String, String> map = new LinkedHashMap<>();
         map.put("1.2_1.xq",archivePath + "\\dias-mets.xml\"");
@@ -460,8 +460,20 @@ public class ArchiveController implements ViewObserver {
         for(String s :headerNumbers) {
             xqueryResults.put(s, getEmptyOrContent(testArkivstruktur, s));
         }
-        xqueryResults.put("3.2_1", getEmptyOrContent(veraPdfPath, "3.2_1"));
-        xqueryResults.put("3.2_2", getEmptyOrContent(droidPath, "3.2_2"));
+        File v = new File(veraPdfPath);
+        File d = new File(droidPath);
+        if(v.exists()) {
+            xqueryResults.put("3.2_1", getEmptyOrContent("\"" + veraPdfPath + "\"", "3.2_1"));
+        }
+        else {
+            xqueryResults.put("3.2_1", Collections.emptyList());
+        }
+        if(d.exists()) {
+            xqueryResults.put("3.2_2", getEmptyOrContent("\"" + droidPath + "\"", "3.2_2"));
+        }
+        else {
+            xqueryResults.put("3.2_2", Collections.emptyList());
+        }
 
         reportModel.init(prop, xqueryResults);
 

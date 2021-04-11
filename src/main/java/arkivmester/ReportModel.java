@@ -932,21 +932,22 @@ public class ReportModel {
         //Chapter 3.2
         List<String> veraPDF = xqueriesMap.get("3.2_1");
         List<String> droid = xqueriesMap.get("3.2_2");
-        int nonCompliant = Integer.parseInt(veraPDF.get(0));
-        int failed = Integer.parseInt(veraPDF.get(1));
+        if(!veraPDF.isEmpty() && !droid.isEmpty()) {
 
-        setNewInput(Arrays.asList(3, 2), Collections.emptyList(),0);
-        setNewInput(Arrays.asList(3, 2), droid,1);
-        if(nonCompliant == 0 && failed ==0){
-            setNewInput(Arrays.asList(3, 2), Collections.emptyList(),2);
-        }
-        else if(failed == 0) {
-            setNewInput(Arrays.asList(3, 2), Collections.emptyList(),3);
-            setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant),5);
-        }
-        else if(nonCompliant == 0) {
-            setNewInput(Arrays.asList(3, 2), Collections.emptyList(),3);
-            setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant),4);
+            int nonCompliant = Integer.parseInt(veraPDF.get(0));
+            int failed = Integer.parseInt(veraPDF.get(1));
+
+            setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 0);
+            setNewInput(Arrays.asList(3, 2), droid,1);
+            if (nonCompliant == 0 && failed == 0) {
+                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 2);
+            } else if (failed == 0) {
+                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 3);
+                setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant), 5);
+            } else if (nonCompliant == 0) {
+                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 3);
+                setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant), 4);
+            }
         }
 
         //Chapter 3.1.7
