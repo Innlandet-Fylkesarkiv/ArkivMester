@@ -1222,7 +1222,7 @@ public class ReportModel {
         para2 = xqueriesMap.get("3.3.9_3b");
         List<String> para3 = xqueriesMap.get("3.3.9_3c");
 
-        if((para.get(0).equals(para2.get(5))) && (para.get(0).equals(para3.get(0)))) {
+        if((para.get(0).equals(para2.get(0))) && (para.get(0).equals(para3.get(0)))) {
             setNewInput(Arrays.asList(3, 3, 9), Collections.singletonList("" + para.get(0)), 4);
         } else {
             setNewInput(Arrays.asList(3, 3, 9), Collections.emptyList(), 5);
