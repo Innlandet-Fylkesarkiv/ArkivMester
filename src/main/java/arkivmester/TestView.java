@@ -248,6 +248,28 @@ public class TestView extends Views{
     }
 
     /**
+     * Updates the status of all tests in the view.
+     * @param status A static final String variable from {@link TestView}.
+     */
+    public void updateTestStatus(String status, Boolean running, Boolean error) {
+
+        testStatus.setText(status);
+        if(Boolean.TRUE.equals(running)) {
+            spinnerLabel.setVisible(true);
+            testStatus.setForeground(Color.BLACK);
+        }
+        else {
+            spinnerLabel.setVisible(false);
+            testStatus.setForeground(Color.GREEN);
+        }
+
+        if(Boolean.TRUE.equals(error)) {
+            spinnerLabel.setVisible(false);
+            testStatus.setForeground(Color.RED);
+        }
+    }
+
+    /**
      * Updates the status of Arkade tests in the view.
      * @param status A static final String variable from {@link TestView}.
      */
