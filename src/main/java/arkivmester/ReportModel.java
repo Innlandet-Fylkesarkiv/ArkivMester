@@ -5,7 +5,6 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.util.Units;
 import org.apache.poi.xddf.usermodel.PresetColor;
 import org.apache.poi.xddf.usermodel.XDDFColor;
@@ -661,8 +660,6 @@ public class ReportModel {
     }
 
     private void insertGraph(List<Integer> h, List<String> g, int col, int c) {
-        System.out.println(g);
-
         for (ChapterList chap : chapterList.get(h).get(c)) {
             if(chap.getType() == TextStyle.GRAPH) {
                 chap.insertGraphInput(g, col);
@@ -759,8 +756,6 @@ public class ReportModel {
 
             String title = cinput.chart.getTitle().getTx().getRich().getPArray(0).getRArray(0).getT();
 
-            System.out.println(title);
-
             int amountCat = ((cinput.result.size() / cinput.tableCol) - 1) / 2;
 
             for(int i = 0; i < amountCat; i++) {
@@ -840,7 +835,7 @@ public class ReportModel {
 
     }
 
-    private void solidFillSeries(XDDFChartData data, int index, PresetColor color) {
+    private void solidFillSeries(XDDFChartData data, int index, PresetColor color) {        // NOSONAR
         XDDFSolidFillProperties fill = new XDDFSolidFillProperties(XDDFColor.from(color));
         XDDFChartData.Series series = data.getSeries(index);
         XDDFShapeProperties properties = series.getShapeProperties();
@@ -890,8 +885,7 @@ public class ReportModel {
     }
 
     private void createChapterGraph(List<Integer> h, CTChart chart) {
-        System.out.println(h);
-
+        
         for(List<ChapterList> chapters : chapterList.get(h)) {
             if(chapters.isEmpty()) {
                 chapters.add(new ChapterList(chart));
@@ -936,7 +930,6 @@ public class ReportModel {
 
         //Chapter 3.1.5
         para = xqueriesMap.get("3.1.5_1");
-        System.out.println(para);
         if(!para.get(0).equals(EMPTY)) {
             insertGraph(Arrays.asList(3, 1, 5), splitIntoTable(para), getRows(para), 0);
         }

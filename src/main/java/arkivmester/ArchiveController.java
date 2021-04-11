@@ -493,13 +493,22 @@ public class ArchiveController implements ViewObserver {
 
         reportModel.init(prop, xqueryResults);
 
-        reportModel.generateReport();
-        reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
+        try {
+            reportModel.generateReport();
+            reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
 
-        reportModel.makeReport();
-        testView.updateTestStatus("<html>Rapporten er generert og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\<br>" +
-                settingsModel.prop.getProperty("currentArchive") + "</html>", false);
-        testView.activatePackToAipBtn();
+            reportModel.makeReport();
+            testView.updateTestStatus("<html>Rapporten er generert og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\<br>" +
+                    settingsModel.prop.getProperty("currentArchive") + "</html>", false);
+            testView.activatePackToAipBtn();
+
+
+        } catch (RuntimeException e) {
+            testView.updateTestStatus("En feil i genereringen av rapporten har oppstått", false, true);
+            mainView.exceptionPopup("En feil i genereringen av rapporten har oppstått");
+            e.printStackTrace(); // NOSONAR
+        }
+
     }
 
     //When "Lagre tests" is clicked.
