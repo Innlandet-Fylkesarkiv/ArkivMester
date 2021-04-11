@@ -554,9 +554,13 @@ public class ArkadeModel {
         if(tmp.size() == 1 || (!tmp.isEmpty() && containsValue.equals(TOTALT))){
             return Integer.parseInt(tmp.get(0));
         }
-        else{
+        else if (tmp.isEmpty()){
             // error
-            System.out.println(index + " Has " + tmp.size() + " elements. Only TOTALT will get first element if several elements") ; //NOSONAR
+            System.out.println("   " + index + " Has " + tmp.size()) ; //NOSONAR
+        }
+        else{
+            System.out.println("   " + index + " Has " + tmp.size() + " elements. Only TOTALT will get first element if several elements") ; //NOSONAR
+
         }
         return -1;
     }
