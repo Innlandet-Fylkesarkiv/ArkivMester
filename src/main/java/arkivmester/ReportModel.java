@@ -5,7 +5,6 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.util.Units;
 import org.apache.poi.xddf.usermodel.PresetColor;
 import org.apache.poi.xddf.usermodel.XDDFColor;
@@ -661,8 +660,6 @@ public class ReportModel {
     }
 
     private void insertGraph(List<Integer> h, List<String> g, int col, int c) {
-        System.out.println(g);
-
         for (ChapterList chap : chapterList.get(h).get(c)) {
             if(chap.getType() == TextStyle.GRAPH) {
                 chap.insertGraphInput(g, col);
@@ -817,19 +814,16 @@ public class ReportModel {
 
             XDDFChartData data = chart.createData(ChartTypes.BAR, bottomAxis, leftAxis);
 
+            data.setVaryColors(false);
+
             XDDFChartData.Series series;
             for (int i = 0; i < amountCat; i++) {
                 series = data.addSeries(categoryFactory, values.get(i));
-                series.setTitle(categories.get(i), new CellReference(sheet.getSheetName(), 0, 2, true, true));
+                series.setTitle(categories.get(i), null);
             }
 
             XDDFBarChartData bar = (XDDFBarChartData) data;
             bar.setBarDirection(BarDirection.COL);
-
-            if(categories.size() <= 2) {
-                solidFillSeries(data, 0, PresetColor.LIGHT_GREEN);
-                solidFillSeries(data, 1, PresetColor.BLUE);
-            }
 
             chart.plot(data);
 
@@ -841,7 +835,7 @@ public class ReportModel {
 
     }
 
-    private void solidFillSeries(XDDFChartData data, int index, PresetColor color) {
+    private void solidFillSeries(XDDFChartData data, int index, PresetColor color) {        // NOSONAR
         XDDFSolidFillProperties fill = new XDDFSolidFillProperties(XDDFColor.from(color));
         XDDFChartData.Series series = data.getSeries(index);
         XDDFShapeProperties properties = series.getShapeProperties();
@@ -895,6 +889,7 @@ public class ReportModel {
         for(List<ChapterList> chapters : chapterList.get(h)) {
             if(chapters.isEmpty()) {
                 chapters.add(new ChapterList(chart));
+                return;
             }
         }
 
@@ -935,7 +930,6 @@ public class ReportModel {
 
         //Chapter 3.1.5
         para = xqueriesMap.get("3.1.5_1");
-        System.out.println(para);
         if(!para.get(0).equals(EMPTY)) {
             insertGraph(Arrays.asList(3, 1, 5), splitIntoTable(para), getRows(para), 0);
         }
