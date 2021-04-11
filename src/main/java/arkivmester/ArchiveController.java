@@ -2,6 +2,7 @@ package arkivmester;
 
 import javax.swing.*;
 import java.io.*;
+import java.nio.file.Files;
 import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.List;
@@ -92,26 +93,22 @@ public class ArchiveController implements ViewObserver {
         fileName = fileName.substring(0,fileName.lastIndexOf('.'));                   // NOSONAR
         //String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument"; // NOSONAR ONLY TESTING
         //Should use the one below, but takes too long
-        String docPath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokument\""; // NOSONAR
+        String docPath =  settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokumenter"; // NOSONAR
 
         //Unzips .tar folder with the archive.
         try {
             thirdPartiesModel.unzipArchive(archiveModel.tar, settingsModel.prop);
-        }catch (IOException e) {
-            System.out.println(e.getMessage()); //NOSONAR
-            mainView.exceptionPopup("Kunne ikke unzippe arkivet, prøv igjen.");
-        }
+
         System.out.println("\n\tArchive unzipped\n"); //NOSONAR
 
-        //TODO: VIRKER IKKE: LAG NYTT FOR DETTE
         File f = new File(docPath);
-        if(!f.exists()) {
-            docPath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokumenter\""; // NOSONAR
+        if(!f.isDirectory()) {
+            docPath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokument"; // NOSONAR
         }
 
         //Run tests depending on if they are selected or not.
-        //Arkade
 
+        //Arkade
         if(Boolean.TRUE.equals(selectedTests.get(0))) {
             System.out.print("\nRunning arkade\n"); //NOSONAR
             testView.updateArkadeStatus(TestView.RUNNING);
@@ -134,7 +131,7 @@ public class ArchiveController implements ViewObserver {
             System.out.print("\nRunning VeraPDF\n"); //NOSONAR
             testView.updateVeraStatus(TestView.RUNNING);
             try {
-                thirdPartiesModel.runVeraPDF(docPath, settingsModel.prop);
+                thirdPartiesModel.runVeraPDF("\"" + docPath + "\"", settingsModel.prop);
             } catch (IOException e) {
                 System.out.println(e.getMessage()); //NOSONAR
                 mainView.exceptionPopup("VeraPDF test feilet, prøv igjen");
@@ -149,7 +146,7 @@ public class ArchiveController implements ViewObserver {
             System.out.print("\nRunning Kost-Val\n"); //NOSONAR
             testView.updateKostValStatus(TestView.RUNNING);
             try {
-                thirdPartiesModel.runKostVal(docPath, settingsModel.prop);
+                thirdPartiesModel.runKostVal("\"" + docPath + "\"", settingsModel.prop);
             }catch (IOException e) {
                 System.out.println(e.getMessage()); //NOSONAR
                 mainView.exceptionPopup("Kost-Val test feilet, prøv igjen.");
@@ -164,7 +161,7 @@ public class ArchiveController implements ViewObserver {
             System.out.println("\nRunning DROID\n"); //NOSONAR
             testView.updateDroidStatus(TestView.RUNNING);
             try {
-                thirdPartiesModel.runDROID(docPath, settingsModel.prop);
+                thirdPartiesModel.runDROID("\"" + docPath + "\"", settingsModel.prop);
             } catch (IOException e) {
                 System.out.println(e.getMessage()); //NOSONAR
                 mainView.exceptionPopup("DROID test feilet, prøv igjen.");
@@ -192,6 +189,10 @@ public class ArchiveController implements ViewObserver {
 
         testView.updateTestStatus(TestView.TESTDONE, false);
         testView.activateCreateReportBtn();
+        }catch (IOException e) {
+            System.out.println(e.getMessage()); //NOSONAR
+            mainView.exceptionPopup("Kunne ikke unzippe arkivet, prøv igjen.");
+        }
     }
 
     private List<String> getEmptyOrContent(String xml, String header) {
@@ -462,6 +463,14 @@ public class ArchiveController implements ViewObserver {
         }
         xqueryResults.put("3.2_1", getEmptyOrContent(veraPdfPath, "3.2_1"));
         xqueryResults.put("3.2_2", getEmptyOrContent(droidPath, "3.2_2"));
+
+        xqueryResults.put("3.3.9_1a", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml\"", "3.3.9_1a"));
+        xqueryResults.put("3.3.9_2a", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml\"", "3.3.9_2a"));
+        xqueryResults.put("3.3.9_2b", getEmptyOrContent(archivePath + "\\content\\offentligJournal.xml\"", "3.3.9_2b"));
+
+        xqueryResults.put("3.3.9_3a", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml\"", "3.3.9_3a"));
+        xqueryResults.put("3.3.9_3b", getEmptyOrContent(archivePath + "\\content\\offentligJournal.xml\"", "3.3.9_3b"));
+        xqueryResults.put("3.3.9_3c", getEmptyOrContent(testArkivstruktur, "3.3.9_3c"));
 
         reportModel.init(prop, xqueryResults);
 

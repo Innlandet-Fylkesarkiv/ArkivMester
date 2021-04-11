@@ -25,7 +25,7 @@ public class ArkadeModel {
     static final String TOTALT = "Totalt";
 
     ArkadeModel(){
-        readHtmlFileFromTestFolder();
+        //readHtmlFileFromTestFolder();
     }
 
     /**
@@ -82,7 +82,6 @@ public class ArkadeModel {
 
         // Select random arkade html for testing
         filePath = "../Input/" + testFilePath.get(3);
-        System.out.println(filePath); //NOSONAR
 
         try (FileReader fr = new FileReader(filePath);
              BufferedReader br = new BufferedReader(fr)) {
