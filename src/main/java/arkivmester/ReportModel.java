@@ -759,6 +759,8 @@ public class ReportModel {
 
             String title = cinput.chart.getTitle().getTx().getRich().getPArray(0).getRArray(0).getT();
 
+            System.out.println(title);
+
             int amountCat = ((cinput.result.size() / cinput.tableCol) - 1) / 2;
 
             for(int i = 0; i < amountCat; i++) {
@@ -817,19 +819,16 @@ public class ReportModel {
 
             XDDFChartData data = chart.createData(ChartTypes.BAR, bottomAxis, leftAxis);
 
+            data.setVaryColors(false);
+
             XDDFChartData.Series series;
             for (int i = 0; i < amountCat; i++) {
                 series = data.addSeries(categoryFactory, values.get(i));
-                series.setTitle(categories.get(i), new CellReference(sheet.getSheetName(), 0, 2, true, true));
+                series.setTitle(categories.get(i), null);
             }
 
             XDDFBarChartData bar = (XDDFBarChartData) data;
             bar.setBarDirection(BarDirection.COL);
-
-            if(categories.size() <= 2) {
-                solidFillSeries(data, 0, PresetColor.LIGHT_GREEN);
-                solidFillSeries(data, 1, PresetColor.BLUE);
-            }
 
             chart.plot(data);
 
@@ -896,6 +895,7 @@ public class ReportModel {
         for(List<ChapterList> chapters : chapterList.get(h)) {
             if(chapters.isEmpty()) {
                 chapters.add(new ChapterList(chart));
+                return;
             }
         }
 
