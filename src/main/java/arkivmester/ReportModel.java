@@ -928,7 +928,7 @@ public class ReportModel {
             para = xqueriesMap.get("3.3.3_2");
             insertTable(three, splitIntoTable(para));
         }
-
+        
         //Chapter 3.2
         List<String> veraPDF = xqueriesMap.get("3.2_1");
         List<String> droid = xqueriesMap.get("3.2_2");
@@ -959,6 +959,51 @@ public class ReportModel {
         else {
             setNewInput(Arrays.asList(3, 1, 7), Collections.singletonList("" + dirs.size()), 1);
             insertTable(Arrays.asList(3, 1, 7), splitIntoTable(dirs));
+        }
+
+        //Chapter 3.3.9
+        para = xqueriesMap.get("3.3.9_1a");
+        setNewInput(Arrays.asList(3, 3, 9), Collections.emptyList(), 0);
+
+        if(!para.get(0).equals(EMPTY)) {
+            setNewInput(Arrays.asList(3, 3, 9), Collections.emptyList(), 1);
+        }
+
+        para = xqueriesMap.get("3.3.9_2a");
+        List<String> para2 = xqueriesMap.get("3.3.9_2b");
+
+        if(!para.get(0).equals(EMPTY) && !para2.get(0).equals(EMPTY)) {
+            int antall = 0;
+            List<String> extraNodes = new ArrayList<>();
+            Collections.sort(para);
+            Collections.sort(para2);
+
+            for (String s : para2) {
+                if (!para.contains(s)) {
+                    extraNodes.add(s);
+                    antall++;
+                }
+            }
+
+            if(antall > 0 && antall <= 25) {
+                setNewInput(Arrays.asList(3, 3, 9), Collections.singletonList("" + extraNodes.size()), 2);
+                insertTable(Arrays.asList(3, 3, 9), splitIntoTable(extraNodes));
+            }
+            else if(antall > 25) {
+                setNewInput(Arrays.asList(3, 3, 9), Collections.singletonList("" + extraNodes.size()), 3);
+                writeAttachments("3.3.9_antall_ekstra_skjermingshjemmeler", extraNodes);
+                attachments.add("\u2022 3.3.9_antall_ekstra_skjermingshjemmeler.txt");
+            }
+        }
+
+        para = xqueriesMap.get("3.3.9_3a");
+        para2 = xqueriesMap.get("3.3.9_3b");
+        List<String> para3 = xqueriesMap.get("3.3.9_3c");
+
+        if((para.get(0).equals(para2.get(0))) && (para.get(0).equals(para3.get(0)))) {
+            setNewInput(Arrays.asList(3, 3, 9), Collections.singletonList("" + para.get(0)), 4);
+        } else {
+            setNewInput(Arrays.asList(3, 3, 9), Collections.emptyList(), 5);
         }
 
         //Chapter 5 - Attachments

@@ -98,10 +98,7 @@ public class ArchiveController implements ViewObserver {
         //Unzips .tar folder with the archive.
         try {
             thirdPartiesModel.unzipArchive(archiveModel.tar, settingsModel.prop);
-        }catch (IOException e) {
-            System.out.println(e.getMessage()); //NOSONAR
-            mainView.exceptionPopup("Kunne ikke unzippe arkivet, prøv igjen.");
-        }
+
         System.out.println("\n\tArchive unzipped\n"); //NOSONAR
 
         File f = new File(docPath);
@@ -192,6 +189,10 @@ public class ArchiveController implements ViewObserver {
 
         testView.updateTestStatus(TestView.TESTDONE, false);
         testView.activateCreateReportBtn();
+        }catch (IOException e) {
+            System.out.println(e.getMessage()); //NOSONAR
+            mainView.exceptionPopup("Kunne ikke unzippe arkivet, prøv igjen.");
+        }
     }
 
     private List<String> getEmptyOrContent(String xml, String header) {
@@ -462,6 +463,14 @@ public class ArchiveController implements ViewObserver {
         }
         xqueryResults.put("3.2_1", getEmptyOrContent(veraPdfPath, "3.2_1"));
         xqueryResults.put("3.2_2", getEmptyOrContent(droidPath, "3.2_2"));
+
+        xqueryResults.put("3.3.9_1a", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml\"", "3.3.9_1a"));
+        xqueryResults.put("3.3.9_2a", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml\"", "3.3.9_2a"));
+        xqueryResults.put("3.3.9_2b", getEmptyOrContent(archivePath + "\\content\\offentligJournal.xml\"", "3.3.9_2b"));
+
+        xqueryResults.put("3.3.9_3a", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml\"", "3.3.9_3a"));
+        xqueryResults.put("3.3.9_3b", getEmptyOrContent(archivePath + "\\content\\offentligJournal.xml\"", "3.3.9_3b"));
+        xqueryResults.put("3.3.9_3c", getEmptyOrContent(testArkivstruktur, "3.3.9_3c"));
 
         reportModel.init(prop, xqueryResults);
 
