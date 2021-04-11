@@ -951,8 +951,8 @@ public class ReportModel {
 
         //Chapter 3.1.7
         List<String> dirs = xqueriesMap.get("3.1.7_1");
-        System.out.println(dirs); // NOSONAR
-        System.out.println(dirs.get(0)); // NOSONAR
+        //System.out.println(dirs); // NOSONAR
+        //System.out.println(dirs.get(0)); // NOSONAR
         if(dirs.get(0).equals(EMPTY)) {
             setNewInput(Arrays.asList(3, 1, 7), Collections.emptyList(), 0);
         }
