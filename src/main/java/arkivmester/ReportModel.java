@@ -833,7 +833,7 @@ public class ReportModel {
 
             return chart;
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage()); // NOSONAR
             return null;
         }
 
@@ -912,7 +912,7 @@ public class ReportModel {
         s.append("docx");
         return s.toString();
     }
-    
+
     /**
      * Fetch all data from report and set up all chapters so that input can be changed.
      */
