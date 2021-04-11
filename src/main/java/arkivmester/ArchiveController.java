@@ -196,21 +196,28 @@ public class ArchiveController implements ViewObserver {
 
     private List<String> getEmptyOrContent(String xml, String header) {
         String empty = "empty";
-        try {
-            List<String> para = thirdPartiesModel.runBaseX(
-                    xml,
-                    header + ".xq",
-                    settingsModel.prop);
+        File xquery = new File(settingsModel.prop.getProperty("xqueryExtFolder") + "\\" + header + ".xq"); //NOSONAR
+        if(xquery.exists()) {
+            try {
+                List<String> para = thirdPartiesModel.runBaseX(
+                        xml,
+                        header + ".xq",
+                        settingsModel.prop);
 
-            if(para.isEmpty()) {
+                if(para.isEmpty()) {
+                    return Collections.singletonList(empty);
+                }
+
+                return para;
+            } catch (IOException e) {
+                mainView.exceptionPopup("BaseX kunne ikke kjøre " + header + " .xq filen. Sjekk om filen eksisterer");
                 return Collections.singletonList(empty);
             }
-
-            return para;
-        } catch (IOException e) {
+        }else {
             mainView.exceptionPopup("BaseX kunne ikke kjøre " + header + " .xq filen. Sjekk om filen eksisterer");
             return Collections.singletonList(empty);
         }
+
     }
 
     //When "Start testing" is clicked.
