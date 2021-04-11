@@ -77,11 +77,11 @@ public class ArkadeModel {
         "Arkaderapport-899ec389-1dc0-41d0-b6ca-15f27642511b.html",
         "Arkaderapport-7fc1fe22-d89b-42c9-aaec-5651beb0da0a.html",
         "Arkaderapport-ebc3f74b-4eb3-4358-a38f-46479cfb2feb.html",
-        "arkaderapportrapport.html"
+        "arkaderapportrapport.html" // 6
         );
 
         // Select random arkade html for testing
-        filePath = "../Input/" + testFilePath.get(4);
+        filePath = "../Input/" + testFilePath.get(3);
         System.out.println(filePath); //NOSONAR
 
         try (FileReader fr = new FileReader(filePath);
@@ -98,6 +98,7 @@ public class ArkadeModel {
 
     // Chapters
 
+
     /**
      * Get arkade version. Chapter 3.1
      * @return arkade version.
@@ -112,7 +113,11 @@ public class ArkadeModel {
         return elements.last().text();
     }
 
-
+    /** Chapter 3.1.2 Get number of deviation in arkade Report.
+     */
+    public Integer getNumberOfDeviation(){
+        return getOneElementInListAsInteger(getFromSummary("Antall avvik funnet", true), "");
+    }
 
     /**
      * Not done, waiting for update. 3.1.14 and 3.1.31
@@ -245,7 +250,7 @@ public class ArkadeModel {
     /**
      * 3.1.27: N5.47 Systemidentifikasjoner, N5.34 Dokumentfiler med referanse.
      * @param docxInput Values to put in to docx text.
-     * @return Number. What text to use in docx from chapters.
+     * @return Number. What text form docx to output in report
      */
     public Integer systemidentifikasjonerForklaring(List<String> docxInput){
 
@@ -486,7 +491,7 @@ public class ArkadeModel {
      * Get all IDs "getAllIDs()", Get deviation for every ID.
      * @return all deviation in file testreport.
      */
-    private List<String> getAll () { // NOSONAR
+    public List<String> getAll () { // NOSONAR
         List<String> htmlTable = new ArrayList<>();
         // Get deviation for every id
         for (String index : getAllIDs()){
@@ -592,6 +597,46 @@ public class ArkadeModel {
         return  htmlTable;
     }
 
+    /**
+     * Get all cells in summary table with containsValue
+     * @param containsValue cell has substring containsValue
+     * @param getSecondCell Only get cell after cell with containValue
+     * @return All Cells with containsValue OR All cells after the one with containsValue
+     */
+    public List<String> getFromSummary(String containsValue, boolean getSecondCell){
+
+        // reset list
+        List<String> htmlTable = new ArrayList<>();
+
+        Document doc = Jsoup.parse(htmlRawText.toString());
+
+        if(doc.getElementsByClass("jumbotron") == null) {
+            System.out.println("No jumbotron Class "); //NOSONAR
+            return htmlTable;
+        }
+        Elements elements = doc.getElementsByClass("jumbotron");
+        org.jsoup.select.Elements rows = elements.select("tr");
+        getCellsInTable(htmlTable, rows);
+
+        List<String> getTable = new ArrayList<>();
+
+        for (int i = 0; i < htmlTable.size(); i++){
+            if(htmlTable.get(i).contains(containsValue)){
+                if(!getSecondCell){
+                    getTable.add(htmlTable.get(i));
+                }
+                else if(htmlTable.size() >= i+1){
+                    getTable.add(htmlTable.get(i + 1));
+                }
+                else{
+                    System.out.println("No cell after: " + containsValue); //NOSONAR
+                }
+            }
+        }
+
+        return getTable;
+    }
+
     public List<String> getTableDataFromHtml(String index, int wordPosition) {
 
         List<String> htmlTable = new ArrayList<>();
@@ -631,6 +676,17 @@ public class ArkadeModel {
 
         org.jsoup.select.Elements rows = element.select("tr");
 
+        getCellsInTable(htmlTable, rows);
+
+        return htmlTable;
+    }
+
+    /**
+     *  Get cells from deviation table.
+     * @param htmlTable Add string element to this list.
+     * @param rows Html elements. Where it will get the tables from.
+     */
+    public void getCellsInTable(List<String> htmlTable, Elements rows){
 
         for(org.jsoup.nodes.Element row :rows){
 
@@ -649,6 +705,5 @@ public class ArkadeModel {
                 }
             }
         }
-        return htmlTable;
     }
 }
