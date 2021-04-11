@@ -555,11 +555,11 @@ public class ArkadeModel {
             return Integer.parseInt(tmp.get(0));
         }
         else if (tmp.isEmpty()){
-            // error
-            System.out.println("   " + index + " Has " + 0) ; //NOSONAR
+
+            //System.out.println("   " + index + " Has  0 elements") ; //NOSONAR
         }
         else{
-            System.out.println("   " + index + " Has " + tmp.size() + " elements. Only TOTALT will get first element if several elements") ; //NOSONAR
+            //System.out.println("   " + index + " Has " + tmp.size() + " elements. Only TOTALT will get first element if several elements") ; //NOSONAR
 
         }
         return -1;
