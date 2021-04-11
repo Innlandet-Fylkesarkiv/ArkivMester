@@ -826,10 +826,10 @@ public class ReportModel {
             XDDFBarChartData bar = (XDDFBarChartData) data;
             bar.setBarDirection(BarDirection.COL);
 
-            if(categories.size() <= 2) {
-                solidFillSeries(data, 0, PresetColor.LIGHT_GREEN);
-                solidFillSeries(data, 1, PresetColor.BLUE);
-            }
+            //if(categories.size() <= 2) {
+            //    solidFillSeries(data, 0, PresetColor.LIGHT_GREEN);
+            //    solidFillSeries(data, 1, PresetColor.BLUE);
+            //}
 
             chart.plot(data);
 
@@ -841,16 +841,16 @@ public class ReportModel {
 
     }
 
-    private void solidFillSeries(XDDFChartData data, int index, PresetColor color) {
-        XDDFSolidFillProperties fill = new XDDFSolidFillProperties(XDDFColor.from(color));
-        XDDFChartData.Series series = data.getSeries(index);
-        XDDFShapeProperties properties = series.getShapeProperties();
-        if (properties == null) {
-            properties = new XDDFShapeProperties();
-        }
-        properties.setFillProperties(fill);
-        series.setShapeProperties(properties);
-    }
+    //private void solidFillSeries(XDDFChartData data, int index, PresetColor color) {
+    //    XDDFSolidFillProperties fill = new XDDFSolidFillProperties(XDDFColor.from(color));
+    //    XDDFChartData.Series series = data.getSeries(index);
+    //    XDDFShapeProperties properties = series.getShapeProperties();
+    //    if (properties == null) {
+    //        properties = new XDDFShapeProperties();
+    //    }
+    //    properties.setFillProperties(fill);
+    //    series.setShapeProperties(properties);
+    //}
 
     /**
      * Will either add a paragraph to Chapterlist class,
@@ -1222,7 +1222,7 @@ public class ReportModel {
         para2 = xqueriesMap.get("3.3.9_3b");
         List<String> para3 = xqueriesMap.get("3.3.9_3c");
 
-        if((para.get(0).equals(para2.get(5))) && (para.get(0).equals(para3.get(0)))) {
+        if((para.get(0).equals(para2.get(0))) && (para.get(0).equals(para3.get(0)))) {
             setNewInput(Arrays.asList(3, 3, 9), Collections.singletonList("" + para.get(0)), 4);
         } else {
             setNewInput(Arrays.asList(3, 3, 9), Collections.emptyList(), 5);
