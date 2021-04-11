@@ -891,8 +891,7 @@ public class ReportModel {
     }
 
     private void createChapterGraph(List<Integer> h, CTChart chart) {
-        System.out.println(h);
-
+        
         for(List<ChapterList> chapters : chapterList.get(h)) {
             if(chapters.isEmpty()) {
                 chapters.add(new ChapterList(chart));
