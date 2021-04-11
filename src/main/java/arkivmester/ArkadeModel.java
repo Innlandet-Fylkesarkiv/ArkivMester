@@ -25,7 +25,7 @@ public class ArkadeModel {
     static final String TOTALT = "Totalt";
 
     ArkadeModel(){
-        //readHtmlFileFromTestFolder();
+        //readHtmlFileFromTestFolder(); NOSONAR
     }
 
     /**
@@ -556,7 +556,7 @@ public class ArkadeModel {
         }
         else if (tmp.isEmpty()){
             // error
-            System.out.println("   " + index + " Has " + tmp.size()) ; //NOSONAR
+            System.out.println("   " + index + " Has " + 0) ; //NOSONAR
         }
         else{
             System.out.println("   " + index + " Has " + tmp.size() + " elements. Only TOTALT will get first element if several elements") ; //NOSONAR
