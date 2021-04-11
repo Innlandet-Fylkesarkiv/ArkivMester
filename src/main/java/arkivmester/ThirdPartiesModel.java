@@ -127,7 +127,7 @@ public class ThirdPartiesModel {
     public void runArkadeTest(File path, Properties prop) throws IOException {
 
         //String with path to arkadeCli
-        String cd = cdString + prop.getProperty("arkadePath") + "\"";
+        String cd = cdString + prop.getProperty("arkadePath") + "\""; // #NOSONAR
         //Path to output folder where test report gets saved.
         String outputPath = "\"" + tempFolder + archiveName + "\\Arkade\\Report\"";
         //Path to temp folder where temporary data about the tests gets stored.
@@ -325,12 +325,13 @@ public class ThirdPartiesModel {
      * @return String list of the results from the query.
      */
     public List<String> runBaseX(String xml, String xqName, Properties prop) throws IOException {
-        String xq = prop.getProperty("xqueryExtFolder") + "\\" + xqName + "\"";
+        String xq = "\"" + prop.getProperty("xqueryExtFolder") + "\\" + xqName + "\"";
         String temp = prop.getProperty(tempFolderKey) + "\\xqueryResult.txt";
+
         String pwd = cdString + prop.getProperty(basexPathKey) + "\"";
         List<String> result = new ArrayList<>();
 
-        ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o \"" + temp + "\" -i " + xml + " " + xq); // #NOSONAR
+        ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o \"" + temp + "\" -i \"" + xml + "\" " + xq); // #NOSONAR
 
         try {
             Process p = baseXBuilder.start();
@@ -368,7 +369,7 @@ public class ThirdPartiesModel {
         String outFile = prop.getProperty(tempFolderKey) + archiveName + "\\" + outFileName + ".txt";
         String pwd = cdString + prop.getProperty(basexPathKey) + "\"";
 
-        ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o \"" + outFile + "\" -i " + xml + " " + xq);
+        ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o \"" + outFile + "\" -i \"" + xml + "\" \"" + xq);
 
         try {
             Process p = baseXBuilder.start();
@@ -399,6 +400,21 @@ public class ThirdPartiesModel {
 
         }
         r.close();
+    }
+
+    public void packToAIP(Properties prop, String metadataPath) throws IOException {
+
+        String cd = cdString + prop.getProperty("arkadePath") + "\"";
+
+        String outputPath = tempFolder + archiveName;
+        String path = outputPath + archiveName;
+
+
+        String processPath = "\"" + tempFolder + archiveName + "\\Arkade\"";
+
+
+        //Run ArkadeCli through command line.
+        runCMD(cd + " && arkade pack -a \"" + path + "\" -i AIP" + " -m \"" + metadataPath + "\" -o \"" + outputPath + "\" -p " + processPath + " -t noark5 -f");
     }
 
     /**

@@ -76,7 +76,7 @@ public class ReportModel {
 
     private static final String FONT = "Roboto (Brødtekst)";
 
-    ReportModel(Properties prop, Map<String, List<String>> map) {
+    public void init(Properties prop, Map<String, List<String>> map) {
         this.prop = prop;
         arkadeModel = new ArkadeModel();
         chapterList = new LinkedHashMap<>();
@@ -573,7 +573,7 @@ public class ReportModel {
      */
     public void printReportToFile(Properties prop) {
         try {
-            FileOutputStream os = new FileOutputStream(prop.get("tempFolder") + "\\" + prop.get("currentArchive") + "\\Testrapport.docx"); // #NOSONAR
+            FileOutputStream os = new FileOutputStream(prop.get("tempFolder") + "\\" + prop.get("currentArchive") + "\\Rapporter\\Testrapport.docx"); // #NOSONAR
             document.write(os);
             document.close();
             os.close();
@@ -661,6 +661,8 @@ public class ReportModel {
     }
 
     private void insertGraph(List<Integer> h, List<String> g, int col, int c) {
+        System.out.println(g);
+
         for (ChapterList chap : chapterList.get(h).get(c)) {
             if(chap.getType() == TextStyle.GRAPH) {
                 chap.insertGraphInput(g, col);
@@ -889,6 +891,7 @@ public class ReportModel {
     }
 
     private void createChapterGraph(List<Integer> h, CTChart chart) {
+        System.out.println(h);
 
         for(List<ChapterList> chapters : chapterList.get(h)) {
             if(chapters.isEmpty()) {
@@ -933,6 +936,7 @@ public class ReportModel {
 
         //Chapter 3.1.5
         para = xqueriesMap.get("3.1.5_1");
+        System.out.println(para);
         if(!para.get(0).equals(EMPTY)) {
             insertGraph(Arrays.asList(3, 1, 5), splitIntoTable(para), getRows(para), 0);
         }
@@ -945,6 +949,10 @@ public class ReportModel {
 
         //Chapter 3.1.11
         para = xqueriesMap.get("3.1.11");
+
+        //Chapter 3.1.2
+        // valideringAvXML(); NOSONAR
+
 
         if(para.get(0).equals(EMPTY)) {
             setNewInput(Arrays.asList(3, 1, 11), Collections.emptyList(), 0);
@@ -973,6 +981,8 @@ public class ReportModel {
         } else {
             setNewInput(Arrays.asList(3, 1, 13), Collections.singletonList(para.size() + ""), 2);
         }
+
+        //Chapter 3.1.14 N5.27, N5.11, N5.18
 
         //Chapter 3.1.20
         para = xqueriesMap.get("3.1.20");
@@ -1072,6 +1082,24 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList("" + arkivdeler), 1);
             insertTable(Arrays.asList(3, 1, 3), splitIntoTable(parts));
         }
+        //Chapter 3.3.4
+        List<String> crossReferences = xqueriesMap.get("3.3.4");
+
+        int n537 = arkadeModel.getTotal("N5.37", TOTAL);
+
+        setNewInput(Arrays.asList(3, 3, 4), Arrays.asList("" + n537, "" +  crossReferences.size()), 0);
+
+        if (crossReferences.size() < 25){
+            for (String crossReference : crossReferences) {
+                setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("\u2022 " + crossReference), 1);
+            }
+        }
+        else{
+            setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("Over 25. Skriver til Vedlegg"), 1);
+            writeAttachments("3.3.4", crossReferences);
+        }
+
+
 
         //Chapter 3.3.6
         List<String> journals = xqueriesMap.get("3.3.6");
@@ -1122,10 +1150,179 @@ public class ReportModel {
             para = xqueriesMap.get("3.3.3_2");
             insertTable(three, splitIntoTable(para));
         }
+        
+        //Chapter 3.2
+        List<String> veraPDF = xqueriesMap.get("3.2_1");
+        List<String> droid = xqueriesMap.get("3.2_2");
+        if(!veraPDF.isEmpty() && !droid.isEmpty()) {
+
+            int nonCompliant = Integer.parseInt(veraPDF.get(0));
+            int failed = Integer.parseInt(veraPDF.get(1));
+
+            setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 0);
+            setNewInput(Arrays.asList(3, 2), droid,1);
+            if (nonCompliant == 0 && failed == 0) {
+                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 2);
+            } else if (failed == 0) {
+                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 3);
+                setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant), 5);
+            } else if (nonCompliant == 0) {
+                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 3);
+                setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant), 4);
+            }
+        }
+
+        //Chapter 3.1.7
+        List<String> dirs = xqueriesMap.get("3.1.7_1");
+        //System.out.println(dirs); // NOSONAR
+        //System.out.println(dirs.get(0)); // NOSONAR
+        if(dirs.get(0).equals(EMPTY)) {
+            setNewInput(Arrays.asList(3, 1, 7), Collections.emptyList(), 0);
+        }
+        else {
+            setNewInput(Arrays.asList(3, 1, 7), Collections.singletonList("" + dirs.size()), 1);
+            insertTable(Arrays.asList(3, 1, 7), splitIntoTable(dirs));
+        }
+
+        //Chapter 3.3.9
+        para = xqueriesMap.get("3.3.9_1a");
+        setNewInput(Arrays.asList(3, 3, 9), Collections.emptyList(), 0);
+
+        if(!para.get(0).equals(EMPTY)) {
+            setNewInput(Arrays.asList(3, 3, 9), Collections.emptyList(), 1);
+        }
+
+        para = xqueriesMap.get("3.3.9_2a");
+        List<String> para2 = xqueriesMap.get("3.3.9_2b");
+
+        if(!para.get(0).equals(EMPTY) && !para2.get(0).equals(EMPTY)) {
+            int antall = 0;
+            List<String> extraNodes = new ArrayList<>();
+            Collections.sort(para);
+            Collections.sort(para2);
+
+            for (String s : para2) {
+                if (!para.contains(s)) {
+                    extraNodes.add(s);
+                    antall++;
+                }
+            }
+
+            if(antall > 0 && antall <= 25) {
+                setNewInput(Arrays.asList(3, 3, 9), Collections.singletonList("" + extraNodes.size()), 2);
+                insertTable(Arrays.asList(3, 3, 9), splitIntoTable(extraNodes));
+            }
+            else if(antall > 25) {
+                setNewInput(Arrays.asList(3, 3, 9), Collections.singletonList("" + extraNodes.size()), 3);
+                writeAttachments("3.3.9_antall_ekstra_skjermingshjemmeler", extraNodes);
+                attachments.add("\u2022 3.3.9_antall_ekstra_skjermingshjemmeler.txt");
+            }
+        }
+
+        para = xqueriesMap.get("3.3.9_3a");
+        para2 = xqueriesMap.get("3.3.9_3b");
+        List<String> para3 = xqueriesMap.get("3.3.9_3c");
+
+        if((para.get(0).equals(para2.get(0))) && (para.get(0).equals(para3.get(0)))) {
+            setNewInput(Arrays.asList(3, 3, 9), Collections.singletonList("" + para.get(0)), 4);
+        } else {
+            setNewInput(Arrays.asList(3, 3, 9), Collections.emptyList(), 5);
+        }
 
         //Chapter 5 - Attachments
         if(!attachments.isEmpty()) {
             setNewParagraph(Collections.singletonList(5), attachments);
+        }
+    }
+
+    /** Chapter 3.1.2 NOT DONE
+     * Need arkdade report examples.
+     */
+    private void valideringAvXML(){ //NOSONAR
+        String index ="N5.03";
+        //Chapter 3.1.2
+        Integer deviation = arkadeModel.getNumberOfDeviation();
+        if(deviation == -1){
+            System.out.println("Chapter 3.1.2: Can't find number of deviation"); //NOSONAR
+        }
+        if(deviation == 0){
+            System.out.println("Zero deviation"); //NOSONAR
+            setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 0);
+        }
+        // NOT DONE: Need examples
+        else{
+            // Kun Arkade rapporten, elementet tilknyttetDato rapportert som feil format.
+            List<String> invalidDates = arkadeModel.getSpecificValue(index, "Date value.");
+            if(!invalidDates.isEmpty()){
+                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 1);
+                // Use setNewParagraph on invalidDates
+            }
+
+            //Arkade rapporten, elementet filstoerrelse mangler.
+            List<String> filstoerrelse = arkadeModel.getSpecificValue(index, "filstoerrelse");
+            if(!filstoerrelse.isEmpty()){
+                // count(//dokumentobjekt[not (boolean(filstoerrelse))]) alle dokumentobject with out variable filstoerrelse
+                // print out xqueriesMap.get("3.1.2_1")
+                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 2);
+                // Print out fillstoerrelse: & ANTALL
+            }
+
+            //Arkade rapporten, elementet journalposttype angitt med typer som ikke følger Noark5 standarden.
+            // Get example with missing journalposttype
+            List<String> journalposttype = arkadeModel.getSpecificValue(index, "journalposttype");
+            if(!journalposttype.isEmpty()){
+                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 3);
+                // baseX
+                // Print out journalposttype: & ANTALL
+            }
+
+            //Arkade rapporten, elementet skjermingshjemmel mangler.
+            // Get example with missing konvertertFra
+            List<String> konvertertFra = arkadeModel.getSpecificValue(index, "skjerming");
+            if(!konvertertFra.isEmpty()){
+                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 4);
+                // baseX
+            }
+
+            //Arkade rapporten, elementet korrespondansepart mangler.
+            // Get example with missing korrespondansepart
+            List<String> korrespondansepart = arkadeModel.getSpecificValue(index, "korrespondansepart");
+            if(!korrespondansepart.isEmpty()){
+                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 5);
+                // baseX
+            }
+
+            //Arkade rapporten, elementet klasse har mapper og underklasser.
+            // Get example with missing elementHarMapperOgUnderklasser
+            List<String> elementHarMapperOgUnderklasser = arkadeModel.getSpecificValue(index, "kriv inn her4");
+            if(!elementHarMapperOgUnderklasser.isEmpty()){
+                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 6);
+                // baseX
+            }
+
+            //Arkade rapporten, elementet dokumentfil mangler under elementet dokumentobjekt.
+            // Get example with missing manglerUnderElementetDokumentobject
+            List<String> manglerUnderElementetDokumentobject = arkadeModel.getSpecificValue(index, "dokumentfil,");
+            if(!manglerUnderElementetDokumentobject.isEmpty()){
+                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 7);
+                // baseX
+            }
+
+            // Arkade rapporten, elementet tittel mangler under mappe, registering eller dokumentbeskrivelse.
+            // Get example with missing elementetTittelManglerUnderMappeRegisteringEllerDokumentbeskrivelse
+            List<String> elementetMangler = arkadeModel.getSpecificValue(index, "registrering,");
+            if(!elementetMangler.isEmpty()){
+                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 8);
+                // baseX
+            }
+
+            // Arkade rapporten, elementet avskrivingsmaate inneholder ikke godkjente verdier.
+            // Get example with missing avskrivingsmaate
+            List<String> avskrivingsmaate = arkadeModel.getSpecificValue(index, "kriv inn her");
+            if(!avskrivingsmaate.isEmpty()){
+                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 9);
+                // baseX metadat.xsd
+            }
         }
     }
 
@@ -1240,7 +1437,7 @@ public class ReportModel {
 
     private void writeAttachments(String filename, List<String> content) {
         String path = prop.getProperty("tempFolder") + "\\" + prop.getProperty("currentArchive") //NOSONAR
-                + "\\" + filename + ".txt"; // NOSONAR
+                + "\\Rapporter\\" + filename + ".txt"; // NOSONAR
         File attachment = new File(path);
         try {
             if (attachment.createNewFile()) {
@@ -1253,7 +1450,7 @@ public class ReportModel {
     }
 
     /**
-     *
+     * All Chapters that only uses ArkadeModel
      */
     private void arkadeTestReport(){ // NOSONAR
         String version = arkadeModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
@@ -1343,6 +1540,7 @@ public class ReportModel {
         List<String> input = new ArrayList<>();
         int valg = arkadeModel.systemidentifikasjonerForklaring(input);
         setNewInput(Arrays.asList(3, 1, 27), input, valg);
+        // AntallSepsialarkivdeler?
 
         //Chapter 3.1.28 - Arkivdelreferanser
         if(arkadeModel.getDataFromHtml("N5.48").isEmpty()) {
@@ -1432,9 +1630,9 @@ public class ReportModel {
     }
 
     /**
-     *
+     * Chapter 3.1.1. N5.01, N5.02
      * @param kap docx kap
-     * @param index test ID
+     * @param index deviation ID
      */
     private void writeDeviation(List<Integer> kap, String index) {
         List<String> avvik = arkadeModel.getDataFromHtml(index);

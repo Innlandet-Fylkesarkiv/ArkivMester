@@ -2,6 +2,7 @@ package arkivmester;
 
 import javax.swing.*;
 import java.io.*;
+import java.nio.file.Files;
 import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.List;
@@ -42,7 +43,7 @@ public class ArchiveController implements ViewObserver {
         archiveModel = new ArchiveModel();
         thirdPartiesModel = new ThirdPartiesModel();
         settingsModel = new SettingsModel();
-
+        reportModel = new ReportModel();
     }
 
     /**
@@ -89,27 +90,24 @@ public class ArchiveController implements ViewObserver {
         thirdPartiesModel.initializePath(settingsModel.prop);
         String fileName = archiveModel.tar.getName();                                   // NOSONAR
         fileName = fileName.substring(0,fileName.lastIndexOf('.'));                   // NOSONAR
-        String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument"; // NOSONAR ONLY TESTING
+        //String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument"; // NOSONAR ONLY TESTING
         //Should use the one below, but takes too long
-        //String docPath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokument \""; // NOSONAR
+        String docPath =  settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokumenter"; // NOSONAR
 
         //Unzips .tar folder with the archive.
         try {
             thirdPartiesModel.unzipArchive(archiveModel.tar, settingsModel.prop);
-        }catch (IOException e) {
-            System.out.println(e.getMessage()); //NOSONAR
-            mainView.exceptionPopup("Kunne ikke unzippe arkivet, prøv igjen.");
-        }
+
         System.out.println("\n\tArchive unzipped\n"); //NOSONAR
 
         File f = new File(docPath);
         if(!f.isDirectory()) {
-            docPath = "\"" + settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokumenter\""; // NOSONAR
+            docPath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokument"; // NOSONAR
         }
 
         //Run tests depending on if they are selected or not.
-        //Arkade
 
+        //Arkade
         if(Boolean.TRUE.equals(selectedTests.get(0))) {
             System.out.print("\nRunning arkade\n"); //NOSONAR
             testView.updateArkadeStatus(TestView.RUNNING);
@@ -132,7 +130,7 @@ public class ArchiveController implements ViewObserver {
             System.out.print("\nRunning VeraPDF\n"); //NOSONAR
             testView.updateVeraStatus(TestView.RUNNING);
             try {
-                thirdPartiesModel.runVeraPDF(docPath, settingsModel.prop);
+                thirdPartiesModel.runVeraPDF("\"" + docPath + "\"", settingsModel.prop);
             } catch (IOException e) {
                 System.out.println(e.getMessage()); //NOSONAR
                 mainView.exceptionPopup("VeraPDF test feilet, prøv igjen");
@@ -147,7 +145,7 @@ public class ArchiveController implements ViewObserver {
             System.out.print("\nRunning Kost-Val\n"); //NOSONAR
             testView.updateKostValStatus(TestView.RUNNING);
             try {
-                thirdPartiesModel.runKostVal(docPath, settingsModel.prop);
+                thirdPartiesModel.runKostVal("\"" + docPath + "\"", settingsModel.prop);
             }catch (IOException e) {
                 System.out.println(e.getMessage()); //NOSONAR
                 mainView.exceptionPopup("Kost-Val test feilet, prøv igjen.");
@@ -162,7 +160,7 @@ public class ArchiveController implements ViewObserver {
             System.out.println("\nRunning DROID\n"); //NOSONAR
             testView.updateDroidStatus(TestView.RUNNING);
             try {
-                thirdPartiesModel.runDROID(docPath, settingsModel.prop);
+                thirdPartiesModel.runDROID("\"" + docPath + "\"", settingsModel.prop);
             } catch (IOException e) {
                 System.out.println(e.getMessage()); //NOSONAR
                 mainView.exceptionPopup("DROID test feilet, prøv igjen.");
@@ -188,27 +186,38 @@ public class ArchiveController implements ViewObserver {
 
         System.out.println("\nTesting Ferdig\n"); //NOSONAR
 
-        testView.updateTestStatus(TestView.TESTDONE);
+        testView.updateTestStatus(TestView.TESTDONE, false);
         testView.activateCreateReportBtn();
+        }catch (IOException e) {
+            System.out.println(e.getMessage()); //NOSONAR
+            mainView.exceptionPopup("Kunne ikke unzippe arkivet, prøv igjen.");
+        }
     }
 
     private List<String> getEmptyOrContent(String xml, String header) {
         String empty = "empty";
-        try {
-            List<String> para = thirdPartiesModel.runBaseX(
-                    xml,
-                    header + ".xq",
-                    settingsModel.prop);
+        File xquery = new File(settingsModel.prop.getProperty("xqueryExtFolder") + "\\" + header + ".xq"); //NOSONAR
+        if(xquery.exists()) {
+            try {
+                List<String> para = thirdPartiesModel.runBaseX(
+                        xml,
+                        header + ".xq",
+                        settingsModel.prop);
 
-            if(para.isEmpty()) {
+                if(para.isEmpty()) {
+                    return Collections.singletonList(empty);
+                }
+
+                return para;
+            } catch (IOException e) {
+                mainView.exceptionPopup("BaseX kunne ikke kjøre " + header + " .xq filen. Sjekk om filen eksisterer");
                 return Collections.singletonList(empty);
             }
-
-            return para;
-        } catch (IOException e) {
+        }else {
             mainView.exceptionPopup("BaseX kunne ikke kjøre " + header + " .xq filen. Sjekk om filen eksisterer");
             return Collections.singletonList(empty);
         }
+
     }
 
     //When "Start testing" is clicked.
@@ -303,6 +312,29 @@ public class ArchiveController implements ViewObserver {
             } catch (IOException e) {
                 mainView.exceptionPopup("Kan ikke skrive til config fil.");
             }
+        }
+    }
+
+    @Override
+    public void packToAIP() {
+        System.out.println("Pakker til AIP ...");  // #NOSONAR
+        testView.updateTestStatus("Pakker til AIP ...", true);
+
+        ScheduledExecutorService aipScheduler;
+        aipScheduler = Executors.newScheduledThreadPool(1);
+        aipScheduler.submit(this::packToAIPThread);
+    }
+
+    public void packToAIPThread() {
+        try {
+            settingsModel.prepareToAIP();
+            thirdPartiesModel.packToAIP(settingsModel.prop, archiveModel.xmlMeta.getAbsolutePath());
+
+            System.out.println("Uttrekket ble pakket til AIP");  // #NOSONAR
+            testView.updateTestStatus("<html>Uttrekket ble pakket til AIP og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\<br>" +
+                    settingsModel.prop.getProperty("currentArchive") + "</html>", false); // #NOSONAR
+        } catch (IOException e) {
+            mainView.exceptionPopup("Noe gikk galt med pakking til AIP ...");
         }
     }
 
@@ -401,38 +433,72 @@ public class ArchiveController implements ViewObserver {
     //When "Lag rapport" is clicked.
     @Override
     public void makeReport() {
-        Properties prop = settingsModel.prop;
+        System.out.println("Lager rapport, vennligst vent ..."); // #NOSONAR
+        testView.updateTestStatus("Genererer rapporten ...", true);
 
+        //ScheduledExecutorService reportScheduler;
+        //reportScheduler = Executors.newScheduledThreadPool(1);
+        //reportScheduler.submit(this::makeReportThread);
+        makeReportThread();
+    }
+
+    public void makeReportThread() {
+        Properties prop = settingsModel.prop;
         String format = testView.getSelectedFormat(); //#NOSONAR
         String fileName = prop.getProperty("currentArchive");
-        String archivePath = "\"" + prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName; // #NOSONAR
-        String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml\"";
+        String archivePath = prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName; // #NOSONAR
+        String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml";
+        String veraPdfPath = prop.getProperty("tempFolder") + "\\" + fileName + "\\VeraPDF\\verapdf.xml";
+        String droidPath =  prop.getProperty("tempFolder") + "\\" + fileName + "\\DROID\\droid.xml";
 
         Map<String, String> map = new LinkedHashMap<>();
-        map.put("1.2_1.xq",archivePath + "\\dias-mets.xml\"");
-        map.put("1.2_2.xq",archivePath + "\\content\\arkivuttrekk.xml\"");
-        map.put("1.2_3.xq",archivePath + "\\content\\loependeJournal.xml\"");
-        map.put("1.2_4.xq",archivePath + "\\content\\offentligJournal.xml\"");
+        map.put("1.2_1.xq",archivePath + "\\dias-mets.xml");
+        map.put("1.2_2.xq",archivePath + "\\content\\arkivuttrekk.xml");
+        map.put("1.2_3.xq",archivePath + "\\content\\loependeJournal.xml");
+        map.put("1.2_4.xq",archivePath + "\\content\\offentligJournal.xml");
         map.put("1.2_5.xq",testArkivstruktur);
 
 
         Map<String, List<String>> xqueryResults = new HashMap<>();
-        List<String> headerNumbers = Arrays.asList("3.1.5_1", "3.1.5_2", "3.1.11", "3.1.13", "3.1.20", "3.2.1_1", "3.2.1_2",
+        List<String> headerNumbers = Arrays.asList("3.1.2_1", "3.1.5_1", "3.1.5_2", "3.1.11", "3.1.13", "3.1.20", "3.2.1_1", "3.2.1_2",
                 "3.2.1_3", "3.3.1", "3.3.2_1", "3.3.2_2", "3.3.2_3", "3.1.21", "3.1.26_1", "3.1.26_2",
-                "3.1.3", "3.3.6", "3.3.7", "3.1.23_1", "3.1.23_2", "3.1.23_3", "3.3.3_1", "3.3.3_2");
+                "3.1.3", "3.3.6", "3.3.7", "3.1.23_1", "3.1.23_2", "3.1.23_3", "3.3.3_1", "3.3.3_2",
+                "3.1.7_1", "3.1.7_2", "3.3.4");
 
         for(String s :headerNumbers) {
             xqueryResults.put(s, getEmptyOrContent(testArkivstruktur, s));
         }
+        File v = new File(veraPdfPath);
+        File d = new File(droidPath);
+        if(v.exists()) {
+            xqueryResults.put("3.2_1", getEmptyOrContent(veraPdfPath, "3.2_1"));
+        }
+        else {
+            xqueryResults.put("3.2_1", Collections.emptyList());
+        }
+        if(d.exists()) {
+            xqueryResults.put("3.2_2", getEmptyOrContent(droidPath, "3.2_2"));
+        }
+        else {
+            xqueryResults.put("3.2_2", Collections.emptyList());
+        }
 
-        reportModel = new ReportModel(prop, xqueryResults);
+        xqueryResults.put("3.3.9_1a", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml", "3.3.9_1a"));
+        xqueryResults.put("3.3.9_2a", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml", "3.3.9_2a"));
+        xqueryResults.put("3.3.9_2b", getEmptyOrContent(archivePath + "\\content\\offentligJournal.xml", "3.3.9_2b"));
+
+        xqueryResults.put("3.3.9_3a", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml", "3.3.9_3a"));
+        xqueryResults.put("3.3.9_3b", getEmptyOrContent(archivePath + "\\content\\offentligJournal.xml", "3.3.9_3b"));
+        xqueryResults.put("3.3.9_3c", getEmptyOrContent(testArkivstruktur, "3.3.9_3c"));
+
+        reportModel.init(prop, xqueryResults);
 
         reportModel.generateReport();
         reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
 
         reportModel.makeReport();
         testView.updateTestStatus("<html>Rapporten er generert og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\<br>" +
-                                        settingsModel.prop.getProperty("currentArchive") + "</html>");
+                settingsModel.prop.getProperty("currentArchive") + "</html>", false);
         testView.activatePackToAipBtn();
     }
 
