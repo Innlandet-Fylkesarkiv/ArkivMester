@@ -7,6 +7,7 @@ import org.jsoup.select.Elements;
 
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 /**
  * Class for handling and parsing the Arkade testreport html file.
@@ -25,7 +26,7 @@ public class ArkadeModel {
     static final String TOTALT = "Totalt";
 
     ArkadeModel(){
-        //readHtmlFileFromTestFolder(); //NOSONAR
+        readHtmlFileFromTestFolder(); //NOSONAR
     }
 
     /**
@@ -81,7 +82,7 @@ public class ArkadeModel {
         );
 
         // Select random arkade html for testing
-        filePath = "../Input/" + testFilePath.get(3);
+        filePath = "../Input/" + testFilePath.get(2);
 
         try (FileReader fr = new FileReader(filePath);
              BufferedReader br = new BufferedReader(fr)) {
@@ -119,96 +120,81 @@ public class ArkadeModel {
     }
 
     /**
-     * Not done, waiting for update. 3.1.14 and 3.1.31
-     * Get id from N5.27 than get arkvidel start and end date in N5.27
-     * Not done: Loop through all id in N5.11 and N5.18. and compare start and end dat
-     * N5.11 and N5.18 dates needs too be between star and end date from N5.27
-     * 3.1.14 and 3.1.31
-     *
+     * @param arkivdelStartYear get systemID, startYear, endYear from Xquery
+     * @param output set text into doxc
+     * @return What text to write out to docx
      */
-    public void firstLastRegistrering(){ //NOSONAR
+    public Integer firstLastReg(List<String> arkivdelStartYear, List<Integer> output){
+
+        int choose = 1;
 
         String indexN527 = "N5.27";
+        List<String> allID = getSystemID(indexN527, "systemID");
 
-        // get all ID. allways one ID in N5.27
-        List<String> id = getSystemID(indexN527, "systemID");
+        for (String id : allID) {
+            Integer firstReg = getYearFromString(
+                    getOneElementInListAsString(getSpecificValue(indexN527,"Første registrering"),id), false);
+            Integer lastReg = getYearFromString(
+                    getOneElementInListAsString(getSpecificValue(indexN527,"Siste registrering"),id), false);
 
-        for (int i = 0; i < id.size(); i++) {
-            // One ID
-            List<String> curID = getSpecificValue(indexN527, id.get(i));
+            List<Integer> n511 = new ArrayList<>(Collections.emptyList());
+            List<Integer> n518 = new ArrayList<>(Collections.emptyList());
 
-            List<String> curN511;
-            List<String> curN518;
+            String withID = id;
+            String servalIDs = "-";
 
-            // if more than 2 ID = "-". else = ""
-            String servalIDs;
-            String withID;
-            // If more than 1 ID. Search for ID
-            if (id.size() >= 2){
-                servalIDs = "-";
-                withID = id.get(i);
-            }
-            // If 1 ID, don't search for ID in text
-            else {
-                servalIDs = "";
+            if(allID.size() < 2){
                 withID = ":";
-
-            }
-            curN511 = getSpecificValue("N5.11", withID);
-            curN518 = getSpecificValue("N5.18", withID);
-            curN511 = getTextBetweenWords(curN511,servalIDs,":");
-            curN518 = getTextBetweenWords(curN518, servalIDs,":");
-
-            // Year in N5.11 AND N5.18
-            List<Integer> curN511Num = onlyKeepNumbers(curN511);
-            List<Integer> curN518Num = onlyKeepNumbers(curN518);
-
-            // Get Start AND End date N5.27
-            List<String> curN527 = getSpecificValue(indexN527, id.get(i));
-            String startDate = "";
-            String endDate = "";
-            if(!getSpecificValueInList(curN527, "Første registrering").isEmpty()){
-                startDate = getSpecificValueInList(curN527, "Første registrering").get(0);
-                startDate = getTextAt(startDate,":");
-                if (startDate.length() > 4 && !startDate.substring(startDate.length() - 4).matches("\\D+"))  {
-                    // gj;r om til int. check //D p[ begge
-                    // gj;r om til Funksjon. med 2017-01.2018 og -2017?
-                    startDate = startDate.substring(startDate.length() - 4);
-                }
-                else {startDate = ""; }
-            }
-            if(!getSpecificValueInList(curN527, "Siste registrering").isEmpty()){
-                endDate = getSpecificValueInList(curN527, "Siste registrering").get(0);
-                endDate = getTextAt(endDate,":");
-                if (endDate.length() > 4){
-                    endDate = endDate.substring(endDate.length() - 4);
-                }
-                else {endDate = ""; }
-            }
-
-            // Check if N5.11 AND N5.18 is between N5.27 start AND end Date
-            if(!startDate.isEmpty() && !endDate.isEmpty()){
-                for (int j = 0; j < curN511Num.size(); j++) {
-                    System.out.println(i ); // NOSONAR
+                servalIDs = "";
+                if(!arkivdelStartYear.isEmpty()){
+                    arkivdelStartYear.set(0,servalIDs);
                 }
             }
-            else{
-                System.out.println("N5.27, ID:" + " StarDate/EndDate mangler eller er feil " + // NOSONAR
-                        "StartDate: " + startDate + " EndDate: " + endDate + " SystemID: " + id );
+
+            for(String curN511 : getTextBetweenWords(getSpecificValue("N5.11", withID), servalIDs,":")){
+                n511.add(getYearFromString(curN511, false));
+            }
+            for(String curN518 : getTextBetweenWords(getSpecificValue("N5.18", withID), servalIDs,":")){
+                n518.add(getYearFromString(curN518, false));
+            }
+            // ---------- Chapter testing start here ---------------
+            for(Integer curN511: n511){
+                if(firstReg > curN511 || lastReg < curN511){
+                    System.out.println("firstReg is not the smaller than N5:11"); // NOSONAR
+                    return 0;
+                }
+            }
+            for(Integer curN518: n518){
+                if(firstReg > curN518 || lastReg < curN518){
+                    System.out.println("firstReg is not the smaller than N5:18"); // NOSONAR
+                    return 0;
+                }
             }
 
-
-
-            // return valg og verdier for alle ID'ene
-
-            System.out.println(curID);  // NOSONAR
-            System.out.println(startDate);  // NOSONAR
-            System.out.println(endDate);  // NOSONAR
-            System.out.println(curN511Num);  // NOSONAR
-            System.out.println(curN518Num);  // NOSONAR
-
+            for (int j = 0; j < arkivdelStartYear.size(); j++) {
+                // has 2 elements after j
+                if(id.contains(arkivdelStartYear.get(j))){
+                    if(arkivdelStartYear.size() > j+2){
+                        if(firstReg < getYearFromString(arkivdelStartYear.get(j + 1),true) ||
+                                lastReg > getYearFromString(arkivdelStartYear.get(j + 2),true)){
+                            return  0;
+                        }
+                        else if(firstReg > getYearFromString(arkivdelStartYear.get(j + 1) + 3,true)){
+                            output.add(firstReg);
+                            output.add(getYearFromString(arkivdelStartYear.get(j + 1), true));
+                            choose = 2;
+                        }
+                    }
+                    else{
+                        System.out.println("Missing star or end date in: arkivdelStartYear"); // NOSONAR
+                        return 0;
+                    }
+                }
+            }
         }
 
+
+        return choose;
     }
 
     /**
@@ -272,40 +258,6 @@ public class ArkadeModel {
 
     }
 
-    /** Remove This. 3.3.4 get all specific values value and for every systemID,
-     * N5.37. Get totalt(klasser, mapper, basisregistreringer)
-     * @return List(0-id.size) of List(klasser, mapper, basisregistreringer)
-     *    eg. for id Nr 22: list.get(22) = {antall klasser, antall mapper, antall basisregistreringer}.
-     */
-    public List <List<Integer>> kryssreferanser(){
-
-        String index = "N5.37";
-
-        List <List<Integer>> kryssreferanserNumbers = new ArrayList<>();
-
-        List <String> id = getSystemID(index, "systemID");
-
-        // If no ID. Add "NONE" ID
-        if(id.isEmpty()){
-            id.add("Antall");
-        }
-        // Search with ID
-        for (int i = 0; i < id.size(); i++) {
-            List<String> kryssreferanser = getSpecificValue(index, id.get(i));
-
-            kryssreferanserNumbers.add(Arrays.asList(getOneElementInListAsInteger(kryssreferanser, "klasser"),
-                    getOneElementInListAsInteger(kryssreferanser, "mapper"),
-                    getOneElementInListAsInteger(kryssreferanser, "basisregistreringer")
-            ));
-
-            if(kryssreferanserNumbers.get(i).contains(-1)){
-                System.out.println(index + " . -1 = Can't find value: (klasser, mapper, basisregistreringer):  " + //NOSONAR
-                        kryssreferanserNumbers.get(i));
-            }
-        }
-        return kryssreferanserNumbers;
-    }
-
     // Function for all Chapters
 
     /**
@@ -365,6 +317,32 @@ public class ArkadeModel {
             return number;
         }
 
+        return -1;
+    }
+
+    /**
+     *
+     * @param year string with year. Need to have year at front or back
+     * @param getYearAtBeginning year at beginning of string. else year back of the string
+     * @return year 4 numbers
+     */
+    public Integer getYearFromString(String year, boolean getYearAtBeginning){
+
+        if(getYearAtBeginning ){
+            if(year.length() >= 4){
+                year = year.substring(0, 4);
+                if(!year.matches("\\D+")){
+                    return Integer.parseInt(year);
+                }
+            }
+        }else{
+            if(year.length() >= 4){
+                year = year.substring(year.length()-4);
+                if(!year.matches("\\D+")){
+                    return Integer.parseInt(year);
+                }
+            }
+        }
         return -1;
     }
 
@@ -466,27 +444,6 @@ public class ArkadeModel {
     }
 
     /**
-     * Make number in String to Integer.
-     * @param listText Text with numbers in it.
-     * @return String as Integer or -1.
-     */
-    public List<Integer> onlyKeepNumbers(List<String> listText) { // NOSONAR
-
-        List<Integer> tmp = new ArrayList<>();
-
-        for (String s : listText) {
-            String onlyNumbers = "\\D+";
-            if (s.matches(onlyNumbers)) {
-                System.out.println("No numbers in date variable's "); //NOSONAR
-            } else {
-                String number = s.replaceAll(onlyNumbers, "");
-                tmp.add(Integer.parseInt(number));
-            }
-        }
-        return tmp;
-    }
-
-    /**
      * Get all IDs "getAllIDs()", Get deviation for every ID.
      * @return all deviation in file testreport.
      */
@@ -555,11 +512,10 @@ public class ArkadeModel {
             return Integer.parseInt(tmp.get(0));
         }
         else if (tmp.isEmpty()){
-
-            //System.out.println("   " + index + " Has  0 elements") ; //NOSONAR
+            System.out.println("   " + index + " Has  0 elements") ; //NOSONAR
         }
         else{
-            //System.out.println("   " + index + " Has " + tmp.size() + " elements. Only TOTALT will get first element if several elements") ; //NOSONAR
+            System.out.println("   " + index + " Has " + tmp.size() + " elements. Only TOTALT will get first element if several elements") ; //NOSONAR
 
         }
         return -1;
