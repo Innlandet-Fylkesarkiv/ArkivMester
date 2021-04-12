@@ -96,6 +96,7 @@ public class ReportModel {
         private int cindex;
         private CTChart chart;
         private boolean cases;
+        private boolean isVaried;
 
         /**
          * Initialize a default list of missing input.
@@ -147,10 +148,11 @@ public class ReportModel {
             cases = true;
         }
 
-        public void insertGraphInput(List<String> input, int col) {
+        public void insertGraphInput(List<String> input, int col, boolean vary) {
             result = input;
             tableCol = col;
             cases = true;
+            isVaried = vary;
         }
 
         /**
@@ -659,10 +661,10 @@ public class ReportModel {
         }
     }
 
-    private void insertGraph(List<Integer> h, List<String> g, int col, int c) {
+    private void insertGraph(List<Integer> h, List<String> g, int col, int c, boolean vary) {
         for (ChapterList chap : chapterList.get(h).get(c)) {
             if(chap.getType() == TextStyle.GRAPH) {
-                chap.insertGraphInput(g, col);
+                chap.insertGraphInput(g, col, vary);
             }
         }
     }
@@ -814,7 +816,7 @@ public class ReportModel {
 
             XDDFChartData data = chart.createData(ChartTypes.BAR, bottomAxis, leftAxis);
 
-            data.setVaryColors(false);
+            data.setVaryColors(cinput.isVaried);
 
             XDDFChartData.Series series;
             for (int i = 0; i < amountCat; i++) {
@@ -931,21 +933,35 @@ public class ReportModel {
         //Chapter 3.1.5
         para = xqueriesMap.get("3.1.5_1");
         if(!para.get(0).equals(EMPTY)) {
-            insertGraph(Arrays.asList(3, 1, 5), splitIntoTable(para), getRows(para), 0);
+            insertGraph(Arrays.asList(3, 1, 5), splitIntoTable(para), getRows(para), 0, false);
         }
         para = xqueriesMap.get("3.1.5_2");
         if(!para.get(0).equals(EMPTY)) {
-            insertGraph(Arrays.asList(3, 1, 5), splitIntoTable(para), getRows(para), 1);
+            insertGraph(Arrays.asList(3, 1, 5), splitIntoTable(para), getRows(para), 1, false);
         }
 
         //Chapter 3.1.9
+        para = xqueriesMap.get("3.1.9_1");
+        if(!para.get(0).equals(EMPTY)) {
+            insertGraph(Arrays.asList(3, 1, 9), splitIntoTable(para), getRows(para), 2, true);
+        }
+
+        List<String> temppara = arkadeModel.getSpecificValue("N5.18", " ");
+        para = new ArrayList<>();
+        for(String s : temppara) {
+            List<String> t = Arrays.asList(s.split("[ ]"));
+            para.add(t.get(0) + " registreringer; " + t.get(1));
+        }
+        if(!para.get(0).equals(EMPTY)) {
+            insertGraph(Arrays.asList(3, 1, 9), splitIntoTable(para), getRows(para), 5, false);
+        }
+        System.out.println(para);
 
         //Chapter 3.1.11
         para = xqueriesMap.get("3.1.11");
 
         //Chapter 3.1.2
         // valideringAvXML(); NOSONAR
-
 
         if(para.get(0).equals(EMPTY)) {
             setNewInput(Arrays.asList(3, 1, 11), Collections.emptyList(), 0);
