@@ -125,6 +125,11 @@ public class SettingsModel {
     }
 
     public void prepareToAIP() throws IOException {
+        File repOpsFolder = new File(archiveFolder.getPath() + "\\" + prop.getProperty(CURRENTARCHIVE) + "\\administrative_metadata\\repository_operations");
+        if(!repOpsFolder.exists()) {
+            Files.createDirectory(repOpsFolder.toPath());
+        }
+
         for (File folder : folders) {
             String repOpsPath = archiveFolder.getPath() + "\\" + prop.getProperty(CURRENTARCHIVE) + "\\administrative_metadata\\repository_operations\\"; // #NOSONAR
 

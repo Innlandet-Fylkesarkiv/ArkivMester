@@ -196,21 +196,28 @@ public class ArchiveController implements ViewObserver {
 
     private List<String> getEmptyOrContent(String xml, String header) {
         String empty = "empty";
-        try {
-            List<String> para = thirdPartiesModel.runBaseX(
-                    xml,
-                    header + ".xq",
-                    settingsModel.prop);
+        File xquery = new File(settingsModel.prop.getProperty("xqueryExtFolder") + "\\" + header + ".xq"); //NOSONAR
+        if(xquery.exists()) {
+            try {
+                List<String> para = thirdPartiesModel.runBaseX(
+                        xml,
+                        header + ".xq",
+                        settingsModel.prop);
 
-            if(para.isEmpty()) {
+                if(para.isEmpty()) {
+                    return Collections.singletonList(empty);
+                }
+
+                return para;
+            } catch (IOException e) {
+                mainView.exceptionPopup("BaseX kunne ikke kjøre " + header + " .xq filen. Sjekk om filen eksisterer");
                 return Collections.singletonList(empty);
             }
-
-            return para;
-        } catch (IOException e) {
+        }else {
             mainView.exceptionPopup("BaseX kunne ikke kjøre " + header + " .xq filen. Sjekk om filen eksisterer");
             return Collections.singletonList(empty);
         }
+
     }
 
     //When "Start testing" is clicked.
@@ -429,30 +436,31 @@ public class ArchiveController implements ViewObserver {
         System.out.println("Lager rapport, vennligst vent ..."); // #NOSONAR
         testView.updateTestStatus("Genererer rapporten ...", true);
 
-        ScheduledExecutorService reportScheduler;
-        reportScheduler = Executors.newScheduledThreadPool(1);
-        reportScheduler.submit(this::makeReportThread);
+        //ScheduledExecutorService reportScheduler;
+        //reportScheduler = Executors.newScheduledThreadPool(1);
+        //reportScheduler.submit(this::makeReportThread);
+        makeReportThread();
     }
 
     public void makeReportThread() {
         Properties prop = settingsModel.prop;
         String format = testView.getSelectedFormat(); //#NOSONAR
         String fileName = prop.getProperty("currentArchive");
-        String archivePath = "\"" + prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName; // #NOSONAR
-        String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml\"";
-        String veraPdfPath = "\"" + prop.getProperty("tempFolder") + "\\" + fileName + "\\VeraPDF\\verapdf.xml\"";
-        String droidPath = "\"" + prop.getProperty("tempFolder") + "\\" + fileName + "\\DROID\\droid.xml\"";
+        String archivePath = prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName; // #NOSONAR
+        String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml";
+        String veraPdfPath = prop.getProperty("tempFolder") + "\\" + fileName + "\\VeraPDF\\verapdf.xml";
+        String droidPath =  prop.getProperty("tempFolder") + "\\" + fileName + "\\DROID\\droid.xml";
 
         Map<String, String> map = new LinkedHashMap<>();
-        map.put("1.2_1.xq",archivePath + "\\dias-mets.xml\"");
-        map.put("1.2_2.xq",archivePath + "\\content\\arkivuttrekk.xml\"");
-        map.put("1.2_3.xq",archivePath + "\\content\\loependeJournal.xml\"");
-        map.put("1.2_4.xq",archivePath + "\\content\\offentligJournal.xml\"");
+        map.put("1.2_1.xq",archivePath + "\\dias-mets.xml");
+        map.put("1.2_2.xq",archivePath + "\\content\\arkivuttrekk.xml");
+        map.put("1.2_3.xq",archivePath + "\\content\\loependeJournal.xml");
+        map.put("1.2_4.xq",archivePath + "\\content\\offentligJournal.xml");
         map.put("1.2_5.xq",testArkivstruktur);
 
 
         Map<String, List<String>> xqueryResults = new HashMap<>();
-        List<String> headerNumbers = Arrays.asList("3.1.11", "3.1.13", "3.1.2_1", "3.1.20", "3.2.1_1", "3.2.1_2",
+        List<String> headerNumbers = Arrays.asList("3.1.2_1", "3.1.5_1", "3.1.5_2", "3.1.11", "3.1.13", "3.1.20", "3.2.1_1", "3.2.1_2",
                 "3.2.1_3", "3.3.1", "3.3.2_1", "3.3.2_2", "3.3.2_3", "3.1.21", "3.1.26_1", "3.1.26_2",
                 "3.1.3", "3.3.6", "3.3.7", "3.1.23_1", "3.1.23_2", "3.1.23_3", "3.3.3_1", "3.3.3_2",
                 "3.1.7_1", "3.1.7_2", "3.3.4");
@@ -460,26 +468,47 @@ public class ArchiveController implements ViewObserver {
         for(String s :headerNumbers) {
             xqueryResults.put(s, getEmptyOrContent(testArkivstruktur, s));
         }
-        xqueryResults.put("3.2_1", getEmptyOrContent(veraPdfPath, "3.2_1"));
-        xqueryResults.put("3.2_2", getEmptyOrContent(droidPath, "3.2_2"));
+        File v = new File(veraPdfPath);
+        File d = new File(droidPath);
+        if(v.exists()) {
+            xqueryResults.put("3.2_1", getEmptyOrContent(veraPdfPath, "3.2_1"));
+        }
+        else {
+            xqueryResults.put("3.2_1", Collections.emptyList());
+        }
+        if(d.exists()) {
+            xqueryResults.put("3.2_2", getEmptyOrContent(droidPath, "3.2_2"));
+        }
+        else {
+            xqueryResults.put("3.2_2", Collections.emptyList());
+        }
 
-        xqueryResults.put("3.3.9_1a", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml\"", "3.3.9_1a"));
-        xqueryResults.put("3.3.9_2a", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml\"", "3.3.9_2a"));
-        xqueryResults.put("3.3.9_2b", getEmptyOrContent(archivePath + "\\content\\offentligJournal.xml\"", "3.3.9_2b"));
+        xqueryResults.put("3.3.9_1a", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml", "3.3.9_1a"));
+        xqueryResults.put("3.3.9_2a", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml", "3.3.9_2a"));
+        xqueryResults.put("3.3.9_2b", getEmptyOrContent(archivePath + "\\content\\offentligJournal.xml", "3.3.9_2b"));
 
-        xqueryResults.put("3.3.9_3a", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml\"", "3.3.9_3a"));
-        xqueryResults.put("3.3.9_3b", getEmptyOrContent(archivePath + "\\content\\offentligJournal.xml\"", "3.3.9_3b"));
+        xqueryResults.put("3.3.9_3a", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml", "3.3.9_3a"));
+        xqueryResults.put("3.3.9_3b", getEmptyOrContent(archivePath + "\\content\\offentligJournal.xml", "3.3.9_3b"));
         xqueryResults.put("3.3.9_3c", getEmptyOrContent(testArkivstruktur, "3.3.9_3c"));
 
         reportModel.init(prop, xqueryResults);
 
-        reportModel.generateReport();
-        reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
+        try {
+            reportModel.generateReport();
+            reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
 
-        reportModel.makeReport();
-        testView.updateTestStatus("<html>Rapporten er generert og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\<br>" +
-                settingsModel.prop.getProperty("currentArchive") + "</html>", false);
-        testView.activatePackToAipBtn();
+            reportModel.makeReport();
+            testView.updateTestStatus("<html>Rapporten er generert og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\<br>" +
+                    settingsModel.prop.getProperty("currentArchive") + "</html>", false);
+            testView.activatePackToAipBtn();
+
+
+        } catch (RuntimeException e) {
+            testView.updateTestStatus("En feil i genereringen av rapporten har oppstått", false, true);
+            mainView.exceptionPopup("En feil i genereringen av rapporten har oppstått");
+            e.printStackTrace(); // NOSONAR
+        }
+
     }
 
     //When "Lagre tests" is clicked.

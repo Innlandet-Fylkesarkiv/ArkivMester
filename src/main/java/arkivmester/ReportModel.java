@@ -1,8 +1,20 @@
 package arkivmester;
 
+import org.apache.poi.ooxml.POIXMLDocumentPart;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.util.Units;
+import org.apache.poi.xddf.usermodel.PresetColor;
+import org.apache.poi.xddf.usermodel.XDDFColor;
+import org.apache.poi.xddf.usermodel.XDDFShapeProperties;
+import org.apache.poi.xddf.usermodel.XDDFSolidFillProperties;
+import org.apache.poi.xddf.usermodel.chart.*;
+import org.apache.poi.xssf.usermodel.*;
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.impl.xpath.XQuery;
+import org.openxmlformats.schemas.drawingml.x2006.chart.CTChart;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,7 +48,8 @@ public class ReportModel {
     enum TextStyle {
         INPUT,
         PARAGRAPH,
-        TABLE
+        TABLE,
+        GRAPH
     }
 
     /**
@@ -78,9 +91,10 @@ public class ReportModel {
         String regex = "[^a-zæøåA-ZÆØÅ ][A-ZÆØÅ]{3,}([ ][A-ZÆØÅ]{3,}){0,5}[^a-zæøåA-ZÆØÅ ]|[A-ZÆØÅ]{4,}";
 
         private List<String> result;
-        private final int tableCol;
+        private int tableCol;
         private final TextStyle type;
         private int cindex;
+        private CTChart chart;
         private boolean cases;
 
         /**
@@ -98,6 +112,13 @@ public class ReportModel {
             cases = c;
         }
 
+        ChapterList(CTChart chrt) {
+            chart = chrt;
+            type = TextStyle.GRAPH;
+            tableCol = 0;
+            cases = false;
+        }
+
         /**
          * Insert input into object
          * @param input - input to replace the default one
@@ -113,7 +134,7 @@ public class ReportModel {
          * @param input - input to replace the default one
          * @param matchRows -
          */
-        public void insertInput(List<String> input, List<Integer> matchRows) {
+        public void insertTableInput(List<String> input, List<Integer> matchRows) {
             List<String> temp = new ArrayList<>(result.subList(0, tableCol));
 
             for(int row = 0; row*tableCol < input.size(); row++) {
@@ -123,6 +144,12 @@ public class ReportModel {
             }
 
             result = temp;
+            cases = true;
+        }
+
+        public void insertGraphInput(List<String> input, int col) {
+            result = input;
+            tableCol = col;
             cases = true;
         }
 
@@ -396,11 +423,17 @@ public class ReportModel {
         for (List<ChapterList> chapters : currentChapterInput) {
             if(!chapters.isEmpty() && chapters.get(0).cases) {
                 for(ChapterList chap : chapters) {
-                    if(chap.getType().equals(TextStyle.PARAGRAPH)) {
-                        insertParagraphToDocument(chap.currentItem(), p);
-                    }
-                    if(chap.getType().equals(TextStyle.TABLE)) {
-                        insertTableToDocument(chap, p);
+                    switch(chap.getType()) {
+                        case PARAGRAPH:
+                            insertParagraphToDocument(chap.currentItem(), p);
+                            break;
+                        case TABLE:
+                            insertTableToDocument(chap, p);
+                            break;
+                        case GRAPH:
+                            insertGraphToDocument(chap, p);
+                            break;
+                        default:
                     }
                 }
             }
@@ -491,6 +524,30 @@ public class ReportModel {
         setRun(para.createRun() , FONT , 11, false, "", false);
 
     }
+
+    private void insertGraphToDocument(ChapterList cChapter, XWPFParagraph p) {
+
+        int width = 16 * Units.EMU_PER_CENTIMETER;
+        int height = 10 * Units.EMU_PER_CENTIMETER;
+
+        XmlCursor cursor = p.getCTP().newCursor();//this is the key!
+
+        XWPFParagraph para = document.insertNewParagraph(cursor);
+
+        XWPFRun r = para.createRun();
+
+        try {
+            XWPFChart charttemp = document.createChart(r, width, height);
+            CTChart ctChartTemp = charttemp.getCTChart();
+
+            XSSFChart chart = barColumnChart(cChapter);
+
+            ctChartTemp.set(chart.getCTChart());
+        } catch(InvalidFormatException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     //region end
 
     /**
@@ -581,7 +638,7 @@ public class ReportModel {
             if(chapters.get(0).cases) {
                 for(ChapterList chap : chapters) {
                     if(chap.getType() == TextStyle.TABLE && chap.result.get(chap.result.size()-1).equals("X")) {
-                        chap.insertInput(t, matchRows);
+                        chap.insertTableInput(t, matchRows);
                         break;
                     }
                 }
@@ -599,6 +656,14 @@ public class ReportModel {
         chapterList.get(h).add(new ArrayList<>());
         for(String in : p) {
             chapterList.get(h).get(0).add(new ChapterList(Arrays.asList(in), TextStyle.PARAGRAPH, 0, true));
+        }
+    }
+
+    private void insertGraph(List<Integer> h, List<String> g, int col, int c) {
+        for (ChapterList chap : chapterList.get(h).get(c)) {
+            if(chap.getType() == TextStyle.GRAPH) {
+                chap.insertGraphInput(g, col);
+            }
         }
     }
 
@@ -638,6 +703,12 @@ public class ReportModel {
 
         }
 
+        List<CTChart> charts = getDocumentGraphs(chapterFolder + chapterFile);
+
+        for(CTChart chart : charts) {
+            createChapterGraph(h, chart);
+        }
+
     }
 
     /**
@@ -652,6 +723,127 @@ public class ReportModel {
         } catch(NullPointerException e) {
             return Collections.emptyIterator();
         }
+    }
+
+    private List<CTChart> getDocumentGraphs(String file) {
+
+        List<CTChart> chartDatas = new ArrayList<>();
+
+        try {
+            XWPFDocument doc = Objects.requireNonNull(getDocumentFile(file));
+
+            for(POIXMLDocumentPart part : doc.getRelations()) {
+                if (part instanceof XWPFChart) {
+                    chartDatas.add(((XWPFChart) part).getCTChart());
+                }
+            }
+
+        } catch(NullPointerException ignored) {
+            return Collections.emptyList();
+        }
+
+        return chartDatas;
+    }
+
+    public XSSFChart barColumnChart(ChapterList cinput) {
+        try (XSSFWorkbook wb = new XSSFWorkbook()) {
+
+            String sheetName = "CountryBarChart";
+
+            XSSFSheet sheet = wb.createSheet(sheetName);
+
+            List<String> categories = new ArrayList<>();
+
+            String title = cinput.chart.getTitle().getTx().getRich().getPArray(0).getRArray(0).getT();
+
+            int amountCat = ((cinput.result.size() / cinput.tableCol) - 1) / 2;
+
+            for(int i = 0; i < amountCat; i++) {
+                categories.add(cinput.result.get((i * 2) + 1));
+            }
+
+            // Create row and put some cells in it. Rows and cells are 0 based.
+            Row row = sheet.createRow((short) 0);
+
+            Cell cell;
+
+            for(int i = 0; i < cinput.tableCol; i++) {
+                cell = row.createCell((short) i);
+                cell.setCellValue(cinput.result.get(i * (cinput.result.size() / cinput.tableCol)));
+            }
+
+            for(int i = 1; i <= amountCat; i++) {
+                row = sheet.createRow((short) i);
+
+                for(int j = 0; j < cinput.tableCol; j++) {
+                    cell = row.createCell((short) j);
+                    int tempNum = Integer.parseInt(cinput.result.get(j * (cinput.result.size() / cinput.tableCol) + (i * 2)));
+                    cell.setCellValue(tempNum);
+                }
+            }
+
+            XSSFDrawing drawing = sheet.createDrawingPatriarch();
+            XSSFClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 0, 4, 7, 20);
+
+            XSSFChart chart = drawing.createChart(anchor);
+            chart.setTitleText(title);
+
+            // Formats the title font
+            chart.getCTChart().getTitle().getTx().getRich().getPArray(0).getRArray(0).getRPr().setB(false);
+            chart.getCTChart().getTitle().getTx().getRich().getPArray(0).getRArray(0).getRPr().setSz(1400);
+            chart.getCTChart().getTitle().getTx().getRich().getPArray(0).getRArray(0).getRPr().addNewLatin().setTypeface(FONT);
+
+            XDDFChartLegend legend = chart.getOrAddLegend();
+            legend.setPosition(LegendPosition.BOTTOM);
+
+            XDDFCategoryAxis bottomAxis = chart.createCategoryAxis(AxisPosition.BOTTOM);
+
+            XDDFValueAxis leftAxis = chart.createValueAxis(AxisPosition.LEFT);
+            leftAxis.setCrosses(AxisCrosses.AUTO_ZERO);
+            leftAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
+
+            XDDFDataSource<String> categoryFactory = XDDFDataSourcesFactory.fromStringCellRange(sheet,
+                    new CellRangeAddress(0, 0, 0, cinput.tableCol-1));
+
+            List<XDDFNumericalDataSource<Double>> values = new ArrayList<>();
+            for (int i = 1; i <= amountCat; i++) {
+                values.add(XDDFDataSourcesFactory.fromNumericCellRange(sheet,
+                        new CellRangeAddress(i, i, 0, cinput.tableCol-1)));
+            }
+
+
+            XDDFChartData data = chart.createData(ChartTypes.BAR, bottomAxis, leftAxis);
+
+            data.setVaryColors(false);
+
+            XDDFChartData.Series series;
+            for (int i = 0; i < amountCat; i++) {
+                series = data.addSeries(categoryFactory, values.get(i));
+                series.setTitle(categories.get(i), null);
+            }
+
+            XDDFBarChartData bar = (XDDFBarChartData) data;
+            bar.setBarDirection(BarDirection.COL);
+
+            chart.plot(data);
+
+            return chart;
+        } catch (IOException e) {
+            System.out.println(e.getMessage()); // NOSONAR
+            return null;
+        }
+
+    }
+
+    private void solidFillSeries(XDDFChartData data, int index, PresetColor color) {        // NOSONAR
+        XDDFSolidFillProperties fill = new XDDFSolidFillProperties(XDDFColor.from(color));
+        XDDFChartData.Series series = data.getSeries(index);
+        XDDFShapeProperties properties = series.getShapeProperties();
+        if (properties == null) {
+            properties = new XDDFShapeProperties();
+        }
+        properties.setFillProperties(fill);
+        series.setShapeProperties(properties);
     }
 
     /**
@@ -692,6 +884,17 @@ public class ReportModel {
 
     }
 
+    private void createChapterGraph(List<Integer> h, CTChart chart) {
+        
+        for(List<ChapterList> chapters : chapterList.get(h)) {
+            if(chapters.isEmpty()) {
+                chapters.add(new ChapterList(chart));
+                return;
+            }
+        }
+
+    }
+
     /**
      * Formats Chapter number given by converting it from List<Integer> into filename.
      * For example [1, 1] turns into "1.1".
@@ -707,7 +910,6 @@ public class ReportModel {
         return s.toString();
     }
 
-
     /**
      * Fetch all data from report and set up all chapters so that input can be changed.
      */
@@ -722,11 +924,24 @@ public class ReportModel {
             System.out.println("Can't get testreport html "); //NOSONAR
         }
 
+        List<String> para;
+
         //Chapter 1.1
-        setNewInput(Arrays.asList(3, 1, 10), Collections.emptyList(), 0);
+
+        //Chapter 3.1.5
+        para = xqueriesMap.get("3.1.5_1");
+        if(!para.get(0).equals(EMPTY)) {
+            insertGraph(Arrays.asList(3, 1, 5), splitIntoTable(para), getRows(para), 0);
+        }
+        para = xqueriesMap.get("3.1.5_2");
+        if(!para.get(0).equals(EMPTY)) {
+            insertGraph(Arrays.asList(3, 1, 5), splitIntoTable(para), getRows(para), 1);
+        }
+
+        //Chapter 3.1.9
 
         //Chapter 3.1.11
-        List<String> para = xqueriesMap.get("3.1.11");
+        para = xqueriesMap.get("3.1.11");
 
         //Chapter 3.1.2
         // valideringAvXML(); NOSONAR
@@ -932,21 +1147,22 @@ public class ReportModel {
         //Chapter 3.2
         List<String> veraPDF = xqueriesMap.get("3.2_1");
         List<String> droid = xqueriesMap.get("3.2_2");
-        int nonCompliant = Integer.parseInt(veraPDF.get(0));
-        int failed = Integer.parseInt(veraPDF.get(1));
+        if(!veraPDF.isEmpty() && !droid.isEmpty()) {
 
-        setNewInput(Arrays.asList(3, 2), Collections.emptyList(),0);
-        setNewInput(Arrays.asList(3, 2), droid,1);
-        if(nonCompliant == 0 && failed ==0){
-            setNewInput(Arrays.asList(3, 2), Collections.emptyList(),2);
-        }
-        else if(failed == 0) {
-            setNewInput(Arrays.asList(3, 2), Collections.emptyList(),3);
-            setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant),5);
-        }
-        else if(nonCompliant == 0) {
-            setNewInput(Arrays.asList(3, 2), Collections.emptyList(),3);
-            setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant),4);
+            int nonCompliant = Integer.parseInt(veraPDF.get(0));
+            int failed = Integer.parseInt(veraPDF.get(1));
+
+            setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 0);
+            setNewInput(Arrays.asList(3, 2), droid,1);
+            if (nonCompliant == 0 && failed == 0) {
+                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 2);
+            } else if (failed == 0) {
+                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 3);
+                setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant), 5);
+            } else if (nonCompliant == 0) {
+                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 3);
+                setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant), 4);
+            }
         }
 
         //Chapter 3.1.7
@@ -1198,6 +1414,20 @@ public class ReportModel {
         return ls;
     }
 
+    private int getRows(List<String> input) {
+        int num = 0;
+
+        for(String s : input) {
+            Matcher m = Pattern.compile("[:]").matcher(s);
+            while(m.find()) {
+                num++;
+            }
+
+        }
+
+        return num;
+    }
+
     private void writeAttachments(String filename, List<String> content) {
         String path = prop.getProperty("tempFolder") + "\\" + prop.getProperty("currentArchive") //NOSONAR
                 + "\\Rapporter\\" + filename + ".txt"; // NOSONAR
@@ -1216,8 +1446,6 @@ public class ReportModel {
      * All Chapters that only uses ArkadeModel
      */
     private void arkadeTestReport(){ // NOSONAR
-
-        // 3 og 3.1 arkade version
         String version = arkadeModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
 
         setNewInput(Arrays.asList(3, 1), Collections.singletonList(version), 0);
@@ -1393,7 +1621,6 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 3, 2), Collections.singletonList(total + ""), 0);
         }
     }
-
 
     /**
      * Chapter 3.1.1. N5.01, N5.02

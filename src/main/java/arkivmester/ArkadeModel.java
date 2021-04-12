@@ -25,7 +25,7 @@ public class ArkadeModel {
     static final String TOTALT = "Totalt";
 
     ArkadeModel(){
-        //readHtmlFileFromTestFolder();
+        //readHtmlFileFromTestFolder(); //NOSONAR
     }
 
     /**
@@ -554,9 +554,13 @@ public class ArkadeModel {
         if(tmp.size() == 1 || (!tmp.isEmpty() && containsValue.equals(TOTALT))){
             return Integer.parseInt(tmp.get(0));
         }
+        else if (tmp.isEmpty()){
+
+            //System.out.println("   " + index + " Has  0 elements") ; //NOSONAR
+        }
         else{
-            // error
-            System.out.println(index + " Has " + tmp.size() + " elements. Only TOTALT will get first element if several elements") ; //NOSONAR
+            //System.out.println("   " + index + " Has " + tmp.size() + " elements. Only TOTALT will get first element if several elements") ; //NOSONAR
+
         }
         return -1;
     }
