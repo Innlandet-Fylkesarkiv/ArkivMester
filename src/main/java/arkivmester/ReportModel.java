@@ -654,11 +654,18 @@ public class ReportModel {
      * @param p - String text that the user wants to manually have put into the report
      */
     public void setNewParagraph(List<Integer> h, List<String> p) {
-        chapterList.put(h, new ArrayList<>());
+        //chapterList.put(h, new ArrayList<>());
         chapterList.get(h).add(new ArrayList<>());
+        chapterList.get(h).get(chapterList.get(h).size()-1).add(new ChapterList(p, TextStyle.PARAGRAPH, 0, true));
+
+        //chapterList.get(h).get(0).add(new ChapterList(p, TextStyle.PARAGRAPH, 0, true));
+        /*
+
         for(String in : p) {
             chapterList.get(h).get(0).add(new ChapterList(Arrays.asList(in), TextStyle.PARAGRAPH, 0, true));
         }
+
+         */
     }
 
     private void insertGraph(List<Integer> h, List<String> g, int col, int c, boolean vary) {
