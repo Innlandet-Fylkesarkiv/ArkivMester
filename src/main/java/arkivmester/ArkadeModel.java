@@ -170,7 +170,7 @@ public class ArkadeModel {
                     return 0;
                 }
             }
-
+            // if Xquery doesn't return. systemID, StartDate, EndDate. In that order it will: wrong date variabel to check with
             for (int j = 0; j < arkivdelStartYear.size(); j++) {
                 // has 2 elements after j
                 if(id.contains(arkivdelStartYear.get(j))){
