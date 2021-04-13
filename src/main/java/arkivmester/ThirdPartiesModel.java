@@ -259,62 +259,72 @@ public class ThirdPartiesModel {
 
         for(int i = 0; i<selectedXqueries.size(); i++) {
             if(Boolean.TRUE.equals(selectedXqueries.get(i))) {
-                xmlName = xmlNames.get(i).toLowerCase();
-
-                //Find full xml path
-                if(xmlName.contains("droid")) {
-                    bld.append(archivePath).append("\\DROID\\droid.xml");
-                }
-                else if(xmlName.contains("verapdf")) {
-                    bld.append(archivePath).append("\\VeraPDF\\verapdf.xml");
-                }
-                else if(xmlName.contains("kostval")) {
-                    bld.append(archivePath).append("\\KostVal\\dokument.kost-val.log.xml");
-                }
-                else if(xmlName.contains("arkade")) {
-                    bld.append(archivePath).append("\\Arkade\\report\\Arkaderapprt-").append(prop.get("currentArchive")).append(".html");
-                }
-                else {
-                    bld.append(unzippedArchive);
-
-                    if(xmlName.contains("dias-mets")) {
-                        bld.append("\\dias-mets.xml");
-                    }
-                    else if(xmlName.contains("log")) {
-                        bld.append("\\log.xml"); // #NOSONAR
-                    }
-                    else if(xmlName.contains("dias-premis")) {
-                        bld.append("\\administrative_metadata\\diaspremis.xml");
-                    }
-                    else if(xmlName.contains("addml")) {
-                        bld.append("\\administrative_metadata\\addml.xml");
-                    }
-                    else if(xmlName.contains("eac-cpf")) {
-                        bld.append("\\descriptive_metadata\\eac-cpf.xml");
-                    }
-                    else if(xmlName.contains("ead")) {
-                        bld.append("\\descriptive_metadata\\ead.xml");
-                    }
-                    else if(xmlName.contains("arkivstruktur")) {
-                        bld.append("\\content\\arkivstruktur.xml");
-                    }
-                    else if(xmlName.contains("arkivuttrekk")) {
-                        bld.append("\\content\\arkivuttrekk.xml");
-                    }
-                    else if(xmlName.contains("endringslogg")) {
-                        bld.append("\\content\\endringslogg.xml");
-                    }
-                    else if(xmlName.contains("loependejournal")) {
-                        bld.append("\\content\\loependeJournal.xml");
-                    }
-                    else if(xmlName.contains("offentligjournal")) {
-                        bld.append("\\content\\offentligJournal.xml");
-                    }
-                }
-
-                runCustomBaseX(bld.toString(), xqueryNames[i], prop);
+                runCustomBaseX(xqueryNames[i], prop);
             }
         }
+    }
+
+    public void setUpBaseXDatabase(Properties prop) throws IOException {
+        String pwd = cdString + prop.getProperty(basexPathKey) + "\"";
+
+        String xmlName;
+        StringBuilder bld = new StringBuilder();
+        String archivePath = tempFolder + archiveName;
+        String unzippedArchive = archivePath + "\\" + prop.get("currentArchive"); // #NOSONAR
+        String dbName = "arkivmester";
+
+        String xml1 = bld.append(archivePath).append("\\DROID\\droid.xml").toString();
+        bld.setLength(0);
+        String xml2 = bld.append(archivePath).append("\\VeraPDF\\verapdf.xml").toString();
+        bld.setLength(0);
+        String xml3 = bld.append(archivePath).append("\\KostVal\\dokumenter.kost-val.log.xml").toString();
+        bld.setLength(0);
+
+        String xml5 = bld.append(unzippedArchive).append("\\dias-mets.xml").toString();
+        bld.setLength(0);
+        String xml6 = bld.append(unzippedArchive).append("\\log.xml").toString();
+        bld.setLength(0);
+        String xml7 = bld.append(unzippedArchive).append("\\administrative_metadata\\dias-premis.xml").toString();
+        bld.setLength(0);
+        String xml8 = bld.append(unzippedArchive).append("\\administrative_metadata\\addml.xml").toString();
+        bld.setLength(0);
+        String xml9 = bld.append(unzippedArchive).append("\\descriptive_metadata\\eac-cpf.xml").toString();
+        bld.setLength(0);
+        String xml10 = bld.append(unzippedArchive).append("\\descriptive_metadata\\ead.xml").toString();
+        bld.setLength(0);
+        String xml11 = bld.append(unzippedArchive).append("\\content\\arkivstruktur.xml").toString();
+        bld.setLength(0);
+        String xml12 = bld.append(unzippedArchive).append("\\content\\endringslogg.xml").toString();
+        bld.setLength(0);
+        String xml13 = bld.append(unzippedArchive).append("\\content\\loependeJournal.xml").toString();
+        bld.setLength(0);
+        String xml14 = bld.append(unzippedArchive).append("\\content\\offentligJournal.xml").toString();
+        bld.setLength(0);
+        String xml15 = bld.append(unzippedArchive).append("\\content\\arkivuttrekk.xml").toString();
+        bld.setLength(0);
+
+        runCMD(pwd + " && basex.bat -c \"CREATE DB " + dbName + "\"");
+
+        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml1 + "\"\"");
+        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml2 + "\"\"");
+        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml3 + "\"\"");
+        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml5 + "\"\"");
+        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml6 + "\"\"");
+        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml7 + "\"\"");
+        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml8 + "\"\"");
+        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml9 + "\"\"");
+        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml10 + "\"\"");
+        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml11 + "\"\"");
+        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml12 + "\"\"");
+        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml13 + "\"\"");
+        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml14 + "\"\"");
+        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml15 + "\"\"");
+    }
+
+    public void deleteBaseXDB(Properties prop) throws IOException {
+        String pwd = cdString + prop.getProperty(basexPathKey) + "\"";
+
+        runCMD(pwd + " && basex.bat -c \"DROP DB " + prop.getProperty("currentArchive") + "\"");
     }
 
     /**
@@ -358,7 +368,7 @@ public class ThirdPartiesModel {
     }
 
 
-    public void runCustomBaseX(String xml, String xqName, Properties prop) throws IOException {
+    public void runCustomBaseX(String xqName, Properties prop) throws IOException {
         //XQuery
         String xq = prop.getProperty("xqueryCustomFolder") + "\\" + xqName + "\"";
 
@@ -369,7 +379,7 @@ public class ThirdPartiesModel {
         String outFile = prop.getProperty(tempFolderKey) + archiveName + "\\" + outFileName + ".txt";
         String pwd = cdString + prop.getProperty(basexPathKey) + "\"";
 
-        ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o \"" + outFile + "\" -i \"" + xml + "\" \"" + xq);
+        ProcessBuilder baseXBuilder = new ProcessBuilder(cmd, "/c", pwd + " && basex -o \"" + outFile + "\" \"" + xq);
 
         try {
             Process p = baseXBuilder.start();

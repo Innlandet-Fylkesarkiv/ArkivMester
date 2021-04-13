@@ -175,7 +175,9 @@ public class ArchiveController implements ViewObserver {
             System.out.println("\nRunning XQueries\n"); //NOSONAR
             testView.updateXqueryStatus(TestView.RUNNING);
             try {
+                thirdPartiesModel.setUpBaseXDatabase(settingsModel.prop);
                 thirdPartiesModel.runXquery(settingsModel.prop);
+                //thirdPartiesModel.deleteBaseXDB(settingsModel.prop);
             } catch (IOException e) {
                 System.out.println(e.getMessage()); //NOSONAR
                 mainView.exceptionPopup("XQuery test feilet, prøv igjen.");
@@ -502,7 +504,6 @@ public class ArchiveController implements ViewObserver {
                     settingsModel.prop.getProperty("currentArchive") + "</html>", false);
             testView.activatePackToAipBtn();
 
-
         } catch (RuntimeException e) {
             testView.updateTestStatus("En feil i genereringen av rapporten har oppstått", false, true);
             mainView.exceptionPopup("En feil i genereringen av rapporten har oppstått");
@@ -514,25 +515,30 @@ public class ArchiveController implements ViewObserver {
     //When "Lagre tests" is clicked.
     @Override
     public void saveTestSettings() {
-        boolean success = true;
+        //boolean success = true;
         List<Boolean> currentList = testSettingsView.getSelectedTests();
         thirdPartiesModel.checkIfXquery(testSettingsView.getSelectedXqueries());
-
+/*
         if(Boolean.TRUE.equals(thirdPartiesModel.runXqueries)) {
+
             List<String> currentXmlList = testSettingsView.getXmlNames();
             if(!currentXmlList.isEmpty())
                 thirdPartiesModel.updateXmlNames(currentXmlList);
             else {
                 mainView.exceptionPopup("En eller flere XQuery tester mangler .xml fil navn.");
                 success = false;
-            }
-        }
+            }*/
+            thirdPartiesModel.updateTests(currentList, testSettingsView.getSelectedXqueries());
+            testSettingsView.clearContainer();
+            testSettingsView = null;
+            mainView.showGUI();
+   /*     }
 
         if(Boolean.TRUE.equals(success)) {
             thirdPartiesModel.updateTests(currentList, testSettingsView.getSelectedXqueries());
             testSettingsView.clearContainer();
             testSettingsView = null;
             mainView.showGUI();
-        }
+        }*/
     }
 }
