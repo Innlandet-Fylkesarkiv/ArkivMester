@@ -27,6 +27,8 @@ public class ArkadeModel {
 
     ArkadeModel(){
         readHtmlFileFromTestFolder(); //NOSONAR
+
+
     }
 
     /**
@@ -78,11 +80,11 @@ public class ArkadeModel {
         "Arkaderapport-899ec389-1dc0-41d0-b6ca-15f27642511b.html",
         "Arkaderapport-7fc1fe22-d89b-42c9-aaec-5651beb0da0a.html",
         "Arkaderapport-ebc3f74b-4eb3-4358-a38f-46479cfb2feb.html",
-        "arkaderapportrapport.html" // 6
+        "Arkaderapport-899ec389-1dc0-41d0-b6ca-15f27642511b.html" // 6
         );
 
         // Select random arkade html for testing
-        filePath = "../Input/" + testFilePath.get(2);
+        filePath = "../Input/" + testFilePath.get(6);
 
         try (FileReader fr = new FileReader(filePath);
              BufferedReader br = new BufferedReader(fr)) {
@@ -92,7 +94,7 @@ public class ArkadeModel {
                 htmlRawText.append(val);
             }
         } catch (Exception ex) {
-            System.out.println(ex.getMessage()); //NOSONAR
+            System.out.println(ex.getMessage() + "."); //NOSONAR
         }
     }
 
@@ -146,9 +148,6 @@ public class ArkadeModel {
             if(allID.size() < 2){
                 withID = ":";
                 servalIDs = "";
-                if(!arkivdelStartYear.isEmpty()){
-                    arkivdelStartYear.set(0,servalIDs);
-                }
             }
 
             for(String curN511 : getTextBetweenWords(getSpecificValue("N5.11", withID), servalIDs,":")){
@@ -160,33 +159,41 @@ public class ArkadeModel {
             // ---------- Chapter testing start here ---------------
             for(Integer curN511: n511){
                 if(firstReg > curN511 || lastReg < curN511){
-                    System.out.println("firstReg is not the smaller than N5:11"); // NOSONAR
+                    System.out.println(indexN527 + " Første registrering or Siste registrering: " + // NOSONAR
+                            "is bigger or smaller than one element in N5:11");
                     return 0;
                 }
             }
             for(Integer curN518: n518){
                 if(firstReg > curN518 || lastReg < curN518){
-                    System.out.println("firstReg is not the smaller than N5:18"); // NOSONAR
+                    System.out.println(indexN527 + " Første registrering or Siste registrering: " + // NOSONAR
+                            "is bigger or smaller than one element in N5:18");
                     return 0;
                 }
             }
+            // arkivdel-MØTESAK-12; 2012-01-01; 2018-01-04
             // if Xquery doesn't return. systemID, StartDate, EndDate. In that order it will: wrong date variabel to check with
             for (int j = 0; j < arkivdelStartYear.size(); j++) {
                 // has 2 elements after j
-                if(id.contains(arkivdelStartYear.get(j))){
-                    if(arkivdelStartYear.size() > j+2){
-                        if(firstReg < getYearFromString(arkivdelStartYear.get(j + 1),true) ||
-                                lastReg > getYearFromString(arkivdelStartYear.get(j + 2),true)){
+
+                List<String> arkivNew = Arrays.asList(arkivdelStartYear.get(j).split(";", 3));
+
+                if(id.contains(arkivNew.get(0))){
+                    if(arkivNew.size() == 3){
+                        if(firstReg < getYearFromString(arkivNew.get(1),true) ||
+                                lastReg > getYearFromString(arkivNew.get(2),true)){
+                            System.out.println(indexN527 + " Første registrering is not within arkiv start and end date"); // NOSONAR
+                            System.out.println(arkivNew); // NOSONAR
                             return  0;
                         }
-                        else if(firstReg > getYearFromString(arkivdelStartYear.get(j + 1) + 3,true)){
+                        else if(firstReg > getYearFromString(arkivNew.get(1),true) + 3){
                             output.add(firstReg);
-                            output.add(getYearFromString(arkivdelStartYear.get(j + 1), true));
+                            output.add(getYearFromString(arkivNew.get(1), true));
                             choose = 2;
                         }
                     }
                     else{
-                        System.out.println("Missing star or end date in: arkivdelStartYear"); // NOSONAR
+                        System.out.println("Missing one of systemID/opprettetDato/avsluttetDato in arkivdel"); // NOSONAR
                         return 0;
                     }
                 }
@@ -327,7 +334,7 @@ public class ArkadeModel {
      * @return year 4 numbers
      */
     public Integer getYearFromString(String year, boolean getYearAtBeginning){
-
+        year = year.replace(" ", "");
         if(getYearAtBeginning ){
             if(year.length() >= 4){
                 year = year.substring(0, 4);

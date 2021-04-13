@@ -6,4 +6,9 @@ declare namespace n5mdk="http://www.arkivverket.no/standarder/noark5/metadatakat
 declare namespace el="http://www.arkivverket.no/standarder/noark5/endringslogg";
 
 for $x in //arkivdel
-  return (data($x/systemID), data($x/opprettetDato), data($x/avsluttetDato))
+return
+
+if(exists($x/arkivperiodeStartDato)) then
+  concat(($x/systemID), "; ", ($x/arkivperiodeStartDato), "; ",  ($x/arkivperiodeSluttDato))
+else
+  concat($x/systemID, "; ", year-from-dateTime($x/opprettetDato), "; ",  year-from-dateTime($x/avsluttetDato))

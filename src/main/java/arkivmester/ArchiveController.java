@@ -44,6 +44,7 @@ public class ArchiveController implements ViewObserver {
         thirdPartiesModel = new ThirdPartiesModel();
         settingsModel = new SettingsModel();
         reportModel = new ReportModel();
+        ArkadeModel arkadeModel = new ArkadeModel();
     }
 
     /**
