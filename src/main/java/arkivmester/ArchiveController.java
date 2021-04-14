@@ -176,7 +176,7 @@ public class ArchiveController implements ViewObserver {
             try { // #NOSONAR
                 thirdPartiesModel.setUpBaseXDatabase(settingsModel.prop);
                 thirdPartiesModel.runXquery(settingsModel.prop);
-                thirdPartiesModel.deleteBaseXDB(settingsModel.prop);
+
             } catch (IOException e) {
                 System.out.println(e.getMessage()); //NOSONAR
                 mainView.exceptionPopup("XQuery test feilet, prøv igjen.");
@@ -450,6 +450,14 @@ public class ArchiveController implements ViewObserver {
         String veraPdfPath = prop.getProperty("tempFolder") + "\\" + fileName + "\\VeraPDF\\verapdf.xml"; // #NOSONAR
         String droidPath =  prop.getProperty("tempFolder") + "\\" + fileName + "\\DROID\\droid.xml"; // #NOSONAR
 
+        if( Boolean.FALSE.equals(thirdPartiesModel.isDBAlive)) {
+            try {
+                thirdPartiesModel.setUpBaseXDatabase(settingsModel.prop);
+            } catch (IOException e) {
+                mainView.exceptionPopup("Kunne ikke generere BaseX database. Noen resultater vil være feil.");
+            }
+        }
+
         Map<String, String> map = new LinkedHashMap<>();
         map.put("1.2_1.xq",archivePath + "\\dias-mets.xml");
         map.put("1.2_2.xq",archivePath + "\\content\\arkivuttrekk.xml");
@@ -500,8 +508,8 @@ public class ArchiveController implements ViewObserver {
             testView.updateTestStatus("<html>Rapporten er generert og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\<br>" +
                     settingsModel.prop.getProperty("currentArchive") + "</html>", false);
             testView.activatePackToAipBtn();
-
-        } catch (RuntimeException e) {
+            thirdPartiesModel.deleteBaseXDB(settingsModel.prop);
+        } catch (RuntimeException | IOException e) {
             testView.updateTestStatus("En feil i genereringen av rapporten har oppstått", false, true);
             mainView.exceptionPopup("En feil i genereringen av rapporten har oppstått");
             e.printStackTrace(); // NOSONAR

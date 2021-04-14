@@ -30,6 +30,7 @@ public class ThirdPartiesModel {
     String archiveName;
     String basexPathKey = "basexPath";
     String tempFolderKey = "tempFolder";
+    Boolean isDBAlive = false;
 
     /**
      * Initializes the selectedTests list to true.
@@ -243,6 +244,7 @@ public class ThirdPartiesModel {
     }
 
     public void setUpBaseXDatabase(Properties prop) throws IOException {
+        isDBAlive = true;
         String pwd = cdString + prop.getProperty(basexPathKey) + "\"";
 
         StringBuilder bld = new StringBuilder();
@@ -302,6 +304,7 @@ public class ThirdPartiesModel {
     }
 
     public void deleteBaseXDB(Properties prop) throws IOException {
+        isDBAlive = false;
         String pwd = cdString + prop.getProperty(basexPathKey) + "\"";
 
         runCMD(pwd + " && basex.bat -c \"DROP DB arkivmester\"");
