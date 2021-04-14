@@ -997,6 +997,24 @@ public class ReportModel {
         }
 
         //Chapter 3.1.14 N5.27, N5.11, N5.18
+        para = xqueriesMap.get("3.1.14");
+        List<Integer> output3114 = Arrays.asList();
+        int val3114 = arkadeModel.firstLastReg(para, output3114);
+
+        //Chapter 3.1.31
+        setNewInput(Arrays.asList(3, 1, 31), Collections.emptyList(), 0);
+
+        if(val3114 == 0){
+            // somthing when't wrong
+            setNewInput(Arrays.asList(3, 1, 14), Collections.emptyList(), val3114);
+        }
+        else if(val3114 == 1){
+            setNewInput(Arrays.asList(3, 1, 14), Collections.emptyList(), val3114);
+        }
+        else if (val3114 == 2){
+            setNewInput(Arrays.asList(3, 1, 13), Arrays.asList(output3114.get(0) + "", output3114.get(1) + ""), val3114);
+        }
+
 
         //Chapter 3.1.20
         para = xqueriesMap.get("3.1.20");
@@ -1555,6 +1573,7 @@ public class ReportModel {
         int valg = arkadeModel.systemidentifikasjonerForklaring(input);
         setNewInput(Arrays.asList(3, 1, 27), input, valg);
         // AntallSepsialarkivdeler?
+
 
         //Chapter 3.1.28 - Arkivdelreferanser
         if(arkadeModel.getDataFromHtml("N5.48").isEmpty()) {

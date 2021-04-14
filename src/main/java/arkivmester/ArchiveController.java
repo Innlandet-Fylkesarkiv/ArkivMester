@@ -44,6 +44,7 @@ public class ArchiveController implements ViewObserver {
         thirdPartiesModel = new ThirdPartiesModel();
         settingsModel = new SettingsModel();
         reportModel = new ReportModel();
+        ArkadeModel arkadeModel = new ArkadeModel();
     }
 
     /**
@@ -460,9 +461,10 @@ public class ArchiveController implements ViewObserver {
 
 
         Map<String, List<String>> xqueryResults = new HashMap<>();
-        List<String> headerNumbers = Arrays.asList("3.1.2_1", "3.1.5_1", "3.1.5_2", "3.1.9_1", "3.1.11", "3.1.13", "3.1.20",
-                "3.2.1_1", "3.2.1_2", "3.2.1_3", "3.3.1", "3.3.2_1", "3.3.2_2", "3.3.2_3", "3.1.21", "3.1.26_1",
-                "3.1.26_2", "3.1.3", "3.3.6", "3.3.7", "3.1.23_1", "3.1.23_2", "3.1.23_3", "3.3.3_1", "3.3.3_2",
+
+        List<String> headerNumbers = Arrays.asList("3.1.2_1", "3.1.5_1", "3.1.5_2", "3.1.9_1", "3.1.11", "3.1.13", "3.1.14", "3.1.20", "3.2.1_1", "3.2.1_2",
+                "3.2.1_3", "3.3.1", "3.3.2_1", "3.3.2_2", "3.3.2_3", "3.1.21", "3.1.26_1", "3.1.26_2",
+                "3.1.3", "3.3.6", "3.3.7", "3.1.23_1", "3.1.23_2", "3.1.23_3", "3.3.3_1", "3.3.3_2",
                 "3.1.7_1", "3.1.7_2", "3.3.4");
 
         for(String s :headerNumbers) {
