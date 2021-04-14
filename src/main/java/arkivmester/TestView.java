@@ -16,7 +16,6 @@ import java.util.List;
  */
 public class TestView extends Views{
     Container container;
-    JComboBox<String> fileFormatCb;
     JButton createReportBtn;
     JButton packToAipBtn;
 
@@ -180,13 +179,6 @@ public class TestView extends Views{
      * Sets up the button panel.
      */
     private void setUpButtonPanel(JPanel buttonPanel) {
-        String[] fileFormats = {".docx",".odf"};
-        fileFormatCb = new JComboBox<>(fileFormats);
-        fileFormatCb.setBackground(primaryColor);
-        fileFormatCb.setForeground(Color.WHITE);
-        fileFormatCb.setPreferredSize(new Dimension(100, 20));
-        fileFormatCb.setToolTipText("Velg filformaten som rapporten skal lagres i.");
-
         createReportBtn = new JButton("Lag rapport");
         createReportBtn.addActionListener(this);
         createReportBtn.setBackground(primaryColor);
@@ -208,7 +200,6 @@ public class TestView extends Views{
         testNewBtn.setToolTipText("Går tilbake til forsiden og gjør det klart for nytt uttrekk.");
 
         //Adding components
-        buttonPanel.add(fileFormatCb);
         buttonPanel.add(createReportBtn);
         buttonPanel.add(packToAipBtn);
         buttonPanel.add(testNewBtn);
@@ -220,14 +211,6 @@ public class TestView extends Views{
     public void clearContainer(){
         container.removeAll();
         container.revalidate();
-    }
-
-    /**
-     * Regular getter for selected format.
-     * @return String containing the file format for which the main report will be exported as.
-     */
-    public String getSelectedFormat() {
-        return (String)fileFormatCb.getSelectedItem();
     }
 
     /**

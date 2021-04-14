@@ -2,7 +2,6 @@ package arkivmester;
 
 import javax.swing.*;
 import java.io.*;
-import java.nio.file.Files;
 import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.List;
@@ -112,7 +111,7 @@ public class ArchiveController implements ViewObserver {
         if(Boolean.TRUE.equals(selectedTests.get(0))) {
             System.out.print("\nRunning arkade\n"); //NOSONAR
             testView.updateArkadeStatus(TestView.RUNNING);
-            try {
+            try { // #NOSONAR
 
                 thirdPartiesModel.runArkadeTest(archiveModel.tar, settingsModel.prop);
 
@@ -130,7 +129,7 @@ public class ArchiveController implements ViewObserver {
         if(Boolean.TRUE.equals(selectedTests.get(3))) {
             System.out.print("\nRunning VeraPDF\n"); //NOSONAR
             testView.updateVeraStatus(TestView.RUNNING);
-            try {
+            try { // #NOSONAR
                 thirdPartiesModel.runVeraPDF("\"" + docPath + "\"", settingsModel.prop);
             } catch (IOException e) {
                 System.out.println(e.getMessage()); //NOSONAR
@@ -145,7 +144,7 @@ public class ArchiveController implements ViewObserver {
         if(Boolean.TRUE.equals(selectedTests.get(2))) {
             System.out.print("\nRunning Kost-Val\n"); //NOSONAR
             testView.updateKostValStatus(TestView.RUNNING);
-            try {
+            try { // #NOSONAR
                 thirdPartiesModel.runKostVal("\"" + docPath + "\"", settingsModel.prop);
             }catch (IOException e) {
                 System.out.println(e.getMessage()); //NOSONAR
@@ -160,7 +159,7 @@ public class ArchiveController implements ViewObserver {
         if(Boolean.TRUE.equals(selectedTests.get(1))) {
             System.out.println("\nRunning DROID\n"); //NOSONAR
             testView.updateDroidStatus(TestView.RUNNING);
-            try {
+            try { // #NOSONAR
                 thirdPartiesModel.runDROID("\"" + docPath + "\"", settingsModel.prop);
             } catch (IOException e) {
                 System.out.println(e.getMessage()); //NOSONAR
@@ -175,8 +174,10 @@ public class ArchiveController implements ViewObserver {
         if(Boolean.TRUE.equals(thirdPartiesModel.runXqueries)) {
             System.out.println("\nRunning XQueries\n"); //NOSONAR
             testView.updateXqueryStatus(TestView.RUNNING);
-            try {
+            try { // #NOSONAR
+                thirdPartiesModel.setUpBaseXDatabase(settingsModel.prop);
                 thirdPartiesModel.runXquery(settingsModel.prop);
+
             } catch (IOException e) {
                 System.out.println(e.getMessage()); //NOSONAR
                 mainView.exceptionPopup("XQuery test feilet, prøv igjen.");
@@ -386,7 +387,7 @@ public class ArchiveController implements ViewObserver {
     //When "Velg tester" is clicked.
     @Override
     public void chooseTests() {
-        testSettingsView = new TestSettingsView(thirdPartiesModel.getSelectedTests(), thirdPartiesModel.getSelectedXqueries(), thirdPartiesModel.getXmlNames());
+        testSettingsView = new TestSettingsView(thirdPartiesModel.getSelectedTests(), thirdPartiesModel.getSelectedXqueries());
         testSettingsView.addObserver(this);
         try {
             testSettingsView.createAndShowGUI(mainView.getContainer(), thirdPartiesModel.getCustomXqueries(settingsModel.prop));
@@ -437,20 +438,26 @@ public class ArchiveController implements ViewObserver {
         System.out.println("Lager rapport, vennligst vent ..."); // #NOSONAR
         testView.updateTestStatus("Genererer rapporten ...", true);
 
-        //ScheduledExecutorService reportScheduler;
-        //reportScheduler = Executors.newScheduledThreadPool(1);
-        //reportScheduler.submit(this::makeReportThread);
-        makeReportThread();
+        ScheduledExecutorService reportScheduler;
+        reportScheduler = Executors.newScheduledThreadPool(1);
+        reportScheduler.submit(this::makeReportThread);
     }
 
     public void makeReportThread() {
         Properties prop = settingsModel.prop;
-        String format = testView.getSelectedFormat(); //#NOSONAR
         String fileName = prop.getProperty("currentArchive");
         String archivePath = prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName; // #NOSONAR
         String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml";
-        String veraPdfPath = prop.getProperty("tempFolder") + "\\" + fileName + "\\VeraPDF\\verapdf.xml";
-        String droidPath =  prop.getProperty("tempFolder") + "\\" + fileName + "\\DROID\\droid.xml";
+        String veraPdfPath = prop.getProperty("tempFolder") + "\\" + fileName + "\\VeraPDF\\verapdf.xml"; // #NOSONAR
+        String droidPath =  prop.getProperty("tempFolder") + "\\" + fileName + "\\DROID\\droid.xml"; // #NOSONAR
+
+        if( Boolean.FALSE.equals(thirdPartiesModel.isDBAlive)) {
+            try {
+                thirdPartiesModel.setUpBaseXDatabase(settingsModel.prop);
+            } catch (IOException e) {
+                mainView.exceptionPopup("Kunne ikke generere BaseX database. Noen resultater vil være feil.");
+            }
+        }
 
         Map<String, String> map = new LinkedHashMap<>();
         map.put("1.2_1.xq",archivePath + "\\dias-mets.xml");
@@ -503,9 +510,8 @@ public class ArchiveController implements ViewObserver {
             testView.updateTestStatus("<html>Rapporten er generert og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\<br>" +
                     settingsModel.prop.getProperty("currentArchive") + "</html>", false);
             testView.activatePackToAipBtn();
-
-
-        } catch (RuntimeException e) {
+            thirdPartiesModel.deleteBaseXDB(settingsModel.prop);
+        } catch (RuntimeException | IOException e) {
             testView.updateTestStatus("En feil i genereringen av rapporten har oppstått", false, true);
             mainView.exceptionPopup("En feil i genereringen av rapporten har oppstått");
             e.printStackTrace(); // NOSONAR
@@ -516,25 +522,13 @@ public class ArchiveController implements ViewObserver {
     //When "Lagre tests" is clicked.
     @Override
     public void saveTestSettings() {
-        boolean success = true;
         List<Boolean> currentList = testSettingsView.getSelectedTests();
         thirdPartiesModel.checkIfXquery(testSettingsView.getSelectedXqueries());
 
-        if(Boolean.TRUE.equals(thirdPartiesModel.runXqueries)) {
-            List<String> currentXmlList = testSettingsView.getXmlNames();
-            if(!currentXmlList.isEmpty())
-                thirdPartiesModel.updateXmlNames(currentXmlList);
-            else {
-                mainView.exceptionPopup("En eller flere XQuery tester mangler .xml fil navn.");
-                success = false;
-            }
-        }
+        thirdPartiesModel.updateTests(currentList, testSettingsView.getSelectedXqueries());
+        testSettingsView.clearContainer();
+        testSettingsView = null;
+        mainView.showGUI();
 
-        if(Boolean.TRUE.equals(success)) {
-            thirdPartiesModel.updateTests(currentList, testSettingsView.getSelectedXqueries());
-            testSettingsView.clearContainer();
-            testSettingsView = null;
-            mainView.showGUI();
-        }
     }
 }
