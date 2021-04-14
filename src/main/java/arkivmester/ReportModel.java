@@ -532,21 +532,24 @@ public class ReportModel {
         int width = 16 * Units.EMU_PER_CENTIMETER;
         int height = 10 * Units.EMU_PER_CENTIMETER;
 
+        if(cChapter.tableCol > 0) {
+
         XmlCursor cursor = p.getCTP().newCursor();//this is the key!
 
         XWPFParagraph para = document.insertNewParagraph(cursor);
 
         XWPFRun r = para.createRun();
 
-        try {
-            XWPFChart charttemp = document.createChart(r, width, height);
-            CTChart ctChartTemp = charttemp.getCTChart();
+            try {
+                XWPFChart charttemp = document.createChart(r, width, height);
+                CTChart ctChartTemp = charttemp.getCTChart();
 
-            XSSFChart chart = barColumnChart(cChapter);
+                XSSFChart chart = barColumnChart(cChapter);
 
-            ctChartTemp.set(chart.getCTChart());
-        } catch(InvalidFormatException | IOException e) {
-            e.printStackTrace();
+                ctChartTemp.set(chart.getCTChart());
+            } catch(InvalidFormatException | IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -653,19 +656,10 @@ public class ReportModel {
      * @param h - The header number for the chapter
      * @param p - String text that the user wants to manually have put into the report
      */
-    public void setNewParagraph(List<Integer> h, List<String> p) {
-        //chapterList.put(h, new ArrayList<>());
-        chapterList.get(h).add(new ArrayList<>());
-        chapterList.get(h).get(chapterList.get(h).size()-1).add(new ChapterList(p, TextStyle.PARAGRAPH, 0, true));
-
-        //chapterList.get(h).get(0).add(new ChapterList(p, TextStyle.PARAGRAPH, 0, true));
-        /*
-
-        for(String in : p) {
-            chapterList.get(h).get(0).add(new ChapterList(Arrays.asList(in), TextStyle.PARAGRAPH, 0, true));
+    public void setNewParagraph(List<Integer> h, List<String> p, int c) {
+        for(String s : p) {
+            chapterList.get(h).get(c).add(new ChapterList(Arrays.asList(s), TextStyle.PARAGRAPH, 0, true));
         }
-
-         */
     }
 
     private void insertGraph(List<Integer> h, List<String> g, int col, int c, boolean vary) {
@@ -962,7 +956,6 @@ public class ReportModel {
         if(!para.get(0).equals(EMPTY)) {
             insertGraph(Arrays.asList(3, 1, 9), splitIntoTable(para), getRows(para), 5, false);
         }
-        System.out.println(para);
 
         //Chapter 3.1.11
         para = xqueriesMap.get("3.1.11");
@@ -996,6 +989,7 @@ public class ReportModel {
 
         } else {
             setNewInput(Arrays.asList(3, 1, 13), Collections.singletonList(para.size() + ""), 2);
+            setNewParagraph(Arrays.asList(3, 1, 13), Collections.singletonList("afgdagfagfaga"), 2);
         }
 
         //Chapter 3.1.14 N5.27, N5.11, N5.18
@@ -1247,7 +1241,7 @@ public class ReportModel {
 
         //Chapter 5 - Attachments
         if(!attachments.isEmpty()) {
-            setNewParagraph(Collections.singletonList(5), attachments);
+            setNewParagraph(Collections.singletonList(5), attachments, 0);
         }
     }
 
@@ -1509,8 +1503,8 @@ public class ReportModel {
         //Chapter 3.1.17 - Merknader
         if (arkadeModel.ingenMerknader()) {
             setNewInput(Arrays.asList(3, 1, 17), Collections.emptyList(), 0);
-            setNewParagraph(Arrays.asList(3, 1, 17), Collections.singletonList("Rename tittel from 3.1.17 to merknader "));
-            setNewParagraph(Arrays.asList(3, 3, 3), Collections.singletonList("DELETE ME: 3.3.3"));
+            setNewParagraph(Arrays.asList(3, 1, 17), Collections.singletonList("Rename tittel from 3.1.17 to merknader "), 0);
+            setNewParagraph(Arrays.asList(3, 3, 3), Collections.singletonList("DELETE ME: 3.3.3"), 0);
         }
 
         //Chapter 3.1.18 - Kryssreferanser
