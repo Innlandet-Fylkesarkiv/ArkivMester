@@ -4,7 +4,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -19,21 +18,18 @@ public class TestSettingsView extends Views {
     Container container;
     private final List<Boolean> selectedTests;
     private final List<Boolean> selectedXqueries;
-    private final List<String> xmlNamesList;
-    private final List<JCheckBox> testBoxes = new ArrayList<>(); //Final for now
-    private final List<JCheckBox> xqueryBoxes = new ArrayList<>(); //Final for now
+    private final List<JCheckBox> testBoxes = new ArrayList<>();
+    private final List<JCheckBox> xqueryBoxes = new ArrayList<>();
     private final int amountOfTests;
-    List<JTextField> xmlList = new ArrayList<>();
 
     /**
      * Constructor - Initiates this.selectedTests with current data.
      * @param selectedTests The current selected tests stored in {@link ThirdPartiesModel}.
      */
-    TestSettingsView(List<Boolean> selectedTests, List<Boolean> selectedXqueries, List<String> xmlNamesList) {
+    TestSettingsView(List<Boolean> selectedTests, List<Boolean> selectedXqueries) {
         this.selectedTests = selectedTests;
         amountOfTests = selectedTests.size();
         this.selectedXqueries = selectedXqueries;
-        this.xmlNamesList = xmlNamesList;
     }
 
     /**
@@ -138,11 +134,6 @@ public class TestSettingsView extends Views {
             xqueryBoxes.add(box);
         }
 
-        //Col 2 Textboxes
-        for(int i = 0; i<rows; i++) {
-            xmlList.add(new JTextField(15));
-        }
-
         //Adding components together
         gbc.anchor = GridBagConstraints.FIRST_LINE_START;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -165,13 +156,6 @@ public class TestSettingsView extends Views {
         gbc.gridy = 1;
         gbc.gridx++;
 
-        for(int i = 0; i<rows; i++) {
-            if(!xmlNamesList.isEmpty())
-                xmlList.get(i).setText(xmlNamesList.get(i));
-            xqueryPanel.add(xmlList.get(i), gbc);
-            gbc.gridy++;
-        }
-
     }
 
     /**
@@ -193,23 +177,6 @@ public class TestSettingsView extends Views {
             currentList.add(testBox.isSelected());
         }
         return currentList;
-    }
-
-    /**
-     * Regular getter for newly specified .xml files.
-     * @return Updated specified .xml files String list.
-     */
-    public List<String> getXmlNames() {
-        List<String> currentXmlNames = new ArrayList<>();
-
-        for (int i = 0; i<xqueryBoxes.size(); i++) {
-            String name = xmlList.get(i).getText();
-            if(name.equals("") && xqueryBoxes.get(i).isSelected())
-                return Collections.emptyList();
-            currentXmlNames.add(name);
-        }
-
-        return currentXmlNames;
     }
 
     /**

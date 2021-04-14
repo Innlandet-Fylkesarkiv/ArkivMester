@@ -23,7 +23,6 @@ public class ThirdPartiesModel {
     String cdString = "cd \"";
     private List<Boolean> selectedTests = new ArrayList<>();
     private List<Boolean> selectedXqueries = new ArrayList<>();
-    private final List<String> xmlNames = new ArrayList<>();
     private String [] xqueryNames;
     Boolean runXqueries = false;
     int amountOfTests = 4;
@@ -81,14 +80,6 @@ public class ThirdPartiesModel {
      */
     public List<Boolean> getSelectedXqueries() {
         return this.selectedXqueries;
-    }
-
-    /**
-     * Regular getter for xmlNames list.
-     * @return xmlNames String list.
-     */
-    public List<String> getXmlNames() {
-        return this.xmlNames;
     }
 
     /**
@@ -313,7 +304,7 @@ public class ThirdPartiesModel {
     public void deleteBaseXDB(Properties prop) throws IOException {
         String pwd = cdString + prop.getProperty(basexPathKey) + "\"";
 
-        runCMD(pwd + " && basex.bat -c \"DROP DB " + prop.getProperty("currentArchive") + "\"");
+        runCMD(pwd + " && basex.bat -c \"DROP DB arkivmester\"");
     }
 
     /**
