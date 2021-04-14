@@ -23,7 +23,7 @@ public class ThirdPartiesModel {
     String cdString = "cd \"";
     private List<Boolean> selectedTests = new ArrayList<>();
     private List<Boolean> selectedXqueries = new ArrayList<>();
-    private List<String> xmlNames = new ArrayList<>();
+    private final List<String> xmlNames = new ArrayList<>();
     private String [] xqueryNames;
     Boolean runXqueries = false;
     int amountOfTests = 4;
@@ -65,14 +65,6 @@ public class ThirdPartiesModel {
     public void updateTests(List<Boolean> selectedList, List<Boolean> selectedXqueries) {
         this.selectedTests = selectedList;
         this.selectedXqueries = selectedXqueries;
-    }
-
-    /**
-     * Updates xmlNames with updated data.
-     * @param xmlNames Updated xmlNames from the UI.
-     */
-    public void updateXmlNames(List<String> xmlNames) {
-        this.xmlNames = xmlNames;
     }
 
     /**
@@ -252,11 +244,6 @@ public class ThirdPartiesModel {
     }
 
     public void runXquery(Properties prop) throws IOException { // #NOSONAR
-        String xmlName;
-        StringBuilder bld = new StringBuilder();
-        String archivePath = tempFolder + archiveName;
-        String unzippedArchive = archivePath + "\\" + prop.get("currentArchive"); // #NOSONAR
-
         for(int i = 0; i<selectedXqueries.size(); i++) {
             if(Boolean.TRUE.equals(selectedXqueries.get(i))) {
                 runCustomBaseX(xqueryNames[i], prop);
@@ -267,7 +254,6 @@ public class ThirdPartiesModel {
     public void setUpBaseXDatabase(Properties prop) throws IOException {
         String pwd = cdString + prop.getProperty(basexPathKey) + "\"";
 
-        String xmlName;
         StringBuilder bld = new StringBuilder();
         String archivePath = tempFolder + archiveName;
         String unzippedArchive = archivePath + "\\" + prop.get("currentArchive"); // #NOSONAR
@@ -305,20 +291,23 @@ public class ThirdPartiesModel {
 
         runCMD(pwd + " && basex.bat -c \"CREATE DB " + dbName + "\"");
 
-        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml1 + "\"\"");
-        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml2 + "\"\"");
-        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml3 + "\"\"");
-        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml5 + "\"\"");
-        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml6 + "\"\"");
-        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml7 + "\"\"");
-        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml8 + "\"\"");
-        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml9 + "\"\"");
-        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml10 + "\"\"");
-        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml11 + "\"\"");
-        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml12 + "\"\"");
-        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml13 + "\"\"");
-        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml14 + "\"\"");
-        runCMD(pwd + " && basex.bat -c \"OPEN " + dbName + "; ADD \"" + xml15 + "\"\"");
+        String cmdOpen = " && basex.bat -c \"OPEN ";
+        String cmdAdd = "; ADD \"";
+
+        runCMD(pwd + cmdOpen + dbName + cmdAdd + xml1 + "\"\"");
+        runCMD(pwd + cmdOpen + dbName + cmdAdd + xml2 + "\"\"");
+        runCMD(pwd + cmdOpen + dbName + cmdAdd + xml3 + "\"\"");
+        runCMD(pwd + cmdOpen + dbName + cmdAdd + xml5 + "\"\"");
+        runCMD(pwd + cmdOpen + dbName + cmdAdd + xml6 + "\"\"");
+        runCMD(pwd + cmdOpen + dbName + cmdAdd + xml7 + "\"\"");
+        runCMD(pwd + cmdOpen + dbName + cmdAdd + xml8 + "\"\"");
+        runCMD(pwd + cmdOpen + dbName + cmdAdd + xml9 + "\"\"");
+        runCMD(pwd + cmdOpen + dbName + cmdAdd + xml10 + "\"\"");
+        runCMD(pwd + cmdOpen + dbName + cmdAdd + xml11 + "\"\"");
+        runCMD(pwd + cmdOpen + dbName + cmdAdd + xml12 + "\"\"");
+        runCMD(pwd + cmdOpen + dbName + cmdAdd + xml13 + "\"\"");
+        runCMD(pwd + cmdOpen + dbName + cmdAdd + xml14 + "\"\"");
+        runCMD(pwd + cmdOpen + dbName + cmdAdd + xml15 + "\"\"");
     }
 
     public void deleteBaseXDB(Properties prop) throws IOException {
