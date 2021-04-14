@@ -957,6 +957,9 @@ public class ReportModel {
             insertGraph(Arrays.asList(3, 1, 9), splitIntoTable(para), getRows(para), 5, false);
         }
 
+        //Chapter 3.1.10
+        setNewInput(Arrays.asList(3, 1, 10), Collections.emptyList(), 0);
+
         //Chapter 3.1.11
         para = xqueriesMap.get("3.1.11");
 
@@ -971,6 +974,8 @@ public class ReportModel {
 
         //Chapter 3.1.13
         para = xqueriesMap.get("3.1.13");
+
+        setNewInput(Arrays.asList(3, 1, 13), Collections.emptyList(), 0);
 
         if(para.get(0).equals(EMPTY)) {
             setNewInput(Arrays.asList(3, 1, 13), Collections.emptyList(), 0);
@@ -989,7 +994,6 @@ public class ReportModel {
 
         } else {
             setNewInput(Arrays.asList(3, 1, 13), Collections.singletonList(para.size() + ""), 2);
-            setNewParagraph(Arrays.asList(3, 1, 13), Collections.singletonList("afgdagfagfaga"), 2);
         }
 
         //Chapter 3.1.14 N5.27, N5.11, N5.18
