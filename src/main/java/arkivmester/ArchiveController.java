@@ -416,14 +416,17 @@ public class ArchiveController implements ViewObserver {
     //When "Last inn pakket uttrekk" is clicked.
     @Override
     public void uploadArchive() {
-        //ScheduledExecutorService uploadScheduler = Executors.newScheduledThreadPool(1);
-        //uploadScheduler.submit(this::uploadArchiveThread);
+        ScheduledExecutorService uploadScheduler = Executors.newScheduledThreadPool(1);
+        uploadScheduler.submit(this::uploadArchiveThread);
+    }
 
+    public void uploadArchiveThread() {
         int success = archiveModel.uploadFolder(mainView.getContainer());
 
         //Folder uploaded
         if(success == 1) {
             try {
+                mainView.loading(true);
                 String fileName = archiveModel.tar.getName();
                 fileName = fileName.substring(0,fileName.lastIndexOf('.'));
                 settingsModel.handleOutputFolders(fileName);
@@ -439,6 +442,7 @@ public class ArchiveController implements ViewObserver {
                 //Update view
                 mainView.activateButtons();
                 mainView.updateAdminInfo(archiveModel.getAdminInfo());
+                mainView.loading(false);
             } catch (IOException e) {
                 mainView.exceptionPopup("Kunne ikke skrive til user.home mappen.");
             }

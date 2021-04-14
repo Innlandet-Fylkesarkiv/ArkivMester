@@ -20,6 +20,7 @@ public class MainView extends Views{
     private JPanel topPanel;
     private JPanel infoPanel;
     private JPanel mainPanel;
+    JLabel spinnerLabel;
 
     //Buttons
     private JButton editInfoBtn;
@@ -126,6 +127,17 @@ public class MainView extends Views{
         archiveLabel.setBounds(100, 50, 200, 30);
         archiveLabel.setFont(primaryFont);
 
+        URL imageURL = ClassLoader.getSystemResource("spinner.gif");
+        ImageIcon imageIcon;
+        spinnerLabel = new JLabel();
+        if (imageURL != null) {
+            imageIcon = new ImageIcon(imageURL);
+            spinnerLabel.setIcon(imageIcon);
+            imageIcon.setImageObserver(spinnerLabel);
+            spinnerLabel.setBounds(300, 50, 200, 30);
+        }
+        spinnerLabel.setVisible(false);
+
         JButton uploadTarBtn = new JButton("Last inn pakket uttrekk");
         uploadTarBtn.setBounds(100, 100, 200, 30);
         uploadTarBtn.addActionListener(this);
@@ -176,6 +188,7 @@ public class MainView extends Views{
 
         //Adding components
         mainPanel.add(archiveLabel);
+        mainPanel.add(spinnerLabel);
         mainPanel.add(uploadTarBtn);
         mainPanel.add(uploadTestedFolderBtn);
 
@@ -361,5 +374,10 @@ public class MainView extends Views{
      */
     public void toggleAboutBtn() {
         aboutBtn.setEnabled(!aboutBtn.isEnabled());
+    }
+
+    public void loading(Boolean running) {
+
+        spinnerLabel.setVisible(Boolean.TRUE.equals(running));
     }
 }
