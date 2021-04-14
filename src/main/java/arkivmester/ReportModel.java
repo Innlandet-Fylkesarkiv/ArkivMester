@@ -954,6 +954,7 @@ public class ReportModel {
         }
 
         //Chapter 3.1.13
+        //TODO, ANNET ENN FERDIGSTILT trengs ikke. Endre konsekvensvurdering på case 2. Fjern tittel fra tabell. Gjør om for vedlegg. Endre konsekvensvurdering case 3.
         para = xqueriesMap.get("3.1.13");
 
         if(para.get(0).equals(EMPTY)) {
@@ -1166,7 +1167,7 @@ public class ReportModel {
         }
 
         //Chapter 3.1.7
-        List<String> dirs = xqueriesMap.get("3.1.7_1");
+        List<String> dirs = xqueriesMap.get("3.1.7_1b");
         //System.out.println(dirs); // NOSONAR
         //System.out.println(dirs.get(0)); // NOSONAR
         if(dirs.get(0).equals(EMPTY)) {
@@ -1174,7 +1175,8 @@ public class ReportModel {
         }
         else {
             setNewInput(Arrays.asList(3, 1, 7), Collections.singletonList("" + dirs.size()), 1);
-            insertTable(Arrays.asList(3, 1, 7), splitIntoTable(dirs));
+            //insertTable(Arrays.asList(3, 1, 7), splitIntoTable(dirs));
+            //TODO: Bruk ny setNewParagraph eller fix tabell.
         }
 
         //Chapter 3.3.9
@@ -1460,6 +1462,7 @@ public class ReportModel {
         insertTable(Arrays.asList(3, 1, 8), dokumentstatus);
 
         //Chapter 3.1.12
+        //TODO: Legg til ny tabell i case 2, sjekk om fysisk uttrekk.
         int arkivert = arkadeModel.sumStringListWithOnlyNumbers(
                 arkadeModel.getNumberInTextAsString("N5.22", "Journalstatus: Arkivert - Antall:", ":"));
         int journalfort =  arkadeModel.sumStringListWithOnlyNumbers(
@@ -1519,6 +1522,7 @@ public class ReportModel {
         }
 
         //Chapter 3.1.25 - Kassasjoner
+        //TODO: Ny case 2 med ny xquery.
         if(arkadeModel.getTotal("N5.44", TOTAL) == 0 &&
                 arkadeModel.getTotal("N5.45", TOTAL) ==0) {
             setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), 0);
@@ -1583,6 +1587,7 @@ public class ReportModel {
         if(arkiv > 1) {
             setNewInput(Arrays.asList(3, 1, 3), Collections.emptyList(), 3);
         }
+        //TODO: Legg til nye ting fra xml i tabellen.
 
         //Chapter 3.1.4
         //Endre tittel til: Se eget klassifikasjonskapittel 3.3.1.
@@ -1599,6 +1604,7 @@ public class ReportModel {
         }
 
         //Chapter 3.3.1
+        //TODO: Liste over N.51 klasser i case 6. Ny case med tabell med manglende xquery.
         int total = arkadeModel.getTotal("N5.20", "Klasser uten registreringer");
         if(total > 0) {
             setNewInput(Arrays.asList(3, 3, 1), Collections.singletonList(total + ""), 2);
