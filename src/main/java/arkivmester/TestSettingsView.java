@@ -52,7 +52,7 @@ public class TestSettingsView extends Views {
 
         //XQuery panel
         JPanel xqueryPanel = new JPanel(new GridBagLayout());
-        xqueryPanel.setBorder(new EmptyBorder(0, 0, 310, 0));
+        xqueryPanel.setBorder(new EmptyBorder(0, 0, 215, 0));
         xqueryPanel.setBackground(Color.WHITE);
         setUpXqueryPanel(xqueryPanel, customXqueryList);
         JScrollPane sp = new JScrollPane(xqueryPanel);
