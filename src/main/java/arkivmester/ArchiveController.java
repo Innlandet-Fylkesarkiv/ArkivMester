@@ -2,6 +2,7 @@ package arkivmester;
 
 import javax.swing.*;
 import java.io.*;
+import java.text.ParseException;
 import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.List;
@@ -71,6 +72,7 @@ public class ArchiveController implements ViewObserver {
 
             list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), xqName, settingsModel.prop);
             list = archiveModel.formatDate(list);
+
             archiveModel.updateAdminInfo(list);
         } catch (IOException e) {
             mainView.exceptionPopup("BaseX kunne ikke kjøre 1.1.xq, 1.1a.xq og/eller 1.1b.xq");
@@ -78,6 +80,7 @@ public class ArchiveController implements ViewObserver {
             mainView.exceptionPopup("CREATEDATE formatet i metadata.xml er feil");
         } catch (IndexOutOfBoundsException e) {
             mainView.exceptionPopup("Fant ikke XQueries eller de er feil");
+            e.printStackTrace();
         }
     }
 
@@ -351,16 +354,27 @@ public class ArchiveController implements ViewObserver {
     //When "Lagre" in admin info is clicked.
     @Override
     public void saveAdminInfo() {
-        archiveModel.updateAdminInfo(adminInfoView.getManualInfo());
+        List<String> manualInfo = adminInfoView.getManualInfo();
 
-        adminInfoView.clearContainer();
-        adminInfoView = null;
 
-        mainView.showGUI();
-        mainView.updateAdminInfo(archiveModel.getAdminInfo());
+        try {
+            if (archiveModel.validateDates(manualInfo.get(4), manualInfo.get(5), manualInfo.get(7))) {
+                archiveModel.updateAdminInfo(manualInfo);
+
+                adminInfoView.clearContainer();
+                adminInfoView = null;
+
+                mainView.showGUI();
+                mainView.updateAdminInfo(archiveModel.getAdminInfo());
+            }
+            else
+                mainView.exceptionPopup("En av de tre datoene er ugyldige.");
+
+        } catch (ParseException e) {
+            mainView.exceptionPopup("Datoene må være gyldige");
+        }
     }
-
-    //When "Avbryt" is clicked.
+        //When "Avbryt" is clicked.
     @Override
     public void cancelButton() {
         if(adminInfoView != null) {
@@ -401,11 +415,17 @@ public class ArchiveController implements ViewObserver {
     //When "Last inn pakket uttrekk" is clicked.
     @Override
     public void uploadArchive() {
+        ScheduledExecutorService uploadScheduler = Executors.newScheduledThreadPool(1);
+        uploadScheduler.submit(this::uploadArchiveThread);
+    }
+
+    public void uploadArchiveThread() {
         int success = archiveModel.uploadFolder(mainView.getContainer());
 
         //Folder uploaded
         if(success == 1) {
             try {
+                mainView.loading(true);
                 String fileName = archiveModel.tar.getName();
                 fileName = fileName.substring(0,fileName.lastIndexOf('.'));
                 settingsModel.handleOutputFolders(fileName);
@@ -421,6 +441,7 @@ public class ArchiveController implements ViewObserver {
                 //Update view
                 mainView.activateButtons();
                 mainView.updateAdminInfo(archiveModel.getAdminInfo());
+                mainView.loading(false);
             } catch (IOException e) {
                 mainView.exceptionPopup("Kunne ikke skrive til user.home mappen.");
             }
