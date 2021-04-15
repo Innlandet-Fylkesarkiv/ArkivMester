@@ -247,7 +247,8 @@ public class ArkadeModel {
     public Integer systemidentifikasjonerForklaring(List<String> docxInput){
 
         Integer total = getTotal("N5.34",TOTALT);
-        int totalSystemID = getSpecificValue("N5.47", "Ikke-unik ID").size();
+        List<String> n547 = getTextBetweenWords(getSpecificValue("N5.47", "Ikke-unik ID"),"forekommer", "ganger");
+        int totalSystemID = sumStringListWithOnlyNumbers(n547);
 
         if(total == 0 && totalSystemID == 0){
             return 0;
@@ -258,8 +259,8 @@ public class ArkadeModel {
             return 1;
         }
         else {
+            // antall spesial arkivdeler i reportmodel
             docxInput.add(Integer.toString(totalSystemID));
-            // antall spesial arkivdeler ???
             return 2;
         }
 
@@ -308,6 +309,10 @@ public class ArkadeModel {
         int number = 0;
         boolean numberInList = false;
 
+        if(numberList.isEmpty()){
+            return 0;
+        }
+
         for (String numberStr: numberList){
             // Check no numbers: error
             if (numberStr.isEmpty() || numberStr.matches("\\D+")) {
@@ -349,6 +354,19 @@ public class ArkadeModel {
                     return Integer.parseInt(year);
                 }
             }
+        }
+        return -1;
+    }
+
+    /**
+     * Makes string to Intger
+     * @param number sting with number int it.
+     * @return number string as integer.
+     */
+    public Integer getStringNumberAsInteger(String number){
+        number = number.replace(" ", "");
+        if(!number.matches("\\D+")){
+            return Integer.parseInt(number);
         }
         return -1;
     }

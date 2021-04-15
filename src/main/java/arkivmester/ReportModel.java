@@ -977,8 +977,24 @@ public class ReportModel {
 
         //Chapter 3.1.14 N5.27, N5.11, N5.18
         para = xqueriesMap.get("3.1.14");
-        List<Integer> output3114 = Arrays.asList();
+        List<Integer> output3114 = Collections.emptyList();
         int val3114 = arkadeModel.firstLastReg(para, output3114);
+
+        //Chapter 3.1.27 N5.47, N5.34
+        List<String> input = new ArrayList<>();
+        int valg = arkadeModel.systemidentifikasjonerForklaring(input);
+
+        if(valg == 2){
+            int n547Count = 0;
+            para = xqueriesMap.get("3.1.27");
+            for(String tempN547Count : para){
+                n547Count += arkadeModel.getStringNumberAsInteger(tempN547Count.split(";", 2)[1]);
+            }
+            setNewInput(Arrays.asList(3, 1, 27), Arrays.asList(input.get(0), n547Count + ""), valg);
+        }
+        else{
+            setNewInput(Arrays.asList(3, 1, 27), input, valg);
+        }
 
         //Chapter 3.1.31
         setNewInput(Arrays.asList(3, 1, 31), Collections.emptyList(), 0);
@@ -1104,11 +1120,17 @@ public class ReportModel {
             for (String crossReference : crossReferences) {
                 setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("\u2022 " + crossReference), 1);
             }
+            // setNewParagrath
+            // setNewParagrath
+            setNewParagraph(Collections.emptyList(),crossReferences);
         }
         else{
             setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("Over 25. Skriver til Vedlegg"), 1);
             writeAttachments("3.3.4", crossReferences);
+
+
         }
+
 
 
 
@@ -1547,11 +1569,7 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), 1);
             setNewInput(Arrays.asList(4, 2, 1), Collections.emptyList(), 1);
         }
-        //Chapter 3.1.27
-        List<String> input = new ArrayList<>();
-        int valg = arkadeModel.systemidentifikasjonerForklaring(input);
-        setNewInput(Arrays.asList(3, 1, 27), input, valg);
-        // AntallSepsialarkivdeler?
+
 
 
         //Chapter 3.1.28 - Arkivdelreferanser
