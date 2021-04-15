@@ -96,6 +96,7 @@ public class ReportModel {
         private int cindex;
         private CTChart chart;
         private boolean cases;
+        private boolean isVaried;
 
         /**
          * Initialize a default list of missing input.
@@ -147,10 +148,11 @@ public class ReportModel {
             cases = true;
         }
 
-        public void insertGraphInput(List<String> input, int col) {
+        public void insertGraphInput(List<String> input, int col, boolean vary) {
             result = input;
             tableCol = col;
             cases = true;
+            isVaried = vary;
         }
 
         /**
@@ -530,21 +532,24 @@ public class ReportModel {
         int width = 16 * Units.EMU_PER_CENTIMETER;
         int height = 10 * Units.EMU_PER_CENTIMETER;
 
+        if(cChapter.tableCol > 0) {
+
         XmlCursor cursor = p.getCTP().newCursor();//this is the key!
 
         XWPFParagraph para = document.insertNewParagraph(cursor);
 
         XWPFRun r = para.createRun();
 
-        try {
-            XWPFChart charttemp = document.createChart(r, width, height);
-            CTChart ctChartTemp = charttemp.getCTChart();
+            try {
+                XWPFChart charttemp = document.createChart(r, width, height);
+                CTChart ctChartTemp = charttemp.getCTChart();
 
-            XSSFChart chart = barColumnChart(cChapter);
+                XSSFChart chart = barColumnChart(cChapter);
 
-            ctChartTemp.set(chart.getCTChart());
-        } catch(InvalidFormatException | IOException e) {
-            e.printStackTrace();
+                ctChartTemp.set(chart.getCTChart());
+            } catch(InvalidFormatException | IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -651,18 +656,16 @@ public class ReportModel {
      * @param h - The header number for the chapter
      * @param p - String text that the user wants to manually have put into the report
      */
-    public void setNewParagraph(List<Integer> h, List<String> p) {
-        chapterList.put(h, new ArrayList<>());
-        chapterList.get(h).add(new ArrayList<>());
-        for(String in : p) {
-            chapterList.get(h).get(0).add(new ChapterList(Arrays.asList(in), TextStyle.PARAGRAPH, 0, true));
+    public void setNewParagraph(List<Integer> h, List<String> p, int c) {
+        for(String s : p) {
+            chapterList.get(h).get(c).add(new ChapterList(Arrays.asList(s), TextStyle.PARAGRAPH, 0, true));
         }
     }
 
-    private void insertGraph(List<Integer> h, List<String> g, int col, int c) {
+    private void insertGraph(List<Integer> h, List<String> g, int col, int c, boolean vary) {
         for (ChapterList chap : chapterList.get(h).get(c)) {
             if(chap.getType() == TextStyle.GRAPH) {
-                chap.insertGraphInput(g, col);
+                chap.insertGraphInput(g, col, vary);
             }
         }
     }
@@ -814,7 +817,7 @@ public class ReportModel {
 
             XDDFChartData data = chart.createData(ChartTypes.BAR, bottomAxis, leftAxis);
 
-            data.setVaryColors(false);
+            data.setVaryColors(cinput.isVaried);
 
             XDDFChartData.Series series;
             for (int i = 0; i < amountCat; i++) {
@@ -931,21 +934,37 @@ public class ReportModel {
         //Chapter 3.1.5
         para = xqueriesMap.get("3.1.5_1");
         if(!para.get(0).equals(EMPTY)) {
-            insertGraph(Arrays.asList(3, 1, 5), splitIntoTable(para), getRows(para), 0);
+            insertGraph(Arrays.asList(3, 1, 5), splitIntoTable(para), getRows(para), 0, false);
         }
         para = xqueriesMap.get("3.1.5_2");
         if(!para.get(0).equals(EMPTY)) {
-            insertGraph(Arrays.asList(3, 1, 5), splitIntoTable(para), getRows(para), 1);
+            insertGraph(Arrays.asList(3, 1, 5), splitIntoTable(para), getRows(para), 1, false);
         }
 
         //Chapter 3.1.9
+        para = xqueriesMap.get("3.1.9_1");
+        if(!para.get(0).equals(EMPTY)) {
+            insertGraph(Arrays.asList(3, 1, 9), splitIntoTable(para), getRows(para), 2, true);
+        }
+
+        List<String> temppara = arkadeModel.getSpecificValue("N5.18", " ");
+        para = new ArrayList<>();
+        for(String s : temppara) {
+            List<String> t = Arrays.asList(s.split("[ ]"));
+            para.add(t.get(0) + " registreringer; " + t.get(1));
+        }
+        if(!para.get(0).equals(EMPTY)) {
+            insertGraph(Arrays.asList(3, 1, 9), splitIntoTable(para), getRows(para), 5, false);
+        }
+
+        //Chapter 3.1.10
+        setNewInput(Arrays.asList(3, 1, 10), Collections.emptyList(), 0);
 
         //Chapter 3.1.11
         para = xqueriesMap.get("3.1.11");
 
         //Chapter 3.1.2
         // valideringAvXML(); NOSONAR
-
 
         if(para.get(0).equals(EMPTY)) {
             setNewInput(Arrays.asList(3, 1, 11), Collections.emptyList(), 0);
@@ -955,6 +974,8 @@ public class ReportModel {
 
         //Chapter 3.1.13
         para = xqueriesMap.get("3.1.13");
+
+        setNewInput(Arrays.asList(3, 1, 13), Collections.emptyList(), 0);
 
         if(para.get(0).equals(EMPTY)) {
             setNewInput(Arrays.asList(3, 1, 13), Collections.emptyList(), 0);
@@ -1120,9 +1141,7 @@ public class ReportModel {
             for (String crossReference : crossReferences) {
                 setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("\u2022 " + crossReference), 1);
             }
-            // setNewParagrath
-            // setNewParagrath
-            setNewParagraph(Collections.emptyList(),crossReferences);
+            //setNewParagraph(Collections.emptyList(),crossReferences);
         }
         else{
             setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("Over 25. Skriver til Vedlegg"), 1);
@@ -1264,7 +1283,7 @@ public class ReportModel {
 
         //Chapter 5 - Attachments
         if(!attachments.isEmpty()) {
-            setNewParagraph(Collections.singletonList(5), attachments);
+            setNewParagraph(Collections.singletonList(5), attachments, 0);
         }
     }
 
@@ -1526,8 +1545,8 @@ public class ReportModel {
         //Chapter 3.1.17 - Merknader
         if (arkadeModel.ingenMerknader()) {
             setNewInput(Arrays.asList(3, 1, 17), Collections.emptyList(), 0);
-            setNewParagraph(Arrays.asList(3, 1, 17), Collections.singletonList("Rename tittel from 3.1.17 to merknader "));
-            setNewParagraph(Arrays.asList(3, 3, 3), Collections.singletonList("DELETE ME: 3.3.3"));
+            setNewParagraph(Arrays.asList(3, 1, 17), Collections.singletonList("Rename tittel from 3.1.17 to merknader "), 0);
+            setNewParagraph(Arrays.asList(3, 3, 3), Collections.singletonList("DELETE ME: 3.3.3"), 0);
         }
 
         //Chapter 3.1.18 - Kryssreferanser

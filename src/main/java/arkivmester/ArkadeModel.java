@@ -26,7 +26,7 @@ public class ArkadeModel {
     static final String TOTALT = "Totalt";
 
     ArkadeModel(){
-        readHtmlFileFromTestFolder(); //NOSONAR
+        //readHtmlFileFromTestFolder(); //NOSONAR
 
 
     }
