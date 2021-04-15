@@ -10,4 +10,4 @@ let $format2 := if (fn:exists($uttrekksformat2)) then $uttrekksformat2/text() el
 
 let $produksjonsdato := string(xh:mets/xh:metsHdr/@CREATEDATE)
 
-return ("", $kunde, string-join(($kontaktperson/text()),", "), $format1 || " v" || $format2, $produksjonsdato, "", "", "")
+return ("", $kunde, string-join(($kontaktperson/text()),", "), $format1 || " v" || $format2, $produksjonsdato, "", "", "", "")

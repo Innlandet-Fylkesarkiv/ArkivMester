@@ -3,7 +3,10 @@ package arkivmester;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -117,6 +120,30 @@ public class ArchiveModel {
             String formattedDate = outputFormatter.format(date);
             list.set(4, formattedDate);
         }
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyy");
+        LocalDateTime now = LocalDateTime.now();
+        list.set(7, dtf.format(now));
+
         return list;
+    }
+
+    public boolean validateDates(String prodDate, String recievedDate, String reportDate) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+
+        if(!prodDate.equals("") && !recievedDate.equals("") && !reportDate.equals("")) {
+            String formattedDate = sdf.format(sdf.parse(prodDate));
+            if (!formattedDate.equals(prodDate))
+                return false;
+
+            formattedDate = sdf.format(sdf.parse(recievedDate));
+            if (!formattedDate.equals(recievedDate))
+                return false;
+
+
+            formattedDate = sdf.format(sdf.parse(reportDate));
+            return formattedDate.equals(reportDate);
+        }
+        return false;
     }
 }

@@ -125,7 +125,7 @@ public class SettingsModel {
     }
 
     public void prepareToAIP() throws IOException {
-        File repOpsFolder = new File(archiveFolder.getPath() + "\\" + prop.getProperty(CURRENTARCHIVE) + "\\administrative_metadata\\repository_operations");
+        File repOpsFolder = new File(archiveFolder.getPath() + "\\" + prop.getProperty(CURRENTARCHIVE) + "\\administrative_metadata\\repository_operations"); //NOSONAR
         if(!repOpsFolder.exists()) {
             Files.createDirectory(repOpsFolder.toPath());
         }
@@ -146,11 +146,6 @@ public class SettingsModel {
                 });
             }
         }
-
-        /*
-        File report = new File(archiveFolder.toPath() + "\\Testrapport.docx"); //NOSONAR
-        File repOps = new File(archiveFolder.getPath() + "\\" + prop.getProperty(CURRENTARCHIVE) + "\\administrative_metadata\\repository_operations\\Testrapport.docx"); // #NOSONAR
-        Files.copy(report.toPath(), repOps.toPath(), StandardCopyOption.REPLACE_EXISTING);*/ //NOSONAR
     }
 
     /**
