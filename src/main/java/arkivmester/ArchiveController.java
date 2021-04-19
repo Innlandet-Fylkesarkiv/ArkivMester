@@ -367,10 +367,10 @@ public class ArchiveController implements ViewObserver {
                 mainView.updateAdminInfo(archiveModel.getAdminInfo());
             }
             else
-                mainView.exceptionPopup("En av de tre datoene er ugyldige.");
+                mainView.exceptionPopup("En eller flere datoer er ugyldige.");
 
         } catch (ParseException e) {
-            mainView.exceptionPopup("Datoene må være gyldige");
+            mainView.exceptionPopup("En eller flere datoer er ugyldige.");
         }
     }
         //When "Avbryt" is clicked.
