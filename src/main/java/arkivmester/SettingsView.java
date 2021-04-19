@@ -17,7 +17,7 @@ import java.util.Properties;
  * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen
  */
 public class SettingsView extends Views {
-    private Container container;
+    Container container;
     JButton saveSettingsBtn;
     List<JLabel> keys = new ArrayList<>();
     List<JLabel> values = new ArrayList<>();
