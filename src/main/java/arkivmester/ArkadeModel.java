@@ -496,7 +496,7 @@ public class ArkadeModel {
      * Get all IDs from arkade Testreport.
      * @return List of deviation IDs.
      */
-    private List<String> getAllIDs () {
+    public List<String> getAllIDs () {
         // All IDs
         List<String> htmlAllIDs = new ArrayList<>();
         Document doc = Jsoup.parse(htmlRawText.toString());
