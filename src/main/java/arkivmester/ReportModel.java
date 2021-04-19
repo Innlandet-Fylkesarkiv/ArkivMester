@@ -1130,14 +1130,21 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList("" + arkivdeler), 1);
             insertTable(Arrays.asList(3, 1, 3), splitIntoTable(parts));
         }
-        //Chapter 3.3.4
+        //Chapter 3.3.4 N5.37
         List<String> crossReferences = xqueriesMap.get("3.3.4");
 
         int n537 = arkadeModel.getTotal("N5.37", TOTAL);
 
-        setNewInput(Arrays.asList(3, 3, 4), Arrays.asList("" + n537, "" +  crossReferences.size()), 0);
+
+        if(!para.get(0).equals(EMPTY)){
+            setNewInput(Arrays.asList(3, 3, 4), Arrays.asList("" + n537, "" +  crossReferences.size()), 0);
+        }
+        else{
+            setNewInput(Arrays.asList(3, 3, 4), Arrays.asList("" + n537, "" +  0), 0);
+        }
 
         if (crossReferences.size() < 25){
+
             for (String crossReference : crossReferences) {
                 setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("\u2022 " + crossReference), 1);
             }
