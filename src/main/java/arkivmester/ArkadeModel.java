@@ -240,12 +240,12 @@ public class ArkadeModel {
     }
 
     /**
-     * 3.1.27: N5.47 Systemidentifikasjoner, N5.34 Dokumentfiler med referanse.
+     * 3.1.27: N5.47 Systemidentifikasjoner, (Arkade returns 0 here, not in use)N5.34 Dokumentfiler med referanse.
      * @param docxInput Values to put in to docx text.
      * @return Number. What text form docx to output in report
      */
     public Integer systemidentifikasjonerForklaring(List<String> doukBes, List<String> klasser, List<String> docxInput){
-        String EMPTY = "empty";
+        String empty = "empty";
         //Integer total = getTotal("N5.34",TOTALT);
         List<String> n547 = getTextBetweenWords(getSpecificValue("N5.47", "Ikke-unik ID"),"forekommer", "ganger");
         int totalSystemID = sumStringListWithOnlyNumbers(n547);
@@ -253,7 +253,7 @@ public class ArkadeModel {
         int totalDouk = 0;
 
         // ANTALLBESKRIVELSER
-        if(!doukBes.get(0).equals(EMPTY)) {
+        if(!doukBes.get(0).equals(empty)) {
             for(String douk : doukBes){
                 totalDouk += getStringNumberAsInteger(douk.split(";", 2)[1]);
             }
@@ -271,7 +271,7 @@ public class ArkadeModel {
         totalDouk = 0;
 
         // k-kode
-        if(!klasser.get(0).equals(EMPTY)) {
+        if(!klasser.get(0).equals(empty)) {
             for(String klasse : klasser){
                 totalDouk += getStringNumberAsInteger(klasse.split(";", 2)[1]);
             }
@@ -324,7 +324,6 @@ public class ArkadeModel {
     public Integer sumStringListWithOnlyNumbers(List<String> numberList){
 
         int number = 0;
-        boolean numberInList = false;
 
         if(numberList.isEmpty()){
             return 0;
@@ -339,14 +338,9 @@ public class ArkadeModel {
             // Remove everything except numbers in String
             numberStr = numberStr.replaceAll("\\D+", "");
             number += Integer.parseInt(numberStr);
-            numberInList = true;
-        }
-        // List has at least one number
-        if(numberInList){
-            return number;
         }
 
-        return -1;
+        return number;
     }
 
     /**
