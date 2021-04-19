@@ -1003,17 +1003,13 @@ public class ReportModel {
 
         //Chapter 3.1.27 N5.47, N5.34
         List<String> input = new ArrayList<>();
-        int valg = arkadeModel.systemidentifikasjonerForklaring(input);
 
-        if(valg == 2){
-            int n547Count = 0;
-            para = xqueriesMap.get("3.1.27");
-            for(String tempN547Count : para){
-                n547Count += arkadeModel.getStringNumberAsInteger(tempN547Count.split(";", 2)[1]);
-            }
-            setNewInput(Arrays.asList(3, 1, 27), Arrays.asList(input.get(0), n547Count + ""), valg);
+        int valg = arkadeModel.systemidentifikasjonerForklaring(xqueriesMap.get("3.1.27_1"),xqueriesMap.get("3.1.27_2"),input);
+
+        if(valg == 0){
+            setNewInput(Arrays.asList(3, 1, 27), Collections.emptyList(), valg);
         }
-        else{
+        else {
             setNewInput(Arrays.asList(3, 1, 27), input, valg);
         }
 
@@ -1143,15 +1139,17 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 3, 4), Arrays.asList("" + n537, "" +  0), 0);
         }
 
-        if (crossReferences.size() < 25){
+        if (crossReferences.size() <= 25){
 
-            for (String crossReference : crossReferences) {
-                setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("\u2022 " + crossReference), 1);
+            //for (String crossReference : crossReferences) {
+            //    setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("\u2022 " + crossReference), 1);
+            //}
+            if(!para.get(0).equals(EMPTY)){
+                setNewParagraph(Arrays.asList(3, 3, 4),crossReferences, 0);
             }
-            //setNewParagraph(Collections.emptyList(),crossReferences);
         }
         else{
-            setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("Over 25. Skriver til Vedlegg"), 1);
+            setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("Over 25. Skriver til Vedlegg"), 0);
             writeAttachments("3.3.4", crossReferences);
 
 

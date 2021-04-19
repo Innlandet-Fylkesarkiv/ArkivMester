@@ -244,26 +244,43 @@ public class ArkadeModel {
      * @param docxInput Values to put in to docx text.
      * @return Number. What text form docx to output in report
      */
-    public Integer systemidentifikasjonerForklaring(List<String> docxInput){
-
-        Integer total = getTotal("N5.34",TOTALT);
+    public Integer systemidentifikasjonerForklaring(List<String> doukBes, List<String> klasser, List<String> docxInput){
+        String EMPTY = "empty";
+        //Integer total = getTotal("N5.34",TOTALT);
         List<String> n547 = getTextBetweenWords(getSpecificValue("N5.47", "Ikke-unik ID"),"forekommer", "ganger");
         int totalSystemID = sumStringListWithOnlyNumbers(n547);
 
-        if(total == 0 && totalSystemID == 0){
+        int totalDouk = 0;
+
+        // ANTALLBESKRIVELSER
+        if(!doukBes.get(0).equals(EMPTY)) {
+            for(String douk : doukBes){
+                totalDouk += getStringNumberAsInteger(douk.split(";", 2)[1]);
+            }
+            if(totalDouk == totalSystemID){
+                docxInput.add(Integer.toString(totalSystemID));
+                docxInput.add(Integer.toString(totalDouk));
+                return 1;
+            }
+        }
+        // Ingen feil
+        if(totalDouk == 0 && totalSystemID == 0){
             return 0;
         }
-        else if(total.equals(totalSystemID)){
 
+        totalDouk = 0;
+
+        // k-kode
+        if(!klasser.get(0).equals(EMPTY)) {
+            for(String klasse : klasser){
+                totalDouk += getStringNumberAsInteger(klasse.split(";", 2)[1]);
+            }
             docxInput.add(Integer.toString(totalSystemID));
-            return 1;
-        }
-        else {
-            // antall spesial arkivdeler i reportmodel
-            docxInput.add(Integer.toString(totalSystemID));
+            docxInput.add(Integer.toString(totalDouk));
             return 2;
         }
-
+        System.out.println("3.1.27 noe gikk galt.  N5.47 " + totalSystemID); //NOSONAR
+        return 3;
     }
 
     // Function for all Chapters

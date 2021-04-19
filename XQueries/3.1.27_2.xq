@@ -11,3 +11,4 @@ for $x in distinct-values(/arkiv/arkivdel/.//systemID/text())
 where count(.//systemID[text() = $x]) >= 2
 
 return concat($x , "; ", count(.//systemID[text() = $x]))
+
