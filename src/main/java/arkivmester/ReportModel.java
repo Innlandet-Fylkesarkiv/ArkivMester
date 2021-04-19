@@ -1141,9 +1141,6 @@ public class ReportModel {
 
         if (crossReferences.size() <= 25){
 
-            //for (String crossReference : crossReferences) {
-            //    setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("\u2022 " + crossReference), 1);
-            //}
             if(!para.get(0).equals(EMPTY)){
                 setNewParagraph(Arrays.asList(3, 3, 4),crossReferences, 0);
             }
