@@ -113,12 +113,12 @@ class TestViewTest {
                 () -> assertEquals(TestView.WAITING, labels.get(10).getText(),"Fourth test status is wrong")
         );
 
-        //testView.updateStatus(mockSelectedTests);
+        testView.updateStatus(mockSelectedTests,false);
 
         assertAll("Status label text after being updated",
                 () -> assertEquals(TestView.WAITING, labels.get(1).getText(),"First test status is wrong"),
                 () -> assertEquals(TestView.WAITING, labels.get(4).getText(),"Second test status is wrong"),
-                () -> assertEquals(TestView.WAITING, labels.get(7).getText(),"Third test status is wrong"),
+                () -> assertEquals(TestView.NONE, labels.get(7).getText(),"Third test status is wrong"),
                 () -> assertEquals(TestView.WAITING, labels.get(10).getText(),"Fourth test status is wrong")
         );
     }

@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  */
 public class SettingsModel {
     private File userFolder;
-    private File alteredCfg;
+    File alteredCfg;
     private static final String CURRENTARCHIVE = "currentArchive";
     private File archiveFolder;
     private final List<File> folders = new ArrayList<>();
@@ -34,7 +34,7 @@ public class SettingsModel {
      * @throws IOException The file could not be read or written to due to permissions or not existing.
      */
     public void setUpSettings() throws IOException {
-        userFolder = new File(System.getProperty("user.home") + "\\.arkivmester");
+        userFolder = new File(System.getProperty("user.home") + "\\.arkivmesterTest");
         alteredCfg = new File(userFolder.getPath() + "\\config.properties");
 
         if(userFolder.exists() && userFolder.isDirectory()) {
