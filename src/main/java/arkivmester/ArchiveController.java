@@ -478,14 +478,6 @@ public class ArchiveController implements ViewObserver {
             }
         }
 
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("1.2_1.xq",archivePath + "\\dias-mets.xml");
-        map.put("1.2_2.xq",archivePath + "\\content\\arkivuttrekk.xml");
-        map.put("1.2_3.xq",archivePath + "\\content\\loependeJournal.xml");
-        map.put("1.2_4.xq",archivePath + "\\content\\offentligJournal.xml");
-        map.put("1.2_5.xq",testArkivstruktur);
-
-
         Map<String, List<String>> xqueryResults = new HashMap<>();
 
         List<String> headerNumbers = Arrays.asList("3.1.2_1", "3.1.5_1", "3.1.5_2", "3.1.9_1", "3.1.11", "3.1.13", "3.1.14", "3.1.20", "3.2.1_1", "3.2.1_2",
@@ -518,6 +510,27 @@ public class ArchiveController implements ViewObserver {
         xqueryResults.put("3.3.9_3a", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml", "3.3.9_3a"));
         xqueryResults.put("3.3.9_3b", getEmptyOrContent(archivePath + "\\content\\offentligJournal.xml", "3.3.9_3b"));
         xqueryResults.put("3.3.9_3c", getEmptyOrContent(testArkivstruktur, "3.3.9_3c"));
+
+        //1.2
+        String xqName;
+        try {
+            if (thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "1.1b.xq", settingsModel.prop).get(0).contains("mets:mets"))
+                xqName = "1.2_1a";
+            else
+                xqName = "1.2_1";
+
+            xqueryResults.put("1.2_1", getEmptyOrContent(archivePath + "\\dias-mets.xml", xqName));
+
+        } catch (IOException e) {
+            mainView.exceptionPopup("Kunne ikke kjøre 1.1b.xq");
+        }
+
+        xqueryResults.put("1.2_2", getEmptyOrContent(archivePath + "\\content\\arkivuttrekk.xml", "1.2_2"));
+        xqueryResults.put("1.2_3", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml", "1.2_3"));
+        xqueryResults.put("1.2_4", getEmptyOrContent("\\content\\offentligJournal.xml", "1.2_4"));
+        xqueryResults.put("1.2_5", getEmptyOrContent(testArkivstruktur, "1.2_5"));
+
+
 
         reportModel.init(prop, xqueryResults);
 
