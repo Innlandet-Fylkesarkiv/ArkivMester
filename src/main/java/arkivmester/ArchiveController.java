@@ -80,7 +80,6 @@ public class ArchiveController implements ViewObserver {
             mainView.exceptionPopup("CREATEDATE formatet i metadata.xml er feil");
         } catch (IndexOutOfBoundsException e) {
             mainView.exceptionPopup("Fant ikke XQueries eller de er feil");
-            e.printStackTrace();
         }
     }
 

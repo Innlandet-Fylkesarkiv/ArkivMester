@@ -16,19 +16,6 @@ class ArkadeModelTest {
     private final ArkadeModel arkadeModel = new ArkadeModel();
 
 
-
-
-    @Test
-    @DisplayName("Check: Get year from string as integer")
-    void testGetYearFromString(){
-
-        int year1 = arkadeModel.getYearFromString("2012:2013", true);
-        int year2 = arkadeModel.getYearFromString("2012:2013", false);
-
-        assertEquals(2012, year1 );
-        assertEquals(2013, year2 );
-    }
-
     @Test
     @DisplayName("Check: Sum all numbers in list")
     void testSumStringListWithOnlyNumbers(){
@@ -45,7 +32,48 @@ class ArkadeModelTest {
     }
 
     @Test
-    @DisplayName("Check: Only keep elements in list with specific Values")
+    @DisplayName("Check: Get one element from List<String> as Integer")
+    void testgetOneElementInListAsInteger(){
+
+        int test1 = arkadeModel.getOneElementInListAsInteger(Collections.singletonList("bob1"), "bob");
+        int test2 = arkadeModel.getOneElementInListAsInteger(Arrays.asList("bob1", "Mathias1"), "bob");
+        int test3 = arkadeModel.getOneElementInListAsInteger(Arrays.asList("bob1", "bob2"), "bob");
+        int test4 = arkadeModel.getOneElementInListAsInteger(Collections.singletonList(""), "");
+
+        assertEquals(1, test1 );
+        assertEquals(1, test2 );
+        assertEquals(-1, test3 );
+        assertEquals(-1, test4 );
+    }
+
+    @Test
+    @DisplayName("Check: Get year from string as integer")
+    void testGetYearFromString(){
+
+        int year1 = arkadeModel.getYearFromString("2012:2013", true);
+        int year2 = arkadeModel.getYearFromString("2012:2013", false);
+
+        assertEquals(2012, year1 );
+        assertEquals(2013, year2 );
+    }
+
+    @Test
+    @DisplayName("Check: Get Integer from string")
+    void testGetStringNumberAsInteger(){
+
+        int test1 = arkadeModel.getStringNumberAsInteger("1");
+        int test2 = arkadeModel.getStringNumberAsInteger("");
+        int test3 = arkadeModel.getStringNumberAsInteger("asdf");
+        int test4 = arkadeModel.getStringNumberAsInteger("a3sdf");
+
+        assertEquals(1, test1 );
+        assertEquals(-1, test2 );
+        assertEquals(-1, test3 );
+        assertEquals(3, test4 );
+    }
+
+    @Test
+    @DisplayName("Check: Get substring after last character")
     void testGetTextAt(){
 
         String test1 = arkadeModel.getTextAt(":xxx", ":");
@@ -87,16 +115,6 @@ class ArkadeModelTest {
         assertEquals("2:2", test2.get(0) );
     }
 
-    /*
-    getOneElementInListAsInteger
-    getOneElementInListAsString
-    // year
-    getStringNumberAsInteger
-    getNumberInTextAsString
-    getTextAt
-    getTextBetweenWords
-    getSpecificValueInList
-     */
     @Test
     @Disabled("Check: Most have html to read from. See readHtmlFileFromTestFolder. Read from html")
     void testReadFromHtml(){

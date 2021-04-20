@@ -100,7 +100,6 @@ public class ArkadeModel {
 
     // Chapters
 
-
     /**
      * Get arkade version. Chapter 3.1
      * @return arkade version.
@@ -375,8 +374,13 @@ public class ArkadeModel {
      * @return number string as integer.
      */
     public Integer getStringNumberAsInteger(String number){
+        String numberCheck = "\\D+";
+        if(number.isEmpty()){
+            return -1;
+        }
         number = number.replace(" ", "");
-        if(!number.matches("\\D+")){
+        if(!number.matches(numberCheck)){
+            number = number.replaceAll(numberCheck, "");
             return Integer.parseInt(number);
         }
         return -1;
