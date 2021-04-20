@@ -1127,29 +1127,24 @@ public class ReportModel {
             insertTable(Arrays.asList(3, 1, 3), splitIntoTable(parts));
         }
         //Chapter 3.3.4 N5.37
-        List<String> crossReferences = xqueriesMap.get("3.3.4");
+        String chapter334 = "3.3.4";
+        String index537 = "N5.37";
+        List<String> crossReferences = xqueriesMap.get(chapter334);
+        int n537 = arkadeModel.getTotal(index537, TOTAL);
 
-        int n537 = arkadeModel.getTotal("N5.37", TOTAL);
-
-
-        if(!para.get(0).equals(EMPTY)){
+        if(!crossReferences.get(0).equals(EMPTY)){
             setNewInput(Arrays.asList(3, 3, 4), Arrays.asList("" + n537, "" +  crossReferences.size()), 0);
         }
         else{
             setNewInput(Arrays.asList(3, 3, 4), Arrays.asList("" + n537, "" +  0), 0);
         }
-
-        if (crossReferences.size() <= 25){
-
-            if(!para.get(0).equals(EMPTY)){
-                setNewParagraph(Arrays.asList(3, 3, 4),crossReferences, 0);
-            }
+        List<String> missingValues = arkadeModel.getSystemID(index537, "systemID");
+        if (missingValues.size() <= 25){
+            setNewParagraph(Arrays.asList(3, 3, 4), missingValues, 0);
         }
         else{
             setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("Over 25. Skriver til Vedlegg"), 0);
-            writeAttachments("3.3.4", crossReferences);
-
-
+            writeAttachments(chapter334, missingValues);
         }
 
 
