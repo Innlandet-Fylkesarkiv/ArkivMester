@@ -53,7 +53,7 @@ class ArkadeModelTest {
 
     @Test
     @DisplayName("Check: Get one element from List<String> as Integer")
-    void testgetOneElementInListAsInteger(){
+    void testGetOneElementInListAsInteger(){
 
         int test1 = arkadeModel.getOneElementInListAsInteger(Collections.singletonList("bob1"), "bob");
         int test2 = arkadeModel.getOneElementInListAsInteger(Arrays.asList("bob1", "Mathias1"), "bob");
@@ -191,7 +191,7 @@ class ArkadeModelTest {
     }
 
     @Test
-    @DisplayName("Check: Get alle elements with subtext from arkade list")
+    @DisplayName("Check: Get every elements with subtext from arkade list")
     void testGetSpecificValue(){
         List<String> test1 = arkadeModel.getSpecificValue("N5.10", "Mappetype");
 

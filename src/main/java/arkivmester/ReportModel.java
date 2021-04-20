@@ -1309,8 +1309,8 @@ public class ReportModel {
             List<String> invalidDates = arkadeModel.getSpecificValue(index, "Date value.");
             if(!invalidDates.isEmpty()){
                 setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 1);
-                setNewParagraph(Arrays.asList(3, 3, 4), invalidDates, 0);
-                // Use setNewParagraph on invalidDates
+                // fulle feilene blir ikke skrevet opp her.
+                writeAttachments("3.1.2_Date value", invalidDates);
             }
         }
     }
@@ -1448,6 +1448,9 @@ public class ReportModel {
         // 3.1.1
         writeDeviation(Arrays.asList(3, 1, 1),"N5.01");
         writeDeviation(Arrays.asList(3, 1, 1),"N5.02");
+
+        //Chapter 3.1.2
+        valideringAvXML();
 
         // 3.1.8
         List<String> dokumentstatus = arkadeModel.getTableDataFromHtml("N5.15", 4);

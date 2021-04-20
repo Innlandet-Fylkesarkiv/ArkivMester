@@ -246,8 +246,8 @@ public class ArkadeModel {
      * @return Number. What text form docx to output in report
      */
     public Integer systemidentifikasjonerForklaring(List<String> doukBes, List<String> klasser, List<String> docxInput){
+
         String empty = "empty";
-        //Integer total = getTotal("N5.34",TOTALT);
         List<String> n547 = getTextBetweenWords(getSpecificValue("N5.47", "Ikke-unik ID"),"forekommer", "ganger");
         int totalSystemID = sumStringListWithOnlyNumbers(n547);
 
