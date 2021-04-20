@@ -124,7 +124,7 @@ class SettingsModelTest {
             fail("Could not handle create folders for output");
         }
     }
-    
+
     @AfterAll
     static void tearDown() {
         File userFolder = new File(System.getProperty("user.home") + "\\.arkivmesterTest");

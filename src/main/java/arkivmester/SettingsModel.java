@@ -34,7 +34,7 @@ public class SettingsModel {
      * @throws IOException The file could not be read or written to due to permissions or not existing.
      */
     public void setUpSettings() throws IOException {
-        userFolder = new File(System.getProperty("user.home") + "\\.arkivmesterTest");
+        userFolder = new File(System.getProperty("user.home") + "\\.arkivmester");
         alteredCfg = new File(userFolder.getPath() + "\\config.properties");
 
         if(userFolder.exists() && userFolder.isDirectory()) {
