@@ -98,6 +98,8 @@ public class ArkadeModel {
         }
     }
 
+
+
     // Chapters
 
     /**
@@ -562,6 +564,22 @@ public class ArkadeModel {
     }
 
     /**
+     * Only keep elements in String list with containsValue
+     * @param indexlist List with string elements
+     * @param containsValue Look for value in elements
+     * @return "" if empty list.
+     */
+    public List<String> getSpecificValueInList(List<String> indexlist, String containsValue){
+        List<String> htmlTable = new ArrayList<>();
+        for(String i : indexlist){
+            if(i.contains(containsValue)){
+                htmlTable.add(i);
+            }
+        }
+        return  htmlTable;
+    }
+
+    /**
      * Get specific value from deviation table.
      * @param index for test class.
      * @param containsValue cell contains value.
@@ -576,22 +594,6 @@ public class ArkadeModel {
         }
         if (htmlTable.isEmpty()) {
             System.out.println(index + " Can't find deviation with: " + containsValue); //NOSONAR
-        }
-        return  htmlTable;
-    }
-
-    /**
-     * Only keep elements in String list with containsValue
-     * @param indexlist List with string elements
-     * @param containsValue Look for value in elements
-     * @return "" if empty list.
-     */
-    public List<String> getSpecificValueInList(List<String> indexlist, String containsValue){
-        List<String> htmlTable = new ArrayList<>();
-        for(String i : indexlist){
-            if(i.contains(containsValue)){
-                htmlTable.add(i);
-            }
         }
         return  htmlTable;
     }
@@ -624,7 +626,7 @@ public class ArkadeModel {
                 if(!getSecondCell){
                     getTable.add(htmlTable.get(i));
                 }
-                else if(htmlTable.size() >= i+1){
+                else if(htmlTable.size() > i+1){
                     getTable.add(htmlTable.get(i + 1));
                 }
                 else{
