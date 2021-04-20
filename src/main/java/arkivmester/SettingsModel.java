@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  */
 public class SettingsModel {
     private File userFolder;
-    private File alteredCfg;
+    File alteredCfg;
     private static final String CURRENTARCHIVE = "currentArchive";
     private File archiveFolder;
     private final List<File> folders = new ArrayList<>();
