@@ -98,8 +98,9 @@ public class ArkadeModel {
         }
     }
 
-    // Chapters
 
+
+    // Chapters
 
     /**
      * Get arkade version. Chapter 3.1
@@ -121,7 +122,7 @@ public class ArkadeModel {
         return getOneElementInListAsInteger(getFromSummary("Antall avvik funnet", true), "");
     }
 
-    /**
+    /** Chapter 3.1.14 N5.27
      * @param arkivdelStartYear get systemID, startYear, endYear from Xquery
      * @param output set text into doxc
      * @return What text to write out to docx
@@ -240,29 +241,47 @@ public class ArkadeModel {
     }
 
     /**
-     * 3.1.27: N5.47 Systemidentifikasjoner, N5.34 Dokumentfiler med referanse.
+     * 3.1.27: N5.47 Systemidentifikasjoner, (Arkade returns 0 here, not in use)N5.34 Dokumentfiler med referanse.
      * @param docxInput Values to put in to docx text.
      * @return Number. What text form docx to output in report
      */
-    public Integer systemidentifikasjonerForklaring(List<String> docxInput){
+    public Integer systemidentifikasjonerForklaring(List<String> doukBes, List<String> klasser, List<String> docxInput){
 
-        Integer total = getTotal("N5.34",TOTALT);
-        int totalSystemID = getSpecificValue("N5.47", "Ikke-unik ID").size();
+        String empty = "empty";
+        List<String> n547 = getTextBetweenWords(getSpecificValue("N5.47", "Ikke-unik ID"),"forekommer", "ganger");
+        int totalSystemID = sumStringListWithOnlyNumbers(n547);
 
-        if(total == 0 && totalSystemID == 0){
+        int totalDouk = 0;
+
+        // ANTALLBESKRIVELSER
+        if(!doukBes.get(0).equals(empty)) {
+            for(String douk : doukBes){
+                totalDouk += getStringNumberAsInteger(douk.split(";", 2)[1]);
+            }
+            if(totalDouk == totalSystemID){
+                docxInput.add(Integer.toString(totalSystemID));
+                docxInput.add(Integer.toString(totalDouk));
+                return 1;
+            }
+        }
+        // Ingen feil
+        if(totalDouk == 0 && totalSystemID == 0){
             return 0;
         }
-        else if(total.equals(totalSystemID)){
 
+        totalDouk = 0;
+
+        // k-kode
+        if(!klasser.get(0).equals(empty)) {
+            for(String klasse : klasser){
+                totalDouk += getStringNumberAsInteger(klasse.split(";", 2)[1]);
+            }
             docxInput.add(Integer.toString(totalSystemID));
-            return 1;
-        }
-        else {
-            docxInput.add(Integer.toString(totalSystemID));
-            // antall spesial arkivdeler ???
+            docxInput.add(Integer.toString(totalDouk));
             return 2;
         }
-
+        System.out.println("3.1.27 noe gikk galt.  N5.47 " + totalSystemID); //NOSONAR
+        return 3;
     }
 
     // Function for all Chapters
@@ -306,7 +325,10 @@ public class ArkadeModel {
     public Integer sumStringListWithOnlyNumbers(List<String> numberList){
 
         int number = 0;
-        boolean numberInList = false;
+
+        if(numberList.isEmpty()){
+            return 0;
+        }
 
         for (String numberStr: numberList){
             // Check no numbers: error
@@ -317,14 +339,9 @@ public class ArkadeModel {
             // Remove everything except numbers in String
             numberStr = numberStr.replaceAll("\\D+", "");
             number += Integer.parseInt(numberStr);
-            numberInList = true;
-        }
-        // List has at least one number
-        if(numberInList){
-            return number;
         }
 
-        return -1;
+        return number;
     }
 
     /**
@@ -349,6 +366,24 @@ public class ArkadeModel {
                     return Integer.parseInt(year);
                 }
             }
+        }
+        return -1;
+    }
+
+    /**
+     * Makes string to Intger
+     * @param number sting with number int it.
+     * @return number string as integer.
+     */
+    public Integer getStringNumberAsInteger(String number){
+        String numberCheck = "\\D+";
+        if(number.isEmpty()){
+            return -1;
+        }
+        number = number.replace(" ", "");
+        if(!number.matches(numberCheck)){
+            number = number.replaceAll(numberCheck, "");
+            return Integer.parseInt(number);
         }
         return -1;
     }
@@ -467,7 +502,7 @@ public class ArkadeModel {
      * Get all IDs from arkade Testreport.
      * @return List of deviation IDs.
      */
-    private List<String> getAllIDs () {
+    public List<String> getAllIDs () {
         // All IDs
         List<String> htmlAllIDs = new ArrayList<>();
         Document doc = Jsoup.parse(htmlRawText.toString());
@@ -529,6 +564,22 @@ public class ArkadeModel {
     }
 
     /**
+     * Only keep elements in String list with containsValue
+     * @param indexlist List with string elements
+     * @param containsValue Look for value in elements
+     * @return "" if empty list.
+     */
+    public List<String> getSpecificValueInList(List<String> indexlist, String containsValue){
+        List<String> htmlTable = new ArrayList<>();
+        for(String i : indexlist){
+            if(i.contains(containsValue)){
+                htmlTable.add(i);
+            }
+        }
+        return  htmlTable;
+    }
+
+    /**
      * Get specific value from deviation table.
      * @param index for test class.
      * @param containsValue cell contains value.
@@ -543,22 +594,6 @@ public class ArkadeModel {
         }
         if (htmlTable.isEmpty()) {
             System.out.println(index + " Can't find deviation with: " + containsValue); //NOSONAR
-        }
-        return  htmlTable;
-    }
-
-    /**
-     * Only keep elements in String list with containsValue
-     * @param indexlist List with string elements
-     * @param containsValue Look for value in elements
-     * @return "" if empty list.
-     */
-    public List<String> getSpecificValueInList(List<String> indexlist, String containsValue){
-        List<String> htmlTable = new ArrayList<>();
-        for(String i : indexlist){
-            if(i.contains(containsValue)){
-                htmlTable.add(i);
-            }
         }
         return  htmlTable;
     }
@@ -591,7 +626,7 @@ public class ArkadeModel {
                 if(!getSecondCell){
                     getTable.add(htmlTable.get(i));
                 }
-                else if(htmlTable.size() >= i+1){
+                else if(htmlTable.size() > i+1){
                     getTable.add(htmlTable.get(i + 1));
                 }
                 else{

@@ -2,6 +2,7 @@ package arkivmester;
 
 import javax.swing.*;
 import java.io.*;
+import java.text.ParseException;
 import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.List;
@@ -43,7 +44,6 @@ public class ArchiveController implements ViewObserver {
         thirdPartiesModel = new ThirdPartiesModel();
         settingsModel = new SettingsModel();
         reportModel = new ReportModel();
-        ArkadeModel arkadeModel = new ArkadeModel();
     }
 
     /**
@@ -72,6 +72,7 @@ public class ArchiveController implements ViewObserver {
 
             list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), xqName, settingsModel.prop);
             list = archiveModel.formatDate(list);
+
             archiveModel.updateAdminInfo(list);
         } catch (IOException e) {
             mainView.exceptionPopup("BaseX kunne ikke kjøre 1.1.xq, 1.1a.xq og/eller 1.1b.xq");
@@ -352,16 +353,27 @@ public class ArchiveController implements ViewObserver {
     //When "Lagre" in admin info is clicked.
     @Override
     public void saveAdminInfo() {
-        archiveModel.updateAdminInfo(adminInfoView.getManualInfo());
+        List<String> manualInfo = adminInfoView.getManualInfo();
 
-        adminInfoView.clearContainer();
-        adminInfoView = null;
 
-        mainView.showGUI();
-        mainView.updateAdminInfo(archiveModel.getAdminInfo());
+        try {
+            if (archiveModel.validateDates(manualInfo.get(4), manualInfo.get(5), manualInfo.get(7))) {
+                archiveModel.updateAdminInfo(manualInfo);
+
+                adminInfoView.clearContainer();
+                adminInfoView = null;
+
+                mainView.showGUI();
+                mainView.updateAdminInfo(archiveModel.getAdminInfo());
+            }
+            else
+                mainView.exceptionPopup("En eller flere datoer er ugyldige.");
+
+        } catch (ParseException e) {
+            mainView.exceptionPopup("En eller flere datoer er ugyldige.");
+        }
     }
-
-    //When "Avbryt" is clicked.
+        //When "Avbryt" is clicked.
     @Override
     public void cancelButton() {
         if(adminInfoView != null) {
@@ -402,11 +414,17 @@ public class ArchiveController implements ViewObserver {
     //When "Last inn pakket uttrekk" is clicked.
     @Override
     public void uploadArchive() {
+        ScheduledExecutorService uploadScheduler = Executors.newScheduledThreadPool(1);
+        uploadScheduler.submit(this::uploadArchiveThread);
+    }
+
+    public void uploadArchiveThread() {
         int success = archiveModel.uploadFolder(mainView.getContainer());
 
         //Folder uploaded
         if(success == 1) {
             try {
+                mainView.loading(true);
                 String fileName = archiveModel.tar.getName();
                 fileName = fileName.substring(0,fileName.lastIndexOf('.'));
                 settingsModel.handleOutputFolders(fileName);
@@ -422,6 +440,7 @@ public class ArchiveController implements ViewObserver {
                 //Update view
                 mainView.activateButtons();
                 mainView.updateAdminInfo(archiveModel.getAdminInfo());
+                mainView.loading(false);
             } catch (IOException e) {
                 mainView.exceptionPopup("Kunne ikke skrive til user.home mappen.");
             }
@@ -459,18 +478,9 @@ public class ArchiveController implements ViewObserver {
             }
         }
 
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("1.2_1.xq",archivePath + "\\dias-mets.xml");
-        map.put("1.2_2.xq",archivePath + "\\content\\arkivuttrekk.xml");
-        map.put("1.2_3.xq",archivePath + "\\content\\loependeJournal.xml");
-        map.put("1.2_4.xq",archivePath + "\\content\\offentligJournal.xml");
-        map.put("1.2_5.xq",testArkivstruktur);
-
-
         Map<String, List<String>> xqueryResults = new HashMap<>();
-
-        List<String> headerNumbers = Arrays.asList("3.1.2_1", "3.1.5_1", "3.1.5_2", "3.1.9_1", "3.1.11", "3.1.12", "3.1.13", "3.1.14", "3.1.20", "3.2.1_1", "3.2.1_2",
-                "3.2.1_3", "3.3.1", "3.3.2_1", "3.3.2_2", "3.3.2_3", "3.1.21", "3.1.26_1", "3.1.26_2",
+        List<String> headerNumbers = Arrays.asList("3.1.2_1", "3.1.5_1", "3.1.5_2", "3.1.9_1", "3.1.11", "3.1.13", "3.1.14", "3.1.20", "3.2.1_1", "3.2.1_2",
+                "3.2.1_3", "3.3.1", "3.3.2_1", "3.3.2_2", "3.3.2_3", "3.1.21", "3.1.26_1", "3.1.26_2","3.1.27_1","3.1.27_2",
                 "3.1.3", "3.3.6", "3.3.7", "3.1.23_1", "3.1.23_2", "3.1.23_3", "3.3.3_1", "3.3.3_2",
                 "3.1.7_1", "3.1.7_1b", "3.1.7_2",  "3.3.4", "dokumentmedium", "3.1.11b");
 
@@ -499,6 +509,27 @@ public class ArchiveController implements ViewObserver {
         xqueryResults.put("3.3.9_3a", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml", "3.3.9_3a"));
         xqueryResults.put("3.3.9_3b", getEmptyOrContent(archivePath + "\\content\\offentligJournal.xml", "3.3.9_3b"));
         xqueryResults.put("3.3.9_3c", getEmptyOrContent(testArkivstruktur, "3.3.9_3c"));
+
+        //1.2
+        String xqName;
+        try {
+            if (thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "1.1b.xq", settingsModel.prop).get(0).contains("mets:mets"))
+                xqName = "1.2_1a";
+            else
+                xqName = "1.2_1";
+
+            xqueryResults.put("1.2_1", getEmptyOrContent(archivePath + "\\dias-mets.xml", xqName));
+
+        } catch (IOException e) {
+            mainView.exceptionPopup("Kunne ikke kjøre 1.1b.xq");
+        }
+
+        xqueryResults.put("1.2_2", getEmptyOrContent(archivePath + "\\content\\arkivuttrekk.xml", "1.2_2"));
+        xqueryResults.put("1.2_3", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml", "1.2_3"));
+        xqueryResults.put("1.2_4", getEmptyOrContent("\\content\\offentligJournal.xml", "1.2_4"));
+        xqueryResults.put("1.2_5", getEmptyOrContent(testArkivstruktur, "1.2_5"));
+
+
 
         reportModel.init(prop, xqueryResults);
 

@@ -1017,22 +1017,35 @@ public class ReportModel {
 
         //Chapter 3.1.14 N5.27, N5.11, N5.18
         para = xqueriesMap.get("3.1.14");
-        List<Integer> output3114 = Arrays.asList();
+        List<Integer> output3114 = Collections.emptyList();
         int val3114 = arkadeModel.firstLastReg(para, output3114);
 
-        //Chapter 3.1.31
-        setNewInput(Arrays.asList(3, 1, 31), Collections.emptyList(), 0);
-
         if(val3114 == 0){
-            // somthing when't wrong
+            // Wrong date print out table
             setNewInput(Arrays.asList(3, 1, 14), Collections.emptyList(), val3114);
         }
         else if(val3114 == 1){
             setNewInput(Arrays.asList(3, 1, 14), Collections.emptyList(), val3114);
         }
         else if (val3114 == 2){
-            setNewInput(Arrays.asList(3, 1, 13), Arrays.asList(output3114.get(0) + "", output3114.get(1) + ""), val3114);
+            setNewInput(Arrays.asList(3, 1, 14), Arrays.asList(output3114.get(0) + "", output3114.get(1) + ""), val3114);
         }
+
+        //Chapter 3.1.27 N5.47, N5.34
+        List<String> input = new ArrayList<>();
+
+        int valg = arkadeModel.systemidentifikasjonerForklaring(xqueriesMap.get("3.1.27_1"),xqueriesMap.get("3.1.27_2"),input);
+
+        if(valg == 0){
+            setNewInput(Arrays.asList(3, 1, 27), Collections.emptyList(), valg);
+        }
+        else {
+            setNewInput(Arrays.asList(3, 1, 27), input, valg);
+        }
+
+        //Chapter 3.1.31
+        setNewInput(Arrays.asList(3, 1, 31), Collections.emptyList(), 0);
+
 
 
         //Chapter 3.1.20
@@ -1126,22 +1139,28 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 1, 26), Collections.emptyList(), 3);
         }
 
-        //Chapter 3.3.4
-        List<String> crossReferences = xqueriesMap.get("3.3.4");
 
-        int n537 = arkadeModel.getTotal("N5.37", TOTAL);
+        //Chapter 3.3.4 N5.37
+        String chapter334 = "3.3.4";
+        String index537 = "N5.37";
+        List<String> crossReferences = xqueriesMap.get(chapter334);
+        int n537 = arkadeModel.getTotal(index537, TOTAL);
 
-        setNewInput(Arrays.asList(3, 3, 4), Arrays.asList("" + n537, "" +  crossReferences.size()), 0);
-
-        if (crossReferences.size() < 25){
-            for (String crossReference : crossReferences) {
-                setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("\u2022 " + crossReference), 1);
-            }
+        if(!crossReferences.get(0).equals(EMPTY)){
+            setNewInput(Arrays.asList(3, 3, 4), Arrays.asList("" + n537, "" +  crossReferences.size()), 0);
         }
         else{
-            setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("Over 25. Skriver til Vedlegg"), 1);
-            writeAttachments("3.3.4", crossReferences);
+            setNewInput(Arrays.asList(3, 3, 4), Arrays.asList("" + n537, "" +  0), 0);
         }
+        List<String> missingValues = arkadeModel.getSystemID(index537, "systemID");
+        if (missingValues.size() <= 25){
+            setNewParagraph(Arrays.asList(3, 3, 4), missingValues, 0);
+        }
+        else{
+            setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("Over 25. Skriver til Vedlegg"), 0);
+            writeAttachments(chapter334, missingValues);
+        }
+
 
 
 
@@ -1306,73 +1325,8 @@ public class ReportModel {
             List<String> invalidDates = arkadeModel.getSpecificValue(index, "Date value.");
             if(!invalidDates.isEmpty()){
                 setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 1);
-                // Use setNewParagraph on invalidDates
-            }
-
-            //Arkade rapporten, elementet filstoerrelse mangler.
-            List<String> filstoerrelse = arkadeModel.getSpecificValue(index, "filstoerrelse");
-            if(!filstoerrelse.isEmpty()){
-                // count(//dokumentobjekt[not (boolean(filstoerrelse))]) alle dokumentobject with out variable filstoerrelse
-                // print out xqueriesMap.get("3.1.2_1")
-                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 2);
-                // Print out fillstoerrelse: & ANTALL
-            }
-
-            //Arkade rapporten, elementet journalposttype angitt med typer som ikke følger Noark5 standarden.
-            // Get example with missing journalposttype
-            List<String> journalposttype = arkadeModel.getSpecificValue(index, "journalposttype");
-            if(!journalposttype.isEmpty()){
-                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 3);
-                // baseX
-                // Print out journalposttype: & ANTALL
-            }
-
-            //Arkade rapporten, elementet skjermingshjemmel mangler.
-            // Get example with missing konvertertFra
-            List<String> konvertertFra = arkadeModel.getSpecificValue(index, "skjerming");
-            if(!konvertertFra.isEmpty()){
-                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 4);
-                // baseX
-            }
-
-            //Arkade rapporten, elementet korrespondansepart mangler.
-            // Get example with missing korrespondansepart
-            List<String> korrespondansepart = arkadeModel.getSpecificValue(index, "korrespondansepart");
-            if(!korrespondansepart.isEmpty()){
-                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 5);
-                // baseX
-            }
-
-            //Arkade rapporten, elementet klasse har mapper og underklasser.
-            // Get example with missing elementHarMapperOgUnderklasser
-            List<String> elementHarMapperOgUnderklasser = arkadeModel.getSpecificValue(index, "kriv inn her4");
-            if(!elementHarMapperOgUnderklasser.isEmpty()){
-                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 6);
-                // baseX
-            }
-
-            //Arkade rapporten, elementet dokumentfil mangler under elementet dokumentobjekt.
-            // Get example with missing manglerUnderElementetDokumentobject
-            List<String> manglerUnderElementetDokumentobject = arkadeModel.getSpecificValue(index, "dokumentfil,");
-            if(!manglerUnderElementetDokumentobject.isEmpty()){
-                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 7);
-                // baseX
-            }
-
-            // Arkade rapporten, elementet tittel mangler under mappe, registering eller dokumentbeskrivelse.
-            // Get example with missing elementetTittelManglerUnderMappeRegisteringEllerDokumentbeskrivelse
-            List<String> elementetMangler = arkadeModel.getSpecificValue(index, "registrering,");
-            if(!elementetMangler.isEmpty()){
-                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 8);
-                // baseX
-            }
-
-            // Arkade rapporten, elementet avskrivingsmaate inneholder ikke godkjente verdier.
-            // Get example with missing avskrivingsmaate
-            List<String> avskrivingsmaate = arkadeModel.getSpecificValue(index, "kriv inn her");
-            if(!avskrivingsmaate.isEmpty()){
-                setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 9);
-                // baseX metadat.xsd
+                // fulle feilene blir ikke skrevet opp her.
+                writeAttachments("3.1.2_Date value", invalidDates);
             }
         }
     }
@@ -1511,6 +1465,9 @@ public class ReportModel {
         writeDeviation(Arrays.asList(3, 1, 1), "N5.01");
         writeDeviation(Arrays.asList(3, 1, 1), "N5.02");
 
+        //Chapter 3.1.2
+        valideringAvXML();
+
         // 3.1.8
         List<String> dokumentstatus = arkadeModel.getTableDataFromHtml("N5.15", 4);
 
@@ -1592,11 +1549,7 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), 1);
             setNewInput(Arrays.asList(4, 2, 1), Collections.emptyList(), 1);
         }
-        //Chapter 3.1.27
-        List<String> input = new ArrayList<>();
-        int valg = arkadeModel.systemidentifikasjonerForklaring(input);
-        setNewInput(Arrays.asList(3, 1, 27), input, valg);
-        // AntallSepsialarkivdeler?
+
 
 
         //Chapter 3.1.28 - Arkivdelreferanser
