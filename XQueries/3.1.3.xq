@@ -8,7 +8,10 @@ declare namespace n5mdk="http://www.arkivverket.no/standarder/noark5/metadatakat
 let $r := arkiv/arkivdel/concat(
     tittel/text(), '; ',
     systemID/text(), '; ',
-    arkivdelstatus/text())
+    arkivdelstatus/text(), '; ',
+	arkivperiodeStartDato/text(), '; ',
+	arkivperiodeSluttDato/text(), '; ',
+	dokumentmedium/text())
 
 return $r
 

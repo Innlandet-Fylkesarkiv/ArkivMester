@@ -991,15 +991,20 @@ public class ReportModel {
         //TODO: Ny case med tabell, trenger ny xquery.
 
         //Chapter 3.1.13
-        //TODO:  Fjern tittel fra tabell? Gjør om for vedlegg.
-        para = xqueriesMap.get("3.1.13");
+        para = xqueriesMap.get("3.1.13_1");
 
-        setNewInput(Arrays.asList(3, 1, 13), Collections.emptyList(), 0);
 
+        System.out.println(para);
         if(para.get(0).equals(EMPTY)) {
-            setNewInput(Arrays.asList(3, 1, 13), Collections.emptyList(), 0);
-        } else if (!para.get(0).equals("utgår")) {
 
+            para = xqueriesMap.get("3.1.13_2");
+
+            if (para.get(0).equals(EMPTY)) {
+                setNewInput(Arrays.asList(3, 1, 13), Collections.emptyList(), 0);
+            } else {
+                setNewInput(Arrays.asList(3, 1, 13), Collections.singletonList(para.size() + ""), 3);
+            }
+        } else {
             if(para.size() > 25) {
                 setNewInput(Arrays.asList(3, 1, 13),
                         Collections.singletonList(para.size() + ""), 2); // NOSONAR
@@ -1010,9 +1015,6 @@ public class ReportModel {
                         Collections.singletonList(para.size() + ""), 1);
                 insertTable(Arrays.asList(3, 1, 13), splitIntoTable(para));
             }
-
-        } else {
-            setNewInput(Arrays.asList(3, 1, 13), Collections.singletonList(para.size() + ""), 3);
         }
 
         //Chapter 3.1.14 N5.27, N5.11, N5.18
@@ -1094,7 +1096,10 @@ public class ReportModel {
             insertTable(Arrays.asList(3, 3, 1), para);
         }
 
+        // TODO: ha antall møter av en type, ikke antall deltagere per møte av en type
+
         //Chapter 3.3.2
+        // N5.20 arkade gettotal case 0
         para = xqueriesMap.get("3.3.2_1");
         if(!para.get(0).equals(EMPTY)) {
             setNewInput(Arrays.asList(3, 3, 2), Collections.emptyList(), 1);
@@ -1111,6 +1116,7 @@ public class ReportModel {
             insertTable(Arrays.asList(3, 3, 2), splitIntoTable(para));
         }
 
+
         //Chapter 3.1.21
         para = xqueriesMap.get("3.1.21");
 
@@ -1126,8 +1132,10 @@ public class ReportModel {
 
         if(!convertedTo.isEmpty()) {
 
-            List<String> convertedFrom = xqueriesMap.get("3.1.26_2");
+            System.out.println(convertedTo);
 
+            List<String> convertedFrom = xqueriesMap.get("3.1.26_2");
+            System.out.println(convertedFrom);
             //Find amount of files - conversions for case 1.
             if (convertedFrom.size() == 1 && convertedFrom.contains("doc")) {
                 setNewInput(Arrays.asList(3, 1, 26), Collections.emptyList(), 2);
@@ -1161,7 +1169,16 @@ public class ReportModel {
             writeAttachments(chapter334, missingValues);
         }
 
+        //Chapter 3.3.5
 
+        para = xqueriesMap.get("3.3.5_1");
+
+        if(!para.get(0).equals(EMPTY)) {
+            setNewInput(Arrays.asList(3, 3, 5), Arrays.asList(para.get(0), para.get(1), para.get(2)), 0);
+            insertTable(Arrays.asList(3, 3, 5), Collections.emptyList());
+            para = xqueriesMap.get("3.3.5_2");
+            insertTable(Arrays.asList(3, 3, 5), splitIntoTable(para));
+        }
 
 
         //Chapter 3.3.6
@@ -1173,8 +1190,10 @@ public class ReportModel {
             int total = 0;
             for (int i = 1; i <= journal.size(); i += 2) {
                 total += Integer.parseInt(journal.get(i));
+            }
+            for (int i = 1; i <= journal.size(); i += 2) {
                 int amount = Integer.parseInt(journal.get(i));
-                if (amount > (total / 100.0f * 90.0f)) {
+                if ((float)amount > (((float)total / 100.0f) * 90.0f)) {
                     setNewInput(Arrays.asList(3, 3, 6), Collections.emptyList(), 1);
                 }
             }
@@ -1189,10 +1208,12 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 3, 7), Collections.emptyList(),0);
             insertTable(Arrays.asList(3, 3, 7), unit);
             int total = 0;
-            for(int i = 1; i <= unit.size(); i+=2 ) {
+            for (int i = 1; i <= unit.size(); i += 2) {
                 total += Integer.parseInt(unit.get(i));
+            }
+            for(int i = 1; i <= unit.size(); i+=2 ) {
                 int amount = Integer.parseInt(unit.get(i));
-                if(amount > (total / 100.0f * 90.0f)) {
+                if((float)amount > (((float)total / 100.0f) * 90.0f)) {
                     setNewInput(Arrays.asList(3, 3, 7), Collections.emptyList(), 1);
                 }
             }
@@ -1255,6 +1276,7 @@ public class ReportModel {
         }
 
         //Chapter 3.3.9
+        // TODO: bare case 0 og siste case dukker opp
         para = xqueriesMap.get("3.3.9_1a");
         setNewInput(Arrays.asList(3, 3, 9), Collections.emptyList(), 0);
 
@@ -1326,7 +1348,8 @@ public class ReportModel {
             if(!invalidDates.isEmpty()){
                 setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 1);
                 // fulle feilene blir ikke skrevet opp her.
-                writeAttachments("3.1.2_Date value", invalidDates);
+                writeAttachments("3.1.2_Date_value", invalidDates);
+                attachments.add("\u2022 3.1.2_Date_value.txt");
             }
         }
     }
@@ -1482,7 +1505,6 @@ public class ReportModel {
                 arkadeModel.getNumberInTextAsString("N5.22", "Journalstatus: Journalført - Antall:", ":"));
 
         List<String> medium = xqueriesMap.get("dokumentmedium");
-        System.out.println(medium);
         if (journalfort == -1) {
             setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 0);
         } else {
@@ -1508,8 +1530,6 @@ public class ReportModel {
         //Chapter 3.1.17 - Merknader
         if (arkadeModel.ingenMerknader()) {
             setNewInput(Arrays.asList(3, 1, 17), Collections.emptyList(), 0);
-            setNewParagraph(Arrays.asList(3, 1, 17), Collections.singletonList("Rename tittel from 3.1.17 to merknader "), 0);
-            setNewParagraph(Arrays.asList(3, 3, 3), Collections.singletonList("DELETE ME: 3.3.3"), 0);
         }
 
         //Chapter 3.1.18 - Kryssreferanser
