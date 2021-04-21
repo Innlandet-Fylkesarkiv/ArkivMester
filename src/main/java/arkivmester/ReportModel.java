@@ -488,7 +488,7 @@ public class ReportModel {
      */
     private void insertInputToDocument(String text, String input, XWPFRun r) {
         text = text.replace("TODO", (!input.equals("") ? input : notFoundField));
-        setRun(r, FONT , 11, false, text, false);
+        setRun(r, FONT , 11, true, text, false);
     }
 
     /**
@@ -501,7 +501,7 @@ public class ReportModel {
 
         XWPFParagraph para = document.insertNewParagraph(cursor);
 
-        setRun(para.createRun() , FONT , 11, false, (!input.equals("") ? input : notFoundField), true);
+        setRun(para.createRun() , FONT , 11, true, (!input.equals("") ? input : notFoundField), true);
     }
 
     /**
@@ -530,7 +530,7 @@ public class ReportModel {
                         paragraph.createRun(),
                         FONT,
                         11,
-                        (i == 0),
+                        (i != 0),
                         cChapter.currentItem(),
                         false
                 );
@@ -543,7 +543,7 @@ public class ReportModel {
 
         XWPFParagraph para = document.insertNewParagraph(cursor);
 
-        setRun(para.createRun() , FONT , 11, false, "", false);
+        setRun(para.createRun() , FONT , 11, true, "", false);
 
     }
 
