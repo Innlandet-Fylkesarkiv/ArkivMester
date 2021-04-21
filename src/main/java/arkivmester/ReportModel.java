@@ -19,6 +19,11 @@ import org.apache.xmlbeans.XmlObject;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTChart;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTR;
 
+import org.docx4j.openpackaging.exceptions.Docx4JException;
+import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
+import org.docx4j.toc.TocGenerator;
+
 import java.io.*;
 
 import java.nio.charset.Charset;
@@ -831,6 +836,30 @@ public class ReportModel {
     public void makeReport() {
         writeReportDocument();     // editing
         printReportToFile(prop);
+
+        try{
+            String input_DOCX = prop.get("tempFolder") + "\\" + prop.get("currentArchive") + "\\Rapporter\\Testrapport.docx";
+
+            // Load input_template.docx
+            WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(
+                    new File(input_DOCX));
+            MainDocumentPart documentPart = wordMLPackage.getMainDocumentPart();
+
+            TocGenerator tocGenerator = new TocGenerator(wordMLPackage);
+
+            // If you want to automatically fix any broken bookmarks
+            //Docx4jProperties.setProperty("docx4j.toc.BookmarksIntegrity.remediate", true);
+
+//            Toc.setTocHeadingText("Sumário");
+            tocGenerator.updateToc(); // including page numbers
+
+            wordMLPackage.save(new File(prop.get("tempFolder") + "\\" + prop.get("currentArchive") + "\\Rapporter\\Testrapport.docx") );
+
+            System.out.println("Table of Content updated!");
+        } catch (Docx4JException e) {
+            System.out.println("failed");
+        }
+
     }
 
     /**
