@@ -931,6 +931,17 @@ public class ReportModel {
 
         //Chapter 1.1
 
+        //Chapter 3.1.3
+        int arkiv = arkadeModel.getTotal("N5.04", TOTAL);
+        List<String> parts = xqueriesMap.get("3.1.3");
+        if(!parts.get(0).contains(EMPTY)) {
+            setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList("" + parts.size()), 0);
+            insertTable(Arrays.asList(3, 1, 3), splitIntoTable(parts));
+        }
+        if(arkiv > 1) {
+            setNewInput(Arrays.asList(3, 1, 3), Collections.emptyList(), 1);
+        }
+
         //Chapter 3.1.5
         para = xqueriesMap.get("3.1.5_1");
         if(!para.get(0).equals(EMPTY)) {
@@ -960,20 +971,27 @@ public class ReportModel {
         //Chapter 3.1.10
         setNewInput(Arrays.asList(3, 1, 10), Collections.emptyList(), 0);
 
-        //Chapter 3.1.11
-        para = xqueriesMap.get("3.1.11");
 
         //Chapter 3.1.2
         // valideringAvXML(); NOSONAR
 
+
+        //Chapter 3.1.11
+        para = xqueriesMap.get("3.1.11b");
+        List<String> medium = xqueriesMap.get("dokumentmedium");
         if(para.get(0).equals(EMPTY)) {
             setNewInput(Arrays.asList(3, 1, 11), Collections.emptyList(), 0);
-        } else {
+        } else if(!medium.get(0).contains("Elektronisk")) {
             setNewInput(Arrays.asList(3, 1, 11), Collections.singletonList("" + para.size()), 1);
         }
+        else {
+            setNewInput(Arrays.asList(3, 1, 11), Collections.singletonList("" + para.size()), 2);
+            insertTable(Arrays.asList(3, 1, 11), splitIntoTable(para));
+        }
+        //TODO: Ny case med tabell, trenger ny xquery.
 
         //Chapter 3.1.13
-        //TODO, ANNET ENN FERDIGSTILT trengs ikke. Endre konsekvensvurdering på case 2. Fjern tittel fra tabell. Gjør om for vedlegg. Endre konsekvensvurdering case 3.
+        //TODO:  Fjern tittel fra tabell? Gjør om for vedlegg.
         para = xqueriesMap.get("3.1.13");
 
         setNewInput(Arrays.asList(3, 1, 13), Collections.emptyList(), 0);
@@ -984,7 +1002,7 @@ public class ReportModel {
 
             if(para.size() > 25) {
                 setNewInput(Arrays.asList(3, 1, 13),
-                        Collections.singletonList(para.size() + ""), 3); // NOSONAR
+                        Collections.singletonList(para.size() + ""), 2); // NOSONAR
                 writeAttachments("3.1.13", para);
                 attachments.add("\u2022 3.1.13.txt");
             }else {
@@ -994,7 +1012,7 @@ public class ReportModel {
             }
 
         } else {
-            setNewInput(Arrays.asList(3, 1, 13), Collections.singletonList(para.size() + ""), 2);
+            setNewInput(Arrays.asList(3, 1, 13), Collections.singletonList(para.size() + ""), 3);
         }
 
         //Chapter 3.1.14 N5.27, N5.11, N5.18
@@ -1108,13 +1126,6 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 1, 26), Collections.emptyList(), 3);
         }
 
-        //Chapter 3.1.3
-        List<String> parts = xqueriesMap.get("3.1.3");
-        int arkivdeler = arkadeModel.getTotal("N5.05", TOTAL);
-        if(arkivdeler > 1) {
-            setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList("" + arkivdeler), 1);
-            insertTable(Arrays.asList(3, 1, 3), splitIntoTable(parts));
-        }
         //Chapter 3.3.4
         List<String> crossReferences = xqueriesMap.get("3.3.4");
 
@@ -1193,19 +1204,26 @@ public class ReportModel {
             int failed = Integer.parseInt(veraPDF.get(1));
 
             setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 0);
-            setNewInput(Arrays.asList(3, 2), droid,1);
+            setNewInput(Arrays.asList(3, 2), Collections.emptyList(),1);
+            setNewParagraph(Arrays.asList(3, 2), droid, 2);
             if (nonCompliant == 0 && failed == 0) {
-                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 2);
+                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 3);
             } else if (failed == 0) {
-                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 3);
-                setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant), 5);
+                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 4);
+                setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant), 6);
             } else if (nonCompliant == 0) {
-                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 3);
-                setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant), 4);
+                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 4);
+                setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant), 5);
+            }
+            else if (failed > 0 && nonCompliant > 0) {
+                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 4);
+                setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant), 5);
+                setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant), 6);
             }
         }
 
         //Chapter 3.1.7
+        //TODO: Kjører feil xml.
         List<String> dirs = xqueriesMap.get("3.1.7_1b");
         //System.out.println(dirs); // NOSONAR
         //System.out.println(dirs.get(0)); // NOSONAR
@@ -1214,8 +1232,7 @@ public class ReportModel {
         }
         else {
             setNewInput(Arrays.asList(3, 1, 7), Collections.singletonList("" + dirs.size()), 1);
-            //insertTable(Arrays.asList(3, 1, 7), splitIntoTable(dirs));
-            //TODO: Bruk ny setNewParagraph eller fix tabell.
+            setNewParagraph(Arrays.asList(3, 1, 7), dirs, 1);
         }
 
         //Chapter 3.3.9
@@ -1486,13 +1503,13 @@ public class ReportModel {
     /**
      * All Chapters that only uses ArkadeModel
      */
-    private void arkadeTestReport(){ // NOSONAR
+    private void arkadeTestReport() { // NOSONAR
         String version = arkadeModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
 
         setNewInput(Arrays.asList(3, 1), Collections.singletonList(version), 0);
         // 3.1.1
-        writeDeviation(Arrays.asList(3, 1, 1),"N5.01");
-        writeDeviation(Arrays.asList(3, 1, 1),"N5.02");
+        writeDeviation(Arrays.asList(3, 1, 1), "N5.01");
+        writeDeviation(Arrays.asList(3, 1, 1), "N5.02");
 
         // 3.1.8
         List<String> dokumentstatus = arkadeModel.getTableDataFromHtml("N5.15", 4);
@@ -1501,24 +1518,30 @@ public class ReportModel {
         insertTable(Arrays.asList(3, 1, 8), dokumentstatus);
 
         //Chapter 3.1.12
-        //TODO: Legg til ny tabell i case 2, sjekk om fysisk uttrekk.
+        //TODO: Bruk Xquery?
         int arkivert = arkadeModel.sumStringListWithOnlyNumbers(
                 arkadeModel.getNumberInTextAsString("N5.22", "Journalstatus: Arkivert - Antall:", ":"));
-        int journalfort =  arkadeModel.sumStringListWithOnlyNumbers(
+        int journalfort = arkadeModel.sumStringListWithOnlyNumbers(
                 arkadeModel.getNumberInTextAsString("N5.22", "Journalstatus: Journalført - Antall:", ":"));
 
+        List<String> medium = xqueriesMap.get("dokumentmedium");
+        System.out.println(medium);
         if (journalfort == -1) {
             setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 0);
-        } else  {
+        } else {
             if (arkivert == -1) {
-                setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 2);
+                setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 3);
             } else {
                 setNewInput(Arrays.asList(3, 1, 12), Collections.singletonList("" + journalfort), 1);
+                insertTable(Arrays.asList(3, 1, 12), Arrays.asList("Journalført", String.valueOf(journalfort)));
+                if (!medium.get(0).contains("Elektronisk")) {
+                    setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 2);
+                }
             }
         }
         //Chapter 3.1.16 - Saksparter
         List<Integer> saksparter = arkadeModel.saksparter();
-        if(saksparter.get(0) == 0){
+        if (saksparter.get(0) == 0) {
             setNewInput(Arrays.asList(3, 1, 16), Collections.emptyList(), 0);
         } else {
             setNewInput(Arrays.asList(3, 1, 16), Collections.singletonList(
@@ -1533,41 +1556,38 @@ public class ReportModel {
         }
 
         //Chapter 3.1.18 - Kryssreferanser
-        if(arkadeModel.getTotal("N5.37", TOTAL) == 0){
-            setNewInput(Arrays.asList(3, 1, 18), Collections.emptyList() , 0);
+        if (arkadeModel.getTotal("N5.37", TOTAL) == 0) {
+            setNewInput(Arrays.asList(3, 1, 18), Collections.emptyList(), 0);
             //Delete 3.3.4, Title = "Kryssreferanser"
         }
 
         //Chapter 3.1.19 - Presedenser
-        if(arkadeModel.getTotal("N5.38", TOTAL) == 0 ) {
+        if (arkadeModel.getTotal("N5.38", TOTAL) == 0) {
             setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), 0);
-        }
-        else if (arkadeModel.getTotal("N5.38", TOTAL) > 0 ) {
+        } else if (arkadeModel.getTotal("N5.38", TOTAL) > 0) {
             setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), 1);
         }
 
         //Chapter 3.1.22 - Dokumentflyter
-        if(arkadeModel.getTotal("N5.41",TOTAL) == 0) {
+        if (arkadeModel.getTotal("N5.41", TOTAL) == 0) {
             setNewInput(Arrays.asList(3, 1, 22), Collections.emptyList(), 0);
             //Delete 3.3.5, Title = Dokumentflyter
         }
 
         //Chapter 3.1.24 - Gradering
-        if(arkadeModel.getTotal("N5.43", TOTAL) == 0) {
+        if (arkadeModel.getTotal("N5.43", TOTAL) == 0) {
             setNewInput(Arrays.asList(3, 1, 24), Collections.emptyList(), 0);
-        }
-        else if (arkadeModel.getTotal("N5.43", TOTAL) > 0) {
+        } else if (arkadeModel.getTotal("N5.43", TOTAL) > 0) {
             setNewInput(Arrays.asList(3, 1, 24), Collections.emptyList(), 1);
         }
 
         //Chapter 3.1.25 - Kassasjoner
         //TODO: Ny case 2 med ny xquery.
-        if(arkadeModel.getTotal("N5.44", TOTAL) == 0 &&
-                arkadeModel.getTotal("N5.45", TOTAL) ==0) {
+        if (arkadeModel.getTotal("N5.44", TOTAL) == 0 &&
+                arkadeModel.getTotal("N5.45", TOTAL) == 0) {
             setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), 0);
             setNewInput(Arrays.asList(4, 2, 1), Collections.emptyList(), 0);
-        }
-        else if (arkadeModel.getTotal("N5.44", TOTAL) > 0 &&
+        } else if (arkadeModel.getTotal("N5.44", TOTAL) > 0 &&
                 arkadeModel.getTotal("N5.45", TOTAL) > 0) {
             setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), 1);
             setNewInput(Arrays.asList(4, 2, 1), Collections.emptyList(), 1);
@@ -1580,22 +1600,20 @@ public class ReportModel {
 
 
         //Chapter 3.1.28 - Arkivdelreferanser
-        if(arkadeModel.getDataFromHtml("N5.48").isEmpty()) {
+        if (arkadeModel.getDataFromHtml("N5.48").isEmpty()) {
             setNewInput(Arrays.asList(3, 1, 28), Collections.emptyList(), 0);
-        }
-        else {
+        } else {
             setNewInput(Arrays.asList(3, 1, 28), Collections.emptyList(), 1);
         }
 
         //Chapter 3.1.30
         String chapter = "N5.59";
-        if(arkadeModel.getDataFromHtml(chapter).isEmpty()) {
+        if (arkadeModel.getDataFromHtml(chapter).isEmpty()) {
             setNewInput(Arrays.asList(3, 1, 30), Collections.emptyList(), 0);
-        }
-        else {
+        } else {
             int oj = arkadeModel.getTotal(chapter, "dokumentert i offentlig journal");
             int as = arkadeModel.getTotal(chapter, "funnet i arkivstrukturen:");
-            if(oj != -1 && as != -1) {
+            if (oj != -1 && as != -1) {
                 oj -= as;
                 setNewInput(Arrays.asList(3, 1, 30), Collections.singletonList("" + oj), 1);
             }
@@ -1605,29 +1623,12 @@ public class ReportModel {
         // Endre tittel til: Endringslogg testes i kapittel 3.3.8
 
         //Chapter 3.1.33
-        if(arkadeModel.getDataFromHtml("N5.63").isEmpty()) {
+        if (arkadeModel.getDataFromHtml("N5.63").isEmpty()) {
             setNewInput(Arrays.asList(3, 1, 33), Collections.emptyList(), 0);
-        }
-        else {
+        } else {
             setNewInput(Arrays.asList(3, 1, 33), Collections.emptyList(), 1);
         }
 
-        //Chapter 3.1.3
-        int arkiv = arkadeModel.getTotal("N5.04", TOTAL);
-        int arkivdeler = arkadeModel.getTotal("N5.05", TOTAL);
-        List<String> status = arkadeModel.getDataFromHtml("N5.06");
-        if(arkiv == 1 && arkivdeler == 1 && status.get(1).contains("Avsluttet periode")) {
-            setNewInput(Arrays.asList(3, 1, 3), Collections.emptyList(),0);
-        }
-        if(!status.get(1).contains("Avsluttet periode")){
-            String s = status.get(1);
-            s = s.substring(s.lastIndexOf(":")+2);
-            setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList("\"" + s + "\""), 2);
-        }
-        if(arkiv > 1) {
-            setNewInput(Arrays.asList(3, 1, 3), Collections.emptyList(), 3);
-        }
-        //TODO: Legg til nye ting fra xml i tabellen.
 
         //Chapter 3.1.4
         //Endre tittel til: Se eget klassifikasjonskapittel 3.3.1.
