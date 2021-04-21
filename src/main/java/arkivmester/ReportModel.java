@@ -326,7 +326,6 @@ public class ReportModel {
 
             WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(
                     new File(inputDocx));
-            MainDocumentPart documentPart = wordMLPackage.getMainDocumentPart(); //#NOSONAR
 
             TocGenerator tocGenerator = new TocGenerator(wordMLPackage);
             //tocGenerator.generateToc( 0, "TOC \\o \"1-3\" \\h \\z \\u ", false); //#NOSONAR
