@@ -1001,6 +1001,17 @@ public class ReportModel {
         List<Integer> output3114 = Collections.emptyList();
         int val3114 = arkadeModel.firstLastReg(para, output3114);
 
+        if(val3114 == 0){
+            // Wrong date print out table
+            setNewInput(Arrays.asList(3, 1, 14), Collections.emptyList(), val3114);
+        }
+        else if(val3114 == 1){
+            setNewInput(Arrays.asList(3, 1, 14), Collections.emptyList(), val3114);
+        }
+        else if (val3114 == 2){
+            setNewInput(Arrays.asList(3, 1, 14), Arrays.asList(output3114.get(0) + "", output3114.get(1) + ""), val3114);
+        }
+
         //Chapter 3.1.27 N5.47, N5.34
         List<String> input = new ArrayList<>();
 
@@ -1016,16 +1027,6 @@ public class ReportModel {
         //Chapter 3.1.31
         setNewInput(Arrays.asList(3, 1, 31), Collections.emptyList(), 0);
 
-        if(val3114 == 0){
-            // somthing when't wrong
-            setNewInput(Arrays.asList(3, 1, 14), Collections.emptyList(), val3114);
-        }
-        else if(val3114 == 1){
-            setNewInput(Arrays.asList(3, 1, 14), Collections.emptyList(), val3114);
-        }
-        else if (val3114 == 2){
-            setNewInput(Arrays.asList(3, 1, 13), Arrays.asList(output3114.get(0) + "", output3114.get(1) + ""), val3114);
-        }
 
 
         //Chapter 3.1.20
