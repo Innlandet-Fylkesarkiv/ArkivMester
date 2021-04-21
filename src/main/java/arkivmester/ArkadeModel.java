@@ -122,7 +122,7 @@ public class ArkadeModel {
         return getOneElementInListAsInteger(getFromSummary("Antall avvik funnet", true), "");
     }
 
-    /**
+    /** Chapter 3.1.14 N5.27
      * @param arkivdelStartYear get systemID, startYear, endYear from Xquery
      * @param output set text into doxc
      * @return What text to write out to docx
