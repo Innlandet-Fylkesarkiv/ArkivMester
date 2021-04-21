@@ -2,7 +2,7 @@ package arkivmester;
 
 import javax.swing.*;
 import java.io.*;
-import java.nio.file.Files;
+import java.text.ParseException;
 import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +44,6 @@ public class ArchiveController implements ViewObserver {
         thirdPartiesModel = new ThirdPartiesModel();
         settingsModel = new SettingsModel();
         reportModel = new ReportModel();
-        ArkadeModel arkadeModel = new ArkadeModel();
     }
 
     /**
@@ -73,6 +72,7 @@ public class ArchiveController implements ViewObserver {
 
             list = thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), xqName, settingsModel.prop);
             list = archiveModel.formatDate(list);
+
             archiveModel.updateAdminInfo(list);
         } catch (IOException e) {
             mainView.exceptionPopup("BaseX kunne ikke kjøre 1.1.xq, 1.1a.xq og/eller 1.1b.xq");
@@ -112,7 +112,7 @@ public class ArchiveController implements ViewObserver {
         if(Boolean.TRUE.equals(selectedTests.get(0))) {
             System.out.print("\nRunning arkade\n"); //NOSONAR
             testView.updateArkadeStatus(TestView.RUNNING);
-            try {
+            try { // #NOSONAR
 
                 thirdPartiesModel.runArkadeTest(archiveModel.tar, settingsModel.prop);
 
@@ -130,7 +130,7 @@ public class ArchiveController implements ViewObserver {
         if(Boolean.TRUE.equals(selectedTests.get(3))) {
             System.out.print("\nRunning VeraPDF\n"); //NOSONAR
             testView.updateVeraStatus(TestView.RUNNING);
-            try {
+            try { // #NOSONAR
                 thirdPartiesModel.runVeraPDF("\"" + docPath + "\"", settingsModel.prop);
             } catch (IOException e) {
                 System.out.println(e.getMessage()); //NOSONAR
@@ -145,7 +145,7 @@ public class ArchiveController implements ViewObserver {
         if(Boolean.TRUE.equals(selectedTests.get(2))) {
             System.out.print("\nRunning Kost-Val\n"); //NOSONAR
             testView.updateKostValStatus(TestView.RUNNING);
-            try {
+            try { // #NOSONAR
                 thirdPartiesModel.runKostVal("\"" + docPath + "\"", settingsModel.prop);
             }catch (IOException e) {
                 System.out.println(e.getMessage()); //NOSONAR
@@ -160,7 +160,7 @@ public class ArchiveController implements ViewObserver {
         if(Boolean.TRUE.equals(selectedTests.get(1))) {
             System.out.println("\nRunning DROID\n"); //NOSONAR
             testView.updateDroidStatus(TestView.RUNNING);
-            try {
+            try { // #NOSONAR
                 thirdPartiesModel.runDROID("\"" + docPath + "\"", settingsModel.prop);
             } catch (IOException e) {
                 System.out.println(e.getMessage()); //NOSONAR
@@ -175,8 +175,10 @@ public class ArchiveController implements ViewObserver {
         if(Boolean.TRUE.equals(thirdPartiesModel.runXqueries)) {
             System.out.println("\nRunning XQueries\n"); //NOSONAR
             testView.updateXqueryStatus(TestView.RUNNING);
-            try {
+            try { // #NOSONAR
+                thirdPartiesModel.setUpBaseXDatabase(settingsModel.prop);
                 thirdPartiesModel.runXquery(settingsModel.prop);
+
             } catch (IOException e) {
                 System.out.println(e.getMessage()); //NOSONAR
                 mainView.exceptionPopup("XQuery test feilet, prøv igjen.");
@@ -351,16 +353,27 @@ public class ArchiveController implements ViewObserver {
     //When "Lagre" in admin info is clicked.
     @Override
     public void saveAdminInfo() {
-        archiveModel.updateAdminInfo(adminInfoView.getManualInfo());
+        List<String> manualInfo = adminInfoView.getManualInfo();
 
-        adminInfoView.clearContainer();
-        adminInfoView = null;
 
-        mainView.showGUI();
-        mainView.updateAdminInfo(archiveModel.getAdminInfo());
+        try {
+            if (archiveModel.validateDates(manualInfo.get(4), manualInfo.get(5), manualInfo.get(7))) {
+                archiveModel.updateAdminInfo(manualInfo);
+
+                adminInfoView.clearContainer();
+                adminInfoView = null;
+
+                mainView.showGUI();
+                mainView.updateAdminInfo(archiveModel.getAdminInfo());
+            }
+            else
+                mainView.exceptionPopup("En eller flere datoer er ugyldige.");
+
+        } catch (ParseException e) {
+            mainView.exceptionPopup("En eller flere datoer er ugyldige.");
+        }
     }
-
-    //When "Avbryt" is clicked.
+        //When "Avbryt" is clicked.
     @Override
     public void cancelButton() {
         if(adminInfoView != null) {
@@ -386,7 +399,7 @@ public class ArchiveController implements ViewObserver {
     //When "Velg tester" is clicked.
     @Override
     public void chooseTests() {
-        testSettingsView = new TestSettingsView(thirdPartiesModel.getSelectedTests(), thirdPartiesModel.getSelectedXqueries(), thirdPartiesModel.getXmlNames());
+        testSettingsView = new TestSettingsView(thirdPartiesModel.getSelectedTests(), thirdPartiesModel.getSelectedXqueries());
         testSettingsView.addObserver(this);
         try {
             testSettingsView.createAndShowGUI(mainView.getContainer(), thirdPartiesModel.getCustomXqueries(settingsModel.prop));
@@ -401,11 +414,17 @@ public class ArchiveController implements ViewObserver {
     //When "Last inn pakket uttrekk" is clicked.
     @Override
     public void uploadArchive() {
+        ScheduledExecutorService uploadScheduler = Executors.newScheduledThreadPool(1);
+        uploadScheduler.submit(this::uploadArchiveThread);
+    }
+
+    public void uploadArchiveThread() {
         int success = archiveModel.uploadFolder(mainView.getContainer());
 
         //Folder uploaded
         if(success == 1) {
             try {
+                mainView.loading(true);
                 String fileName = archiveModel.tar.getName();
                 fileName = fileName.substring(0,fileName.lastIndexOf('.'));
                 settingsModel.handleOutputFolders(fileName);
@@ -421,6 +440,7 @@ public class ArchiveController implements ViewObserver {
                 //Update view
                 mainView.activateButtons();
                 mainView.updateAdminInfo(archiveModel.getAdminInfo());
+                mainView.loading(false);
             } catch (IOException e) {
                 mainView.exceptionPopup("Kunne ikke skrive til user.home mappen.");
             }
@@ -437,33 +457,31 @@ public class ArchiveController implements ViewObserver {
         System.out.println("Lager rapport, vennligst vent ..."); // #NOSONAR
         testView.updateTestStatus("Genererer rapporten ...", true);
 
-        //ScheduledExecutorService reportScheduler;
-        //reportScheduler = Executors.newScheduledThreadPool(1);
-        //reportScheduler.submit(this::makeReportThread);
-        makeReportThread();
+        ScheduledExecutorService reportScheduler;
+        reportScheduler = Executors.newScheduledThreadPool(1);
+        reportScheduler.submit(this::makeReportThread);
     }
 
     public void makeReportThread() {
         Properties prop = settingsModel.prop;
-        String format = testView.getSelectedFormat(); //#NOSONAR
         String fileName = prop.getProperty("currentArchive");
         String archivePath = prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName; // #NOSONAR
         String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml";
-        String veraPdfPath = prop.getProperty("tempFolder") + "\\" + fileName + "\\VeraPDF\\verapdf.xml";
-        String droidPath =  prop.getProperty("tempFolder") + "\\" + fileName + "\\DROID\\droid.xml";
+        String veraPdfPath = prop.getProperty("tempFolder") + "\\" + fileName + "\\VeraPDF\\verapdf.xml"; // #NOSONAR
+        String droidPath =  prop.getProperty("tempFolder") + "\\" + fileName + "\\DROID\\droid.xml"; // #NOSONAR
 
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("1.2_1.xq",archivePath + "\\dias-mets.xml");
-        map.put("1.2_2.xq",archivePath + "\\content\\arkivuttrekk.xml");
-        map.put("1.2_3.xq",archivePath + "\\content\\loependeJournal.xml");
-        map.put("1.2_4.xq",archivePath + "\\content\\offentligJournal.xml");
-        map.put("1.2_5.xq",testArkivstruktur);
-
+        if( Boolean.FALSE.equals(thirdPartiesModel.isDBAlive)) {
+            try {
+                thirdPartiesModel.setUpBaseXDatabase(settingsModel.prop);
+            } catch (IOException e) {
+                mainView.exceptionPopup("Kunne ikke generere BaseX database. Noen resultater vil være feil.");
+            }
+        }
 
         Map<String, List<String>> xqueryResults = new HashMap<>();
 
         List<String> headerNumbers = Arrays.asList("3.1.2_1", "3.1.5_1", "3.1.5_2", "3.1.9_1", "3.1.11", "3.1.13", "3.1.14", "3.1.20", "3.2.1_1", "3.2.1_2",
-                "3.2.1_3", "3.3.1", "3.3.2_1", "3.3.2_2", "3.3.2_3", "3.1.21", "3.1.26_1", "3.1.26_2",
+                "3.2.1_3", "3.3.1", "3.3.2_1", "3.3.2_2", "3.3.2_3", "3.1.21", "3.1.26_1", "3.1.26_2","3.1.27_1","3.1.27_2",
                 "3.1.3", "3.3.6", "3.3.7", "3.1.23_1", "3.1.23_2", "3.1.23_3", "3.3.3_1", "3.3.3_2",
                 "3.1.7_1", "3.1.7_2", "3.3.4");
 
@@ -493,6 +511,27 @@ public class ArchiveController implements ViewObserver {
         xqueryResults.put("3.3.9_3b", getEmptyOrContent(archivePath + "\\content\\offentligJournal.xml", "3.3.9_3b"));
         xqueryResults.put("3.3.9_3c", getEmptyOrContent(testArkivstruktur, "3.3.9_3c"));
 
+        //1.2
+        String xqName;
+        try {
+            if (thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "1.1b.xq", settingsModel.prop).get(0).contains("mets:mets"))
+                xqName = "1.2_1a";
+            else
+                xqName = "1.2_1";
+
+            xqueryResults.put("1.2_1", getEmptyOrContent(archivePath + "\\dias-mets.xml", xqName));
+
+        } catch (IOException e) {
+            mainView.exceptionPopup("Kunne ikke kjøre 1.1b.xq");
+        }
+
+        xqueryResults.put("1.2_2", getEmptyOrContent(archivePath + "\\content\\arkivuttrekk.xml", "1.2_2"));
+        xqueryResults.put("1.2_3", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml", "1.2_3"));
+        xqueryResults.put("1.2_4", getEmptyOrContent("\\content\\offentligJournal.xml", "1.2_4"));
+        xqueryResults.put("1.2_5", getEmptyOrContent(testArkivstruktur, "1.2_5"));
+
+
+
         reportModel.init(prop, xqueryResults);
 
         try {
@@ -503,9 +542,8 @@ public class ArchiveController implements ViewObserver {
             testView.updateTestStatus("<html>Rapporten er generert og lagret i<br>" + settingsModel.prop.getProperty("tempFolder") + "\\<br>" +
                     settingsModel.prop.getProperty("currentArchive") + "</html>", false);
             testView.activatePackToAipBtn();
-
-
-        } catch (RuntimeException e) {
+            thirdPartiesModel.deleteBaseXDB(settingsModel.prop);
+        } catch (RuntimeException | IOException e) {
             testView.updateTestStatus("En feil i genereringen av rapporten har oppstått", false, true);
             mainView.exceptionPopup("En feil i genereringen av rapporten har oppstått");
             e.printStackTrace(); // NOSONAR
@@ -516,25 +554,13 @@ public class ArchiveController implements ViewObserver {
     //When "Lagre tests" is clicked.
     @Override
     public void saveTestSettings() {
-        boolean success = true;
         List<Boolean> currentList = testSettingsView.getSelectedTests();
         thirdPartiesModel.checkIfXquery(testSettingsView.getSelectedXqueries());
 
-        if(Boolean.TRUE.equals(thirdPartiesModel.runXqueries)) {
-            List<String> currentXmlList = testSettingsView.getXmlNames();
-            if(!currentXmlList.isEmpty())
-                thirdPartiesModel.updateXmlNames(currentXmlList);
-            else {
-                mainView.exceptionPopup("En eller flere XQuery tester mangler .xml fil navn.");
-                success = false;
-            }
-        }
+        thirdPartiesModel.updateTests(currentList, testSettingsView.getSelectedXqueries());
+        testSettingsView.clearContainer();
+        testSettingsView = null;
+        mainView.showGUI();
 
-        if(Boolean.TRUE.equals(success)) {
-            thirdPartiesModel.updateTests(currentList, testSettingsView.getSelectedXqueries());
-            testSettingsView.clearContainer();
-            testSettingsView = null;
-            mainView.showGUI();
-        }
     }
 }

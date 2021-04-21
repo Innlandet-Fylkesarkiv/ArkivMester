@@ -51,19 +51,18 @@ class TestViewTest {
         assertEquals(15, testPanel.getComponentCount(), "TestPanel should have 15 total components, 3 per test");
 
         Container statusPanel = (Container)testContainer.getComponent(1);
-        assertEquals(1, statusPanel.getComponentCount(), "StatusPanel should only have 1 component");
+        assertEquals(2, statusPanel.getComponentCount(), "StatusPanel should have 2 components");
         JLabel statusLabel = (JLabel)statusPanel.getComponent(0);
         assertNotEquals("", statusLabel.getText(), "Status label should not be empty");
 
         Container buttonPanel = (Container)testContainer.getComponent(2);
-        assertEquals(4, buttonPanel.getComponentCount(), "ButtonPanel should have 3 buttons and 1 dropdown");
+        assertEquals(3, buttonPanel.getComponentCount(), "ButtonPanel should have 3 buttons");
 
         List<Component> buttons = Arrays.asList(buttonPanel.getComponents());
         assertAll("Buttons",
-                () -> assertTrue(buttons.get(0).isEnabled(), "Dropdown menu should be activated"),
-                () -> assertFalse(buttons.get(1).isEnabled(), "Make report button should be deactivated"),
-                () -> assertFalse(buttons.get(2).isEnabled(), "Pakk til AIP button should be deactivated"),
-                () -> assertTrue(buttons.get(3).isEnabled(), "Test nytt uttrekk button should be activated")
+                () -> assertFalse(buttons.get(0).isEnabled(), "Make report button should be deactivated"),
+                () -> assertFalse(buttons.get(1).isEnabled(), "Pakk til AIP button should be deactivated"),
+                () -> assertTrue(buttons.get(2).isEnabled(), "Test nytt uttrekk button should be activated")
                 );
 
     }
@@ -80,9 +79,9 @@ class TestViewTest {
         Container buttonPanel = (Container)testContainer.getComponent(2);
         List<Component> buttons = Arrays.asList(buttonPanel.getComponents());
 
-        assertFalse(buttons.get(1).isEnabled(), "Make report button should be deactivated before activating it");
+        assertFalse(buttons.get(0).isEnabled(), "Make report button should be deactivated before activating it");
         testView.activateCreateReportBtn();
-        assertTrue(buttons.get(1).isEnabled(), "Make report button is not activated after being activated");
+        assertTrue(buttons.get(0).isEnabled(), "Make report button is not activated after being activated");
     }
 
     @Test
@@ -91,9 +90,9 @@ class TestViewTest {
         Container buttonPanel = (Container)testContainer.getComponent(2);
         List<Component> buttons = Arrays.asList(buttonPanel.getComponents());
 
-        assertFalse(buttons.get(2).isEnabled(), "Pakk til AIP button should be deactivated before activating it");
+        assertFalse(buttons.get(1).isEnabled(), "Pakk til AIP button should be deactivated before activating it");
         testView.activatePackToAipBtn();
-        assertTrue(buttons.get(2).isEnabled(), "Pakk til AIP button is not activated after being activated");
+        assertTrue(buttons.get(1).isEnabled(), "Pakk til AIP button is not activated after being activated");
     }
 
     @Test
@@ -114,7 +113,7 @@ class TestViewTest {
                 () -> assertEquals(TestView.WAITING, labels.get(10).getText(),"Fourth test status is wrong")
         );
 
-        //testView.updateStatus(mockSelectedTests);
+        testView.updateStatus(mockSelectedTests,false);
 
         assertAll("Status label text after being updated",
                 () -> assertEquals(TestView.WAITING, labels.get(1).getText(),"First test status is wrong"),
