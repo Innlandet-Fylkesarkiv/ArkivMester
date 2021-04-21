@@ -14,6 +14,9 @@ import org.apache.poi.xddf.usermodel.chart.*;
 import org.apache.poi.xssf.usermodel.*;
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.xmlbeans.XmlCursor;
+import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
+import org.docx4j.toc.TocGenerator;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTChart;
 
 import java.io.File;
@@ -316,6 +319,23 @@ public class ReportModel {
     public void makeReport() {
         writeReportDocument();     // editing
         printReportToFile(prop);
+
+        //Update ToC
+        try{
+            String inputDocx = prop.get("tempFolder") + "\\" + prop.get("currentArchive") + "\\Rapporter\\Testrapport.docx"; //#NOSONAR
+
+            WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(
+                    new File(inputDocx));
+
+            TocGenerator tocGenerator = new TocGenerator(wordMLPackage);
+            //tocGenerator.generateToc( 0, "TOC \\o \"1-3\" \\h \\z \\u ", false); //#NOSONAR
+
+            tocGenerator.updateToc(); // including page numbers
+
+            wordMLPackage.save(new File(prop.get("tempFolder") + "\\" + prop.get("currentArchive") + "\\Rapporter\\Testrapport.docx")); //#NOSONAR
+        } catch (Exception e) {
+            System.out.println("Kunne ikke oppdatere innholdsfortegnelsen"); //#NOSONAR
+        }
     }
 
     /**
@@ -468,7 +488,7 @@ public class ReportModel {
      */
     private void insertInputToDocument(String text, String input, XWPFRun r) {
         text = text.replace("TODO", (!input.equals("") ? input : notFoundField));
-        setRun(r, FONT , 11, false, text, false);
+        setRun(r, FONT , 11, true, text, false);
     }
 
     /**
@@ -481,7 +501,7 @@ public class ReportModel {
 
         XWPFParagraph para = document.insertNewParagraph(cursor);
 
-        setRun(para.createRun() , FONT , 11, false, (!input.equals("") ? input : notFoundField), true);
+        setRun(para.createRun() , FONT , 11, true, (!input.equals("") ? input : notFoundField), true);
     }
 
     /**
@@ -510,7 +530,7 @@ public class ReportModel {
                         paragraph.createRun(),
                         FONT,
                         11,
-                        (i == 0),
+                        (i != 0),
                         cChapter.currentItem(),
                         false
                 );
@@ -523,7 +543,7 @@ public class ReportModel {
 
         XWPFParagraph para = document.insertNewParagraph(cursor);
 
-        setRun(para.createRun() , FONT , 11, false, "", false);
+        setRun(para.createRun() , FONT , 11, true, "", false);
 
     }
 

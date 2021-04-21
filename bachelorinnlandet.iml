@@ -28,5 +28,6 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="docx4j-11.2.9" level="project" />
   </component>
 </module>
