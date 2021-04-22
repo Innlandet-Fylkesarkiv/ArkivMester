@@ -205,7 +205,7 @@ public class ArkadeModel {
         return choose;
     }
 
-    public List<List<String>> registeringerUtenomArkivdelStartOgSluttDato(List<String> arkivdelStartYear, List<String> regDato){
+    public List<List<String>> registratorDates(List<String> arkivdelStartYear, List<String> regDato){
 
         List<List<String>> listOfLists = new ArrayList<>();
 
