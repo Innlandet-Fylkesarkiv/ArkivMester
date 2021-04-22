@@ -385,7 +385,7 @@ public class ReportModel {
 
             String input = currentItem();
 
-            setRun(para.createRun() , FONT , 11, false, (!input.equals("") ? input : notFoundField), true);
+            setRun(para.createRun() , FONT , 11, true, (!input.equals("") ? input : notFoundField), true);
         }
 
         public void insertTableToDocument(XWPFParagraph p) {
@@ -409,7 +409,7 @@ public class ReportModel {
                             paragraph.createRun(),
                             FONT,
                             11,
-                            (i == 0),
+                            (i != 0),
                             currentItem(),
                             false
                     );
@@ -422,7 +422,7 @@ public class ReportModel {
 
             XWPFParagraph para = document.insertNewParagraph(cursor);
 
-            setRun(para.createRun() , FONT , 11, false, "", false);
+            setRun(para.createRun() , FONT , 11, true, "", false);
         }
 
         public void insertGraphToDocument(XWPFParagraph p) {
@@ -696,6 +696,7 @@ public class ReportModel {
         } catch (Exception e) {
             System.out.println("Kunne ikke oppdatere innholdsfortegnelsen"); //#NOSONAR
         }
+
     }
 
     /**
@@ -759,7 +760,7 @@ public class ReportModel {
 
         writeInputText();
 
-        XWPFDocument doc = getDocumentFile(templateFile);
+        XWPFDocument doc = document;
 
         headersData = new HeadersData();
 
@@ -772,7 +773,9 @@ public class ReportModel {
 
             if(findNewHeader(p)) {
 
-                currentChapter = chapterMap.get(headersData.getNumbering());
+                List<Integer> h = headersData.getNumbering();
+
+                currentChapter = chapterMap.get(h);
 
                 List<XWPFRun> runs = p.getRuns();
 
