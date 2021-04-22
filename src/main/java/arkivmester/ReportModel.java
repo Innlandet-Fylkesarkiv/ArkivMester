@@ -1298,13 +1298,6 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 1, 26), Collections.emptyList(), 3);
         }
 
-        //Chapter 3.1.3
-        parts = xqueriesMap.get("3.1.3");
-        int arkivdeler = arkadeModel.getTotal("N5.05", TOTAL);
-        if(arkivdeler > 1) {
-            setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList("" + arkivdeler), 1);
-            insertTable(Arrays.asList(3, 1, 3), splitIntoTable(parts));
-        }
 
         chapterMap.get(Arrays.asList(3, 1, 3)).changeTitle("delete me");
 
