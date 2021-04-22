@@ -1164,13 +1164,18 @@ public class ReportModel {
         }
 
         //Chapter 3.1.14 N5.27, N5.11, N5.18
-        para = xqueriesMap.get("3.1.14");
+        para = xqueriesMap.get("3.1.14_1");
         List<Integer> output3114 = Collections.emptyList();
         int val3114 = arkadeModel.firstLastReg(para, output3114);
 
         if(val3114 == 0){
             // Wrong date print out table
+            List<String> regDato = xqueriesMap.get("3.1.14_2");
+            // Get registeringer dates that are wrong for every arkidel
+            List<List<String>> listOfLists = arkadeModel.registeringerUtenomArkivdelStartOgSluttDato(para, regDato);
             setNewInput(Arrays.asList(3, 1, 14), Collections.emptyList(), val3114);
+            // listOfLists for now only gets one arkivdel. insertTable does not support 0-* tables. insertTable for every element. for loop for get()
+            insertTable(Arrays.asList(3, 1, 14), splitIntoTable(listOfLists.get(0)));
         }
         else if(val3114 == 1){
             setNewInput(Arrays.asList(3, 1, 14), Collections.emptyList(), val3114);
@@ -1651,11 +1656,9 @@ public class ReportModel {
 
         //Chapter 3.1.12
         //TODO: Bruk Xquery?
-        int arkivert = arkadeModel.sumStringListWithOnlyNumbers(
-                arkadeModel.getNumberInTextAsString("N5.22", "Journalstatus: Arkivert - Antall:", ":"));
-        int journalfort = arkadeModel.sumStringListWithOnlyNumbers(
-                arkadeModel.getNumberInTextAsString("N5.22", "Journalstatus: Journalført - Antall:", ":"));
-
+        int arkivert = arkadeModel.getTotal("N5.22", "Journalstatus: Arkivert - Antall:");
+        int journalfort = arkadeModel.getTotal("N5.22", "Journalstatus: Journalført - Antall:");
+        
         List<String> medium = xqueriesMap.get("dokumentmedium");
         if (journalfort == -1) {
             setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 0);
