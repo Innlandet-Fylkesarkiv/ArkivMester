@@ -385,7 +385,7 @@ public class ReportModel {
 
             String input = currentItem();
 
-            setRun(para.createRun() , FONT , 11, false, (!input.equals("") ? input : notFoundField), true);
+            setRun(para.createRun() , FONT , 11, true, (!input.equals("") ? input : notFoundField), true);
         }
 
         public void insertTableToDocument(XWPFParagraph p) {
@@ -409,7 +409,7 @@ public class ReportModel {
                             paragraph.createRun(),
                             FONT,
                             11,
-                            (i == 0),
+                            (i != 0),
                             currentItem(),
                             false
                     );
@@ -422,7 +422,7 @@ public class ReportModel {
 
             XWPFParagraph para = document.insertNewParagraph(cursor);
 
-            setRun(para.createRun() , FONT , 11, false, "", false);
+            setRun(para.createRun() , FONT , 11, true, "", false);
         }
 
         public void insertGraphToDocument(XWPFParagraph p) {
@@ -696,6 +696,7 @@ public class ReportModel {
         } catch (Exception e) {
             System.out.println("Kunne ikke oppdatere innholdsfortegnelsen"); //#NOSONAR
         }
+
     }
 
     /**
@@ -759,7 +760,7 @@ public class ReportModel {
 
         writeInputText();
 
-        XWPFDocument doc = getDocumentFile(templateFile);
+        XWPFDocument doc = document;
 
         headersData = new HeadersData();
 
@@ -772,7 +773,9 @@ public class ReportModel {
 
             if(findNewHeader(p)) {
 
-                currentChapter = chapterMap.get(headersData.getNumbering());
+                List<Integer> h = headersData.getNumbering();
+
+                currentChapter = chapterMap.get(h);
 
                 List<XWPFRun> runs = p.getRuns();
 
@@ -856,9 +859,9 @@ public class ReportModel {
 
     /**
      * Add input to an already defined paragraph from chapter file.
-     * @param h - The header number for the chapter
-     * @param i - list of input strings
-     * @param c - Which case to apply this to
+     * @param numberH - The header number for the chapter
+     * @param inputP - list of input strings
+     * @param sect - Which case to apply this to
      */
     public void setNewInput(List<Integer> numberH, List<String> inputP, int sect) {
         chapterMap.get(numberH).insertParagraph(sect, inputP);              // Experimental
@@ -866,8 +869,8 @@ public class ReportModel {
 
     /**
      * Add input from scratch into selected chapter.
-     * @param h - The header number for the chapter
-     * @param i - list of input strings
+     * @param numberH - The header number for the chapter
+     * @param input - list of input strings
      */
     public void setNewInput(List<Integer> numberH, List<String> input) {
         chapterMap.get(numberH).addSection();
@@ -876,8 +879,8 @@ public class ReportModel {
 
     /**
      * Look for a table from ChapterList that isn't yet in use.
-     * @param h - The header number for the chapter
-     * @param t - Table content text that the user wants placed in table
+     * @param numberH - The header number for the chapter
+     * @param inputT - Table content text that the user wants placed in table
      */
     public void insertTable(List<Integer> numberH, List<String> inputT) {
         chapterMap.get(numberH).insertTable(inputT);
@@ -885,8 +888,8 @@ public class ReportModel {
 
     /**
      * Look for a table from ChapterList that isn't yet in use.
-     * @param h - The header number for the chapter
-     * @param t - Table content text that the user wants placed in table
+     * @param numberH - The header number for the chapter
+     * @param inputT - Table content text that the user wants placed in table
      */
     public void insertTable(List<Integer> numberH, List<String> inputT, List<Integer> matchRows) {
         chapterMap.get(numberH).insertTable(inputT, matchRows);         // Experimental
@@ -894,8 +897,8 @@ public class ReportModel {
 
     /**
      * Add a new paragraph from scratch into selected chapter.
-     * @param h - The header number for the chapter
-     * @param p - String text that the user wants to manually have put into the report
+     * @param numberH - The header number for the chapter
+     * @param inputP - String text that the user wants to manually have put into the report
      */
     public void setNewParagraph(List<Integer> numberH, List<String> inputP, int sect) {
         for(String s : inputP) {
@@ -1172,10 +1175,10 @@ public class ReportModel {
             // Wrong date print out table
             List<String> regDato = xqueriesMap.get("3.1.14_2");
             // Get registeringer dates that are wrong for every arkidel
-            List<List<String>> listOfLists = arkadeModel.registeringerUtenomArkivdelStartOgSluttDato(para, regDato);
+            List<List<String>> failDatoList = arkadeModel.registratorDates(para, regDato);
             setNewInput(Arrays.asList(3, 1, 14), Collections.emptyList(), val3114);
             // listOfLists for now only gets one arkivdel. insertTable does not support 0-* tables. insertTable for every element. for loop for get()
-            insertTable(Arrays.asList(3, 1, 14), splitIntoTable(listOfLists.get(0)));
+            insertTable(Arrays.asList(3, 1, 14), splitIntoTable(failDatoList.get(0)));
         }
         else if(val3114 == 1){
             setNewInput(Arrays.asList(3, 1, 14), Collections.emptyList(), val3114);
