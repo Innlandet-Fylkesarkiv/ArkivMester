@@ -4,4 +4,6 @@ declare namespace n5mdk="http://www.arkivverket.no/standarder/noark5/metadatakat
 
 
 
-for $f in distinct-values(//administrativEnhet) return concat($f, '; ', count(//registrering[administrativEnhet = $f]) + count(//korrespondansepart[administrativEnhet = $f]) + count(//mappe[administrativEnhet = $f]))
+for $f in distinct-values(//administrativEnhet)
+order by count(//registrering[administrativEnhet = $f]) + count(//korrespondansepart[administrativEnhet = $f]) + count(//mappe[administrativEnhet = $f]) descending
+return (concat($f, '; ', count(//registrering[administrativEnhet = $f]) + count(//korrespondansepart[administrativEnhet = $f]) + count(//mappe[administrativEnhet = $f])))

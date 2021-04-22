@@ -13,19 +13,15 @@ import org.apache.poi.xddf.usermodel.XDDFSolidFillProperties;
 import org.apache.poi.xddf.usermodel.chart.*;
 import org.apache.poi.xssf.usermodel.*;
 import org.apache.poi.xwpf.usermodel.*;
-import org.apache.xmlbeans.SimpleValue;
 import org.apache.xmlbeans.XmlCursor;
+
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.docx4j.Docx4jProperties;
-import org.openxmlformats.schemas.drawingml.x2006.chart.CTChart;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTDocument1;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTR;
-
-import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
-import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.docx4j.toc.TocGenerator;
+
+import org.openxmlformats.schemas.drawingml.x2006.chart.CTChart;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTR;
 
 import java.io.*;
 
@@ -157,7 +153,7 @@ public class ReportModel {
 
         public void writeInputText() {
             int ind = 0;
-            System.out.println(title);
+            System.out.println(title);                                                      // NOSONAR
             for (SectionList section : sections) {
                 ind++;
                 if(section.isActive()) {
@@ -286,15 +282,6 @@ public class ReportModel {
             cindex = 0;
             tableCol = col;
             chart = ch;
-        }
-
-        /**
-         * Insert input into object
-         * @param input - input to replace the default one
-         */
-        public void insertInput(List<String> input) {
-            result.subList(tableCol, result.size()).clear();
-            result.addAll(input);
         }
 
         public void insertGraph(List<String> input, int col, boolean vary) {
@@ -840,33 +827,22 @@ public class ReportModel {
         writeReportDocument();     // editing
         printReportToFile(prop);
 
-
-        /*
+        //Update ToC
         try{
-            String input_DOCX = prop.get("tempFolder") + "\\" + prop.get("currentArchive") + "\\Rapporter\\Testrapport.docx";
+            String inputDocx = prop.get("tempFolder") + "\\" + prop.get("currentArchive") + "\\Rapporter\\Testrapport.docx"; //#NOSONAR
 
-            // Load input_template.docx
             WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(
-                    new File(input_DOCX));
+                    new File(inputDocx));
 
             TocGenerator tocGenerator = new TocGenerator(wordMLPackage);
+            //tocGenerator.generateToc( 0, "TOC \\o \"1-3\" \\h \\z \\u ", false); //#NOSONAR
 
-            // If you want to automatically fix any broken bookmarks
-            //Docx4jProperties.setProperty("docx4j.toc.BookmarksIntegrity.remediate", true);
-
-//            Toc.setTocHeadingText("Sumário");
             tocGenerator.updateToc(); // including page numbers
 
-            wordMLPackage.save(new File(prop.get("tempFolder") + "\\" + prop.get("currentArchive") + "\\Rapporter\\Testrapport.docx") );
-
-            System.out.println("Table of Content updated!");
-        } catch (Docx4JException e) {
-            System.out.println("failed");
+            wordMLPackage.save(new File(prop.get("tempFolder") + "\\" + prop.get("currentArchive") + "\\Rapporter\\Testrapport.docx")); //#NOSONAR
+        } catch (Exception e) {
+            System.out.println("Kunne ikke oppdatere innholdsfortegnelsen"); //#NOSONAR
         }
-
-         */
-
-
     }
 
     /**
@@ -938,81 +914,7 @@ public class ReportModel {
 
         Chapter currentChapter;
 
-        for (XWPFParagraph paragraph : document.getParagraphs()) {
-            XmlCursor cursor = paragraph.getCTP().newCursor();
-            cursor.selectPath("declare namespace w='http://schemas.openxmlformats.org/wordprocessingml/2006/main' .//*/w:txbxContent/w:p/w:r");
-
-            List<XmlObject> ctrsintxtbx = new ArrayList<XmlObject>();
-
-            while(cursor.hasNextSelection()) {
-                cursor.toNextSelection();
-                XmlObject obj = cursor.getObject();
-                ctrsintxtbx.add(obj);
-            }
-            try {
-                for (XmlObject obj : ctrsintxtbx) {
-                    CTR ctr = CTR.Factory.parse(obj.xmlText());
-                    //CTR ctr = CTR.Factory.parse(obj.newInputStream());
-                    XWPFRun bufferrun = new XWPFRun(ctr, (IRunBody)paragraph);
-                    String text = bufferrun.getText(0);
-                    if (text != null && text.contains("[Dato]")) {
-                        text = text.replace("[Dato]", "replaced");
-                        bufferrun.setText(text, 0);
-                    }
-                    obj.set(bufferrun.getCTR());
-                }
-            } catch(XmlException e) {
-                System.out.println("xml problem");
-            }
-        }
-
-        int num = 0;
-        for(IBodyElement body : doc.getBodyElements()) {
-
-            if(body instanceof XWPFParagraph) {
-                XWPFParagraph p = (XWPFParagraph) body;
-
-                //System.out.println(p.getCTP());
-                num++;
-                if(num > 1) {
-                    break;
-                }
-
-                /*
-                if(p.getText().contains("[Dato]")) {
-                    System.out.println("hit");
-                    List<XWPFRun> runs = p.getRuns();
-
-                    String text = runs.get(0).text();
-                    XWPFRun r = runs.get(0);
-                    text = text.replace(p.getText(), "insert ny dato");
-                    r.setText(text, 0);
-                }
-
-                 */
-
-            }
-
-            /*
-            String namespace = "declare namespace "
-                    + "w='http://schemas.openxmlformats.org/wordprocessingml/2006/main';";
-            String xpath = namespace + " $this//w:instrText";
-            CTDocument1 ctdoc = document.getDocument();
-            XmlObject[] objs = ctdoc.selectPath(xpath);
-            boolean hasToc = false;
-            for (XmlObject x : objs) {
-                String content = ((SimpleValue) x).getStringValue();
-                if (content != null &&
-                        content.trim().startsWith("TOC")) {
-                    hasToc = true;
-                    System.out.println(content);
-                    break;
-                }
-            }
-
-             */
-
-        }
+        changeDate();
 
         for(int i = 0; i < doc.getParagraphs().size(); i++) {
             XWPFParagraph p = document.getParagraphs().get(i);
@@ -1034,12 +936,41 @@ public class ReportModel {
                         currentChapter.insertToDocument(document.getParagraphs().get(i+1));
                     }
                 } else {
-                    System.out.println("deleted");
+                    System.out.println("deleted");      //NOSONAR
                     p.removeRun(0);
                 }
             }
 
             if(!currentChapterInput.isEmpty()) editDocument(p, currentChapterInput.get(0));
+        }
+    }
+
+    private void changeDate() {
+        for (XWPFParagraph paragraph : document.getParagraphs()) {
+            XmlCursor cursor = paragraph.getCTP().newCursor();
+            cursor.selectPath("declare namespace w='http://schemas.openxmlformats.org/wordprocessingml/2006/main' .//*/w:txbxContent/w:p/w:r");
+
+            List<XmlObject> ctrsintxtbx = new ArrayList<>();
+
+            while(cursor.hasNextSelection()) {
+                cursor.toNextSelection();
+                XmlObject obj = cursor.getObject();
+                ctrsintxtbx.add(obj);
+            }
+            try {
+                for (XmlObject obj : ctrsintxtbx) {
+                    CTR ctr = CTR.Factory.parse(obj.xmlText());
+                    XWPFRun bufferrun = new XWPFRun(ctr, (IRunBody)paragraph);
+                    String text = bufferrun.getText(0);
+                    if (text != null && text.contains("[Dato]")) {
+                        text = text.replace("[Dato]", xqueriesMap.get("1.1").get(7));
+                        bufferrun.setText(text, 0);
+                    }
+                    obj.set(bufferrun.getCTR());
+                }
+            } catch(XmlException e) {
+                System.out.println("xml problem");      // NOSONAR
+            }
         }
     }
 
@@ -1071,6 +1002,7 @@ public class ReportModel {
             }
         }
     }
+
     //region Description
 
     /**
@@ -1081,88 +1013,7 @@ public class ReportModel {
      */
     private void insertInputToDocument(String text, String input, XWPFRun r) {
         text = text.replace("TODO", (!input.equals("") ? input : notFoundField));
-        setRun(r, FONT , 11, false, text, false);
-    }
-
-    /**
-     * Inserts paragraph text to document from chapterlist.
-     * @param input - text to be inserted in document
-     * @param p - paragraph text from document to set text into
-     */
-    private void insertParagraphToDocument(String input, XWPFParagraph p) {
-        XmlCursor cursor = p.getCTP().newCursor();//this is the key!
-
-        XWPFParagraph para = document.insertNewParagraph(cursor);
-
-        setRun(para.createRun() , FONT , 11, false, (!input.equals("") ? input : notFoundField), true);
-    }
-
-    /**
-     * Inserts table to document from chapterlist.
-     * @param cChapter - current chapterlist which is iterated
-     * @param p - paragraph text from document to create table in
-     */
-    private void insertTableToDocument(ChapterList cChapter, XWPFParagraph p) {
-        XmlCursor cursor = p.getCTP().newCursor();//this is the key!
-
-        XWPFTable table = document.insertNewTbl(cursor);
-        table.removeRow(0);
-
-        XWPFParagraph paragraph;
-
-        XWPFTableRow tableOneRowVersion;
-
-        for(int i = 0; i < cChapter.result.size(); i += cChapter.tableCol) {
-            tableOneRowVersion = table.createRow();
-            for(int j = 0; j < cChapter.tableCol; j++) {
-                if(i == 0) {
-                    tableOneRowVersion.addNewTableCell();
-                }
-                paragraph = tableOneRowVersion.getCell(j).addParagraph();
-                setRun(
-                        paragraph.createRun(),
-                        FONT,
-                        11,
-                        (i == 0),
-                        cChapter.currentItem(),
-                        false
-                );
-
-                tableOneRowVersion.getCell(j).setWidth("5000");
-            }
-        }
-
-        cursor = p.getCTP().newCursor();//this is the key!
-
-        XWPFParagraph para = document.insertNewParagraph(cursor);
-
-        setRun(para.createRun() , FONT , 11, false, "", false);
-
-    }
-
-    private void insertGraphToDocument(ChapterList cChapter, XWPFParagraph p) {
-        int width = 16 * Units.EMU_PER_CENTIMETER;
-        int height = 10 * Units.EMU_PER_CENTIMETER;
-
-        if(cChapter.tableCol > 0) {
-
-            XmlCursor cursor = p.getCTP().newCursor();//this is the key!
-
-            XWPFParagraph para = document.insertNewParagraph(cursor);
-
-            XWPFRun r = para.createRun();
-
-            try {
-                XWPFChart charttemp = document.createChart(r, width, height);
-                CTChart ctChartTemp = charttemp.getCTChart();
-
-                XSSFChart chart = barColumnChart(cChapter);
-
-                ctChartTemp.set(chart.getCTChart());
-            } catch(InvalidFormatException | IOException e) {
-                System.out.println(e.getMessage());                 // NOSONAR
-            }
-        }
+        setRun(r, FONT , 11, true, text, false);
     }
 
     //region end
@@ -1577,6 +1428,7 @@ public class ReportModel {
 
         //Chapter 1.1
 
+
         //Chapter 1.2
         para = xqueriesMap.get("1.2_1");
         para.addAll(xqueriesMap.get("1.2_2"));
@@ -1585,6 +1437,17 @@ public class ReportModel {
         para.addAll(xqueriesMap.get("1.2_5"));
         if(!para.get(0).equals(EMPTY)) {
             setNewInput(Arrays.asList(1, 2), para);
+        }
+
+        //Chapter 3.1.3
+        int arkiv = arkadeModel.getTotal("N5.04", TOTAL);
+        List<String> parts = xqueriesMap.get("3.1.3");
+        if(!parts.get(0).contains(EMPTY)) {
+            setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList("" + parts.size()), 0);
+            insertTable(Arrays.asList(3, 1, 3), splitIntoTable(parts));
+        }
+        if(arkiv > 1) {
+            setNewInput(Arrays.asList(3, 1, 3), Collections.emptyList(), 1);
         }
 
         //Chapter 3.1.5
@@ -1616,28 +1479,40 @@ public class ReportModel {
         //Chapter 3.1.10
         setNewInput(Arrays.asList(3, 1, 10), Collections.emptyList(), 0);
 
-        //Chapter 3.1.11
-        para = xqueriesMap.get("3.1.11");
 
         //Chapter 3.1.2
         // valideringAvXML(); NOSONAR
 
+
+        //Chapter 3.1.11
+        para = xqueriesMap.get("3.1.11b");
+        List<String> medium = xqueriesMap.get("dokumentmedium");
         if(para.get(0).equals(EMPTY)) {
             setNewInput(Arrays.asList(3, 1, 11), Collections.emptyList(), 0);
-        } else {
+        } else if(!medium.get(0).contains("Elektronisk")) {
             setNewInput(Arrays.asList(3, 1, 11), Collections.singletonList("" + para.size()), 1);
         }
+        else {
+            setNewInput(Arrays.asList(3, 1, 11), Collections.singletonList("" + para.size()), 2);
+            insertTable(Arrays.asList(3, 1, 11), splitIntoTable(para));
+        }
+        //TODO: Ny case med tabell, trenger ny xquery.
 
         //Chapter 3.1.13
-        para = xqueriesMap.get("3.1.13");
+        para = xqueriesMap.get("3.1.13_1");
 
-        if(para.get(1).equals("0")) {
-            setNewInput(Arrays.asList(3, 1, 13), Collections.emptyList(), 0);
-        } else if (!para.get(0).equals("utgår")) {
+        if(para.get(0).equals(EMPTY)) {
+            para = xqueriesMap.get("3.1.13_2");
 
+            if (para.get(0).equals(EMPTY)) {
+                setNewInput(Arrays.asList(3, 1, 13), Collections.emptyList(), 0);
+            } else {
+                setNewInput(Arrays.asList(3, 1, 13), Collections.singletonList(para.size() + ""), 3);
+            }
+        } else {
             if(para.size() > 25) {
                 setNewInput(Arrays.asList(3, 1, 13),
-                        Collections.singletonList(para.size() + ""), 3); // NOSONAR
+                        Collections.singletonList(para.size() + ""), 2); // NOSONAR
                 writeAttachments("3.1.13", para);
                 attachments.add("\u2022 3.1.13.txt");
             }else {
@@ -1645,9 +1520,6 @@ public class ReportModel {
                         Collections.singletonList(para.size() + ""), 1);
                 insertTable(Arrays.asList(3, 1, 13), splitIntoTable(para));
             }
-
-        } else {
-            setNewInput(Arrays.asList(3, 1, 13), Collections.singletonList(para.size() + ""), 2);
         }
 
         //Chapter 3.1.14 N5.27, N5.11, N5.18
@@ -1729,7 +1601,10 @@ public class ReportModel {
             insertTable(Arrays.asList(3, 3, 1), para);
         }
 
+        // TODO: ha antall møter av en type, ikke antall deltagere per møte av en type
+
         //Chapter 3.3.2
+        // N5.20 arkade gettotal case 0
         para = xqueriesMap.get("3.3.2_1");
         if(!para.get(0).equals(EMPTY)) {
             setNewInput(Arrays.asList(3, 3, 2), Collections.emptyList(), 1);
@@ -1745,6 +1620,7 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 3, 2), Collections.emptyList(), 4);
             insertTable(Arrays.asList(3, 3, 2), splitIntoTable(para));
         }
+
 
         //Chapter 3.1.21
         para = xqueriesMap.get("3.1.21");
@@ -1762,7 +1638,6 @@ public class ReportModel {
         if(!convertedTo.isEmpty()) {
 
             List<String> convertedFrom = xqueriesMap.get("3.1.26_2");
-
             //Find amount of files - conversions for case 1.
             if (convertedFrom.size() == 1 && convertedFrom.contains("doc")) {
                 setNewInput(Arrays.asList(3, 1, 26), Collections.emptyList(), 2);
@@ -1775,7 +1650,7 @@ public class ReportModel {
         }
 
         //Chapter 3.1.3
-        List<String> parts = xqueriesMap.get("3.1.3");
+        parts = xqueriesMap.get("3.1.3");
         int arkivdeler = arkadeModel.getTotal("N5.05", TOTAL);
         if(arkivdeler > 1) {
             setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList("" + arkivdeler), 1);
@@ -1805,7 +1680,16 @@ public class ReportModel {
             writeAttachments(chapter334, missingValues);
         }
 
+        //Chapter 3.3.5
 
+        para = xqueriesMap.get("3.3.5_1");
+
+        if(!para.get(0).equals(EMPTY)) {
+            setNewInput(Arrays.asList(3, 3, 5), Arrays.asList(para.get(0), para.get(1), para.get(2)), 0);
+            insertTable(Arrays.asList(3, 3, 5), Collections.emptyList());
+            para = xqueriesMap.get("3.3.5_2");
+            insertTable(Arrays.asList(3, 3, 5), splitIntoTable(para));
+        }
 
 
         //Chapter 3.3.6
@@ -1817,8 +1701,10 @@ public class ReportModel {
             int total = 0;
             for (int i = 1; i <= journal.size(); i += 2) {
                 total += Integer.parseInt(journal.get(i));
+            }
+            for (int i = 1; i <= journal.size(); i += 2) {
                 int amount = Integer.parseInt(journal.get(i));
-                if (amount > (total / 100.0f * 90.0f)) {
+                if ((float)amount > (((float)total / 100.0f) * 90.0f)) {
                     setNewInput(Arrays.asList(3, 3, 6), Collections.emptyList(), 1);
                 }
             }
@@ -1833,10 +1719,12 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 3, 7), Collections.emptyList(),0);
             insertTable(Arrays.asList(3, 3, 7), unit);
             int total = 0;
-            for(int i = 1; i <= unit.size(); i+=2 ) {
+            for (int i = 1; i <= unit.size(); i += 2) {
                 total += Integer.parseInt(unit.get(i));
+            }
+            for(int i = 1; i <= unit.size(); i+=2 ) {
                 int amount = Integer.parseInt(unit.get(i));
-                if(amount > (total / 100.0f * 90.0f)) {
+                if((float)amount > (((float)total / 100.0f) * 90.0f)) {
                     setNewInput(Arrays.asList(3, 3, 7), Collections.emptyList(), 1);
                 }
             }
@@ -1867,20 +1755,27 @@ public class ReportModel {
             int failed = Integer.parseInt(veraPDF.get(1));
 
             setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 0);
-            setNewInput(Arrays.asList(3, 2), droid,1);
+            setNewInput(Arrays.asList(3, 2), Collections.emptyList(),1);
+            setNewParagraph(Arrays.asList(3, 2), droid, 2);
             if (nonCompliant == 0 && failed == 0) {
-                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 2);
+                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 3);
             } else if (failed == 0) {
-                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 3);
-                setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant), 5);
+                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 4);
+                setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant), 6);
             } else if (nonCompliant == 0) {
-                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 3);
-                setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant), 4);
+                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 4);
+                setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant), 5);
+            }
+            else if (failed > 0 && nonCompliant > 0) {
+                setNewInput(Arrays.asList(3, 2), Collections.emptyList(), 4);
+                setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant), 5);
+                setNewInput(Arrays.asList(3, 2), Collections.singletonList("" + nonCompliant), 6);
             }
         }
 
         //Chapter 3.1.7
-        List<String> dirs = xqueriesMap.get("3.1.7_1");
+        //TODO: Kjører feil xml.
+        List<String> dirs = xqueriesMap.get("3.1.7_1b");
         //System.out.println(dirs); // NOSONAR
         //System.out.println(dirs.get(0)); // NOSONAR
         if(dirs.get(0).equals(EMPTY)) {
@@ -1888,10 +1783,11 @@ public class ReportModel {
         }
         else {
             setNewInput(Arrays.asList(3, 1, 7), Collections.singletonList("" + dirs.size()), 1);
-            insertTable(Arrays.asList(3, 1, 7), splitIntoTable(dirs));
+            setNewParagraph(Arrays.asList(3, 1, 7), dirs, 1);
         }
 
         //Chapter 3.3.9
+        // TODO: bare case 0 og siste case dukker opp
         para = xqueriesMap.get("3.3.9_1a");
         setNewInput(Arrays.asList(3, 3, 9), Collections.emptyList(), 0);
 
@@ -1963,7 +1859,8 @@ public class ReportModel {
             if(!invalidDates.isEmpty()){
                 setNewInput(Arrays.asList(3, 1, 2), Collections.emptyList(), 1);
                 // fulle feilene blir ikke skrevet opp her.
-                writeAttachments("3.1.2_Date value", invalidDates);
+                writeAttachments("3.1.2_Date_value", invalidDates);
+                attachments.add("\u2022 3.1.2_Date_value.txt");
             }
         }
     }
@@ -2094,13 +1991,13 @@ public class ReportModel {
     /**
      * All Chapters that only uses ArkadeModel
      */
-    private void arkadeTestReport(){ // NOSONAR
+    private void arkadeTestReport() { // NOSONAR
         String version = arkadeModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
 
         setNewInput(Arrays.asList(3, 1), Collections.singletonList(version), 0);
         // 3.1.1
-        writeDeviation(Arrays.asList(3, 1, 1),"N5.01");
-        writeDeviation(Arrays.asList(3, 1, 1),"N5.02");
+        writeDeviation(Arrays.asList(3, 1, 1), "N5.01");
+        writeDeviation(Arrays.asList(3, 1, 1), "N5.02");
 
         //Chapter 3.1.2
         valideringAvXML();
@@ -2112,23 +2009,29 @@ public class ReportModel {
         insertTable(Arrays.asList(3, 1, 8), dokumentstatus);
 
         //Chapter 3.1.12
+        //TODO: Bruk Xquery?
         int arkivert = arkadeModel.sumStringListWithOnlyNumbers(
                 arkadeModel.getNumberInTextAsString("N5.22", "Journalstatus: Arkivert - Antall:", ":"));
-        int journalfort =  arkadeModel.sumStringListWithOnlyNumbers(
+        int journalfort = arkadeModel.sumStringListWithOnlyNumbers(
                 arkadeModel.getNumberInTextAsString("N5.22", "Journalstatus: Journalført - Antall:", ":"));
 
+        List<String> medium = xqueriesMap.get("dokumentmedium");
         if (journalfort == -1) {
             setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 0);
-        } else  {
+        } else {
             if (arkivert == -1) {
-                setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 2);
+                setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 3);
             } else {
                 setNewInput(Arrays.asList(3, 1, 12), Collections.singletonList("" + journalfort), 1);
+                insertTable(Arrays.asList(3, 1, 12), Arrays.asList("Journalført", String.valueOf(journalfort)));
+                if (!medium.get(0).contains("Elektronisk")) {
+                    setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 2);
+                }
             }
         }
         //Chapter 3.1.16 - Saksparter
         List<Integer> saksparter = arkadeModel.saksparter();
-        if(saksparter.get(0) == 0){
+        if (saksparter.get(0) == 0) {
             setNewInput(Arrays.asList(3, 1, 16), Collections.emptyList(), 0);
         } else {
             setNewInput(Arrays.asList(3, 1, 16), Collections.singletonList(
@@ -2139,45 +2042,42 @@ public class ReportModel {
         if (arkadeModel.ingenMerknader()) {
             setNewInput(Arrays.asList(3, 1, 17), Collections.emptyList(), 0);
             setNewParagraph(Arrays.asList(3, 1, 17), Collections.singletonList("Rename tittel from 3.1.17 to merknader "), 0);
-            //setNewParagraph(Arrays.asList(3, 3, 3), Collections.singletonList("DELETE ME: 3.3.3"), 0);
         }
         chapterMap.get(Arrays.asList(3, 3, 3)).changeTitle("Delete Me");
 
         //Chapter 3.1.18 - Kryssreferanser
-        if(arkadeModel.getTotal("N5.37", TOTAL) == 0){
-            setNewInput(Arrays.asList(3, 1, 18), Collections.emptyList() , 0);
+        if (arkadeModel.getTotal("N5.37", TOTAL) == 0) {
+            setNewInput(Arrays.asList(3, 1, 18), Collections.emptyList(), 0);
             //Delete 3.3.4, Title = "Kryssreferanser"
         }
 
         //Chapter 3.1.19 - Presedenser
-        if(arkadeModel.getTotal("N5.38", TOTAL) == 0 ) {
+        if (arkadeModel.getTotal("N5.38", TOTAL) == 0) {
             setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), 0);
-        }
-        else if (arkadeModel.getTotal("N5.38", TOTAL) > 0 ) {
+        } else if (arkadeModel.getTotal("N5.38", TOTAL) > 0) {
             setNewInput(Arrays.asList(3, 1, 19), Collections.emptyList(), 1);
         }
 
         //Chapter 3.1.22 - Dokumentflyter
-        if(arkadeModel.getTotal("N5.41",TOTAL) == 0) {
+        if (arkadeModel.getTotal("N5.41", TOTAL) == 0) {
             setNewInput(Arrays.asList(3, 1, 22), Collections.emptyList(), 0);
             //Delete 3.3.5, Title = Dokumentflyter
         }
 
         //Chapter 3.1.24 - Gradering
-        if(arkadeModel.getTotal("N5.43", TOTAL) == 0) {
+        if (arkadeModel.getTotal("N5.43", TOTAL) == 0) {
             setNewInput(Arrays.asList(3, 1, 24), Collections.emptyList(), 0);
-        }
-        else if (arkadeModel.getTotal("N5.43", TOTAL) > 0) {
+        } else if (arkadeModel.getTotal("N5.43", TOTAL) > 0) {
             setNewInput(Arrays.asList(3, 1, 24), Collections.emptyList(), 1);
         }
 
         //Chapter 3.1.25 - Kassasjoner
-        if(arkadeModel.getTotal("N5.44", TOTAL) == 0 &&
-                arkadeModel.getTotal("N5.45", TOTAL) ==0) {
+        //TODO: Ny case 2 med ny xquery.
+        if (arkadeModel.getTotal("N5.44", TOTAL) == 0 &&
+                arkadeModel.getTotal("N5.45", TOTAL) == 0) {
             setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), 0);
             setNewInput(Arrays.asList(4, 2, 1), Collections.emptyList(), 0);
-        }
-        else if (arkadeModel.getTotal("N5.44", TOTAL) > 0 &&
+        } else if (arkadeModel.getTotal("N5.44", TOTAL) > 0 &&
                 arkadeModel.getTotal("N5.45", TOTAL) > 0) {
             setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), 1);
             setNewInput(Arrays.asList(4, 2, 1), Collections.emptyList(), 1);
@@ -2186,22 +2086,20 @@ public class ReportModel {
 
 
         //Chapter 3.1.28 - Arkivdelreferanser
-        if(arkadeModel.getDataFromHtml("N5.48").isEmpty()) {
+        if (arkadeModel.getDataFromHtml("N5.48").isEmpty()) {
             setNewInput(Arrays.asList(3, 1, 28), Collections.emptyList(), 0);
-        }
-        else {
+        } else {
             setNewInput(Arrays.asList(3, 1, 28), Collections.emptyList(), 1);
         }
 
         //Chapter 3.1.30
         String chapter = "N5.59";
-        if(arkadeModel.getDataFromHtml(chapter).isEmpty()) {
+        if (arkadeModel.getDataFromHtml(chapter).isEmpty()) {
             setNewInput(Arrays.asList(3, 1, 30), Collections.emptyList(), 0);
-        }
-        else {
+        } else {
             int oj = arkadeModel.getTotal(chapter, "dokumentert i offentlig journal");
             int as = arkadeModel.getTotal(chapter, "funnet i arkivstrukturen:");
-            if(oj != -1 && as != -1) {
+            if (oj != -1 && as != -1) {
                 oj -= as;
                 setNewInput(Arrays.asList(3, 1, 30), Collections.singletonList("" + oj), 1);
             }
@@ -2211,28 +2109,12 @@ public class ReportModel {
         // Endre tittel til: Endringslogg testes i kapittel 3.3.8
 
         //Chapter 3.1.33
-        if(arkadeModel.getDataFromHtml("N5.63").isEmpty()) {
+        if (arkadeModel.getDataFromHtml("N5.63").isEmpty()) {
             setNewInput(Arrays.asList(3, 1, 33), Collections.emptyList(), 0);
-        }
-        else {
+        } else {
             setNewInput(Arrays.asList(3, 1, 33), Collections.emptyList(), 1);
         }
 
-        //Chapter 3.1.3
-        int arkiv = arkadeModel.getTotal("N5.04", TOTAL);
-        int arkivdeler = arkadeModel.getTotal("N5.05", TOTAL);
-        List<String> status = arkadeModel.getDataFromHtml("N5.06");
-        if(arkiv == 1 && arkivdeler == 1 && status.get(1).contains("Avsluttet periode")) {
-            setNewInput(Arrays.asList(3, 1, 3), Collections.emptyList(),0);
-        }
-        if(!status.get(1).contains("Avsluttet periode")){
-            String s = status.get(1);
-            s = s.substring(s.lastIndexOf(":")+2);
-            setNewInput(Arrays.asList(3, 1, 3), Collections.singletonList("\"" + s + "\""), 2);
-        }
-        if(arkiv > 1) {
-            setNewInput(Arrays.asList(3, 1, 3), Collections.emptyList(), 3);
-        }
 
         //Chapter 3.1.4
         //Endre tittel til: Se eget klassifikasjonskapittel 3.3.1.
@@ -2249,6 +2131,7 @@ public class ReportModel {
         }
 
         //Chapter 3.3.1
+        //TODO: Liste over N.51 klasser i case 6. Ny case med tabell med manglende xquery.
         int total = arkadeModel.getTotal("N5.20", "Klasser uten registreringer");
         if(total > 0) {
             setNewInput(Arrays.asList(3, 3, 1), Collections.singletonList(total + ""), 2);
