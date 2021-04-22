@@ -1330,14 +1330,31 @@ public class ReportModel {
         }
 
         //Chapter 3.3.5
-
         para = xqueriesMap.get("3.3.5_1");
+        if(!para.get(0).equals(EMPTY)){
+            List<String> splittPara = Arrays.asList(para.get(0).split(";", 3));
 
-        if(!para.get(0).equals(EMPTY)) {
-            setNewInput(Arrays.asList(3, 3, 5), Arrays.asList(para.get(0), para.get(1), para.get(2)), 0);
-            insertTable(Arrays.asList(3, 3, 5), Collections.emptyList());
-            para = xqueriesMap.get("3.3.5_2");
-            insertTable(Arrays.asList(3, 3, 5), splitIntoTable(para));
+            if(arkadeModel.getStringNumberAsInteger(splittPara.get(0)) == -1){
+                System.out.println("3.3.5 getStringNumberAsInteger failed"); //NOSONAR
+            }
+            else if(arkadeModel.getStringNumberAsInteger(splittPara.get(0)) > 1){
+                setNewInput(Arrays.asList(3, 3, 5), Arrays.asList(splittPara.get(1), splittPara.get(0)), 1);
+                para = xqueriesMap.get("3.3.5_3");
+                // tittel, 1
+                insertTable(Arrays.asList(3, 3, 5), splitIntoTable(para));
+                para = xqueriesMap.get("3.3.5_2");
+                // "Godkjent", 1
+                insertTable(Arrays.asList(3, 3, 5), splitIntoTable(para));
+
+            }
+            else{ // == 1
+                para = xqueriesMap.get("3.3.5_2");
+                splittPara = Arrays.asList(para.get(0).split(";", 2));
+                setNewInput(Arrays.asList(3, 3, 5), Arrays.asList(splittPara.get(1), splittPara.get(0)), 2);
+            }
+        }
+        else {
+            setNewInput(Arrays.asList(3, 3, 5), Collections.emptyList(), 0);
         }
 
 
