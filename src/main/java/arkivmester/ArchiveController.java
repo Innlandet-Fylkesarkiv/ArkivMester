@@ -479,10 +479,41 @@ public class ArchiveController implements ViewObserver {
         }
 
         Map<String, List<String>> xqueryResults = new HashMap<>();
-        List<String> headerNumbers = Arrays.asList( "3.1.5_1", "3.1.5_2", "3.1.9_1", "3.1.11", "3.1.13_1", "3.1.13_2", "3.1.14_1", "3.1.14_2", "3.1.20", "3.2.1_1", "3.2.1_2",
-                "3.2.1_3", "3.3.1", "3.3.2_1", "3.3.2_2", "3.3.2_3", "3.1.21", "3.1.26_1", "3.1.26_2","3.1.27_1","3.1.27_2",
-                "3.1.3", "3.3.6", "3.3.7", "3.1.23_1", "3.1.23_2", "3.1.23_3", "3.3.3_1", "3.3.3_2",
-                "3.1.7_1", "3.1.7_1b", "3.1.7_2",  "3.3.4", "dokumentmedium", "3.1.11b", "3.3.5_1", "3.3.5_2", "3.3.5_3");
+        List<String> headerNumbers = Arrays.asList(
+                "3.1.3", "3.1.5_1", "3.1.5_2",
+                "3.1.7_1", "3.1.7_1b", "3.1.7_2", "3.1.9_1", "3.1.11b", "3.1.13_1", "3.1.13_2", "3.1.14_1", "3.1.14_2",
+                "3.1.20", "3.1.21", "3.1.23_1", "3.1.23_2", "3.1.23_3", "3.1.26_1", "3.1.26_2","3.1.27_1","3.1.27_2",
+                "3.2.1_1", "3.2.1_2", "3.2.1_3",
+                "3.3.1", "3.3.2_1", "3.3.2_2", "3.3.2_3", "3.3.3_1", "3.3.3_2", "3.3.4", "3.3.5_1", "3.3.5_2", "3.3.5_3", "3.3.6", "3.3.7",
+                "dokumentmedium"
+        );
+
+        //List<String> headerNumbers = new ArrayList<>();
+//
+        //File xqueryFolder = new File(settingsModel.prop.getProperty("xqueryExtFolder"));
+        //File[] listOfFiles = xqueryFolder.listFiles();
+        //for (int i = 0; i < listOfFiles.length; i++) {
+        //    if (listOfFiles[i].isFile()) {
+        //        String file = listOfFiles[i].getName();
+        //        if(file.length() >= 3){
+        //            file = file.substring(0, file.length()-3);
+        //        }
+        //        System.out.println(file);
+        //        headerNumbers.add(file);
+        //    }
+        //}
+        //System.out.println(headerNumbers);
+
+        /*
+        List<String> headerNumbers = Arrays.asList(
+                "3.1.11b", "3.1.3", "3.1.5_1", "3.1.5_2",
+                "3.1.7_1", "3.1.7_1b", "3.1.7_2", "3.1.9_1", "3.1.11", "3.1.13_1", "3.1.13_2", "3.1.14_1", "3.1.14_2",
+                "3.1.20", "3.1.21", "3.1.23_1", "3.1.23_2", "3.1.23_3", "3.1.26_1", "3.1.26_2","3.1.27_1","3.1.27_2",
+                "3.2.1_1", "3.2.1_2", "3.2.1_3",
+                "3.3.1", "3.3.2_1", "3.3.2_2", "3.3.2_3", "3.3.3_1", "3.3.3_2", "3.3.4", "3.3.5_1", "3.3.5_2", "3.3.5_3", "3.3.6", "3.3.7"
+                "dokumentmedium"
+                );
+        */
 
         for(String s :headerNumbers) {
             xqueryResults.put(s, getEmptyOrContent(testArkivstruktur, s));
@@ -513,6 +544,7 @@ public class ArchiveController implements ViewObserver {
         xqueryResults.put("3.3.9_3a", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml", "3.3.9_3a"));
         xqueryResults.put("3.3.9_3b", getEmptyOrContent(archivePath + "\\content\\offentligJournal.xml", "3.3.9_3b"));
         xqueryResults.put("3.3.9_3c", getEmptyOrContent(testArkivstruktur, "3.3.9_3c"));
+
 
         //1.2
         String xqName;
