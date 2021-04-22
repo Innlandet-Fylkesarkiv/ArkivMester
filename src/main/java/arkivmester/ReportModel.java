@@ -76,7 +76,6 @@ public class ReportModel {
 
     static String notFoundField = "<Fant ikke verdi>";
 
-    Map<List<Integer>, List<List<ChapterList>>> chapterList;
     private HeadersData headersData;
 
     // Experimental
@@ -87,7 +86,6 @@ public class ReportModel {
     public void init(Properties prop, Map<String, List<String>> map) {
         this.prop = prop;
         arkadeModel = new ArkadeModel();
-        chapterList = new LinkedHashMap<>();
         headersData = new HeadersData();
         chapterMap = new LinkedHashMap<>();     // Experimental
         xqueriesMap = map;
@@ -128,6 +126,16 @@ public class ReportModel {
         public void placeInEmptySection(CTChart chart) {
             for(SectionList section : sections) {
                 if(section.placeIfEmpty(chart)) return;
+            }
+        }
+
+        public void insertInput(XWPFParagraph p) {
+            for(XWPFRun r : p.getRuns()) {
+                if (r.getText(0) != null && r.getText(0).contains("TODO")) {
+                    for (SectionList section : sections) {
+                        section.insertInput(r);
+                    }
+                }
             }
         }
 
@@ -199,6 +207,15 @@ public class ReportModel {
                 return true;
             }
             return false;
+        }
+
+        public void insertInput(XWPFRun r) {
+            for(Content content : contents) {
+                if(content.type.equals(TextStyle.INPUT)) {
+                    content.insertInputToDocument(r.getText(0), r);
+                }
+            }
+            active = true;
         }
 
         public void insertParagraph(List<String> input) {
@@ -524,6 +541,17 @@ public class ReportModel {
         }
 
         /**
+         * Inserts input text to document from chapterlist.
+         * @param text - text to be replaced by input
+         * @param r - Used for editing into a paragraph
+         */
+        private void insertInputToDocument(String text, XWPFRun r) {
+            String s = currentItem();
+            text = text.replace("TODO", (!s.equals("") ? s : notFoundField));
+            setRun(r, FONT , 11, true, text, false);
+        }
+
+        /**
          * Print paragraph text with customized features like size and font to document.
          * @param run - Used for editing into a paragraph
          * @param font - font family
@@ -590,181 +618,6 @@ public class ReportModel {
 
 
 
-    }
-
-    /**
-     * Class for storing input of each chapter section of the report.
-     */
-    public static class ChapterList {
-
-        String regex = "[^a-zæøåA-ZÆØÅ ][A-ZÆØÅ]{3,}([ ][A-ZÆØÅ]{3,}){0,5}[^a-zæøåA-ZÆØÅ ]|[A-ZÆØÅ]{4,}";
-
-        private List<String> result;
-
-        private int tableCol;
-        private final TextStyle type;
-        private int cindex;
-        private CTChart chart;
-        private boolean cases;
-        private boolean isVaried;
-
-        /**
-         * Initialize a default list of missing input.
-         * @param input - the input text that are going to be put from either file or code
-         * @param ts    - the type of text as an enum(PARAGRAPH, INPUT, TABLE)
-         * @param col   - amount of coloums if it is a table
-         * @param c     - if the program are going to write this part to document
-         */
-        ChapterList(List<String> input, TextStyle ts, int col, boolean c) {
-            result = input;
-            type = ts;
-            cindex = 0;
-            tableCol = col;
-            cases = c;
-        }
-
-        ChapterList(CTChart chrt) {
-            chart = chrt;
-            type = TextStyle.GRAPH;
-            tableCol = 0;
-            cases = false;
-        }
-
-        /**
-         * Insert input into object
-         * @param input - input to replace the default one
-         */
-        public void insertInput(List<String> input) {
-            result.subList(tableCol, result.size()).clear();
-            result.addAll(input);
-            cases = true;
-        }
-
-        /**
-         * Insert input into object
-         * @param input - input to replace the default one
-         * @param matchRows -
-         */
-        public void insertTableInput(List<String> input, List<Integer> matchRows) {
-            List<String> temp = new ArrayList<>(result.subList(0, tableCol));
-
-            for(int row = 0; row*tableCol < input.size(); row++) {
-                for(int resultrow = 1; resultrow*tableCol < result.size(); resultrow++) {
-                    if(findMatchingRows(matchRows, row, resultrow, input, temp)) break;
-                }
-            }
-
-            result = temp;
-            cases = true;
-        }
-
-        public void insertGraphInput(List<String> input, int col, boolean vary) {
-            result = input;
-            tableCol = col;
-            cases = true;
-            isVaried = vary;
-        }
-
-        /**
-         *
-         * @param matchRows
-         * @param inputR
-         * @param resultR
-         * @param input
-         * @param temp
-         * @return
-         */
-        public boolean findMatchingRows(List<Integer> matchRows, int inputR, int resultR, List<String> input, List<String> temp) {
-            if(
-                    matchRows.stream().allMatch( r ->
-                            IntStream.range(resultR*tableCol, resultR*tableCol+tableCol)
-                                    .filter(i -> i % tableCol == r)
-                                    .mapToObj(result::get)
-                                    .anyMatch(t -> t.contains(input.get(inputR *tableCol+r)))
-                    )
-            ) {
-                for(int cell = 0; cell < tableCol; cell++) {
-                    if ((!input.get(inputR * tableCol + cell).equals(" "))) {
-                        temp.add(input.get(inputR * tableCol + cell));
-                    } else {
-                        temp.add(result.get(resultR * tableCol + cell));
-                    }
-                }
-                return true;
-            }
-            return false;
-        }
-
-        /**
-         * Look for text with ALLCAPS or "ALL CAPS INSIDE QUOTATION" and replace them with proper input
-         * @param input - input to replace
-         * @return the rest of the input that got not used this Chapter object
-         */
-        public List<String> updateText(List<String> input) {
-            int index = 0;
-
-            if(!input.isEmpty()) {
-                for(int i = 0; i < result.size(); i++) {
-                    String s = result.get(i);
-                    Pattern pat = Pattern.compile(regex);
-                    Matcher m = pat.matcher(s);
-                    while (m.find() && index != input.size()) {
-                        String word = m.group();
-                        s = s.replace(word, input.get(index));
-                        result.set(i, s);
-                        index = clamp(index+1, input.size());
-                    }
-                }
-            }
-            cases = true;
-            return input.subList(index, input.size());
-        }
-
-        /**
-         * If chapter number is correct, set table as input to chapter-section.
-         * @return current iterated value from input in class
-         */
-        public String currentItem() {
-            if(result.isEmpty()) {
-                return "";
-            }
-
-            int size = result.size();
-
-            String temp = result.get(cindex);
-            cindex = clamp(cindex+1, (size)-1);
-
-            return temp;
-        }
-
-        /**
-         * If chapter number is correct, set table as input to chapter-section.
-         * @return enum of the type from class (INPUT, PARAGRAPH, TABLE)
-         */
-        public TextStyle getType() {
-            return type;
-        }
-
-        /**
-         * Will not clamp the max value so it does not go "out of bounds".
-         * @param val - value to compare with the max
-         * @param max - value to limit 'val' from going out of bounds
-         * @return the value that is lowest between these parameters
-         */
-        private int  clamp(int val, int max) {
-            return Math.min(val, max);
-        }
-
-        /**
-         * Prints header number and text from data stored.
-         */
-        public void getText() {
-            if(cases) {
-                for (String strings : result) {
-                    System.out.print(strings + " ");      // NOSONAR
-                }
-            }
-        }
     }
 
     /**
@@ -910,9 +763,7 @@ public class ReportModel {
 
         headersData = new HeadersData();
 
-        List<List<ChapterList>> currentChapterInput = new ArrayList<>();
-
-        Chapter currentChapter;
+        Chapter currentChapter = new Chapter("template");
 
         changeDate();
 
@@ -920,7 +771,6 @@ public class ReportModel {
             XWPFParagraph p = document.getParagraphs().get(i);
 
             if(findNewHeader(p)) {
-                currentChapterInput = chapterList.get(headersData.getNumbering());
 
                 currentChapter = chapterMap.get(headersData.getNumbering());
 
@@ -941,7 +791,7 @@ public class ReportModel {
                 }
             }
 
-            if(!currentChapterInput.isEmpty()) editDocument(p, currentChapterInput.get(0));
+            currentChapter.insertInput(p);
         }
     }
 
@@ -987,55 +837,6 @@ public class ReportModel {
     }
 
     /**
-     * Will look for input field in each paragraph and replace it with the ones from the list.
-     * @param p - existing paragraph in document to check for "TO DO" text
-     * @param cChapter - current chapterlist which is iterated
-     */
-    private void editDocument(XWPFParagraph p, List<ChapterList> cChapter) {
-        for(XWPFRun r : p.getRuns()) {
-            if(cChapter != null && r.getText(0) != null && r.getText(0).contains("TODO")) {
-                for(ChapterList chapter : cChapter) {
-                    if (chapter.getType().equals(TextStyle.INPUT)) {
-                        insertInputToDocument(r.getText(0), chapter.currentItem(), r);
-                    }
-                }
-            }
-        }
-    }
-
-    //region Description
-
-    /**
-     * Inserts input text to document from chapterlist.
-     * @param text - text to be replaced by input
-     * @param input - text that will replace "TO DO" fields
-     * @param r - Used for editing into a paragraph
-     */
-    private void insertInputToDocument(String text, String input, XWPFRun r) {
-        text = text.replace("TODO", (!input.equals("") ? input : notFoundField));
-        setRun(r, FONT , 11, true, text, false);
-    }
-
-    //region end
-
-    /**
-     * Print paragraph text with customized features like size and font to document.
-     * @param run - Used for editing into a paragraph
-     * @param font - font family
-     * @param size - font size
-     * @param bold - if text is meant to be bold or not
-     * @param text - text that are to be put into the document
-     * @param addBreak - if a breakpoint at the end is needed
-     */
-    public void setRun(XWPFRun run, String font, int size, boolean bold, String text, boolean addBreak) {
-        run.setFontFamily(font);
-        run.setFontSize(size);
-        run.setText(text, 0);
-        run.setBold(bold);
-        if(addBreak) run.addBreak();
-    }
-
-    /**
      * Print the newly edited document to a new file.
      */
     public void printReportToFile(Properties prop) {
@@ -1061,12 +862,6 @@ public class ReportModel {
      */
     public void setNewInput(List<Integer> numberH, List<String> inputP, int sect) {
         chapterMap.get(numberH).insertParagraph(sect, inputP);              // Experimental
-
-        for(ChapterList chap : chapterList.get(numberH).get(sect) ) {
-            if(chap.getType().equals(TextStyle.PARAGRAPH)) {
-                inputP = chap.updateText(inputP);
-            }
-        }
     }
 
     /**
@@ -1075,14 +870,8 @@ public class ReportModel {
      * @param i - list of input strings
      */
     public void setNewInput(List<Integer> numberH, List<String> input) {
-
-        // Experimental
         chapterMap.get(numberH).addSection();
         chapterMap.get(numberH).fillSection(input, TextStyle.INPUT, 0, null);
-
-        chapterList.put(numberH, new ArrayList<>());
-        chapterList.get(numberH).add(new ArrayList<>());
-        chapterList.get(numberH).get(0).add(new ChapterList(input, TextStyle.INPUT, 0, true));
     }
 
     /**
@@ -1091,20 +880,7 @@ public class ReportModel {
      * @param t - Table content text that the user wants placed in table
      */
     public void insertTable(List<Integer> numberH, List<String> inputT) {
-        chapterMap.get(numberH).insertTable(inputT);         // Experimental
-
-        for(List<ChapterList> chapters : chapterList.get(numberH)) {
-
-            if(chapters.get(0).cases) {
-                for(ChapterList chap : chapters) {
-                    if(chap.getType() == TextStyle.TABLE && chap.result.get(chap.result.size()-1).equals("X")) {
-                        chap.insertInput(inputT);
-                        break;
-                    }
-                }
-            }
-
-        }
+        chapterMap.get(numberH).insertTable(inputT);
     }
 
     /**
@@ -1114,17 +890,6 @@ public class ReportModel {
      */
     public void insertTable(List<Integer> numberH, List<String> inputT, List<Integer> matchRows) {
         chapterMap.get(numberH).insertTable(inputT, matchRows);         // Experimental
-
-        for(List<ChapterList> chapters : chapterList.get(numberH)) {
-            if(chapters.get(0).cases) {
-                for(ChapterList chap : chapters) {
-                    if(chap.getType() == TextStyle.TABLE && chap.result.get(chap.result.size()-1).equals("X")) {
-                        chap.insertTableInput(inputT, matchRows);
-                        break;
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -1133,25 +898,13 @@ public class ReportModel {
      * @param p - String text that the user wants to manually have put into the report
      */
     public void setNewParagraph(List<Integer> numberH, List<String> inputP, int sect) {
-
-        // Experimental
         for(String s : inputP) {
             chapterMap.get(numberH).sections.get(sect).addContent(Arrays.asList(s), TextStyle.PARAGRAPH, 0, null);
-        }
-
-        for(String s : inputP) {
-            chapterList.get(numberH).get(sect).add(new ChapterList(Arrays.asList(s), TextStyle.PARAGRAPH, 0, true));
         }
     }
 
     private void insertGraph(List<Integer> number, List<String> inputG, int col, int sect, boolean vary) {
         chapterMap.get(number).insertGraph(sect, inputG, col, vary);        // Experimental
-
-        for (ChapterList chap : chapterList.get(number).get(sect)) {
-            if(chap.getType() == TextStyle.GRAPH) {
-                chap.insertGraphInput(inputG, col, vary);
-            }
-        }
     }
 
     /**
@@ -1164,10 +917,7 @@ public class ReportModel {
 
         Iterator<IBodyElement> bodyList = getDocumentIterator(chapterFolder + chapterFile);
 
-        chapterList.put(h, new ArrayList<>());
-
         chapterMap.put(h, new Chapter(headerTitle));        // Experimental
-
 
         boolean hit = false;
         while(bodyList.hasNext()) {
@@ -1181,8 +931,6 @@ public class ReportModel {
                 }
                 if(p.getText().contains("Output")) {
                     hit = true;
-                    chapterList.get(h).add(new ArrayList<>());
-
                     chapterMap.get(h).addSection();             // Experimental
                 }
             }
@@ -1237,96 +985,6 @@ public class ReportModel {
         return chartDatas;
     }
 
-    public XSSFChart barColumnChart(ChapterList cinput) {
-        try (XSSFWorkbook wb = new XSSFWorkbook()) {
-
-            String sheetName = "CountryBarChart";
-
-            XSSFSheet sheet = wb.createSheet(sheetName);
-
-            List<String> categories = new ArrayList<>();
-
-            String title = cinput.chart.getTitle().getTx().getRich().getPArray(0).getRArray(0).getT();
-
-            int amountCat = ((cinput.result.size() / cinput.tableCol) - 1) / 2;
-
-            for(int i = 0; i < amountCat; i++) {
-                categories.add(cinput.result.get((i * 2) + 1));
-            }
-
-            // Create row and put some cells in it. Rows and cells are 0 based.
-            Row row = sheet.createRow((short) 0);
-
-            Cell cell;
-
-            for(int i = 0; i < cinput.tableCol; i++) {
-                cell = row.createCell((short) i);
-                cell.setCellValue(cinput.result.get(i * (cinput.result.size() / cinput.tableCol)));
-            }
-
-            for(int i = 1; i <= amountCat; i++) {
-                row = sheet.createRow((short) i);
-
-                for(int j = 0; j < cinput.tableCol; j++) {
-                    cell = row.createCell((short) j);
-                    int tempNum = Integer.parseInt(cinput.result.get(j * (cinput.result.size() / cinput.tableCol) + (i * 2)));
-                    cell.setCellValue(tempNum);
-                }
-            }
-
-            XSSFDrawing drawing = sheet.createDrawingPatriarch();
-            XSSFClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 0, 4, 7, 20);
-
-            XSSFChart chart = drawing.createChart(anchor);
-            chart.setTitleText(title);
-
-            // Formats the title font
-            chart.getCTChart().getTitle().getTx().getRich().getPArray(0).getRArray(0).getRPr().setB(false);
-            chart.getCTChart().getTitle().getTx().getRich().getPArray(0).getRArray(0).getRPr().setSz(1400);
-            chart.getCTChart().getTitle().getTx().getRich().getPArray(0).getRArray(0).getRPr().addNewLatin().setTypeface(FONT);
-
-            XDDFChartLegend legend = chart.getOrAddLegend();
-            legend.setPosition(LegendPosition.BOTTOM);
-
-            XDDFCategoryAxis bottomAxis = chart.createCategoryAxis(AxisPosition.BOTTOM);
-
-            XDDFValueAxis leftAxis = chart.createValueAxis(AxisPosition.LEFT);
-            leftAxis.setCrosses(AxisCrosses.AUTO_ZERO);
-            leftAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
-
-            XDDFDataSource<String> categoryFactory = XDDFDataSourcesFactory.fromStringCellRange(sheet,
-                    new CellRangeAddress(0, 0, 0, cinput.tableCol-1));
-
-            List<XDDFNumericalDataSource<Double>> values = new ArrayList<>();
-            for (int i = 1; i <= amountCat; i++) {
-                values.add(XDDFDataSourcesFactory.fromNumericCellRange(sheet,
-                        new CellRangeAddress(i, i, 0, cinput.tableCol-1)));
-            }
-
-
-            XDDFChartData data = chart.createData(ChartTypes.BAR, bottomAxis, leftAxis);
-
-            data.setVaryColors(cinput.isVaried);
-
-            XDDFChartData.Series series;
-            for (int i = 0; i < amountCat; i++) {
-                series = data.addSeries(categoryFactory, values.get(i));
-                series.setTitle(categories.get(i), null);
-            }
-
-            XDDFBarChartData bar = (XDDFBarChartData) data;
-            bar.setBarDirection(BarDirection.COL);
-
-            chart.plot(data);
-
-            return chart;
-        } catch (IOException e) {
-            System.out.println(e.getMessage()); // NOSONAR
-            return null;
-        }
-
-    }
-
     private void solidFillSeries(XDDFChartData data, int index, PresetColor color) {        // NOSONAR
         XDDFSolidFillProperties fill = new XDDFSolidFillProperties(XDDFColor.from(color));
         XDDFChartData.Series series = data.getSeries(index);
@@ -1346,15 +1004,10 @@ public class ReportModel {
      */
     private void createChapterParagraph(List<Integer> h, XWPFParagraph p) {
         if(p.getText().contains("AND/OR")) {
-            chapterList.get(h).add(new ArrayList<>());
-
-            chapterMap.get(h).addSection();                                                             // Experimental
+            chapterMap.get(h).addSection();
         }
         else {
-            chapterList.get(h).get(chapterList.get(h).size()-1).add(
-                    new ChapterList(Arrays.asList(p.getText()), TextStyle.PARAGRAPH, 0, false));
-
-            chapterMap.get(h).fillSection(Arrays.asList(p.getText()), TextStyle.PARAGRAPH, 0, null);    // Experimental
+            chapterMap.get(h).fillSection(Arrays.asList(p.getText()), TextStyle.PARAGRAPH, 0, null);
         }
     }
 
@@ -1375,24 +1028,12 @@ public class ReportModel {
 
         tableHeader.add("X");
 
-        chapterList.get(h).get(chapterList.get(h).size()-1).add(new ChapterList(
-                tableHeader, TextStyle.TABLE, t.getRow(0).getTableCells().size(), false));
-
         chapterMap.get(h).fillSection(tableHeader, TextStyle.TABLE, t.getRow(0).getTableCells().size(), null);  // Experimental
 
     }
 
     private void createChapterGraph(List<Integer> h, CTChart chart) {
-
         chapterMap.get(h).placeInEmptySection(chart);    // Experimental
-
-        for(List<ChapterList> chapters : chapterList.get(h)) {
-            if(chapters.isEmpty()) {
-                chapters.add(new ChapterList(chart));
-                return;
-            }
-        }
-
     }
 
     /**
