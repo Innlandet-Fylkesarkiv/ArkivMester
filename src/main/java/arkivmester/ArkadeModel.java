@@ -205,6 +205,34 @@ public class ArkadeModel {
         return choose;
     }
 
+    public List<List<String>> registeringerUtenomArkivdelStartOgSluttDato(List<String> arkivdelStartYear, List<String> regDato){
+
+        List<List<String>> listOfLists = new ArrayList<>();
+
+
+        for (String arkivdelYear : arkivdelStartYear){
+            List<String> datesAfter = new ArrayList<>();
+
+            String firstReg = arkivdelYear.split(";", 3)[1];
+            String lastReg = arkivdelYear.split(";", 3)[2];
+
+            for (String dato : regDato){
+                String checkDato = dato.split(";", 5)[2];
+
+                if(getYearFromString(checkDato,true) < getYearFromString(firstReg, true)){
+                    datesAfter.add(dato);
+                }
+                if(getYearFromString(checkDato,true) > getYearFromString(lastReg, true)){
+                    datesAfter.add(dato);
+                }
+            }
+            listOfLists.add(datesAfter);
+
+        }
+        return listOfLists;
+
+    }
+
     /**
      * 3.1.16. Check for number of registrations with saksparter.
      * @return Comment on number of saksparter.
