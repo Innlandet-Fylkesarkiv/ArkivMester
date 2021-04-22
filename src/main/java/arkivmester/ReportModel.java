@@ -1579,6 +1579,10 @@ public class ReportModel {
 
         //Chapter 1.2
         para = xqueriesMap.get("1.2_1");
+        para.addAll(xqueriesMap.get("1.2_2"));
+        para.addAll(xqueriesMap.get("1.2_3"));
+        para.addAll(xqueriesMap.get("1.2_4"));
+        para.addAll(xqueriesMap.get("1.2_5"));
         if(!para.get(0).equals(EMPTY)) {
             setNewInput(Arrays.asList(1, 2), para);
         }
@@ -1627,9 +1631,7 @@ public class ReportModel {
         //Chapter 3.1.13
         para = xqueriesMap.get("3.1.13");
 
-        setNewInput(Arrays.asList(3, 1, 13), Collections.emptyList(), 0);
-
-        if(para.get(0).equals(EMPTY)) {
+        if(para.get(1).equals("0")) {
             setNewInput(Arrays.asList(3, 1, 13), Collections.emptyList(), 0);
         } else if (!para.get(0).equals("utgår")) {
 

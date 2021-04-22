@@ -513,24 +513,25 @@ public class ArchiveController implements ViewObserver {
 
         //1.2
         String xqName;
-        try {
-            if (thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "1.1b.xq", settingsModel.prop).get(0).contains("mets:mets"))
-                xqName = "1.2_1a";
-            else
-                xqName = "1.2_1";
 
-            xqueryResults.put("1.2_1", getEmptyOrContent(archivePath + "\\dias-mets.xml", xqName));
+        for(int i = 1; i <= 1; i++) {
+            try {
+                if (thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "1." + i + "b.xq", settingsModel.prop).get(0).contains("mets:mets"))
+                    xqName = "1.2_" + i + "a";
+                else
+                    xqName = "1.2_" + i;
 
-        } catch (IOException e) {
-            mainView.exceptionPopup("Kunne ikke kjøre 1.1b.xq");
+                xqueryResults.put("1.2_1", getEmptyOrContent(archivePath + "\\dias-mets.xml", xqName));
+
+            } catch (IOException e) {
+                mainView.exceptionPopup("Kunne ikke kjøre 1.1b.xq");
+            }
         }
 
         xqueryResults.put("1.2_2", getEmptyOrContent(archivePath + "\\content\\arkivuttrekk.xml", "1.2_2"));
         xqueryResults.put("1.2_3", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml", "1.2_3"));
         xqueryResults.put("1.2_4", getEmptyOrContent("\\content\\offentligJournal.xml", "1.2_4"));
         xqueryResults.put("1.2_5", getEmptyOrContent(testArkivstruktur, "1.2_5"));
-
-
 
         reportModel.init(prop, xqueryResults);
 
