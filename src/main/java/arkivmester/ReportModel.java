@@ -1259,7 +1259,7 @@ public class ReportModel {
             para = xqueriesMap.get("3.3.3_2");
             insertTable(three, splitIntoTable(para));
         }
-        
+
         //Chapter 3.2
         List<String> veraPDF = xqueriesMap.get("3.2_1");
         List<String> droid = xqueriesMap.get("3.2_2");
@@ -1524,11 +1524,9 @@ public class ReportModel {
 
         //Chapter 3.1.12
         //TODO: Bruk Xquery?
-        int arkivert = arkadeModel.sumStringListWithOnlyNumbers(
-                arkadeModel.getNumberInTextAsString("N5.22", "Journalstatus: Arkivert - Antall:", ":"));
-        int journalfort = arkadeModel.sumStringListWithOnlyNumbers(
-                arkadeModel.getNumberInTextAsString("N5.22", "Journalstatus: Journalført - Antall:", ":"));
-
+        int arkivert = arkadeModel.getTotal("N5.22", "Journalstatus: Arkivert - Antall:");
+        int journalfort = arkadeModel.getTotal("N5.22", "Journalstatus: Journalført - Antall:");
+        
         List<String> medium = xqueriesMap.get("dokumentmedium");
         if (journalfort == -1) {
             setNewInput(Arrays.asList(3, 1, 12), Collections.emptyList(), 0);
