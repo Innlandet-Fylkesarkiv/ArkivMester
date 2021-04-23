@@ -205,13 +205,12 @@ public class ArkadeModel {
         return choose;
     }
 
-    public List<List<String>> registratorDates(List<String> arkivdelStartYear, List<String> regDato){
+    public List<String> registratorDates(List<String> arkivdelStartYear, List<String> regDato){
 
-        List<List<String>> listOfLists = new ArrayList<>();
+        List<String> datesAfter = new ArrayList<>();
 
 
         for (String arkivdelYear : arkivdelStartYear){
-            List<String> datesAfter = new ArrayList<>();
 
             String firstReg = arkivdelYear.split(";", 3)[1];
             String lastReg = arkivdelYear.split(";", 3)[2];
@@ -226,10 +225,8 @@ public class ArkadeModel {
                     datesAfter.add(dato);
                 }
             }
-            listOfLists.add(datesAfter);
-
         }
-        return listOfLists;
+        return datesAfter;
 
     }
 

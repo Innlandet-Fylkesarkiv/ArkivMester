@@ -1249,10 +1249,10 @@ public class ReportModel {
             // Wrong date print out table
             List<String> regDato = xqueriesMap.get("3.1.14_2");
             // Get registeringer dates that are wrong for every arkidel
-            List<List<String>> failDatoList = arkadeModel.registratorDates(para, regDato);
+            List<String> allWrongDates = arkadeModel.registratorDates(para, regDato);
             setNewInput(Arrays.asList(3, 1, 14), Collections.emptyList(), val3114);
             // listOfLists for now only gets one arkivdel. insertTable does not support 0-* tables. insertTable for every element. for loop for get()
-            insertTable(Arrays.asList(3, 1, 14), splitIntoTable(failDatoList.get(0)));
+            insertTable(Arrays.asList(3, 1, 14), splitIntoTable(allWrongDates));
         }
         else if(val3114 == 1){
             setNewInput(Arrays.asList(3, 1, 14), Collections.emptyList(), val3114);
