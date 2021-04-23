@@ -161,14 +161,14 @@ public class ArkadeModel {
             for(Integer curN511: n511){
                 if(firstReg > curN511 || lastReg < curN511){
                     System.out.println(indexN527 + " Første registrering or Siste registrering: " + // NOSONAR
-                            "is bigger or smaller than one element in N5:11");
+                            "is bigger or smaller than one element in N5:11: " + firstReg + " " + lastReg + " " + curN511);
                     return 0;
                 }
             }
             for(Integer curN518: n518){
                 if(firstReg > curN518 || lastReg < curN518){
                     System.out.println(indexN527 + " Første registrering or Siste registrering: " + // NOSONAR
-                            "is bigger or smaller than one element in N5:18");
+                            "is bigger or smaller than one element in N5:18" + firstReg + " " + lastReg + " " + curN518);
                     return 0;
                 }
             }
