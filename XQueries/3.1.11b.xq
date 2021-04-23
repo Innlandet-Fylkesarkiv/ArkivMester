@@ -11,5 +11,6 @@ declare namespace el="http://www.arkivverket.no/standarder/noark5/endringslogg" 
 for $r in (//registrering[
                           not (../saksstatus = 'Utgår') and 
                           not (journalstatus = 'Utgår') and
-						  not(exists(dokumentbeskrivelse))]) 
-    return concat($r/systemID, '; ', $r/registreringsID, '; ', 'mappeID')
+                          not(exists(dokumentbeskrivelse))]) 
+
+    return $r/concat(systemID, '; ', registreringsID, '; ', //mappe[registrering = $r]/mappeID)
