@@ -918,9 +918,11 @@ public class ReportModel {
 
         String chapterFile = formatChapterNumber(h);
 
+        System.out.println(chapterFile);
+
         Iterator<IBodyElement> bodyList = getDocumentIterator(chapterFolder + chapterFile);
 
-        chapterMap.put(h, new Chapter(headerTitle));        // Experimental
+        chapterMap.put(h, new Chapter(headerTitle));
 
         boolean hit = false;
         while(bodyList.hasNext()) {
@@ -1078,9 +1080,12 @@ public class ReportModel {
         para.addAll(xqueriesMap.get("1.2_2"));
         para.addAll(xqueriesMap.get("1.2_3"));
         para.addAll(xqueriesMap.get("1.2_4"));
-        para.addAll(xqueriesMap.get("1.2_5"));
         if(!para.get(0).equals(EMPTY)) {
-            setNewInput(Arrays.asList(1, 2), para);
+            setNewInput(Arrays.asList(1, 2), para, 0);
+        }
+        para = xqueriesMap.get("1.2_5");
+        if(!para.get(0).contains(EMPTY)) {
+            insertTable(Arrays.asList(1, 2), splitIntoTable(para));
         }
 
         //Chapter 3.1.3

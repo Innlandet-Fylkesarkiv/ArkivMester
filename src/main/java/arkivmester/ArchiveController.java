@@ -467,6 +467,11 @@ public class ArchiveController implements ViewObserver {
         String fileName = prop.getProperty("currentArchive");
         String archivePath = prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName; // #NOSONAR
         String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml";
+        String testArkivuttrekk = "\\content\\arkivuttrekk.xml";
+        String testLopendeJournal = archivePath + "\\content\\loependeJournal.xml";
+        String testOffentligJournal = archivePath + "\\content\\offentligJournal.xml";
+        String testDias = "\\dias-mets.xml";
+
         String veraPdfPath = prop.getProperty("tempFolder") + "\\" + fileName + "\\VeraPDF\\verapdf.xml"; // #NOSONAR
         String droidPath =  prop.getProperty("tempFolder") + "\\" + fileName + "\\DROID\\droid.xml"; // #NOSONAR
 
@@ -493,48 +498,49 @@ public class ArchiveController implements ViewObserver {
 
         File v = new File(veraPdfPath);
         File d = new File(droidPath);
+        String headerNumber = "3.2_1";
         if(v.exists()) {
-            xqueryResults.put("3.2_1", getEmptyOrContent(veraPdfPath, "3.2_1"));
+            xqueryResults.put(headerNumber, getEmptyOrContent(veraPdfPath, headerNumber));
         }
         else {
-            xqueryResults.put("3.2_1", Collections.emptyList());
+            xqueryResults.put(headerNumber, Collections.emptyList());
         }
+        headerNumber = "3.2_2";
         if(d.exists()) {
-            xqueryResults.put("3.2_2", getEmptyOrContent(droidPath, "3.2_2"));
+            xqueryResults.put(headerNumber, getEmptyOrContent(droidPath, headerNumber));
         }
         else {
-            xqueryResults.put("3.2_2", Collections.emptyList());
+            xqueryResults.put(headerNumber, Collections.emptyList());
         }
 
-        xqueryResults.put("3.3.9_1a", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml", "3.3.9_1a"));
-        xqueryResults.put("3.3.9_2a", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml", "3.3.9_2a"));
-        xqueryResults.put("3.3.9_2b", getEmptyOrContent(archivePath + "\\content\\offentligJournal.xml", "3.3.9_2b"));
+        xqueryResults.put("3.3.9_1a", getEmptyOrContent(testLopendeJournal, "3.3.9_1a"));
+        xqueryResults.put("3.3.9_2a", getEmptyOrContent(testLopendeJournal, "3.3.9_2a"));
+        xqueryResults.put("3.3.9_2b", getEmptyOrContent(testOffentligJournal, "3.3.9_2b"));
 
-        xqueryResults.put("3.3.9_3a", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml", "3.3.9_3a"));
-        xqueryResults.put("3.3.9_3b", getEmptyOrContent(archivePath + "\\content\\offentligJournal.xml", "3.3.9_3b"));
+        xqueryResults.put("3.3.9_3a", getEmptyOrContent(testLopendeJournal, "3.3.9_3a"));
+        xqueryResults.put("3.3.9_3b", getEmptyOrContent(testOffentligJournal, "3.3.9_3b"));
         xqueryResults.put("3.3.9_3c", getEmptyOrContent(testArkivstruktur, "3.3.9_3c"));
 
         //1.2
         String xqName;
 
-        for(int i = 1; i <= 1; i++) {
-            try {
-                if (thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "1." + i + "b.xq", settingsModel.prop).get(0).contains("mets:mets"))
-                    xqName = "1.2_" + i + "a";
-                else
-                    xqName = "1.2_" + i;
+        try {
+            if (thirdPartiesModel.runBaseX(archiveModel.xmlMeta.getAbsolutePath(), "1.1b.xq", settingsModel.prop).get(0).contains("mets:mets"))
+                xqName = "1.2_1a";
+            else
+                xqName = "1.2_1";
 
-                xqueryResults.put("1.2_1", getEmptyOrContent(archivePath + "\\dias-mets.xml", xqName));
+            xqueryResults.put("1.2_1", getEmptyOrContent(testDias, xqName));
 
-            } catch (IOException e) {
-                mainView.exceptionPopup("Kunne ikke kjøre 1.1b.xq");
-            }
+        } catch (IOException e) {
+            mainView.exceptionPopup("Kunne ikke kjøre 1.1b.xq");
         }
 
-        xqueryResults.put("1.2_2", getEmptyOrContent(archivePath + "\\content\\arkivuttrekk.xml", "1.2_2"));
-        xqueryResults.put("1.2_3", getEmptyOrContent(archivePath + "\\content\\loependeJournal.xml", "1.2_3"));
-        xqueryResults.put("1.2_4", getEmptyOrContent("\\content\\offentligJournal.xml", "1.2_4"));
+        xqueryResults.put("1.2_2", getEmptyOrContent(testArkivuttrekk, "1.2_2"));
+        xqueryResults.put("1.2_3", getEmptyOrContent(testLopendeJournal, "1.2_3"));
+        xqueryResults.put("1.2_4", getEmptyOrContent(testOffentligJournal, "1.2_4"));
         xqueryResults.put("1.2_5", getEmptyOrContent(testArkivstruktur, "1.2_5"));
+
 
         reportModel.init(prop, xqueryResults);
 
