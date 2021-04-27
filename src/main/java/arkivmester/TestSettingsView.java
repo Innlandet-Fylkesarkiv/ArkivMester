@@ -25,6 +25,7 @@ public class TestSettingsView extends Views {
     /**
      * Constructor - Initiates this.selectedTests with current data.
      * @param selectedTests The current selected tests stored in {@link ThirdPartiesModel}.
+     * @param selectedXqueries The current selected XQueries stored in {@link ThirdPartiesModel}.
      */
     TestSettingsView(List<Boolean> selectedTests, List<Boolean> selectedXqueries) {
         this.selectedTests = selectedTests;
@@ -114,6 +115,9 @@ public class TestSettingsView extends Views {
 
     /**
      * Sets up the XQuery panel.
+     * @param xqueryPanel The panel to be set up.
+     * @param customXqueryList List of XQueries
+     * @throws IndexOutOfBoundsException if there inconsistencies for list lenghts.
      */
     private void setUpXqueryPanel(JPanel xqueryPanel, String[] customXqueryList) throws IndexOutOfBoundsException{
         int rows = customXqueryList.length;

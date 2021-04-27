@@ -328,6 +328,8 @@ public class TestView extends Views{
 
     /**
      * Updates the test statuses to "None" if it is excluded from the main test.
+     * @param selectedTests Boolean list of selected tests.
+     * @param xQuery True if XQueries are activated, false if deactivated.
      */
     public void updateStatus(List<Boolean> selectedTests, Boolean xQuery) {
 

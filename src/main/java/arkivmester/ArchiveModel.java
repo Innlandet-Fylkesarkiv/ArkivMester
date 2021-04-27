@@ -128,6 +128,14 @@ public class ArchiveModel {
         return list;
     }
 
+    /**
+     * Validates the three dates in administrative data.
+     * @param prodDate Date field in administrative data.
+     * @param recievedDate Date field in administrative data.
+     * @param reportDate Date field in administrative data.
+     * @return True for success, false for fail.
+     * @throws ParseException if the dates are not numbers or empty.
+     */
     public boolean validateDates(String prodDate, String recievedDate, String reportDate) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
 
