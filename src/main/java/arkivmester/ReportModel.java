@@ -926,8 +926,6 @@ public class ReportModel {
 
         String chapterFile = formatChapterNumber(h);
 
-        System.out.println(chapterFile);
-
         Iterator<IBodyElement> bodyList = getDocumentIterator(chapterFolder + chapterFile);
 
         chapterMap.put(h, new Chapter(headerTitle));
