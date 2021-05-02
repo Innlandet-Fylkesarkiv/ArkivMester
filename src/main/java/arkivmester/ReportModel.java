@@ -1243,7 +1243,7 @@ public class ReportModel {
 
         //Chapter 3.1.14 N5.27, N5.11, N5.18
         para = xqueriesMap.get("3.1.14_1");
-        List<Integer> output3114 = Collections.emptyList();
+        List<String> output3114 =  new ArrayList<>();
         int val3114 = arkadeModel.firstLastReg(para, output3114);
 
         if(val3114 == 0){
@@ -1259,7 +1259,7 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 1, 14), Collections.emptyList(), val3114);
         }
         else if (val3114 == 2){
-            setNewInput(Arrays.asList(3, 1, 14), Arrays.asList(output3114.get(0) + "", output3114.get(1) + ""), val3114);
+            setNewInput(Arrays.asList(3, 1, 14), output3114, val3114);
         }
 
         //Chapter 3.1.15
@@ -1545,13 +1545,13 @@ public class ReportModel {
         else{
             setNewInput(Arrays.asList(3, 3, 4), Arrays.asList("" + n537, "" +  0), 0);
         }
-        List<String> missingValues = arkadeModel.getSystemID(index537, "systemID");
-        if (missingValues.size() <= 25){
-            setNewParagraph(Arrays.asList(3, 3, 4), missingValues, 0);
+        if (!crossReferences.get(0).equals(EMPTY) && crossReferences.size() <= 25){
+            setNewParagraph(Arrays.asList(3, 3, 4), crossReferences, 0); //
         }
-        else{
+        else if (crossReferences.size() > 25){
             setNewInput(Arrays.asList(3, 3, 4), Collections.singletonList("Over 25. Skriver til Vedlegg"), 0);
-            writeAttachments(chapter334, missingValues);
+            writeAttachments("3.3.4_kryssreferanser", crossReferences);
+            attachments.add("\u2022 3.3.4_kryssreferanser.txt");
         }
 
         //Chapter 3.3.5
