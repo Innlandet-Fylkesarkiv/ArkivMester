@@ -376,8 +376,11 @@ public class MainView extends Views{
         aboutBtn.setEnabled(!aboutBtn.isEnabled());
     }
 
+    /**
+     * Sets the loading spinner for uploading archives to visible or invisible.
+     * @param running True for visible, false for invisible.
+     */
     public void loading(Boolean running) {
-
         spinnerLabel.setVisible(Boolean.TRUE.equals(running));
     }
 }
