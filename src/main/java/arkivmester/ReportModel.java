@@ -1063,12 +1063,13 @@ public class ReportModel {
     }
 
     /**
-     * Fetch all data from report and set up all chapters so that input can be changed.
+     * Fetches arkade5 report if it exists and sets up for generating the final report.
      */
     public void generateReport() { // NOSONAR
         document = getDocumentFile(templateFile);
         setUpAllInputChapters();
 
+        //Check if arkade5 report exists
         if(arkadeModel.getFileToString(prop)) {
 
             generateReportPartOne();
@@ -1080,6 +1081,9 @@ public class ReportModel {
         }
     }
 
+    /**
+     * Writes chapter 1 to the report file.
+     */
     private void generateReportPartOne() {
 
         List<String> para;
@@ -1099,6 +1103,9 @@ public class ReportModel {
 
     }
 
+    /**
+     * Writes chapter 3.1 to the report file.
+     */
     private void generateReportPartTwo() {
 
         List<String> para;
@@ -1144,10 +1151,7 @@ public class ReportModel {
         //Endre tittel til: Se eget klassifikasjonskapittel 3.3.1.
 
         //Chapter 3.1.7
-        //TODO: Kjører feil xml.
         List<String> dirs = xqueriesMap.get("3.1.7_1b");
-        //System.out.println(dirs); // NOSONAR
-        //System.out.println(dirs.get(0)); // NOSONAR
         if(dirs.get(0).equals(EMPTY)) {
             setNewInput(Arrays.asList(3, 1, 7), Collections.emptyList(), 0);
         }
@@ -1194,10 +1198,8 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 1, 11), Collections.singletonList("" + para.size()), 2);
             insertTable(Arrays.asList(3, 1, 11), splitIntoTable(para));
         }
-        //TODO: Ny case med tabell, trenger ny xquery.
 
         //Chapter 3.1.12
-        //TODO: Bruk Xquery?
         int arkivert = arkadeModel.getTotal("N5.22", "Journalstatus: Arkivert - Antall:");
         int journalfort = arkadeModel.getTotal("N5.22", "Journalstatus: Journalført - Antall:");
 
@@ -1218,7 +1220,6 @@ public class ReportModel {
 
         //Chapter 3.1.13
         para = xqueriesMap.get("3.1.13_1");
-
         if(para.get(0).equals(EMPTY)) {
             para = xqueriesMap.get("3.1.13_2");
 
@@ -1310,7 +1311,6 @@ public class ReportModel {
 
         //Chapter 3.1.21
         para = xqueriesMap.get("3.1.21");
-
         if(para.get(0).equals(EMPTY)) {
             setNewInput(Arrays.asList(3, 1, 21), Collections.emptyList(), 0);
         }
@@ -1335,7 +1335,6 @@ public class ReportModel {
         }
 
         //Chapter 3.1.25 - Kassasjoner
-        //TODO: Ny case 2 med ny xquery.
         if (arkadeModel.getTotal("N5.44", TOTAL) == 0 &&
                 arkadeModel.getTotal("N5.45", TOTAL) == 0) {
             setNewInput(Arrays.asList(3, 1, 25), Collections.emptyList(), 0);
@@ -1348,7 +1347,6 @@ public class ReportModel {
 
         //Chapter 3.1.26
         List<String> convertedTo = xqueriesMap.get("3.1.26_1");
-
         if(!convertedTo.isEmpty()) {
 
             List<String> convertedFrom = xqueriesMap.get("3.1.26_2");
@@ -1416,7 +1414,10 @@ public class ReportModel {
 
     }
 
-    private void generateReportPartThree() {
+    /**
+     * Writes chapters 3.2, 3.3 and 5 to the report file.
+     */
+    private void generateReportPartThree() { //NOSONAR
         List<String> para;
 
 
@@ -1595,7 +1596,7 @@ public class ReportModel {
             }
             for (int i = 1; i <= journal.size(); i += 2) {
                 int amount = Integer.parseInt(journal.get(i));
-                if ((float)amount > (((float)totalUnits / 100.0f) * 90.0f)) {
+                if ((float)amount > (((float)totalUnits / 100.0f) * 90.0f)) { //Calculate %
                     setNewInput(Arrays.asList(3, 3, 6), Collections.emptyList(), 1);
                 }
             }
@@ -1615,7 +1616,7 @@ public class ReportModel {
             }
             for(int i = 1; i <= unit.size(); i+=2 ) {
                 int amount = Integer.parseInt(unit.get(i));
-                if((float)amount > (((float)totalUnits / 100.0f) * 90.0f)) {
+                if((float)amount > (((float)totalUnits / 100.0f) * 90.0f)) { //Calculate %
                     setNewInput(Arrays.asList(3, 3, 7), Collections.emptyList(), 1);
                 }
             }

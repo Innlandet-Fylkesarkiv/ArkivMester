@@ -208,12 +208,13 @@ public class ThirdPartiesModel {
     /**
      * Runs 7Zip through command line and unzips the archive.
      *
-     * @param path A file that contains the archive to be unzipped
+     * @param path A file that contains the archive to be unzipped.
      * @param prop Properties object containing the config.
      * @throws IOException Cannot run program.
      */
     public void unzipArchive(File path, Properties prop) throws IOException {
         File unzipped = new File(tempFolder + archiveName + archiveName); // #NOSONAR
+        //If unzipped folder exists, deletes it.
         if(unzipped.exists()){
             Path directory = unzipped.toPath();
             Files.walkFileTree(directory, new SimpleFileVisitor<>() {
