@@ -23,6 +23,7 @@ public class ArkadeModel {
     // Holds text from arkade testreport html as string
     StringBuilder htmlRawText = new StringBuilder();
 
+    // Arkade report: Table "Totalt:".
     static final String TOTALT = "Totalt";
 
     ArkadeModel(){
@@ -64,42 +65,6 @@ public class ArkadeModel {
         return true;
     }
 
-    /**
-     * Only for testing. ONLY FUNCTION: Get html before testing.
-     * Reads html file at "filePath" defined in this function.
-     * Does not interfere with main program.
-     * This function can be removed at anytime.
-     */
-    public void readHtmlFileFromTestFolder(){
-
-        // test html file at   ../Input/FileName,
-        List<String> testFilePath = Arrays.asList(
-        "Arkaderapport-67a47ea4-68bc-4276-a599-22561e0c31df.html",
-        "Arkaderapport-0439ba78-2381-430b-8f99-740f71846f1e.html",
-        "Arkaderapport-4b24f025-3c3a-4dd6-a371-7dc1b9143452.html",
-        "Arkaderapport-899ec389-1dc0-41d0-b6ca-15f27642511b.html",
-        "Arkaderapport-7fc1fe22-d89b-42c9-aaec-5651beb0da0a.html",
-        "Arkaderapport-ebc3f74b-4eb3-4358-a38f-46479cfb2feb.html",
-        "Arkaderapport-899ec389-1dc0-41d0-b6ca-15f27642511b.html" // 6
-        );
-
-        // Select random arkade html for testing
-        filePath = "../Input/" + testFilePath.get(6);
-
-        try (FileReader fr = new FileReader(filePath);
-             BufferedReader br = new BufferedReader(fr)) {
-
-            String val;
-            while ((val = br.readLine()) != null) {
-                htmlRawText.append(val);
-            }
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage() + "."); //NOSONAR
-        }
-    }
-
-
-
     // Chapters
 
     /**
@@ -123,17 +88,19 @@ public class ArkadeModel {
     }
 
     /** Chapter 3.1.14 N5.27
-     * @param arkivdelStartYear get systemID, startYear, endYear from Xquery
-     * @param output set text into doxc
-     * @return What text to write out to docx
+     * @param arkivdelStartYear get systemID, startYear, endYear from Xquery.
+     * @param output set text into docx.
+     * @return What text to write out to docx.
      */
-    public Integer firstLastReg(List<String> arkivdelStartYear, List<Integer> output){
+    public Integer firstLastReg(List<String> arkivdelStartYear, List<String> output){
 
         int choose = 1;
 
         String indexN527 = "N5.27";
+
         List<String> allID = getSystemID(indexN527, "systemID");
 
+        // for every systemID
         for (String id : allID) {
             Integer firstReg = getYearFromString(
                     getOneElementInListAsString(getSpecificValue(indexN527,"Første registrering"),id), false);
@@ -146,7 +113,9 @@ public class ArkadeModel {
             String withID = id;
             String servalIDs = "-";
 
+            // Number of systemID < 2; = No systemID ref in arkade N5.11 and N5.18.
             if(allID.size() < 2){
+                // No SystemID in N5.11 and N5.18
                 withID = ":";
                 servalIDs = "";
             }
@@ -161,39 +130,39 @@ public class ArkadeModel {
             for(Integer curN511: n511){
                 if(firstReg > curN511 || lastReg < curN511){
                     System.out.println(indexN527 + " Første registrering or Siste registrering: " + // NOSONAR
-                            "is bigger or smaller than one element in N5:11");
+                            "is bigger or smaller than one element in N5:11: " + firstReg + " " + lastReg + " " + curN511);
                     return 0;
                 }
             }
             for(Integer curN518: n518){
                 if(firstReg > curN518 || lastReg < curN518){
                     System.out.println(indexN527 + " Første registrering or Siste registrering: " + // NOSONAR
-                            "is bigger or smaller than one element in N5:18");
+                            "is bigger or smaller than one element in N5:18" + firstReg + " " + lastReg + " " + curN518);
                     return 0;
                 }
             }
-            // arkivdel-MØTESAK-12; 2012-01-01; 2018-01-04
-            // if Xquery doesn't return. systemID, StartDate, EndDate. In that order it will: wrong date variabel to check with
-            for (int j = 0; j < arkivdelStartYear.size(); j++) {
-                // has 2 elements after j
 
-                List<String> arkivNew = Arrays.asList(arkivdelStartYear.get(j).split(";", 3));
+            for (String s : arkivdelStartYear) {
 
-                if(id.contains(arkivNew.get(0))){
-                    if(arkivNew.size() == 3){
-                        if(firstReg < getYearFromString(arkivNew.get(1),true) ||
-                                lastReg > getYearFromString(arkivNew.get(2),true)){
+                // Xquery. {systemID, StartDate, EndDate}.
+                List<String> arkivNew = Arrays.asList(s.split(";", 3));
+
+
+                if (id.contains(arkivNew.get(0))) {
+                    if (arkivNew.size() == 3) {
+                        if (firstReg < getYearFromString(arkivNew.get(1), true) ||
+                                lastReg > getYearFromString(arkivNew.get(2), true)) {
                             System.out.println(indexN527 + " Første registrering is not within arkiv start and end date"); // NOSONAR
                             System.out.println(arkivNew); // NOSONAR
-                            return  0;
-                        }
-                        else if(firstReg > getYearFromString(arkivNew.get(1),true) + 3){
-                            output.add(firstReg);
-                            output.add(getYearFromString(arkivNew.get(1), true));
+                            return 0;
+                        } else if (firstReg > getYearFromString(arkivNew.get(1), true) + 3) {
+                            output.add(Integer.toString(firstReg));
+                            output.add(Integer.toString(getYearFromString(arkivNew.get(1), true)));
+
                             choose = 2;
+
                         }
-                    }
-                    else{
+                    } else {
                         System.out.println("Missing one of systemID/opprettetDato/avsluttetDato in arkivdel"); // NOSONAR
                         return 0;
                     }
@@ -205,6 +174,12 @@ public class ArkadeModel {
         return choose;
     }
 
+    /**
+     * Get all dates outside arkivperiode.
+     * @param arkivdelStartYear Xqueries arkivperiode dates.
+     * @param regDato Xqueries register dates.
+     * @return Dates outside of arkivperiode.
+     */
     public List<String> registratorDates(List<String> arkivdelStartYear, List<String> regDato){
 
         List<String> datesAfter = new ArrayList<>();
@@ -267,7 +242,7 @@ public class ArkadeModel {
 
     /**
      * 3.1.27: N5.47 Systemidentifikasjoner, (Arkade returns 0 here, not in use)N5.34 Dokumentfiler med referanse.
-     * @param docxInput Values to put in to docx text.
+     * @param docxInput Values to put into docx text.
      * @return Number. What text form docx to output in report
      */
     public Integer systemidentifikasjonerForklaring(List<String> doukBes, List<String> klasser, List<String> docxInput){
@@ -312,10 +287,10 @@ public class ArkadeModel {
     // Function for all Chapters
 
     /**
-     * Get one integer from list. False if  more elements with containsValue
-     * @param listString string list
-     * @param containsValue get element with value
-     * @return One element with containsValue. else -1
+     * Get one integer from list. False if  more elements with containsValue.
+     * @param listString Get one element from this list.
+     * @param containsValue Get element with this value.
+     * @return One element with containsValue. else -1.
      */
     public Integer getOneElementInListAsInteger(List<String> listString, String containsValue){
         String oneElement = getOneElementInListAsString(listString, containsValue);
@@ -330,8 +305,8 @@ public class ArkadeModel {
 
     /**
      * Get one String from list. False if more elements with containsValue
-     * @param listString string list
-     * @param containsValue get element with value
+     * @param listString Get one element from this list.
+     * @param containsValue Get element with this value.
      * @return One element with containsValue. else ""
      */
     public String getOneElementInListAsString(List<String> listString, String containsValue){
@@ -345,7 +320,7 @@ public class ArkadeModel {
 
     /** Get sum of all numbers in List. List NEEDS to have ONLY NUMBERS you want to sum.
      * @param numberList String List with number.
-     * @return Sum of all number in string OR -1 if no number in list.
+     * @return Sum of all number in string OR -1 if something went wrong.
      */
     public Integer sumStringListWithOnlyNumbers(List<String> numberList){
 
@@ -369,10 +344,9 @@ public class ArkadeModel {
         return number;
     }
 
-    /**
-     *
+    /** Get Year from string.
      * @param year string with year. Need to have year at front or back
-     * @param getYearAtBeginning year at beginning of string. else year back of the string
+     * @param getYearAtBeginning GET: year at beginning of string. else year back of the string
      * @return year 4 numbers
      */
     public Integer getYearFromString(String year, boolean getYearAtBeginning){
@@ -396,8 +370,8 @@ public class ArkadeModel {
     }
 
     /**
-     * Makes string to Intger
-     * @param number sting with number int it.
+     * Makes string to Integer.
+     * @param number string with number in it.
      * @return number string as integer.
      */
     public Integer getStringNumberAsInteger(String number){
@@ -451,12 +425,12 @@ public class ArkadeModel {
     }
 
     /**
-     * indexSymbol ":" = substring after last ":".
-     * NOT ":" = "Other symbol" Substring ":"
-     * "" = everthing before ":"
-     * Get text between "indexSymbol" and last ":". OR If ":" gets text after last ":".
-     * @param text Gets substring form text.
-     * @param indexSymbol Input ":" get substring after last ":" OR Input symbol get substring between symbol and last ":".
+     * Get substring in text. 3 options: see for more info @param indexSymbol.
+     * @param text Gets substring from text.
+     * @param indexSymbol
+     *      Get substring between Symbol and last ":".
+     *      If indexSymbol = ":". THEN get substring after last ":".
+     *      If indexSymbol = "". THEN get everything before ":"
      * @return Substring in text or "".
      */
     public String getTextAt(String text, String indexSymbol){
@@ -482,7 +456,7 @@ public class ArkadeModel {
      * @param listText Search in this list.
      * @param indexSymbol1 substring before text you want to find.
      * @param indexSymbol2 substring after text you want to find.
-     * @return "" if failed or text.
+     * @return text OR "" if something went wrong.
      */
     public List<String> getTextBetweenWords(List<String> listText, String indexSymbol1, String indexSymbol2){
 
@@ -511,8 +485,7 @@ public class ArkadeModel {
     }
 
     /**
-     * Get all IDs "getAllIDs()", Get deviation for every ID.
-     * @return all deviation in file testreport.
+     * Get every table: N5.**.
      */
     public List<String> getAll () { // NOSONAR
         List<String> htmlTable = new ArrayList<>();
@@ -524,7 +497,7 @@ public class ArkadeModel {
     }
 
     /**
-     * Get all IDs from arkade Testreport.
+     * Get all IDs from arkade Testreport: N5.**.
      * @return List of deviation IDs.
      */
     public List<String> getAllIDs () {
@@ -551,8 +524,7 @@ public class ArkadeModel {
 
         for(String i : getSpecificValue(index, containsValue)){
             if(i.contains(containsValue)){
-                String tmp = i.substring(i.lastIndexOf(")") + 1);
-                tmp = tmp.replace(":","");
+                String tmp = i.substring(i.lastIndexOf(")") + 2);
                 tmp = tmp.replace(",","");
                 tmp = tmp.replaceFirst(" ", "");
                 tmp = tmp.split(" ", 2)[0];
@@ -589,9 +561,9 @@ public class ArkadeModel {
     }
 
     /**
-     * Only keep elements in String list with containsValue
-     * @param indexlist List with string elements
-     * @param containsValue Look for value in elements
+     * Only keep elements in String list with containsValue.
+     * @param indexlist List with string elements.
+     * @param containsValue Look for value in elements.
      * @return "" if empty list.
      */
     public List<String> getSpecificValueInList(List<String> indexlist, String containsValue){
@@ -683,7 +655,7 @@ public class ArkadeModel {
      * @param index ID for test class.
      * @return List where every other element contains.
      *      File Location and Arkade deviation or emptyList if no deviation table.
-     *      eg. "Location", "message", "Location", etc.
+     *      Example: "Location", "message", "Location", "message" etc.
      */
     public List<String> getDataFromHtml(String index){
 
@@ -709,7 +681,7 @@ public class ArkadeModel {
 
     /**
      *  Get cells from deviation table.
-     * @param htmlTable Add string element to this list.
+     * @param htmlTable Store html text in this list.
      * @param rows Html elements. Where it will get the tables from.
      */
     public void getCellsInTable(List<String> htmlTable, Elements rows){

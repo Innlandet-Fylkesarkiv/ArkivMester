@@ -31,7 +31,6 @@ public class ArchiveController implements ViewObserver {
     ThirdPartiesModel thirdPartiesModel;
     SettingsModel settingsModel;
 
-
     ScheduledExecutorService scheduler;
 
 
@@ -61,6 +60,9 @@ public class ArchiveController implements ViewObserver {
         }
     }
 
+    /**
+     * Queries the administrative information from the metadata.xml file and formats the date.
+     */
     public void getAdminInfo() {
         List<String> list;
         String xqName;
@@ -197,6 +199,12 @@ public class ArchiveController implements ViewObserver {
         }
     }
 
+    /**
+     *
+     * @param xml
+     * @param header
+     * @return
+     */
     private List<String> getEmptyOrContent(String xml, String header) {
         String empty = "empty";
         File xquery = new File(settingsModel.prop.getProperty("xqueryExtFolder") + "\\" + header + ".xq"); //NOSONAR
@@ -328,6 +336,10 @@ public class ArchiveController implements ViewObserver {
         aipScheduler.submit(this::packToAIPThread);
     }
 
+    /**
+     * Extension of the packToAip function. Prepares the unzipped folder with newly created reports
+     * and then packs the folder to an AIP
+     */
     public void packToAIPThread() {
         try {
             settingsModel.prepareToAIP();
@@ -373,7 +385,8 @@ public class ArchiveController implements ViewObserver {
             mainView.exceptionPopup("En eller flere datoer er ugyldige.");
         }
     }
-        //When "Avbryt" is clicked.
+
+    //When "Avbryt" is clicked.
     @Override
     public void cancelButton() {
         if(adminInfoView != null) {
@@ -418,6 +431,9 @@ public class ArchiveController implements ViewObserver {
         uploadScheduler.submit(this::uploadArchiveThread);
     }
 
+    /**
+     * Extension of the uploadArchive function. Uploads the archive and calls getAdminInfo().
+     */
     public void uploadArchiveThread() {
         int success = archiveModel.uploadFolder(mainView.getContainer());
 
@@ -462,6 +478,9 @@ public class ArchiveController implements ViewObserver {
         reportScheduler.submit(this::makeReportThread);
     }
 
+    /**
+     * Extension of the makeReport function. Gets all needed information, then generates the report.
+     */
     public void makeReportThread() {
         Properties prop = settingsModel.prop;
         String fileName = prop.getProperty("currentArchive");

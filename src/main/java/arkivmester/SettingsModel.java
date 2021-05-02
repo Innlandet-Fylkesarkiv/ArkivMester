@@ -124,6 +124,10 @@ public class SettingsModel {
         folders.add(reportsFolder);
     }
 
+    /**
+     * Copies the newly created reports into the unzipped archive, making it ready for packing it to AIP.
+     * @throws IOException Files can not be copied.
+     */
     public void prepareToAIP() throws IOException {
         File repOpsFolder = new File(archiveFolder.getPath() + "\\" + prop.getProperty(CURRENTARCHIVE) + "\\administrative_metadata\\repository_operations"); //NOSONAR
         if(!repOpsFolder.exists()) {

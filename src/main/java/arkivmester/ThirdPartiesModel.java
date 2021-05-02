@@ -61,6 +61,7 @@ public class ThirdPartiesModel {
     /**
      * Updates selectedTests with updated data.
      * @param selectedList Updated selectedTests from the UI.
+     * @param selectedXqueries Updated selectedXqueries from the UI.
      */
     public void updateTests(List<Boolean> selectedList, List<Boolean> selectedXqueries) {
         this.selectedTests = selectedList;
@@ -94,6 +95,7 @@ public class ThirdPartiesModel {
 
     /**
      * Initializes the tempFolder variable with the current tempFolder path.
+     * @param prop Config as properties object.
      */
     public void initializePath(Properties prop) {
         tempFolder = prop.getProperty(tempFolderKey);
@@ -206,12 +208,13 @@ public class ThirdPartiesModel {
     /**
      * Runs 7Zip through command line and unzips the archive.
      *
-     * @param path A file that contains the archive to be unzipped
+     * @param path A file that contains the archive to be unzipped.
      * @param prop Properties object containing the config.
      * @throws IOException Cannot run program.
      */
     public void unzipArchive(File path, Properties prop) throws IOException {
         File unzipped = new File(tempFolder + archiveName + archiveName); // #NOSONAR
+        //If unzipped folder exists, deletes it.
         if(unzipped.exists()){
             Path directory = unzipped.toPath();
             Files.walkFileTree(directory, new SimpleFileVisitor<>() {
@@ -235,6 +238,11 @@ public class ThirdPartiesModel {
         runCMD(cd + " && 7z x " + path + " -o\"" + tempFolder + archiveName + "\" -r");
     }
 
+    /**
+     * Runs the selected custom XQueries.
+     * @param prop Properties object containing the config.
+     * @throws IOException Cannot create/read files.
+     */
     public void runXquery(Properties prop) throws IOException { // #NOSONAR
         for(int i = 0; i<selectedXqueries.size(); i++) {
             if(Boolean.TRUE.equals(selectedXqueries.get(i))) {
@@ -243,6 +251,11 @@ public class ThirdPartiesModel {
         }
     }
 
+    /**
+     * Sets up a Basex database containing all the archive's .xml files and reports.
+     * @param prop Properties object containing the config.
+     * @throws IOException Cannot read/create files.
+     */
     public void setUpBaseXDatabase(Properties prop) throws IOException {
         isDBAlive = true;
         String pwd = cdString + prop.getProperty(basexPathKey) + "\"";
@@ -303,6 +316,11 @@ public class ThirdPartiesModel {
         runCMD(pwd + cmdOpen + dbName + cmdAdd + xml15 + "\"\"");
     }
 
+    /**
+     * Deletes the Basex database after use to reduce memory usage.
+     * @param prop Properties object containing the config.
+     * @throws IOException Cannot read/create files.
+     */
     public void deleteBaseXDB(Properties prop) throws IOException {
         isDBAlive = false;
         String pwd = cdString + prop.getProperty(basexPathKey) + "\"";
@@ -351,6 +369,12 @@ public class ThirdPartiesModel {
     }
 
 
+    /**
+     * Queries an XQuery file and saves the results in a textfile.
+     * @param xqName Name of the XQuery file.
+     * @param prop Properties object containing the config.
+     * @throws IOException Cannot read/create files.
+     */
     public void runCustomBaseX(String xqName, Properties prop) throws IOException {
         //XQuery
         String xq = prop.getProperty("xqueryCustomFolder") + "\\" + xqName + "\"";
@@ -395,6 +419,12 @@ public class ThirdPartiesModel {
         r.close();
     }
 
+    /**
+     * Packs the prepared unzipped archive folder to AIP.
+     * @param prop Properties object containing the config.
+     * @param metadataPath Path to archive's metadata.xml file.
+     * @throws IOException Cannot create folders or files.
+     */
     public void packToAIP(Properties prop, String metadataPath) throws IOException {
 
         String cd = cdString + prop.getProperty("arkadePath") + "\"";
