@@ -39,15 +39,12 @@ import java.util.stream.IntStream;
  *
  * @since 1.0
  * @version 1.0
- * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen
+ * @author Magnus Sustad, Oskar Leander Melle Keogh, Esben Lomholt Bjarnason and Tobias Ellefsen.
  */
 public class ReportModel {
-    ArkadeModel arkadeModel;
-    Properties prop;
-    Map<String, List<String>> xqueriesMap;
 
     /**
-     * The enum for the different kinds of text types that the program will deal with
+     * The enum for the different kinds of text types that the program will deal with.
      */
     enum TextStyle {
         INPUT,
@@ -58,32 +55,46 @@ public class ReportModel {
     }
 
     /**
+     * The data from the arkade5 report is stored in these various variables.
+     */
+    ArkadeModel arkadeModel;
+    Properties prop;
+    Map<String, List<String>> xqueriesMap;
+
+    /**
      * List of the attachments which will be printed in chapter 5.
      */
     ArrayList<String> attachments = new ArrayList<>();
-    static final String EMPTY = "empty";
 
     /**
-     * Used for getTotal function in ARkadeModel
+     * Every string that is referenced more than twice in varies functions are initialized here.
      */
     static final String TOTAL = "Totalt";
+    static final String EMPTY = "empty";
+    static String notFoundField = "<Fant ikke verdi>";
+    private static final String FONT = "Roboto (Brødtekst)";
     static final String TABLESPLIT = "[;:][ ]";
-
-
-    static XWPFDocument document;
     String chapterFolder = "/chapters/";
     String templateFile = "/Dokumentmal_fylkesarkivet_Noark5_testrapport.docx";
 
-    static String notFoundField = "<Fant ikke verdi>";
 
+    /**
+     * Template of the document is stored in this variable.
+     */
+    static XWPFDocument document;
+
+    /**
+     * Every chapter in the template is tracked here.
+     */
     private HeadersData headersData;
-
-    // Experimental
     Map<List<Integer>, Chapter> chapterMap;
 
-    private static final String FONT = "Roboto (Brødtekst)";
-
-    public void init(Properties prop, Map<String, List<String>> map) {
+    /**
+     * Initializes the necessary variables.
+     * @param prop - Property class.
+     * @param map - map of all the chapter information that were fetched from xqueries.
+     */
+    public void init(Properties prop, Map<String,List<String>> map) {
         this.prop = prop;
         arkadeModel = new ArkadeModel();
         headersData = new HeadersData();
@@ -92,45 +103,76 @@ public class ReportModel {
     }
 
     /**
-     * Class for handling every ChapterList
+     * Class for handling every ChapterList.
      */
-
     public static class Chapter {
 
+        /**
+         * handles string name of a specific chapter, if it is active and every section that it has.
+         */
         String title;
         boolean active;
         List<SectionList> sections;
 
-        Chapter(String t) {
-            title = t;
+        /**
+         * Initializes chapter.
+         * @param text - the name of that chapter.
+         */
+        Chapter(String text) {
+            title = text;
             active = true;
             sections = new ArrayList<>();
         }
 
+        /**
+         * Makes it so that chapter does not get printed on the end-report.
+         */
         public void deactivate() {
             active = false;
         }
 
-        public void changeTitle(String t) {
-            title = t;
+        /**
+         * Changes name of the title.
+         * @param text - the name given.
+         */
+        public void changeTitle(String text) {
+            title = text;
         }
 
+        /**
+         * Adds a section to the chapter.
+         */
         public void addSection() {
             sections.add(new SectionList());
         }
 
-        public void fillSection(List<String> ls, TextStyle style, int col, CTChart chart) {
-            sections.get(sections.size()-1).addContent(ls, style, col, chart);
+        /**
+         * Fills the section with content.
+         * @param ls - a list of paragraphs which is inside that given section.
+         * @param type - type of text.
+         * @param col - used for table and graph to decide how many different columns are needed.
+         * @param chart - null if not used, or chart if it exists in that section.
+         */
+        public void fillSection(List<String> ls, TextStyle type, int col, CTChart chart) {
+            sections.get(sections.size()-1).addContent(ls, type, col, chart);
         }
 
+        /**
+         * Looks for an empty section which has been created earlier and sets chart content in it.
+         * @param chart - chart information.
+         */
         public void placeInEmptySection(CTChart chart) {
             for(SectionList section : sections) {
                 if(section.placeIfEmpty(chart)) return;
             }
         }
 
-        public void insertInput(XWPFParagraph p) {
-            for(XWPFRun r : p.getRuns()) {
+        /**
+         * Looks for "TO-DO" text inside a specific chapter section in document and replaces it with new text.
+         * @param paragraph - new text to replace the old one with.
+         */
+        public void insertInput(XWPFParagraph paragraph) {
+            for(XWPFRun r : paragraph.getRuns()) {
                 if (r.getText(0) != null && r.getText(0).contains("TODO")) {
                     for (SectionList section : sections) {
                         section.insertInput(r);
@@ -139,26 +181,51 @@ public class ReportModel {
             }
         }
 
+        /**
+         * Inserts input inside a section of a chapter.
+         * @param sect - section to be used.
+         * @param input - input to be stored.
+         */
         public void insertParagraph(int sect, List<String> input) {
             sections.get(sect).insertParagraph(input);
         }
 
+        /**
+         * Will loop through each table and place input inside the first table template found.
+         * @param input - input to be stored.
+         */
         public void insertTable(List<String> input) {
             for(SectionList section : sections) {
                 if(section.isActive()) section.insertTable(input);
             }
         }
 
+        /**
+         * Will loop through each table and place input inside the first table template found.
+         * When found, it will check for if row matches.
+         * @param input - input to be stored.
+         * @param matchRows - the index rows to match.
+         */
         public void insertTable(List<String> input, List<Integer> matchRows) {
             for(SectionList section : sections) {
                 if(section.isActive()) section.insertTable(input, matchRows);
             }
         }
 
+        /**
+         * Inserts graph data into specified section.
+         * @param sect - section to be used.
+         * @param inputG - input to be stored.
+         * @param col - amount of different data.
+         * @param vary - set to false if there are no more than 1 category.
+         */
         public void insertGraph(int sect, List<String> inputG, int col, boolean vary) {
             sections.get(sect).insertGraph(inputG, col, vary);
         }
 
+        /**
+         * Outputs the chapter number, and sections that are active in console.
+         */
         public void writeInputText() {
             int ind = 0;
             System.out.println(title);                                                      // NOSONAR
@@ -172,10 +239,14 @@ public class ReportModel {
             }
         }
 
-        public void insertToDocument(XWPFParagraph p) {
+        /**
+         * Inserts paragraph from each section to specified paragraph line in document.
+         * @param paragraph - The paragraph line in document the text should be placed in.
+         */
+        public void insertToDocument(XWPFParagraph paragraph) {
             for (SectionList section : sections) {
                 if(section.isActive()) {
-                    section.insertToDocument(p);
+                    section.insertToDocument(paragraph);
                 }
             }
         }
@@ -183,11 +254,14 @@ public class ReportModel {
     }
 
     /**
-     * Handles all the sections in a certain chapter
+     * Handles all the sections in specified chapter.
      */
-
     public static class SectionList {
 
+        /**
+         * active - if the section is in use.
+         * contents - the set of contents (paragraphs, table, graph) inside a section.
+         */
         boolean active;
         List<Content> contents;
 
@@ -196,10 +270,22 @@ public class ReportModel {
             contents = new ArrayList<>();
         }
 
-        public void addContent(List<String> ls, TextStyle style, int col, CTChart chart) {
-            contents.add(new Content(ls, style, col, chart));
+        /**
+         * Adds data to specified content.
+         * @param ls - the list of items to be stored in content.
+         * @param type - the type of content (paragraph, table, or table).
+         * @param col - amount of different categories (used solely for table and graph).
+         * @param chart - graph data if type is graph, or null otherwise.
+         */
+        public void addContent(List<String> ls, TextStyle type, int col, CTChart chart) {
+            contents.add(new Content(ls, type, col, chart));
         }
 
+        /**
+         * Will check for empty content. Upon hit, will store graph inside content.
+         * @param chart - chart data to be stored.
+         * @return true upon first empty content hit, or false otherwise.
+         */
         public boolean placeIfEmpty(CTChart chart) {
             if(contents.isEmpty()) {
                 contents.add(new Content(null, TextStyle.GRAPH, 0, chart));
@@ -209,15 +295,23 @@ public class ReportModel {
             return false;
         }
 
-        public void insertInput(XWPFRun r) {
+        /**
+         * Will replace input data with data in document that contains "TO-DO" fields.
+         * @param run - Will go through each word in a XWPFParagraph from document.
+         */
+        public void insertInput(XWPFRun run) {
             for(Content content : contents) {
                 if(content.type.equals(TextStyle.INPUT)) {
-                    content.insertInputToDocument(r.getText(0), r);
+                    content.insertInputToDocument(run.getText(0), run);
                 }
             }
             active = true;
         }
 
+        /**
+         * Will store input to content of a type paragraph.
+         * @param input - input to be stored.
+         */
         public void insertParagraph(List<String> input) {
             for(Content content : contents) {
                 if(content.type.equals(TextStyle.PARAGRAPH)) {
@@ -227,6 +321,10 @@ public class ReportModel {
             active = true;
         }
 
+        /**
+         * Will store input to content of a type table.
+         * @param input - input to be stored.
+         */
         public void insertTable(List<String> input) {
             for(Content content : contents) {
                 if(content.isTableTemplate()) {
@@ -237,6 +335,11 @@ public class ReportModel {
             active = true;
         }
 
+        /**
+         * Will store input to content of a type paragraph.
+         * @param inputT - input to be stored.
+         * @param matchRows - rows to match.
+         */
         public void insertTable(List<String> inputT, List<Integer> matchRows) {
             for(Content content : contents) {
                 if(content.isTableTemplate()) {
@@ -247,6 +350,12 @@ public class ReportModel {
             active = true;
         }
 
+        /**
+         * Will store input to content of a type graph.
+         * @param inputG - input to be stored.
+         * @param col - amount of different categories.
+         * @param vary - set to false if there are no more than 1 category.
+         */
         public void insertGraph(List<String> inputG, int col, boolean vary) {
             for(Content content : contents) {
                 content.insertGraph(inputG, col, vary);
@@ -254,37 +363,58 @@ public class ReportModel {
             active = true;
         }
 
+        /**
+         * Loops through each Content class in SectionList and writes.
+         */
         public void writeInputText() {
             for(Content content : contents) {
                 content.getText();
             }
         }
 
-        public void insertToDocument(XWPFParagraph p) {
+        /**
+         * Based on the type of content, will call on insertion function for that said type.
+         * @param paragraph - The paragraph line in document the text should be placed in.
+         */
+        public void insertToDocument(XWPFParagraph paragraph) {
             for(Content content : contents) {
                 switch(content.getType()) {
                     case PARAGRAPH:
-                        content.insertParagraphToDocument(p);
+                        content.insertParagraphToDocument(paragraph);
                         break;
                     case TABLE:
-                        content.insertTableToDocument(p);
+                        content.insertTableToDocument(paragraph);
                         break;
                     case GRAPH:
-                        content.insertGraphToDocument(p);
+                        content.insertGraphToDocument(paragraph);
                         break;
                     default:
                 }
             }
         }
 
+        /**
+         * Look for if section is in use.
+         * @return active variable.
+         */
         public boolean isActive() { return active; }
 
     }
 
+    /**
+     * Content class has the actual data used for editing the document, and has no children.
+     */
     public static class Content {
 
+        /**
+         * This type of string will look for patterns in sentences which has words or consecutive words
+         * with only capital letters in them ("ANTALL", "ANTALL ARKIVUTTREKK", etc).
+         */
         String regex = "[^a-zæøåA-ZÆØÅ ][A-ZÆØÅ]{3,}([ ][A-ZÆØÅ]{3,}){0,5}[^a-zæøåA-ZÆØÅ ]|[A-ZÆØÅ]{4,}";
 
+        /**
+         * Different data that are used to store the various types of information.
+         */
         private List<String> result;
 
         private int tableCol;
@@ -307,6 +437,12 @@ public class ReportModel {
             chart = ch;
         }
 
+        /**
+         * Inserts graph content into content.
+         * @param input - input to be stored.
+         * @param col - amount of different categories.
+         * @param vary - set to false if there are no more than 1 category.
+         */
         public void insertGraph(List<String> input, int col, boolean vary) {
             result = input;
             tableCol = col;
@@ -314,13 +450,40 @@ public class ReportModel {
         }
 
         /**
-         *
-         * @param matchRows
-         * @param inputR
-         * @param resultR
-         * @param input
-         * @param temp
-         * @return
+         * update table data in content.
+         * @param input - input to be stored.
+         */
+        public void updateTable(List<String> input) {
+            result.subList(tableCol, result.size()).clear();
+            result.addAll(input);
+        }
+
+        /**
+         * update table data of pre-existing table.
+         * @param inputT - input to be stored
+         * @param matchRows - rows to check for match.
+         */
+        public void updateTable(List<String> inputT, List<Integer> matchRows) {
+            List<String> temp = new ArrayList<>(result.subList(0, tableCol));
+
+            for(int row = 0; row*tableCol < inputT.size(); row++) {
+                for(int resultrow = 1; resultrow*tableCol < result.size(); resultrow++) {
+                    if(findMatchingRows(matchRows, row, resultrow, inputT, temp)) break;
+                }
+            }
+
+            result = temp;
+        }
+
+        /**
+         * Will go through each row in every column to identify if selected rows match eachother.
+         * Will store the input if match.
+         * @param matchRows - The rows to check for.
+         * @param inputR - the row from pre-existing table.
+         * @param resultR - the row from input.
+         * @param input - input to be stored.
+         * @param temp - starts off as empty, but items gets added to it each time a match is found.
+         * @return true if match is found, false otherwise.
          */
         public boolean findMatchingRows(List<Integer> matchRows, int inputR, int resultR, List<String> input, List<String> temp) {
             if(
@@ -367,25 +530,12 @@ public class ReportModel {
             return input.subList(index, input.size());
         }
 
-        public void updateTable(List<String> input) {
-            result.subList(tableCol, result.size()).clear();
-            result.addAll(input);
-        }
-
-        public void updateTable(List<String> inputT, List<Integer> matchRows) {
-            List<String> temp = new ArrayList<>(result.subList(0, tableCol));
-
-            for(int row = 0; row*tableCol < inputT.size(); row++) {
-                for(int resultrow = 1; resultrow*tableCol < result.size(); resultrow++) {
-                    if(findMatchingRows(matchRows, row, resultrow, inputT, temp)) break;
-                }
-            }
-
-            result = temp;
-        }
-
-        public void insertParagraphToDocument(XWPFParagraph p) {
-            XmlCursor cursor = p.getCTP().newCursor();//this is the key!
+        /**
+         * Insert content of type paragraph to document
+         * @param paragraph - The paragraph line in document the text should be placed in.
+         */
+        public void insertParagraphToDocument(XWPFParagraph paragraph) {
+            XmlCursor cursor = paragraph.getCTP().newCursor();//this is the key!
 
             XWPFParagraph para = document.insertNewParagraph(cursor);
 
@@ -394,13 +544,17 @@ public class ReportModel {
             setRun(para.createRun() , FONT , 11, true, (!input.equals("") ? input : notFoundField), true);
         }
 
-        public void insertTableToDocument(XWPFParagraph p) {
-            XmlCursor cursor = p.getCTP().newCursor();//this is the key!
+        /**
+         * Insert content of type table to document
+         * @param paragraph - The paragraph line in document the text should be placed in.
+         */
+        public void insertTableToDocument(XWPFParagraph paragraph) {
+            XmlCursor cursor = paragraph.getCTP().newCursor();//this is the key!
 
             XWPFTable table = document.insertNewTbl(cursor);
             table.removeRow(0);
 
-            XWPFParagraph paragraph;
+            XWPFParagraph para;
 
             XWPFTableRow tableOneRowVersion;
 
@@ -410,9 +564,9 @@ public class ReportModel {
                     if(i == 0) {
                         tableOneRowVersion.addNewTableCell();
                     }
-                    paragraph = tableOneRowVersion.getCell(j).addParagraph();
+                    para = tableOneRowVersion.getCell(j).addParagraph();
                     setRun(
-                            paragraph.createRun(),
+                            para.createRun(),
                             FONT,
                             11,
                             (i != 0),
@@ -424,20 +578,24 @@ public class ReportModel {
                 }
             }
 
-            cursor = p.getCTP().newCursor();//this is the key!
+            cursor = paragraph.getCTP().newCursor();//this is the key!
 
-            XWPFParagraph para = document.insertNewParagraph(cursor);
+            para = document.insertNewParagraph(cursor);
 
             setRun(para.createRun() , FONT , 11, true, "", false);
         }
 
-        public void insertGraphToDocument(XWPFParagraph p) {
+        /**
+         * Insert content of type graph to document
+         * @param paragraph - The paragraph line in document the text should be placed in.
+         */
+        public void insertGraphToDocument(XWPFParagraph paragraph) {
             int width = 16 * Units.EMU_PER_CENTIMETER;
             int height = 10 * Units.EMU_PER_CENTIMETER;
 
             if(tableCol > 0) {
 
-                XmlCursor cursor = p.getCTP().newCursor();//this is the key!
+                XmlCursor cursor = paragraph.getCTP().newCursor();//this is the key!
 
                 XWPFParagraph para = document.insertNewParagraph(cursor);
 
@@ -456,6 +614,10 @@ public class ReportModel {
             }
         }
 
+        /**
+         * Extracts chart data from existing chart
+         * @return extracted chart
+         */
         public XSSFChart barColumnChart() {
             try (XSSFWorkbook wb = new XSSFWorkbook()) {
 
@@ -688,6 +850,9 @@ public class ReportModel {
         updateTOC();
     }
 
+    /**
+     *  Updates the table of content (TOC) after every chapter has been updated to the function
+     */
     private void updateTOC() {
         //Update ToC
         try{
@@ -743,15 +908,15 @@ public class ReportModel {
 
     /**
      * Checks if paragraph is a Header.
-     * @param p - paragraph in document to look into
+     * @param paragraph - paragraph in document to look into
      * @return - true if paragraph style of header is found, and false if not found
      */
-    private boolean findNewHeader(XWPFParagraph p) {
+    private boolean findNewHeader(XWPFParagraph paragraph) {
         XWPFStyles styles = document.getStyles();
 
-        if(p.getStyle() != null) {
+        if(paragraph.getStyle() != null) {
 
-            XWPFStyle style = styles.getStyle(p.getStyleID());
+            XWPFStyle style = styles.getStyle(paragraph.getStyleID());
 
             if(style.getStyleId().contains("Overskrift") || style.getStyleId().contains("Heading")) {
                 headersData.compareName(style.getName());
@@ -806,6 +971,9 @@ public class ReportModel {
         }
     }
 
+    /**
+     * Changes the date to the date when report got written in the document
+     */
     private void changeDate() {
         for (XWPFParagraph paragraph : document.getParagraphs()) {
             XmlCursor cursor = paragraph.getCTP().newCursor();
@@ -976,6 +1144,11 @@ public class ReportModel {
         }
     }
 
+    /**
+     * Gets chart from a chapter document.
+     * @param file - location of the docx file.
+     * @return chart if there exists a chart in file, null otherwise.
+     */
     private List<CTChart> getDocumentGraphs(String file) {
 
         List<CTChart> chartDatas = new ArrayList<>();
@@ -996,6 +1169,12 @@ public class ReportModel {
         return chartDatas;
     }
 
+    /**
+     * Function used for color scheming of chart category.
+     * @param data - chart data.
+     * @param index - which category color to apply to.
+     * @param color - color of choice.
+     */
     private void solidFillSeries(XDDFChartData data, int index, PresetColor color) {        // NOSONAR
         XDDFSolidFillProperties fill = new XDDFSolidFillProperties(XDDFColor.from(color));
         XDDFChartData.Series series = data.getSeries(index);
@@ -1044,7 +1223,7 @@ public class ReportModel {
     }
 
     private void createChapterGraph(List<Integer> h, CTChart chart) {
-        chapterMap.get(h).placeInEmptySection(chart);    // Experimental
+        chapterMap.get(h).placeInEmptySection(chart);
     }
 
     /**
@@ -1110,7 +1289,6 @@ public class ReportModel {
     private void generateReportPartTwo() {
 
         List<String> para;
-
 
         //Chapter 3.1
         String version = arkadeModel.getArkadeVersion().replace("Arkade 5 versjon: ", "");
@@ -1706,6 +1884,9 @@ public class ReportModel {
         }
     }
 
+    /**
+     * Used for chapter 3.1.23
+     */
     private void skjerminger() {
         List<String> para = xqueriesMap.get("3.1.23_1");
         if(para.get(0).equals(EMPTY)) {
@@ -1752,6 +1933,11 @@ public class ReportModel {
         }
     }
 
+    /**
+     * Used for 3.1.23 to put table input into the right row.
+     * @param ls - input to compare with
+     * @return new input list based on category
+     */
     private List<String> getSkjerminger(List<String> ls) {
         Map<String, Integer> map = new LinkedHashMap<>();
 
@@ -1793,6 +1979,11 @@ public class ReportModel {
         return newList;
     }
 
+    /**
+     * Splits the list with ; or : as separators.
+     * @param temp - old list with ; or : between each item.
+     * @return new list which has ; and : removed.
+     */
     public List<String> splitIntoTable(List<String> temp) {
         List<String> ls = new ArrayList<>();
         for (String s : temp) {
@@ -1801,6 +1992,11 @@ public class ReportModel {
         return ls;
     }
 
+    /**
+     * Get the amount of rows for table.
+     * @param input - input to check rows for.
+     * @return number of rows.
+     */
     private int getRows(List<String> input) {
         int num = 0;
 
@@ -1815,6 +2011,11 @@ public class ReportModel {
         return num;
     }
 
+    /**
+     * Writes tests used and files created in chapter 5.
+     * @param filename - generic filename.
+     * @param content - the content to be written in document.
+     */
     private void writeAttachments(String filename, List<String> content) {
         String path = prop.getProperty("tempFolder") + "\\" + prop.getProperty("currentArchive") //NOSONAR
                 + "\\Rapporter\\" + filename + ".txt"; // NOSONAR
