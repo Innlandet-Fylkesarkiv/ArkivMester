@@ -7,4 +7,4 @@ declare namespace el="http://www.arkivverket.no/standarder/noark5/endringslogg" 
 
 for $r in distinct-values(//mappe[@xsi:type="moetemappe"]/utvalg)
 
-return concat($r, '; ', count(//mappe[@xsi:type="moetemappe" and utvalg = $r]/moetedeltaker))
+return concat($r, '; ', count(//mappe[@xsi:type="moetemappe" and utvalg = $r]))

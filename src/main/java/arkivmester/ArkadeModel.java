@@ -27,8 +27,6 @@ public class ArkadeModel {
     static final String TOTALT = "Totalt";
 
     ArkadeModel(){
-        //readHtmlFileFromTestFolder(); //NOSONAR
-
 
     }
 
@@ -211,8 +209,8 @@ public class ArkadeModel {
      */
     public List<Integer> saksparter(){
         List<Integer> list = new ArrayList<>();
-        Integer saksparter = getTotal("N5.35", TOTALT); //NOSONAR
-        Integer antallReg = getTotal("N5.16", TOTALT);  //NOSONAR
+        Integer saksparter = getTotal("N5.35", TOTALT);
+        Integer antallReg = getTotal("N5.16", TOTALT);
 
         list.add(saksparter);
         if(saksparter <= 0){
@@ -487,7 +485,7 @@ public class ArkadeModel {
     /**
      * Get every table: N5.**.
      */
-    public List<String> getAll () { // NOSONAR
+    public List<String> getAll () {
         List<String> htmlTable = new ArrayList<>();
         // Get deviation for every id
         for (String index : getAllIDs()){

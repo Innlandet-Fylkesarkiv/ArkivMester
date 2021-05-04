@@ -6,25 +6,17 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.util.Units;
-import org.apache.poi.xddf.usermodel.PresetColor;
-import org.apache.poi.xddf.usermodel.XDDFColor;
-import org.apache.poi.xddf.usermodel.XDDFShapeProperties;
-import org.apache.poi.xddf.usermodel.XDDFSolidFillProperties;
 import org.apache.poi.xddf.usermodel.chart.*;
 import org.apache.poi.xssf.usermodel.*;
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.xmlbeans.XmlCursor;
-
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.toc.TocGenerator;
-
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTChart;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTR;
-
 import java.io.*;
-
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -420,7 +412,7 @@ public class ReportModel {
         private int tableCol;
         private final TextStyle type;
         private int cindex;
-        private CTChart chart;
+        private final CTChart chart;
         private boolean isVaried;
 
         /**
@@ -605,9 +597,9 @@ public class ReportModel {
                     XWPFChart charttemp = document.createChart(r, width, height);
                     CTChart ctChartTemp = charttemp.getCTChart();
 
-                    XSSFChart chart = barColumnChart();
+                    XSSFChart ch = barColumnChart();
 
-                    ctChartTemp.set(chart.getCTChart());
+                    ctChartTemp.set(ch.getCTChart());
                 } catch(InvalidFormatException | IOException e) {
                     System.out.println(e.getMessage());                 // NOSONAR
                 }
@@ -658,20 +650,20 @@ public class ReportModel {
                 XSSFDrawing drawing = sheet.createDrawingPatriarch();
                 XSSFClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 0, 4, 7, 20);
 
-                XSSFChart chart = drawing.createChart(anchor);
-                chart.setTitleText(title);
+                XSSFChart ch = drawing.createChart(anchor);
+                ch.setTitleText(title);
 
                 // Formats the title font
-                chart.getCTChart().getTitle().getTx().getRich().getPArray(0).getRArray(0).getRPr().setB(false);
-                chart.getCTChart().getTitle().getTx().getRich().getPArray(0).getRArray(0).getRPr().setSz(1400);
-                chart.getCTChart().getTitle().getTx().getRich().getPArray(0).getRArray(0).getRPr().addNewLatin().setTypeface(FONT);
+                ch.getCTChart().getTitle().getTx().getRich().getPArray(0).getRArray(0).getRPr().setB(false);
+                ch.getCTChart().getTitle().getTx().getRich().getPArray(0).getRArray(0).getRPr().setSz(1400);
+                ch.getCTChart().getTitle().getTx().getRich().getPArray(0).getRArray(0).getRPr().addNewLatin().setTypeface(FONT);
 
-                XDDFChartLegend legend = chart.getOrAddLegend();
+                XDDFChartLegend legend = ch.getOrAddLegend();
                 legend.setPosition(LegendPosition.BOTTOM);
 
-                XDDFCategoryAxis bottomAxis = chart.createCategoryAxis(AxisPosition.BOTTOM);
+                XDDFCategoryAxis bottomAxis = ch.createCategoryAxis(AxisPosition.BOTTOM);
 
-                XDDFValueAxis leftAxis = chart.createValueAxis(AxisPosition.LEFT);
+                XDDFValueAxis leftAxis = ch.createValueAxis(AxisPosition.LEFT);
                 leftAxis.setCrosses(AxisCrosses.AUTO_ZERO);
                 leftAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
 
@@ -685,7 +677,7 @@ public class ReportModel {
                 }
 
 
-                XDDFChartData data = chart.createData(ChartTypes.BAR, bottomAxis, leftAxis);
+                XDDFChartData data = ch.createData(ChartTypes.BAR, bottomAxis, leftAxis);
 
                 data.setVaryColors(isVaried);
 
@@ -698,9 +690,9 @@ public class ReportModel {
                 XDDFBarChartData bar = (XDDFBarChartData) data;
                 bar.setBarDirection(BarDirection.COL);
 
-                chart.plot(data);
+                ch.plot(data);
 
-                return chart;
+                return ch;
             } catch (IOException e) {
                 System.out.println(e.getMessage()); // NOSONAR
                 return null;
@@ -862,7 +854,6 @@ public class ReportModel {
                     new File(inputDocx));
 
             TocGenerator tocGenerator = new TocGenerator(wordMLPackage);
-            //tocGenerator.generateToc( 0, "TOC \\o \"1-3\" \\h \\z \\u ", false); //#NOSONAR
 
             tocGenerator.updateToc(); // including page numbers
 
@@ -1083,7 +1074,7 @@ public class ReportModel {
     }
 
     private void insertGraph(List<Integer> number, List<String> inputG, int col, int sect, boolean vary) {
-        chapterMap.get(number).insertGraph(sect, inputG, col, vary);        // Experimental
+        chapterMap.get(number).insertGraph(sect, inputG, col, vary);
     }
 
     /**
@@ -1170,23 +1161,6 @@ public class ReportModel {
     }
 
     /**
-     * Function used for color scheming of chart category.
-     * @param data - chart data.
-     * @param index - which category color to apply to.
-     * @param color - color of choice.
-     */
-    private void solidFillSeries(XDDFChartData data, int index, PresetColor color) {        // NOSONAR
-        XDDFSolidFillProperties fill = new XDDFSolidFillProperties(XDDFColor.from(color));
-        XDDFChartData.Series series = data.getSeries(index);
-        XDDFShapeProperties properties = series.getShapeProperties();
-        if (properties == null) {
-            properties = new XDDFShapeProperties();
-        }
-        properties.setFillProperties(fill);
-        series.setShapeProperties(properties);
-    }
-
-    /**
      * Will either add a paragraph to Chapterlist class,
      * Or create a new Chapterlist list if it detects string "AND/OR".
      * @param h - The header number for the chapter
@@ -1244,7 +1218,7 @@ public class ReportModel {
     /**
      * Fetches arkade5 report if it exists and sets up for generating the final report.
      */
-    public void generateReport() { // NOSONAR
+    public void generateReport() {
         document = getDocumentFile(templateFile);
         setUpAllInputChapters();
 
@@ -1265,12 +1239,10 @@ public class ReportModel {
      */
     private void generateReportPartOne() {
 
-        List<String> para;
-        //Chapter 1.1
-
+        List<String> para = new ArrayList<>();
 
         //Chapter 1.2
-        para = xqueriesMap.get("1.2_1");
+        para.addAll(xqueriesMap.get("1.2_1"));
         para.addAll(xqueriesMap.get("1.2_2"));
         para.addAll(xqueriesMap.get("1.2_3"));
         para.addAll(xqueriesMap.get("1.2_4"));
@@ -1314,7 +1286,7 @@ public class ReportModel {
         }
 
         //Chapter 3.1.4
-        //Endre tittel til: Se eget klassifikasjonskapittel 3.3.1.
+        chapterMap.get(Arrays.asList(3, 1, 4)).changeTitle("Se eget klassifikasjonskapittel 3.3.1.");
 
         //Chapter 3.1.5
         para = xqueriesMap.get("3.1.5_1");
@@ -1327,7 +1299,7 @@ public class ReportModel {
         }
 
         //Chapter 3.1.6
-        //Endre tittel til: Se eget klassifikasjonskapittel 3.3.1.
+        chapterMap.get(Arrays.asList(3, 1, 6)).changeTitle("Se eget klassifikasjonskapittel 3.3.1.");
 
         //Chapter 3.1.7
         List<String> dirs = xqueriesMap.get("3.1.7_1b");
@@ -1363,7 +1335,6 @@ public class ReportModel {
 
         //Chapter 3.1.10
         setNewInput(Arrays.asList(3, 1, 10), Collections.emptyList(), 0);
-
 
         //Chapter 3.1.11
         para = xqueriesMap.get("3.1.11b");
@@ -1411,8 +1382,8 @@ public class ReportModel {
             if(para.size() > 25) {
                 setNewInput(Arrays.asList(3, 1, 13),
                         Collections.singletonList(para.size() + ""), 2); // NOSONAR
-                writeAttachments("3.1.13", para);
-                attachments.add("\u2022 3.1.13.txt");
+                writeAttachments("3.1.13_Dokumentbeskrivelser", para);
+                attachments.add("\u2022 3.1.13_Dokumentbeskrivelser.txt");
             }else {
                 setNewInput(Arrays.asList(3, 1, 13),
                         Collections.singletonList(para.size() + ""), 1);
@@ -1456,14 +1427,14 @@ public class ReportModel {
         //Chapter 3.1.17 - Merknader
         if (arkadeModel.ingenMerknader()) {
             setNewInput(Arrays.asList(3, 1, 17), Collections.emptyList(), 0);
-            setNewParagraph(Arrays.asList(3, 1, 17), Collections.singletonList("Rename tittel from 3.1.17 to merknader "), 0);
+            chapterMap.get(Arrays.asList(3, 1, 17)).changeTitle("Merkander.");
         }
         chapterMap.get(Arrays.asList(3, 3, 3)).changeTitle("Delete Me");
 
         //Chapter 3.1.18 - Kryssreferanser
         if (arkadeModel.getTotal("N5.37", TOTAL) == 0) {
             setNewInput(Arrays.asList(3, 1, 18), Collections.emptyList(), 0);
-            //Delete 3.3.4, Title = "Kryssreferanser"
+            chapterMap.get(Arrays.asList(3, 1, 18)).changeTitle("Kryssreferanser.");
         }
 
         //Chapter 3.1.19 - Presedenser
@@ -1480,8 +1451,8 @@ public class ReportModel {
         } else {
             if(para.size() > 25) {
                 setNewInput(Arrays.asList(3, 1, 20), Collections.singletonList("" + para.size()), 2);
-                writeAttachments("3.1.20", para);
-                attachments.add("\u2022 3.1.20.txt");
+                writeAttachments("3.1.20_Korrespondanseparter", para);
+                attachments.add("\u2022 3.1.20_Korrespondanseparter.txt");
             }else {
                 setNewInput(Arrays.asList(3, 1, 20), Collections.singletonList("" + para.size()), 1);
                 insertTable(Arrays.asList(3, 1, 20), splitIntoTable(para));
@@ -1500,6 +1471,7 @@ public class ReportModel {
         //Chapter 3.1.22 - Dokumentflyter
         if (arkadeModel.getTotal("N5.41", TOTAL) == 0) {
             setNewInput(Arrays.asList(3, 1, 22), Collections.emptyList(), 0);
+            chapterMap.get(Arrays.asList(3, 1, 22)).changeTitle("Dokumentflyter.");
             //Delete 3.3.5, Title = Dokumentflyter
         }
 
@@ -1560,7 +1532,7 @@ public class ReportModel {
         }
 
         //Chapter 3.1.29
-        //Endre tittel til: Se eget klassifikasjonskapittel 3.3.1.
+        chapterMap.get(Arrays.asList(3, 1, 29)).changeTitle("Se eget klassifikasjonskapittel 3.3.1.");
 
         //Chapter 3.1.30
         String chapter = "N5.59";
@@ -1580,7 +1552,7 @@ public class ReportModel {
         setNewInput(Arrays.asList(3, 1, 31), Collections.emptyList(), 0);
 
         //Chapter 3.1.32 - Endringslogg
-        // Endre tittel til: Endringslogg testes i kapittel 3.3.8
+        chapterMap.get(Arrays.asList(3, 1, 32)).changeTitle("Endringslogg testes i kapittel 3.3.8.");
 
         //Chapter 3.1.33
         if (arkadeModel.getDataFromHtml("N5.63").isEmpty()) {
@@ -1596,7 +1568,7 @@ public class ReportModel {
     /**
      * Writes chapters 3.2, 3.3 and 5 to the report file.
      */
-    private void generateReportPartThree() { //NOSONAR
+    private void generateReportPartThree() {
         List<String> para;
 
 
@@ -1657,7 +1629,6 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 3, 1), Collections.emptyList(), 0);
             insertTable(Arrays.asList(3, 3, 1), para);
         }
-        //TODO: Liste over N.51 klasser i case 6. Ny case med tabell med manglende xquery.
         int total = arkadeModel.getTotal("N5.20", "Klasser uten registreringer");
         if(total > 0) {
             setNewInput(Arrays.asList(3, 3, 1), Collections.singletonList(total + ""), 2);
@@ -1674,8 +1645,6 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 3, 1), Collections.singletonList(total + ""), 5);
         }
 
-
-        // TODO: ha antall møter av en type, ikke antall deltagere per møte av en type
         //Chapter 3.3.2
         // N5.20 arkade gettotal case 0
         para = xqueriesMap.get("3.3.2_1");
@@ -1805,7 +1774,6 @@ public class ReportModel {
 
 
         //Chapter 3.3.9
-        // TODO: bare case 0 og siste case dukker opp
         para = xqueriesMap.get("3.3.9_1a");
         setNewInput(Arrays.asList(3, 3, 9), Collections.emptyList(), 0);
 
@@ -1860,7 +1828,7 @@ public class ReportModel {
     /** Chapter 3.1.2 NOT DONE
      * Need arkdade report examples.
      */
-    private void valideringAvXML(){ //NOSONAR
+    private void valideringAvXML(){
         String index ="N5.03";
         //Chapter 3.1.2
         Integer deviation = arkadeModel.getNumberOfDeviation();
@@ -2018,7 +1986,7 @@ public class ReportModel {
      */
     private void writeAttachments(String filename, List<String> content) {
         String path = prop.getProperty("tempFolder") + "\\" + prop.getProperty("currentArchive") //NOSONAR
-                + "\\Rapporter\\" + filename + ".txt"; // NOSONAR
+                + "\\Rapporter\\" + filename + ".txt";
         File attachment = new File(path);
         try {
             if (attachment.createNewFile()) {
