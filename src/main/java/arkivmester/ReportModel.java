@@ -1599,7 +1599,6 @@ public class ReportModel {
     private void generateReportPartThree() { //NOSONAR
         List<String> para;
 
-
         //Chapter 3.2
         List<String> veraPDF = xqueriesMap.get("3.2_1");
         List<String> droid = xqueriesMap.get("3.2_2");
