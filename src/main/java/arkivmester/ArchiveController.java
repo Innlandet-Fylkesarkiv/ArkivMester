@@ -88,13 +88,12 @@ public class ArchiveController implements ViewObserver {
     /**
      * Unzips the archive and runs the selected tests.
      */
-    private void runTests() { //NOSONAR
+    private void runTests() {
         List<Boolean> selectedTests = thirdPartiesModel.getSelectedTests();
         thirdPartiesModel.initializePath(settingsModel.prop);
-        String fileName = archiveModel.tar.getName();                                   // NOSONAR
-        fileName = fileName.substring(0,fileName.lastIndexOf('.'));                   // NOSONAR
-        //String docPath = "C:\\archive\\" + "test" + "\\pakke\\content\\dokument"; // NOSONAR ONLY TESTING
-        //Should use the one below, but takes too long
+        String fileName = archiveModel.tar.getName();
+        fileName = fileName.substring(0,fileName.lastIndexOf('.'));
+        //Path to folder containing archive files.
         String docPath =  settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokumenter"; // NOSONAR
 
         //Unzips .tar folder with the archive.
@@ -103,6 +102,7 @@ public class ArchiveController implements ViewObserver {
 
         System.out.println("\n\tArchive unzipped\n"); //NOSONAR
 
+        //Changes the path if necessary
         File f = new File(docPath);
         if(!f.isDirectory()) {
             docPath = settingsModel.prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName + "\\content\\dokument"; // NOSONAR
@@ -200,10 +200,10 @@ public class ArchiveController implements ViewObserver {
     }
 
     /**
-     *
-     * @param xml
-     * @param header
-     * @return
+     * Will either fetch the result from xquery, or return empty. Also checks if the .xq file exists.
+     * @param xml Path to the xml file that is to be tested.
+     * @param header Specific header number of file.
+     * @return xquery result or list<String> containing "empty".
      */
     private List<String> getEmptyOrContent(String xml, String header) {
         String empty = "empty";
@@ -483,6 +483,8 @@ public class ArchiveController implements ViewObserver {
      */
     public void makeReportThread() {
         Properties prop = settingsModel.prop;
+
+        //Get all paths
         String fileName = prop.getProperty("currentArchive");
         String archivePath = prop.getProperty("tempFolder") + "\\" + fileName + "\\" + fileName; // #NOSONAR
         String testArkivstruktur = archivePath + "\\content\\arkivstruktur.xml";
@@ -502,6 +504,7 @@ public class ArchiveController implements ViewObserver {
             }
         }
 
+        //Fetch archive data for the report
         Map<String, List<String>> xqueryResults = new HashMap<>();
         List<String> headerNumbers = Arrays.asList(
                 "3.1.3", "3.1.5_1", "3.1.5_2",
@@ -512,32 +515,6 @@ public class ArchiveController implements ViewObserver {
                 "dokumentmedium"
         );
 
-        //List<String> headerNumbers = new ArrayList<>();
-//
-        //File xqueryFolder = new File(settingsModel.prop.getProperty("xqueryExtFolder"));
-        //File[] listOfFiles = xqueryFolder.listFiles();
-        //for (int i = 0; i < listOfFiles.length; i++) {
-        //    if (listOfFiles[i].isFile()) {
-        //        String file = listOfFiles[i].getName();
-        //        if(file.length() >= 3){
-        //            file = file.substring(0, file.length()-3);
-        //        }
-        //        System.out.println(file);
-        //        headerNumbers.add(file);
-        //    }
-        //}
-        //System.out.println(headerNumbers);
-
-        /*
-        List<String> headerNumbers = Arrays.asList(
-                "3.1.11b", "3.1.3", "3.1.5_1", "3.1.5_2",
-                "3.1.7_1", "3.1.7_1b", "3.1.7_2", "3.1.9_1", "3.1.11", "3.1.13_1", "3.1.13_2", "3.1.14_1", "3.1.14_2",
-                "3.1.20", "3.1.21", "3.1.23_1", "3.1.23_2", "3.1.23_3", "3.1.26_1", "3.1.26_2","3.1.27_1","3.1.27_2",
-                "3.2.1_1", "3.2.1_2", "3.2.1_3",
-                "3.3.1", "3.3.2_1", "3.3.2_2", "3.3.2_3", "3.3.3_1", "3.3.3_2", "3.3.4", "3.3.5_1", "3.3.5_2", "3.3.5_3", "3.3.6", "3.3.7"
-                "dokumentmedium"
-                );
-        */
 
         for(String s :headerNumbers) {
             xqueryResults.put(s, getEmptyOrContent(testArkivstruktur, s));
@@ -592,9 +569,8 @@ public class ArchiveController implements ViewObserver {
         xqueryResults.put("1.2_4", getEmptyOrContent(testOffentligJournal, "1.2_4"));
         xqueryResults.put("1.2_5", getEmptyOrContent(testArkivstruktur, "1.2_5"));
 
-
+        //Generate report
         reportModel.init(prop, xqueryResults);
-
         try {
             reportModel.generateReport();
             reportModel.setNewInput(Arrays.asList(1, 1), archiveModel.getAdminInfo());
@@ -607,9 +583,8 @@ public class ArchiveController implements ViewObserver {
         } catch (RuntimeException | IOException e) {
             testView.updateTestStatus("En feil i genereringen av rapporten har oppstått", false, true);
             mainView.exceptionPopup("En feil i genereringen av rapporten har oppstått");
-            e.printStackTrace(); // NOSONAR
+            System.out.println(e.getMessage()); // NOSONAR
         }
-
     }
 
     //When "Lagre tests" is clicked.

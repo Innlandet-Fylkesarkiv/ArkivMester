@@ -119,7 +119,7 @@ public class TestSettingsView extends Views {
      * @param customXqueryList List of XQueries
      * @throws IndexOutOfBoundsException if there inconsistencies for list lenghts.
      */
-    private void setUpXqueryPanel(JPanel xqueryPanel, String[] customXqueryList) throws IndexOutOfBoundsException{
+    private void setUpXqueryPanel(JPanel xqueryPanel, String[] customXqueryList) throws IndexOutOfBoundsException {
         int rows = customXqueryList.length;
 
         //Title
