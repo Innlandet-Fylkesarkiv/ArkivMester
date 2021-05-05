@@ -41,16 +41,14 @@ class MainViewTest extends Views {
         assertEquals(primaryColor, ctn.getComponent(2).getBackground(), "Top bar has wrong background color");
 
         Container mainPanel = (Container)ctn.getComponent(0);
-        assertEquals(9, mainPanel.getComponentCount(), "MainPanel should have 9 total components");
+        assertEquals(6, mainPanel.getComponentCount(), "MainPanel should have 9 total components");
 
         List<Component> elements = Arrays.asList(mainPanel.getComponents());
         assertAll("Buttons",
                 () -> assertFalse(elements.get(1).isVisible(), "Spinner should be invisible"),
-                () -> assertTrue(elements.get(2).isEnabled(), "Last inn pakket uttrekk button should be activated"),
-                () -> assertTrue(elements.get(3).isEnabled(), "Last inn ferdig testet uttrekk button should be activated"),
-                () -> assertFalse(elements.get(5).isEnabled(), "Velg tester button should be deactivated"),
-                () -> assertFalse(elements.get(6).isEnabled(), "Start testing button should be deactivated"),
-                () -> assertFalse(elements.get(8).isEnabled(), "Skriv rapport button should be deactivated")
+                () -> assertTrue(elements.get(2).isEnabled(), "Last opp pakket uttrekk button should be activated"),
+                () -> assertFalse(elements.get(4).isEnabled(), "Velg tester button should be deactivated"),
+                () -> assertFalse(elements.get(5).isEnabled(), "Start testing button should be deactivated")
         );
 
         Container infoPanel = (Container)ctn.getComponent(1);
@@ -96,11 +94,9 @@ class MainViewTest extends Views {
 
         mainView.activateButtons();
         assertAll("Buttons",
-                () -> assertTrue(elements.get(2).isEnabled(), "Last inn pakket uttrekk button should be activated"),
-                () -> assertTrue(elements.get(3).isEnabled(), "Last inn ferdig testet uttrekk button should be activated"),
-                () -> assertTrue(elements.get(5).isEnabled(), "Velg tester button should be activated"),
-                () -> assertTrue(elements.get(6).isEnabled(), "Start testing button should be activated"),
-                () -> assertFalse(elements.get(8).isEnabled(), "Skriv rapport button should be deactivated")
+                () -> assertTrue(elements.get(2).isEnabled(), "Last opp pakket uttrekk button should be activated"),
+                () -> assertTrue(elements.get(4).isEnabled(), "Velg tester button should be activated"),
+                () -> assertTrue(elements.get(5).isEnabled(), "Start testing button should be activated")
         );
 
         mainView.resetManualInfo();

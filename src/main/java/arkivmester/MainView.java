@@ -26,7 +26,6 @@ public class MainView extends Views{
     private JButton editInfoBtn;
     private JButton chooseTestsBtn;
     private JButton startTestingBtn;
-    private JButton writeReportBtn;
     private JButton settingsBtn;
     private JButton aboutBtn;
 
@@ -123,7 +122,7 @@ public class MainView extends Views{
         //Vertical gap: 50 and 70
 
         //Section 1
-        JLabel archiveLabel = new JLabel("Last inn arkivuttrekk:");
+        JLabel archiveLabel = new JLabel("Last opp arkivuttrekk:");
         archiveLabel.setBounds(100, 50, 200, 30);
         archiveLabel.setFont(primaryFont);
 
@@ -138,19 +137,12 @@ public class MainView extends Views{
         }
         spinnerLabel.setVisible(false);
 
-        JButton uploadTarBtn = new JButton("Last inn pakket uttrekk");
+        JButton uploadTarBtn = new JButton("Last opp pakket uttrekk");
         uploadTarBtn.setBounds(100, 100, 200, 30);
         uploadTarBtn.addActionListener(this);
         uploadTarBtn.setBackground(primaryColor);
         uploadTarBtn.setForeground(Color.WHITE);
         uploadTarBtn.setToolTipText("Åpner filutforsker for å velge riktig pakket uttrekk.");
-
-        JButton uploadTestedFolderBtn = new JButton("Last inn ferdig testet uttrekk");
-        uploadTestedFolderBtn.setBounds(350, 100, 200, 30);
-        uploadTestedFolderBtn.addActionListener(this);
-        uploadTestedFolderBtn.setBackground(primaryColor);
-        uploadTestedFolderBtn.setForeground(Color.WHITE);
-        uploadTestedFolderBtn.setToolTipText("Åpner filutforsker for å velge riktig ferdig testet uttrekk.");
 
         //Section 2
         JLabel testsLabel = new JLabel("Test arkivuttrekk:");
@@ -173,31 +165,14 @@ public class MainView extends Views{
         startTestingBtn.setEnabled(false);
         startTestingBtn.setToolTipText("Starter testingen av uttrekket.");
 
-        //Section 3
-        JLabel doneTestedLabel = new JLabel("Ferdig testet arkivuttrekk:");
-        doneTestedLabel.setFont(primaryFont);
-        doneTestedLabel.setBounds(100, 290, 300, 30);
-
-        writeReportBtn = new JButton("Skriv rapport");
-        writeReportBtn.setBounds(100, 340, 125, 30);
-        writeReportBtn.addActionListener(this);
-        writeReportBtn.setBackground(primaryColor);
-        writeReportBtn.setForeground(Color.WHITE);
-        writeReportBtn.setEnabled(false);
-        writeReportBtn.setToolTipText("Genererer og skriver rapporten for ferdig testet uttrekk.");
-
         //Adding components
         mainPanel.add(archiveLabel);
         mainPanel.add(spinnerLabel);
         mainPanel.add(uploadTarBtn);
-        mainPanel.add(uploadTestedFolderBtn);
 
         mainPanel.add(testsLabel);
         mainPanel.add(chooseTestsBtn);
         mainPanel.add(startTestingBtn);
-
-        mainPanel.add(doneTestedLabel);
-        mainPanel.add(writeReportBtn);
     }
 
     /**
@@ -321,7 +296,6 @@ public class MainView extends Views{
         chooseTestsBtn.setEnabled(false);
         startTestingBtn.setEnabled(false);
         editInfoBtn.setEnabled(false);
-        writeReportBtn.setEnabled(false);
     }
 
     /**
