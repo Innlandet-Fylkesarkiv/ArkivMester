@@ -78,7 +78,7 @@ public class ReportModel {
     /**
      * Every chapter in the template is tracked here.
      */
-    private HeadersData headersData;
+    public HeadersData headersData;
     Map<List<Integer>, Chapter> chapterMap;
 
     /**
@@ -1206,7 +1206,7 @@ public class ReportModel {
      * @param h - The header number for the chapter
      * @return header number as a string
      */
-    private String formatChapterNumber(List<Integer> h) {
+    public String formatChapterNumber(List<Integer> h) {
         StringBuilder s = new StringBuilder();
         for(int i : h) {
             s.append(i).append(".");
@@ -1964,7 +1964,7 @@ public class ReportModel {
      * @param input - input to check rows for.
      * @return number of rows.
      */
-    private int getRows(List<String> input) {
+    public int getRows(List<String> input) {
         int num = 0;
 
         for(String s : input) {
