@@ -44,6 +44,7 @@ Det er derfor store mengder innkommende uttrekk som må bli testet og validert, 
 ### Utviklet med
 
 Utviklingsmiljøet som også kompilerte _.java_ filene til _.class_ filer og bygget disse til en kjørbar _.jar_ fil.
+
 * [Intellij IDEA](https://www.jetbrains.com/idea/)
 
 De fire bibliotekene/rammeverkene som blir brukt.
@@ -97,14 +98,17 @@ Start uttrekkstesten ved å klikke på "Start test" knappen, du vil da se en ove
 sluttrapporten for testen, deretter vil "Pakk til AIP" knappen bli tilgjengelig som vil pakke uttrekket med delresultatene og rapporten til en AIP.
 
 
-Definisjonen av et gyldig uttrekk er en katalog som inneholder _.tar_ og en medfølgende metadatafil i _.xml_ format.
-For å spesifisere hvilke dokumenter du skal gjøre spørringer imot i de egendefinerte XQuery spørringene bruk:
+* Definisjonen av et gyldig uttrekk er en katalog som inneholder _.tar_ og en medfølgende metadatafil i _.xml_ format.
+
+* For å spesifisere hvilke dokumenter du skal gjøre spørringer imot i de egendefinerte XQuery spørringene bruk:
    ```sh
    db:open("arkivmester", "arkivstruktur.xml")/
    ```
-Denne kommandoen vil hente og velge rot noden i dokumentet _arkivstruktur.xml_ og du vil ha tilgang til hele treet som vanlig.
+  Denne kommandoen vil hente og velge rot noden i dokumentet _arkivstruktur.xml_ og du vil ha tilgang til hele treet som vanlig.
 
-For å kjøre _unit testene_ til applikasjonen kan du bruke _Intellij IDEA_ som utviklingsmiljø til å kjøre testene.
+
+* For å kjøre _unit testene_ til applikasjonen kan du bruke _Intellij IDEA_ som utviklingsmiljø til å kjøre testene.
+
 
 _For en fullverdig dokumentasjon, se [JavaDoc](https://bitbucket.org/magnsus/bachelorinnlandet/src/master/javadoc/) og [Brukermanualen](https://example.com) i rapporten vedlegg B_
 
