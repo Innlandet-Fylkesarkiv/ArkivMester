@@ -58,7 +58,7 @@ public class Views implements ActionListener {
         String buttonName = e.getActionCommand();
 
         switch (buttonName) {
-            case "Last inn pakket uttrekk":
+            case "Last opp pakket uttrekk":
                 for (ViewObserver obs : observers)
                     obs.uploadArchive();
                 break;
