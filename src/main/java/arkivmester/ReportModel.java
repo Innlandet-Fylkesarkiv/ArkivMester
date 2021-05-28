@@ -839,7 +839,7 @@ public class ReportModel {
     public void makeReport() {
         writeReportDocument();     // editing
         printReportToFile(prop);
-        updateTOC();
+        //updateTOC();
     }
 
     /**
