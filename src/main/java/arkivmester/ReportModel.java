@@ -40,7 +40,6 @@ public class ReportModel {
      */
     enum TextStyle {
         INPUT,
-        HEADER,
         PARAGRAPH,
         TABLE,
         GRAPH
@@ -209,10 +208,9 @@ public class ReportModel {
          * @param sect - section to be used.
          * @param inputG - input to be stored.
          * @param col - amount of different data.
-         * @param vary - set to false if there are no more than 1 category.
          */
-        public void insertGraph(int sect, List<String> inputG, int col, boolean vary) {
-            sections.get(sect).insertGraph(inputG, col, vary);
+        public void insertGraph(int sect, List<String> inputG, int col) {
+            sections.get(sect).insertGraph(inputG, col);
         }
 
         /**
@@ -346,11 +344,10 @@ public class ReportModel {
          * Will store input to content of a type graph.
          * @param inputG - input to be stored.
          * @param col - amount of different categories.
-         * @param vary - set to false if there are no more than 1 category.
          */
-        public void insertGraph(List<String> inputG, int col, boolean vary) {
+        public void insertGraph(List<String> inputG, int col) {
             for(Content content : contents) {
-                content.insertGraph(inputG, col, vary);
+                content.insertGraph(inputG, col);
             }
             active = true;
         }
@@ -391,6 +388,8 @@ public class ReportModel {
          */
         public boolean isActive() { return active; }
 
+        public void activate() { active = true; }
+
     }
 
     /**
@@ -413,7 +412,6 @@ public class ReportModel {
         private final TextStyle type;
         private int cindex;
         private final CTChart chart;
-        private boolean isVaried;
 
         /**
          * Initialize a default list of missing input.
@@ -433,12 +431,10 @@ public class ReportModel {
          * Inserts graph content into content.
          * @param input - input to be stored.
          * @param col - amount of different categories.
-         * @param vary - set to false if there are no more than 1 category.
          */
-        public void insertGraph(List<String> input, int col, boolean vary) {
+        public void insertGraph(List<String> input, int col) {
             result = input;
             tableCol = col;
-            isVaried = vary;
         }
 
         /**
@@ -533,7 +529,7 @@ public class ReportModel {
 
             String input = currentItem();
 
-            setRun(para.createRun() , FONT , 11, true, (!input.equals("") ? input : notFoundField), true);
+            setRun(para.createRun() , FONT , 11, false, (!input.equals("") ? input : notFoundField), true);
         }
 
         /**
@@ -561,7 +557,7 @@ public class ReportModel {
                             para.createRun(),
                             FONT,
                             11,
-                            (i != 0),
+                            (i == 0),
                             currentItem(),
                             false
                     );
@@ -574,7 +570,7 @@ public class ReportModel {
 
             para = document.insertNewParagraph(cursor);
 
-            setRun(para.createRun() , FONT , 11, true, "", false);
+            setRun(para.createRun() , FONT , 11, false, "", false);
         }
 
         /**
@@ -679,7 +675,7 @@ public class ReportModel {
 
                 XDDFChartData data = ch.createData(ChartTypes.BAR, bottomAxis, leftAxis);
 
-                data.setVaryColors(isVaried);
+                data.setVaryColors((amountCat > 1));
 
                 XDDFChartData.Series series;
                 for (int i = 0; i < amountCat; i++) {
@@ -708,7 +704,7 @@ public class ReportModel {
         private void insertInputToDocument(String text, XWPFRun r) {
             String s = currentItem();
             text = text.replace("TODO", (!s.equals("") ? s : notFoundField));
-            setRun(r, FONT , 11, true, text, false);
+            setRun(r, FONT , 11, false, text, false);
         }
 
         /**
@@ -802,30 +798,25 @@ public class ReportModel {
          */
         public void compareName(String other) {
 
-            boolean hit = false;
-
             if(headerMap.computeIfPresent(other, (k, v) -> v+1) != null) {
-                hit = true;
                 int temp = name.size()-1;
                 String currentName = name.get(temp);
                 while(!other.equals(currentName)) {
                     headerMap.put(currentName, 0);
                     currentName = name.get(--temp);
                 }
+            } else {
+                headerMap.put(other, 1);
+                name.add(other);
             }
 
             while(name.size() > headerMap.size()) {
                 name.remove(name.size()-1);
             }
-
-            if(!hit) {
-                headerMap.put(other, 1);
-                name.add(other);
-            }
         }
 
         /**
-         * Get value from number-text.
+         * Get value from number-text that contains a number higher than 0.
          * @return list of integers for ex. (1, 1, 1)
          */
         public List<Integer> getNumbering() {
@@ -1071,10 +1062,11 @@ public class ReportModel {
         for(String s : inputP) {
             chapterMap.get(numberH).sections.get(sect).addContent(Arrays.asList(s), TextStyle.PARAGRAPH, 0, null);
         }
+        chapterMap.get(numberH).sections.get(sect).activate();
     }
 
-    private void insertGraph(List<Integer> number, List<String> inputG, int col, int sect, boolean vary) {
-        chapterMap.get(number).insertGraph(sect, inputG, col, vary);
+    private void insertGraph(List<Integer> number, List<String> inputG, int col, int sect) {
+        chapterMap.get(number).insertGraph(sect, inputG, col);
     }
 
     /**
@@ -1291,11 +1283,11 @@ public class ReportModel {
         //Chapter 3.1.5
         para = xqueriesMap.get("3.1.5_1");
         if(!para.get(0).equals(EMPTY)) {
-            insertGraph(Arrays.asList(3, 1, 5), splitIntoTable(para), getRows(para), 0, false);
+            insertGraph(Arrays.asList(3, 1, 5), splitIntoTable(para), getRows(para), 0);
         }
         para = xqueriesMap.get("3.1.5_2");
         if(!para.get(0).equals(EMPTY)) {
-            insertGraph(Arrays.asList(3, 1, 5), splitIntoTable(para), getRows(para), 1, false);
+            insertGraph(Arrays.asList(3, 1, 5), splitIntoTable(para), getRows(para), 1);
         }
 
         //Chapter 3.1.6
@@ -1320,7 +1312,7 @@ public class ReportModel {
         //Chapter 3.1.9
         para = xqueriesMap.get("3.1.9_1");
         if(!para.get(0).equals(EMPTY)) {
-            insertGraph(Arrays.asList(3, 1, 9), splitIntoTable(para), getRows(para), 2, true);
+            insertGraph(Arrays.asList(3, 1, 9), splitIntoTable(para), getRows(para), 2);
         }
 
         List<String> temppara = arkadeModel.getSpecificValue("N5.18", " ");
@@ -1330,7 +1322,7 @@ public class ReportModel {
             para.add(t.get(0) + " registreringer; " + t.get(1));
         }
         if(!para.get(0).equals(EMPTY)) {
-            insertGraph(Arrays.asList(3, 1, 9), splitIntoTable(para), getRows(para), 5, false);
+            insertGraph(Arrays.asList(3, 1, 9), splitIntoTable(para), getRows(para), 5);
         }
 
         //Chapter 3.1.10
@@ -1429,7 +1421,6 @@ public class ReportModel {
             setNewInput(Arrays.asList(3, 1, 17), Collections.emptyList(), 0);
             chapterMap.get(Arrays.asList(3, 1, 17)).changeTitle("Merkander.");
         }
-        chapterMap.get(Arrays.asList(3, 3, 3)).changeTitle("Delete Me");
 
         //Chapter 3.1.18 - Kryssreferanser
         if (arkadeModel.getTotal("N5.37", TOTAL) == 0) {

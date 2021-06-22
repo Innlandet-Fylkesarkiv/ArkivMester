@@ -273,6 +273,7 @@ public class ArchiveController implements ViewObserver {
 
         thirdPartiesModel = new ThirdPartiesModel();
         archiveModel = new ArchiveModel();
+        reportModel = new ReportModel();
     }
 
     //When "Innstillinger" is clicked.
