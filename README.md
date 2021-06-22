@@ -1,7 +1,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <a href="https://bitbucket.org/magnsus/bachelorinnlandet/">
+  <a href="https://github.com/Innlandet-Fylkesarkiv/ArkivMester">
     <img src="src/main/resources/appicon.png" alt="Logo" width="80" height="80">
   </a>
 </p>
@@ -79,7 +79,7 @@ Listen inneholder kjøremiljøet for applikasjonen og dens nødvendige tredjepar
 1. Sørg for at alle nødvendige verktøy er til stede på maskinen.
 2. Klon eller last ned repoet for å få _.jar_ and _XQueries_ katalogen.
    ```sh
-   git clone https://bitbucket.org/magnsus/bachelorinnlandet.git
+   git clone https://github.com/Innlandet-Fylkesarkiv/ArkivMester.git
    ```
 3. Kjør ArkivMester.jar via terminalen. Sørg for at terminalen enten står i _..\openjdk-15\bin_ eller at den er lagret i _Path_ miljøvariabelen OG at _.jar_ filen er tilstede der du står.
    ```sh
@@ -110,6 +110,6 @@ sluttrapporten for testen, deretter vil "Pakk til AIP" knappen bli tilgjengelig 
 * For å kjøre _unit testene_ til applikasjonen kan du bruke _Intellij IDEA_ som utviklingsmiljø til å kjøre testene.
 
 
-_For en fullverdig dokumentasjon, se [JavaDoc](https://bitbucket.org/magnsus/bachelorinnlandet/src/master/javadoc/) og [Brukermanualen](https://example.com) i rapporten vedlegg B_
+_For en fullverdig dokumentasjon, se [JavaDoc](https://github.com/Innlandet-Fylkesarkiv/ArkivMester/tree/master/javadoc).
 
 
