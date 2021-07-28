@@ -49,3 +49,7 @@ Thumbs.db
 *.mov
 *.wmv
 
+out/
+.classpath
+.project
+src/main/java/module-info.java

@@ -8,7 +8,8 @@ declare namespace el="http://www.arkivverket.no/standarder/noark5/endringslogg" 
 (:Finner alle filer hvor det angitte filnavnet ikke stemmer overens med det angitte formatet:)
 (:NB! Delvis hardkodet!:)
 
-for $r in distinct-values(//dokumentobjekt[(boolean(referanseDokumentfil)) and not(ends-with(referanseDokumentfil, format)) 
+for $r in distinct-values(//dokumentobjekt[(boolean(referanseDokumentfil)) and not(ends-with(referanseDokumentfil, fn:upper-case(format))) 
+and not(ends-with(referanseDokumentfil, fn:lower-case(format)))
 and not((ends-with(referanseDokumentfil, 'JPG')) and (format = 'JPEG'))
 and not((ends-with(referanseDokumentfil, 'SOS')) and (format = 'SOSI'))
 and not((ends-with(referanseDokumentfil, 'PDF')) and (ends-with(format, 'pdf')))
